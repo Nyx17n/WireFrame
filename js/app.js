@@ -41,17 +41,21 @@ const State = {
     nextTabId: 1,
 
     // Favoris & Historique
-    bookmarks: JSON.parse(localStorage.getItem("wm_bookmarks") || "null") || [
+    bookmarks: (JSON.parse(localStorage.getItem("wm_bookmarks") || "null") || [
         { title: "Accueil Marché", url: "https://warframe.market/", icon: DEFAULT_FAVICON },
         { title: "Catalogue Complet", url: "https://warframe.market/items", icon: DEFAULT_FAVICON },
         { title: "Ordres Récents", url: "https://warframe.market/recent", icon: DEFAULT_FAVICON },
-        { title: "Ducanator (Ducats)", url: "https://warframe.market/tools/ducats", icon: DEFAULT_FAVICON },
-        { title: "Wisp Prime Set", url: "https://warframe.market/items/wisp_prime_set", icon: DEFAULT_FAVICON },
-        { title: "Nikana Prime Set", url: "https://warframe.market/items/nikana_prime_set", icon: DEFAULT_FAVICON },
-        { title: "Arcane Énergétique", url: "https://warframe.market/items/arcane_energize", icon: DEFAULT_FAVICON }
-    ],
+        { title: "Ducanator (Ducats)", url: "https://warframe.market/tools/ducats", icon: DEFAULT_FAVICON }
+    ]).filter(b => {
+        const favs = JSON.parse(localStorage.getItem("wm_fav_items") || "[]");
+        const m = (b.url || "").match(/warframe\.market\/items\/([a-z0-9_]+)/i);
+        if (m && ["wisp_prime_set", "nikana_prime_set", "arcane_energize"].includes(m[1]) && !favs.includes(m[1])) {
+            return false;
+        }
+        return true;
+    }),
     history: JSON.parse(localStorage.getItem("wm_history") || "[]"),
-    favoriteItems: JSON.parse(localStorage.getItem("wm_fav_items") || '["wisp_prime_set", "nikana_prime_set", "arcane_energize"]'),
+    favoriteItems: JSON.parse(localStorage.getItem("wm_fav_items") || "[]"),
     activeDrawerTab: "history"
 };
 
@@ -66,14 +70,27 @@ function updateFavCountBadge() {
 
 function toggleFavoriteItem(slug) {
     if (!slug) return;
+    const itemUrl = `https://warframe.market/items/${slug}`;
     const idx = State.favoriteItems.indexOf(slug);
     if (idx >= 0) {
         State.favoriteItems.splice(idx, 1);
+        State.bookmarks = State.bookmarks.filter(b => b.url !== itemUrl);
     } else {
         State.favoriteItems.unshift(slug);
+        if (!State.bookmarks.some(b => b.url === itemUrl)) {
+            const catItem = State.itemsBySlug.get(slug);
+            State.bookmarks.push({
+                title: catItem ? getItemName(catItem) : slug,
+                url: itemUrl,
+                icon: catItem ? getItemThumb(catItem) : DEFAULT_FAVICON
+            });
+        }
     }
     localStorage.setItem("wm_fav_items", JSON.stringify(State.favoriteItems));
+    saveBookmarks();
+    renderBookmarksBar();
     updateFavCountBadge();
+    syncBrowserChromeToActiveTab();
 
     // Si l'onglet actif est la page Favoris, recharger ses données
     const tab = getActiveTab();
@@ -98,17 +115,46 @@ async function apiFetch(path, forceRefresh = false) {
     if (forceRefresh) {
         headers["X-WM-Refresh"] = "true";
     }
-    const res = await fetch(path, { headers });
-    if (!res.ok) {
-        throw new Error(`Erreur API (${res.status}) sur ${path}`);
+
+    // 1. Si ouvert via le serveur local (http://127.0.0.1:8484)
+    if (window.location.protocol.startsWith("http")) {
+        try {
+            const res = await fetch(path, { headers });
+            if (res.ok) return await res.json();
+        } catch (e) {}
     }
-    return await res.json();
+
+    // 2. Si l'utilisateur a double-cliqué sur index.html (file://), essayer d'abord le serveur local sur 127.0.0.1:8484
+    try {
+        const localRes = await fetch(`http://127.0.0.1:8484${path}`, { headers });
+        if (localRes.ok) return await localRes.json();
+    } catch (e) {}
+
+    // 3. Fallback sans serveur local (si index.html est ouvert tout seul sans WireMarket.exe)
+    const remotePath = path.replace(/^\/api/, "");
+    const targetUrl = `https://api.warframe.market${remotePath}`;
+    const proxyUrls = [
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+    ];
+
+    for (const pUrl of proxyUrls) {
+        try {
+            const pRes = await fetch(pUrl);
+            if (pRes.ok) return await pRes.json();
+        } catch (e) {}
+    }
+
+    throw new Error(`Impossible de joindre l'API warframe.market (${path})`);
 }
 
 function assetUrl(relPath) {
     if (!relPath) return DEFAULT_FAVICON;
     if (relPath.startsWith("http") || relPath.startsWith("data:")) return relPath;
     const clean = relPath.replace(/^\/+/, "");
+    if (window.location.protocol === "file:") {
+        return `https://warframe.market/static/assets/${clean}`;
+    }
     return `/assets/${clean}`;
 }
 
@@ -1972,6 +2018,11 @@ function renderBookmarksBar() {
 function toggleBookmarkCurrentTab() {
     const tab = getActiveTab();
     if (!tab) return;
+    const parsed = parseWfmUrl(tab.url);
+    if (parsed.route === "item" && parsed.slug) {
+        toggleFavoriteItem(parsed.slug);
+        return;
+    }
     const idx = State.bookmarks.findIndex(b => b.url === tab.url);
     if (idx >= 0) {
         State.bookmarks.splice(idx, 1);

@@ -13,8 +13,8 @@ using System.Windows.Forms;
 [assembly: AssemblyCompany("Nyxo_17")]
 [assembly: AssemblyProduct("WireMarket (Fait par Nyxo_17)")]
 [assembly: AssemblyCopyright("Copyright © Nyxo_17")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
 
 namespace WireMarketLauncher
 {
@@ -28,39 +28,39 @@ namespace WireMarketLauncher
             "install_path.txt"
         );
 
+        private class CacheEntry
+        {
+            public DateTime Timestamp;
+            public int StatusCode;
+            public string ContentType;
+            public byte[] Body;
+        }
+
+        private static readonly ConcurrentDictionary<string, CacheEntry> ApiCache = new ConcurrentDictionary<string, CacheEntry>();
+
         [STAThread]
         static void Main(string[] args)
         {
             // Mode serveur intégré en arrière-plan : WireMarket.exe --server "<workDir>"
-            if (args.Length >= 2 && args[0] == "--server")
+            if (args.Length >= 1 && args[0] == "--server")
             {
-                RunEmbeddedServer(args[1], PORT);
+                string dir = args.Length >= 2 ? args[1] : AppDomain.CurrentDomain.BaseDirectory;
+                RunEmbeddedServer(dir, PORT);
                 return;
             }
 
             try
             {
                 string workDir = ResolveWorkspaceDir();
-                if (workDir == null || !File.Exists(Path.Combine(workDir, "index.html")))
-                {
-                    MessageBox.Show(
-                        "Impossible de trouver les fichiers de WireMarket (index.html).\n" +
-                        "Lancez d'abord WireMarket.exe une première fois depuis son dossier d'installation.",
-                        "WireMarket - Dossier introuvable",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
-                    );
-                    return;
-                }
 
-                // Démarrer le serveur local s'il n'est pas déjà actif
+                // Démarrer le serveur local intégré s'il n'est pas déjà actif
                 if (!IsServerRunning())
                 {
                     StartBackgroundServer(workDir);
-                    for (int i = 0; i < 30; i++)
+                    for (int i = 0; i < 35; i++)
                     {
                         if (IsServerRunning()) break;
-                        Thread.Sleep(200);
+                        Thread.Sleep(150);
                     }
                 }
 
@@ -106,7 +106,8 @@ namespace WireMarketLauncher
             {
                 return fallback;
             }
-            return null;
+
+            return exeDir;
         }
 
         private static bool IsServerRunning()
@@ -114,7 +115,7 @@ namespace WireMarketLauncher
             try
             {
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create(AppUrl + "/__health");
-                req.Timeout = 800;
+                req.Timeout = 700;
                 using (HttpWebResponse resp = (HttpWebResponse)req.GetResponse())
                 {
                     return resp.StatusCode == HttpStatusCode.OK;
@@ -128,56 +129,18 @@ namespace WireMarketLauncher
 
         private static void StartBackgroundServer(string workDir)
         {
-            string serverPy = Path.Combine(workDir, "server.py");
-            if (File.Exists(serverPy) && IsPythonAvailable())
-            {
-                ProcessStartInfo psiPy = new ProcessStartInfo
-                {
-                    FileName = "python",
-                    Arguments = "\"" + serverPy + "\" " + PORT,
-                    WorkingDirectory = workDir,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                };
-                Process.Start(psiPy);
-                return;
-            }
-
-            // Fallback autonome C# (fonctionne même sur un PC sans Python installé !)
+            // Toujours utiliser le serveur C# natif embarqué dans WireMarket.exe
+            // (Evite le bug de l'alias Microsoft Store python.exe sur les PC où Python n'est pas installé)
             ProcessStartInfo psiSelf = new ProcessStartInfo
             {
                 FileName = Application.ExecutablePath,
-                Arguments = "--server \"" + workDir + "\"",
-                WorkingDirectory = workDir,
+                Arguments = "--server \"" + workDir.TrimEnd('\\') + "\"",
+                WorkingDirectory = Directory.Exists(workDir) ? workDir : AppDomain.CurrentDomain.BaseDirectory,
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden
             };
             Process.Start(psiSelf);
-        }
-
-        private static bool IsPythonAvailable()
-        {
-            try
-            {
-                ProcessStartInfo psi = new ProcessStartInfo
-                {
-                    FileName = "python",
-                    Arguments = "--version",
-                    CreateNoWindow = true,
-                    UseShellExecute = false
-                };
-                using (Process p = Process.Start(psi))
-                {
-                    p.WaitForExit(1500);
-                    return p.ExitCode == 0;
-                }
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private static void LaunchDedicatedBrowserWindow()
@@ -221,11 +184,12 @@ namespace WireMarketLauncher
             }
         }
 
-        /* ==================== SERVEUR HTTP + PROXY C# INTÉGRÉ (SANS PYTHON) ==================== */
+        /* ==================== SERVEUR HTTP + PROXY C# INTÉGRÉ ==================== */
         private static void RunEmbeddedServer(string rootDir, int port)
         {
-            ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; // TLS 1.2
+            ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072 | (SecurityProtocolType)768; // TLS 1.2 / 1.1
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            ServicePointManager.DefaultConnectionLimit = 32;
 
             HttpListener listener = new HttpListener();
             listener.Prefixes.Add("http://127.0.0.1:" + port + "/");
@@ -248,6 +212,17 @@ namespace WireMarketLauncher
             HttpListenerResponse resp = ctx.Response;
             try
             {
+                resp.AddHeader("Access-Control-Allow-Origin", "*");
+                resp.AddHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+                resp.AddHeader("Access-Control-Allow-Headers", "*");
+
+                if (req.HttpMethod == "OPTIONS")
+                {
+                    resp.StatusCode = 200;
+                    resp.Close();
+                    return;
+                }
+
                 string path = req.Url.AbsolutePath;
                 string query = req.Url.Query ?? "";
 
@@ -264,14 +239,14 @@ namespace WireMarketLauncher
                 if (path.StartsWith("/api/"))
                 {
                     string target = "https://api.warframe.market" + path.Substring(4) + query;
-                    ProxyUrl(target, req, resp, true);
+                    ProxyUrl(target, path, req, resp, true);
                     return;
                 }
 
                 if (path.StartsWith("/assets/"))
                 {
                     string target = "https://warframe.market/static/assets/" + path.Substring(8) + query;
-                    ProxyUrl(target, req, resp, false);
+                    ProxyUrl(target, path, req, resp, false);
                     return;
                 }
 
@@ -283,11 +258,30 @@ namespace WireMarketLauncher
                     resp.StatusCode = 200;
                     resp.ContentType = GetMimeType(localPath);
                     resp.OutputStream.Write(bytes, 0, bytes.Length);
+                    resp.Close();
+                    return;
                 }
-                else
+
+                // Fallback sur les ressources embarquées dans WireMarket.exe (si lancé directement depuis le .zip sans extraire !)
+                string resName = path.TrimStart('/').Replace('/', '_');
+                using (Stream resStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resName))
                 {
-                    resp.StatusCode = 404;
+                    if (resStream != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            resStream.CopyTo(ms);
+                            byte[] bytes = ms.ToArray();
+                            resp.StatusCode = 200;
+                            resp.ContentType = GetMimeType(path);
+                            resp.OutputStream.Write(bytes, 0, bytes.Length);
+                            resp.Close();
+                            return;
+                        }
+                    }
                 }
+
+                resp.StatusCode = 404;
                 resp.Close();
             }
             catch
@@ -296,19 +290,41 @@ namespace WireMarketLauncher
             }
         }
 
-        private static void ProxyUrl(string targetUrl, HttpListenerRequest inReq, HttpListenerResponse outResp, bool isApi)
+        private static void ProxyUrl(string targetUrl, string reqPath, HttpListenerRequest inReq, HttpListenerResponse outResp, bool isApi)
         {
+            string lang = inReq.Headers["X-WM-Language"] ?? "fr";
+            string platform = inReq.Headers["X-WM-Platform"] ?? "pc";
+            string crossplay = inReq.Headers["X-WM-Crossplay"] ?? "true";
+            bool forceRefresh = (inReq.Headers["X-WM-Refresh"] ?? "false") == "true";
+
+            string cacheKey = isApi ? (targetUrl + "|" + lang + "|" + platform + "|" + crossplay) : targetUrl;
+            int ttlSeconds = reqPath.StartsWith("/assets/") ? 86400 : (reqPath.Contains("/orders") ? 20 : 600);
+
+            CacheEntry cached;
+            if (!forceRefresh && ApiCache.TryGetValue(cacheKey, out cached))
+            {
+                if ((DateTime.UtcNow - cached.Timestamp).TotalSeconds < ttlSeconds)
+                {
+                    outResp.StatusCode = cached.StatusCode;
+                    outResp.ContentType = cached.ContentType;
+                    outResp.OutputStream.Write(cached.Body, 0, cached.Body.Length);
+                    outResp.Close();
+                    return;
+                }
+            }
+
             try
             {
                 HttpWebRequest webReq = (HttpWebRequest)WebRequest.Create(targetUrl);
-                webReq.UserAgent = "WireMarket/1.0";
+                webReq.UserAgent = "WireMarket/1.2 (Windows; Warframe Market Browser)";
                 webReq.Accept = isApi ? "application/json" : "*/*";
+                webReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 webReq.Timeout = 15000;
                 if (isApi)
                 {
-                    webReq.Headers["Language"] = inReq.Headers["X-WM-Language"] ?? "fr";
-                    webReq.Headers["Platform"] = inReq.Headers["X-WM-Platform"] ?? "pc";
-                    webReq.Headers["Crossplay"] = inReq.Headers["X-WM-Crossplay"] ?? "true";
+                    webReq.Headers["Language"] = lang;
+                    webReq.Headers["Platform"] = platform;
+                    webReq.Headers["Crossplay"] = crossplay;
                 }
 
                 using (HttpWebResponse webResp = (HttpWebResponse)webReq.GetResponse())
@@ -317,9 +333,18 @@ namespace WireMarketLauncher
                 {
                     s.CopyTo(ms);
                     byte[] data = ms.ToArray();
+                    string cType = webResp.ContentType ?? (isApi ? "application/json; charset=utf-8" : "image/png");
+
+                    ApiCache[cacheKey] = new CacheEntry
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        StatusCode = (int)webResp.StatusCode,
+                        ContentType = cType,
+                        Body = data
+                    };
+
                     outResp.StatusCode = (int)webResp.StatusCode;
-                    outResp.ContentType = webResp.ContentType ?? "application/json; charset=utf-8";
-                    outResp.AddHeader("Access-Control-Allow-Origin", "*");
+                    outResp.ContentType = cType;
                     outResp.OutputStream.Write(data, 0, data.Length);
                 }
             }

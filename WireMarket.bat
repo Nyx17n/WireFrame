@@ -21,23 +21,17 @@ echo   Cree par Nyxo_17
 echo ============================================================================
 echo.
 
-:: Verification de Python
-where python >nul 2>&1
-if %errorlevel% neq 0 (
-    color 0C
-    echo [ERREUR] Python n'est pas detecte dans le PATH.
-    echo Veuillez installer Python 3 pour demarrer le proxy API Warframe Market.
-    pause
-    exit /b 1
-)
-
 :: Verification si le serveur tourne deja sur le port %PORT%
 powershell -NoProfile -Command "try { $r = Invoke-WebRequest -Uri '%APP_URL%/__health' -UseBasicParsing -TimeoutSec 1; exit 0 } catch { exit 1 }" >nul 2>&1
 if %errorlevel% equ 0 (
     echo [INFO] Le serveur local WireMarket est deja actif sur %APP_URL%
 ) else (
     echo [1/2] Demarrage du serveur local ^& Proxy API Warframe Market sur le port %PORT%...
-    start "WireMarket Server" /min cmd /c "python "%~dp0server.py" %PORT%"
+    if exist "%~dp0WireMarket.exe" (
+        start "WireMarket Server" /min "%~dp0WireMarket.exe" --server "%~dp0"
+    ) else (
+        start "WireMarket Server" /min cmd /c "python "%~dp0server.py" %PORT%"
+    )
     
     :: Attente que le serveur reponde
     set /a TRIES=0
