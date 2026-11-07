@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WireMarket — Warframe Market Browser</title>
+    <link rel="icon" type="image/x-icon" href="/logo.ico">
+    <link rel="shortcut icon" type="image/png" href="/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ==================== CHROME DU NAVIGATEUR WIREMARKET ==================== -->
+    <header id="browser-chrome">
+        <!-- 1. Barre d'onglets -->
+        <div id="browser-tabs-bar">
+            <div class="app-brand" title="WireMarket - Navigateur Warframe Market">
+                <img class="brand-logo-img" src="logo.png" alt="WireMarket" width="22" height="22" />
+                <span class="brand-text">WireMarket</span>
+            </div>
+
+            <div id="tabs-container" role="tablist" aria-label="Onglets Warframe Market">
+                <!-- Onglets injectés dynamiquement par JS -->
+            </div>
+
+            <button id="btn-new-tab" class="chrome-icon-btn new-tab-btn" title="Nouvel onglet (Ctrl+T)" aria-label="Nouvel onglet">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 2. Barre de navigation & Barre d'adresse -->
+        <div id="browser-nav-bar">
+            <div class="nav-controls">
+                <button id="btn-back" class="chrome-icon-btn" title="Page précédente (Alt+Flèche Gauche)" disabled>
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <button id="btn-forward" class="chrome-icon-btn" title="Page suivante (Alt+Flèche Droite)" disabled>
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+                <button id="btn-reload" class="chrome-icon-btn" title="Actualiser la page et les ordres (Ctrl+R)">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                </button>
+                <button id="btn-home" class="chrome-icon-btn" title="Accueil Warframe Market">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Barre d'adresse / Omnibox -->
+            <div id="address-bar-wrapper">
+                <div class="ssl-badge" title="Connecté en direct à l'API officielle warframe.market">
+                    <svg viewBox="0 0 24 24" width="13" height="13" stroke="#3cd278" stroke-width="2.3" fill="none">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span>Sécurisé</span>
+                </div>
+
+                <input
+                    type="text"
+                    id="address-input"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="Rechercher un item sur warframe.market ou saisir une URL (ex: https://warframe.market/items/nikana_prime_set)"
+                />
+
+                <!-- Suggestions de la barre d'adresse -->
+                <div id="omnibox-suggestions" class="omnibox-dropdown hidden"></div>
+
+                <div class="address-actions">
+                    <button id="btn-bookmark-toggle" class="address-action-btn" title="Ajouter / Retirer des favoris (Ctrl+D)">
+                        <svg id="star-icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Paramètres rapides Warframe Market dans le navigateur -->
+            <div class="toolbar-actions">
+                <div class="platform-pill" title="Plateforme d'échange">
+                    <span class="pill-label">Plateforme</span>
+                    <select id="select-platform" aria-label="Plateforme">
+                        <option value="pc" selected>PC</option>
+                        <option value="ps4">PSN</option>
+                        <option value="xbox">XBOX</option>
+                        <option value="switch">SWITCH</option>
+                        <option value="mobile">MOBILE</option>
+                    </select>
+                </div>
+
+                <button id="btn-crossplay" class="toolbar-pill active" title="Activer/Désactiver le Crossplay">
+                    <span class="dot"></span>
+                    <span>Crossplay</span>
+                </button>
+
+                <div class="lang-pill" title="Langue des noms d'items">
+                    <select id="select-lang" aria-label="Langue">
+                        <option value="fr" selected>FR</option>
+                        <option value="en">EN</option>
+                    </select>
+                </div>
+
+                <button id="btn-history-drawer" class="chrome-icon-btn" title="Historique de navigation & Favoris (Ctrl+H)">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.1" fill="none">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Barre de Favoris -->
+        <div id="bookmarks-bar">
+            <!-- Favoris injectés par JS -->
+        </div>
+    </header>
+
+    <!-- ==================== ZONE DE CONTENU (PAGE WARFRAME MARKET) ==================== -->
+    <div id="main-workspace">
+        <main id="browser-viewport">
+            <!-- En-tête interne fidèle à Warframe Market -->
+            <div class="wfm-top-banner">
+                <div class="wfm-top-inner">
+                    <div class="wfm-logo-group" id="wfm-brand-home" role="button" tabindex="0">
+                        <div class="wfm-logo-emblem">
+                            <img class="wfm-logo-img" src="logo.png" alt="WireMarket Logo" width="36" height="36" />
+                        </div>
+                        <div class="wfm-logo-titles">
+                            <span class="wfm-title-main">WARFRAME <span class="accent">MARKET</span></span>
+                            <span class="wfm-title-sub">PROPULSÉ PAR WIREMARKET BROWSER</span>
+                        </div>
+                    </div>
+
+                    <nav class="wfm-main-nav">
+                        <button class="wfm-nav-link" data-nav="https://warframe.market/">
+                            <span>Marché</span>
+                        </button>
+                        <button class="wfm-nav-link" data-nav="https://warframe.market/items">
+                            <span>Catalogue (<span id="catalog-count-badge">...</span>)</span>
+                        </button>
+                        <button class="wfm-nav-link" data-nav="https://warframe.market/tools/ducats">
+                            <span>Ducanator</span>
+                        </button>
+                        <button class="wfm-nav-link" data-nav="https://warframe.market/recent">
+                            <span>Ordres Récents</span>
+                        </button>
+                    </nav>
+
+                    <!-- Barre de recherche rapide globale Warframe Market -->
+                    <div class="wfm-global-search">
+                        <div class="wfm-search-box">
+                            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input
+                                type="text"
+                                id="wfm-search-input"
+                                autocomplete="off"
+                                placeholder="Rechercher un item (ex: Nikana Prime, Wisp Prime, énergétique...)"
+                            />
+                            <kbd class="search-shortcut" title="Raccourci Ctrl+K">Ctrl+K</kbd>
+                        </div>
+                        <div id="wfm-search-dropdown" class="wfm-search-results hidden"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu dynamique de l'onglet actif -->
+            <div id="tab-page-content">
+                <!-- Injecté par app.js selon l'URL de l'onglet actif -->
+            </div>
+        </main>
+
+        <!-- Tiroir latéral Historique & Favoris -->
+        <aside id="side-drawer" class="side-drawer hidden">
+            <div class="drawer-header">
+                <div class="drawer-tabs">
+                    <button class="drawer-tab active" data-drawer="history">Historique</button>
+                    <button class="drawer-tab" data-drawer="bookmarks">Favoris</button>
+                </div>
+                <button id="btn-close-drawer" class="chrome-icon-btn" title="Fermer">✕</button>
+            </div>
+            <div id="drawer-body" class="drawer-body"></div>
+        </aside>
+    </div>
+
+    <!-- ==================== BARRE DE MESSAGE D'ÉCHANGE (/w) ==================== -->
+    <div id="whisper-bar" class="whisper-bar hidden">
+        <div class="whisper-inner">
+            <div class="whisper-label">
+                <span class="whisper-badge">COPIÉ !</span>
+                <span>Collez ce message dans le chat Warframe en jeu (<code>Ctrl+V</code>) :</span>
+            </div>
+            <div class="whisper-command-box">
+                <input type="text" id="whisper-input" readonly />
+                <button id="btn-copy-whisper" class="btn-primary btn-sm">Copier à nouveau</button>
+                <button id="btn-whisper-lang" class="btn-secondary btn-sm" title="Basculer la langue du message /w (Anglais standard ou Français)">MSG: EN</button>
+                <button id="btn-close-whisper" class="chrome-icon-btn" title="Fermer">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== BARRE D'ÉTAT DU NAVIGATEUR ==================== -->
+    <footer id="browser-status-bar">
+        <div class="status-left">
+            <span id="status-connection" class="status-indicator online">● API warframe.market connectée</span>
+            <span class="status-sep">|</span>
+            <span id="status-url-preview">https://warframe.market/</span>
+        </div>
+        <div class="status-right">
+            <span id="status-items-loaded">Chargement du catalogue...</span>
+            <span class="status-sep">|</span>
+            <span>Raccourcis : <kbd>Ctrl+T</kbd> Nouvel onglet · <kbd>Ctrl+W</kbd> Fermer · <kbd>Ctrl+K</kbd> Rechercher</span>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
+
