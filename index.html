@@ -340,9 +340,49 @@
                 <div class="settings-section">
                     <h3 class="settings-section-title">
                         <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 22 12 12 22 2 12"/><polygon points="12 6 18 12 12 18 6 12"/></svg>
-                        <span>Thème de l'application (20 thèmes disponibles)</span>
+                        <span>Thème Personnalisé — Couleur Principale & Couleur Secondaire</span>
                     </h3>
-                    <p class="settings-section-desc">Choisissez l'ambiance visuelle du navigateur et des pages Warframe Market :</p>
+                    <p class="settings-section-desc">Combinez librement une couleur principale (fond & surfaces) et une couleur secondaire (accents, boutons, icônes & effet de glow) :</p>
+
+                    <div class="dual-color-customizer">
+                        <!-- 1. Couleur Principale (Fond & Surfaces) -->
+                        <div class="color-picker-panel">
+                            <div class="color-panel-header">
+                                <div>
+                                    <div class="color-panel-title">1. Couleur Principale (Fond & Interface)</div>
+                                    <div class="color-panel-sub">Définit la teinte des pages, cartes et barres du navigateur</div>
+                                </div>
+                                <label class="custom-color-input-wrap" title="Choisir une couleur principale sur mesure">
+                                    <input type="color" id="input-custom-primary" value="#0f161d" />
+                                    <span id="label-custom-primary">#0f161d</span>
+                                </label>
+                            </div>
+                            <div id="primary-colors-grid" class="color-swatches-row">
+                                <!-- Pastilles Couleur Principale générées par JS -->
+                            </div>
+                        </div>
+
+                        <!-- 2. Couleur Secondaire (Accents, Boutons & Glow) -->
+                        <div class="color-picker-panel">
+                            <div class="color-panel-header">
+                                <div>
+                                    <div class="color-panel-title">2. Couleur Secondaire (Accents, Boutons & Glow)</div>
+                                    <div class="color-panel-sub">Définit la couleur des boutons, bordures, textes mis en avant et lueur</div>
+                                </div>
+                                <label class="custom-color-input-wrap" title="Choisir une couleur secondaire sur mesure">
+                                    <input type="color" id="input-custom-secondary" value="#26b9d1" />
+                                    <span id="label-custom-secondary">#26b9d1</span>
+                                </label>
+                            </div>
+                            <div id="secondary-colors-grid" class="color-swatches-row">
+                                <!-- Pastilles Couleur Secondaire générées par JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="presets-subtitle-row">
+                        <span class="presets-subtitle">Ou choisissez un thème prédéfini complet (20 combinaisons) :</span>
+                    </div>
                     <div id="themes-grid" class="themes-grid">
                         <!-- Boutons de thèmes générés par JS -->
                     </div>

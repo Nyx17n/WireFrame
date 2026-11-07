@@ -66,6 +66,8 @@ const State = {
     whisperLang: localStorage.getItem("wm_whisper_lang") || "en",
     zoom: Number(localStorage.getItem("wm_zoom")) || 100,
     theme: localStorage.getItem("wm_theme") || "dark",
+    primaryColor: localStorage.getItem("wm_primary_color") || "",
+    secondaryColor: localStorage.getItem("wm_secondary_color") || "",
     glowEnabled: localStorage.getItem("wm_glow") !== "false",
     alwaysOnTop: localStorage.getItem("wm_always_on_top") === "true",
     compactMode: false,
@@ -2194,7 +2196,7 @@ function renderBountiesForSyndicateHtml(syndicates, syndicateKey) {
         return `<div class="orders-panel" style="padding:24px;text-align:center;color:var(--text-muted);">Chargement des mises à prix en cours pour ${escapeHtml(syndicateKey)}...</div>`;
     }
 
-    const expiryIso = syndObj.expiry || "";
+    const expiryIso = resolveLiveCycle({ expiry: syndObj.expiry }, "zariman").expiry;
     const planetImg = syndicateKey === "Solaris United"
         ? WF_PLANET_IMAGES.venus
         : (syndicateKey === "Entrati" ? WF_PLANET_IMAGES.deimos : WF_PLANET_IMAGES.earth);
@@ -4220,41 +4222,186 @@ const THEMES = [
     { id: "pink-light", label: "Rose Clair", mode: "light", bg: "#fdf2f8", card: "#ffffff", chrome: "#fce7f3", accent: "#db2777" }
 ];
 
-function applyTheme(themeId) {
-    const t = THEMES.find(x => x.id === themeId) || THEMES[0];
-    State.theme = t.id;
-    localStorage.setItem("wm_theme", t.id);
+const PRIMARY_COLOR_PRESETS = [
+    { id: "p-dark", label: "Sombre (Défaut)", hex: "#0f161d" },
+    { id: "p-black", label: "Full Black", hex: "#000000" },
+    { id: "p-blue-dark", label: "Bleu Sombre", hex: "#0b132b" },
+    { id: "p-cyan-dark", label: "Cyan Sombre", hex: "#081c24" },
+    { id: "p-green-dark", label: "Vert Sombre", hex: "#091e16" },
+    { id: "p-yellow-dark", label: "Jaune Sombre", hex: "#1c190a" },
+    { id: "p-red-dark", label: "Rouge Sombre", hex: "#1f0b0e" },
+    { id: "p-orange-dark", label: "Orange Sombre", hex: "#1f1209" },
+    { id: "p-purple-dark", label: "Violet Sombre", hex: "#160d29" },
+    { id: "p-pink-dark", label: "Rose Sombre", hex: "#210b18" },
+    { id: "p-light", label: "Gris Clair", hex: "#f1f5f9" },
+    { id: "p-white", label: "Full White", hex: "#ffffff" }
+];
 
+const SECONDARY_COLOR_PRESETS = [
+    { id: "s-cyan", label: "Cyan Tenno", hex: "#26b9d1" },
+    { id: "s-gold", label: "Or Orokin", hex: "#e6c365" },
+    { id: "s-blue", label: "Bleu", hex: "#3b82f6" },
+    { id: "s-green", label: "Vert", hex: "#10b981" },
+    { id: "s-yellow", label: "Jaune", hex: "#eab308" },
+    { id: "s-red", label: "Rouge", hex: "#ef4444" },
+    { id: "s-orange", label: "Orange", hex: "#f97316" },
+    { id: "s-purple", label: "Violet", hex: "#a855f7" },
+    { id: "s-pink", label: "Rose", hex: "#ec4899" },
+    { id: "s-teal", label: "Turquoise", hex: "#14b8a6" },
+    { id: "s-white", label: "Blanc", hex: "#f8fafc" },
+    { id: "s-dark", label: "Ardoise Sombre", hex: "#0f172a" }
+];
+
+function parseHexToRgb(hex) {
+    const clean = String(hex || "#0f161d").replace("#", "").trim();
+    const full = clean.length === 3
+        ? clean.split("").map(c => c + c).join("")
+        : clean.padEnd(6, "0").slice(0, 6);
+    const num = parseInt(full, 16) || 0;
+    return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255
+    };
+}
+
+function rgbToHex(r, g, b) {
+    const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
+    return "#" + [clamp(r), clamp(g), clamp(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+
+function shiftHexBrightness(hex, delta) {
+    const { r, g, b } = parseHexToRgb(hex);
+    return rgbToHex(r + delta, g + delta, b + delta);
+}
+
+function applyCustomDualColors(primaryHex, secondaryHex, matchedThemeId = null) {
+    const normPrimary = (primaryHex || "#0f161d").toLowerCase();
+    const normSecondary = (secondaryHex || "#26b9d1").toLowerCase();
+
+    State.primaryColor = normPrimary;
+    State.secondaryColor = normSecondary;
+    localStorage.setItem("wm_primary_color", normPrimary);
+    localStorage.setItem("wm_secondary_color", normSecondary);
+
+    // Vérifier si le couple correspond exactement à l'un des 20 thèmes prédéfinis
+    const exactPreset = matchedThemeId
+        ? THEMES.find(t => t.id === matchedThemeId)
+        : THEMES.find(t => t.bg.toLowerCase() === normPrimary && t.accent.toLowerCase() === normSecondary);
+
+    State.theme = exactPreset ? exactPreset.id : "custom";
+    localStorage.setItem("wm_theme", State.theme);
+
+    // Chercher si la couleur principale correspond au fond d'un des thèmes connus pour récupérer ses nuances card/chrome
+    const bgPreset = THEMES.find(t => t.bg.toLowerCase() === normPrimary);
+    const { r, g, b } = parseHexToRgb(normPrimary);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const isLight = bgPreset ? (bgPreset.mode === "light") : (luminance > 0.55);
+
+    const cardColor = bgPreset
+        ? bgPreset.card
+        : (isLight ? "#ffffff" : shiftHexBrightness(normPrimary, 14));
+    const chromeColor = bgPreset
+        ? bgPreset.chrome
+        : (isLight ? shiftHexBrightness(normPrimary, -14) : shiftHexBrightness(normPrimary, -8));
+
+    const secRgb = parseHexToRgb(normSecondary);
     const root = document.documentElement;
-    const isLight = t.mode === "light";
 
-    root.style.setProperty("--bg-chrome", t.chrome);
-    root.style.setProperty("--bg-tab-bar", t.chrome);
+    root.style.setProperty("--bg-chrome", chromeColor);
+    root.style.setProperty("--bg-tab-bar", chromeColor);
     root.style.setProperty("--bg-tab-inactive", isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.03)");
-    root.style.setProperty("--bg-tab-active", t.card);
-    root.style.setProperty("--bg-nav-bar", t.card);
-    root.style.setProperty("--bg-bookmarks", isLight ? t.chrome : t.bg);
-    root.style.setProperty("--bg-page", t.bg);
-    root.style.setProperty("--bg-card", t.card);
-    root.style.setProperty("--bg-card-hover", isLight ? "#f8fafc" : "rgba(255,255,255,0.06)");
-    root.style.setProperty("--bg-elevated", isLight ? "#f1f5f9" : "rgba(255,255,255,0.07)");
-    root.style.setProperty("--bg-input", isLight ? "#ffffff" : t.chrome);
+    root.style.setProperty("--bg-tab-active", cardColor);
+    root.style.setProperty("--bg-nav-bar", cardColor);
+    root.style.setProperty("--bg-bookmarks", isLight ? chromeColor : normPrimary);
+    root.style.setProperty("--bg-page", normPrimary);
+    root.style.setProperty("--bg-card", cardColor);
+    root.style.setProperty("--bg-card-hover", isLight ? shiftHexBrightness(normPrimary, 6) : "rgba(255,255,255,0.06)");
+    root.style.setProperty("--bg-elevated", isLight ? shiftHexBrightness(normPrimary, -6) : "rgba(255,255,255,0.07)");
+    root.style.setProperty("--bg-input", isLight ? "#ffffff" : chromeColor);
 
     root.style.setProperty("--text-main", isLight ? "#0f172a" : "#e6eef6");
     root.style.setProperty("--text-secondary", isLight ? "#334155" : "#9fb1c3");
     root.style.setProperty("--text-muted", isLight ? "#64748b" : "#66788a");
 
-    root.style.setProperty("--accent-cyan", t.accent);
-    root.style.setProperty("--accent-cyan-hover", t.accent);
-    root.style.setProperty("--accent-cyan-dim", `${t.accent}24`);
+    // Appliquer la Couleur Secondaire sur tous les accents, boutons, icônes et lueur Glow
+    root.style.setProperty("--accent-cyan", normSecondary);
+    root.style.setProperty("--accent-cyan-hover", shiftHexBrightness(normSecondary, 18));
+    root.style.setProperty("--accent-cyan-dim", `rgba(${secRgb.r}, ${secRgb.g}, ${secRgb.b}, 0.15)`);
+    root.style.setProperty("--accent-gold", normSecondary);
+    root.style.setProperty("--accent-gold-dim", `rgba(${secRgb.r}, ${secRgb.g}, ${secRgb.b}, 0.16)`);
     root.style.setProperty("--border-subtle", isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.08)");
-    root.style.setProperty("--border-medium", `${t.accent}55`);
-    root.style.setProperty("--border-bright", t.accent);
+    root.style.setProperty("--border-medium", `rgba(${secRgb.r}, ${secRgb.g}, ${secRgb.b}, 0.36)`);
+    root.style.setProperty("--border-bright", normSecondary);
 
     renderThemesGrid();
 }
 
+function applyTheme(themeId) {
+    if (themeId === "custom" && State.primaryColor && State.secondaryColor) {
+        applyCustomDualColors(State.primaryColor, State.secondaryColor, null);
+        return;
+    }
+    const t = THEMES.find(x => x.id === themeId) || THEMES[0];
+    applyCustomDualColors(t.bg, t.accent, t.id);
+}
+
 function renderThemesGrid() {
+    const curPrimary = (State.primaryColor || "#0f161d").toLowerCase();
+    const curSecondary = (State.secondaryColor || "#26b9d1").toLowerCase();
+
+    // Sync des sélecteurs de couleur libre (<input type="color">)
+    const pInput = document.getElementById("input-custom-primary");
+    const pLabel = document.getElementById("label-custom-primary");
+    if (pInput && document.activeElement !== pInput) pInput.value = curPrimary;
+    if (pLabel) pLabel.textContent = curPrimary.toUpperCase();
+
+    const sInput = document.getElementById("input-custom-secondary");
+    const sLabel = document.getElementById("label-custom-secondary");
+    if (sInput && document.activeElement !== sInput) sInput.value = curSecondary;
+    if (sLabel) sLabel.textContent = curSecondary.toUpperCase();
+
+    // 1. Grille Couleur Principale
+    const pGrid = document.getElementById("primary-colors-grid");
+    if (pGrid) {
+        pGrid.innerHTML = PRIMARY_COLOR_PRESETS.map(p => {
+            const isAct = p.hex.toLowerCase() === curPrimary;
+            return `
+                <button class="color-swatch-chip ${isAct ? "active" : ""}" data-primary-hex="${p.hex}" title="${escapeHtml(p.label)} (${p.hex})">
+                    <span class="swatch-dot" style="background:${p.hex};"></span>
+                    <span>${escapeHtml(p.label)}</span>
+                </button>
+            `;
+        }).join("");
+
+        pGrid.querySelectorAll("[data-primary-hex]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                applyCustomDualColors(btn.dataset.primaryHex, State.secondaryColor || "#26b9d1");
+            });
+        });
+    }
+
+    // 2. Grille Couleur Secondaire
+    const sGrid = document.getElementById("secondary-colors-grid");
+    if (sGrid) {
+        sGrid.innerHTML = SECONDARY_COLOR_PRESETS.map(s => {
+            const isAct = s.hex.toLowerCase() === curSecondary;
+            return `
+                <button class="color-swatch-chip ${isAct ? "active" : ""}" data-secondary-hex="${s.hex}" title="${escapeHtml(s.label)} (${s.hex})">
+                    <span class="swatch-dot" style="background:${s.hex};"></span>
+                    <span>${escapeHtml(s.label)}</span>
+                </button>
+            `;
+        }).join("");
+
+        sGrid.querySelectorAll("[data-secondary-hex]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                applyCustomDualColors(State.primaryColor || "#0f161d", btn.dataset.secondaryHex);
+            });
+        });
+    }
+
+    // 3. Grille des 20 Thèmes Rapides
     const grid = document.getElementById("themes-grid");
     if (!grid) return;
     grid.innerHTML = THEMES.map(t => `
@@ -4533,9 +4680,21 @@ function initBrowserEvents() {
     }
 
     applyZoom(State.zoom);
-    applyTheme(State.theme);
+    if (State.primaryColor && State.secondaryColor) {
+        applyCustomDualColors(State.primaryColor, State.secondaryColor);
+    } else {
+        applyTheme(State.theme);
+    }
     applyGlow(State.glowEnabled);
     syncAlertSettingsUI();
+
+    document.getElementById("input-custom-primary")?.addEventListener("input", (e) => {
+        applyCustomDualColors(e.target.value, State.secondaryColor || "#26b9d1");
+    });
+
+    document.getElementById("input-custom-secondary")?.addEventListener("input", (e) => {
+        applyCustomDualColors(State.primaryColor || "#0f161d", e.target.value);
+    });
     if (State.alwaysOnTop) {
         setTimeout(() => applyAlwaysOnTop(true, true), 400);
     }
