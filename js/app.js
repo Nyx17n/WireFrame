@@ -5,6 +5,45 @@
 
 const DEFAULT_FAVICON = "logo.png";
 
+/* ==================== ICÔNES VECTORIELLES STYLE WARFRAME / OROKIN ==================== */
+const WF_ICON_PATHS = {
+    prime: `<polygon points="12 2 14.6 9.4 22 12 14.6 14.6 12 22 9.4 14.6 2 12 9.4 9.4"/><circle cx="12" cy="12" r="2"/>`,
+    star: `<polygon points="12 2 14.8 9.2 22 12 14.8 14.8 12 22 9.2 14.8 2 12 9.2 9.2"/>`,
+    warframe: `<polygon points="12 2 20 6 18 16 12 22 6 16 4 6"/><polyline points="8 10 12 14 16 10"/><line x1="12" y1="2" x2="12" y2="9"/>`,
+    weapon: `<line x1="4" y1="20" x2="19" y2="5"/><polyline points="13 5 19 5 19 11"/><line x1="6" y1="14" x2="10" y2="18"/><line x1="20" y1="20" x2="5" y2="5"/>`,
+    mod: `<polygon points="12 2 20 8 20 16 12 22 4 16 4 8"/><polygon points="12 7 16 12 12 17 8 12"/>`,
+    arcane: `<polygon points="12 2 21 19 3 19"/><polygon points="12 8 16.5 16.5 7.5 16.5"/>`,
+    relic: `<polygon points="12 2 19 9 19 15 12 22 5 15 5 9"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="5" y1="12" x2="19" y2="12"/>`,
+    syndicate: `<polygon points="12 2 21 7 18 19 12 22 6 19 3 7"/><circle cx="12" cy="12" r="3.5"/>`,
+    ducats: `<polygon points="12 2 20 6.5 20 17.5 12 22 4 17.5 4 6.5"/><polygon points="12 6.5 16 12 12 17.5 8 12"/>`,
+    credits: `<polygon points="7 4 19 4 16 10 4 10"/><polygon points="8 14 20 14 17 20 5 20"/>`,
+    plat: `<polygon points="12 2 21 7 21 17 12 22 3 17 3 7"/><polygon points="12 6 17 9 17 15 12 18 7 15 7 9"/>`,
+    mastery: `<polygon points="12 2 21 8 17 20 7 20 3 8"/><polyline points="8 13 12 9 16 13"/>`,
+    rank: `<polyline points="7 17 12 12 17 17"/><polyline points="7 11 12 6 17 11"/>`,
+    codex: `<polygon points="12 3 21 7 21 17 12 21 3 17 3 7"/><line x1="12" y1="3" x2="12" y2="21"/>`,
+    compare: `<line x1="12" y1="3" x2="12" y2="21"/><polyline points="5 9 12 5 19 9"/><polygon points="5 9 8 15 2 15"/><polygon points="19 9 22 15 16 15"/>`,
+    chart: `<polyline points="3 18 9 12 13 15 21 6"/><polyline points="16 6 21 6 21 11"/>`,
+    alert: `<polygon points="12 2 19 9 19 16 21 18 3 18 5 16 5 9"/><polyline points="9.5 18 12 22 14.5 18"/><circle cx="12" cy="10" r="2"/>`,
+    target: `<circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="2"/>`,
+    sound: `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/>`,
+    gear: `<polygon points="12 2 20 7 20 17 12 22 4 17 4 7"/><circle cx="12" cy="12" r="3"/>`,
+    play: `<polygon points="6 4 20 12 6 20 6 4"/>`,
+    pause: `<line x1="8" y1="5" x2="8" y2="19"/><line x1="16" y1="5" x2="16" y2="19"/>`,
+    trash: `<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>`,
+    repeat: `<polyline points="17 2 21 6 17 10"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 22 3 18 7 14"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>`,
+    rep: `<polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9"/>`,
+    sun: `<circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="22"/><line x1="4.9" y1="4.9" x2="6.7" y2="6.7"/><line x1="17.3" y1="17.3" x2="19.1" y2="19.1"/><line x1="2" y1="12" x2="4.5" y2="12"/><line x1="19.5" y1="12" x2="22" y2="12"/><line x1="4.9" y1="19.1" x2="6.7" y2="17.3"/><line x1="17.3" y1="6.7" x2="19.1" y2="4.9"/>`,
+    moon: `<path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/>`,
+    planet: `<circle cx="12" cy="12" r="6"/><ellipse cx="12" cy="12" rx="11" ry="4" transform="rotate(-22 12 12)"/>`,
+    void: `<polygon points="12 2 19 8 16 21 12 18 8 21 5 8"/><polygon points="12 6 15.5 10 12 15 8.5 10"/>`,
+    clock: `<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>`
+};
+
+function wfIcon(name, extraClass = "") {
+    const svgBody = WF_ICON_PATHS[name] || WF_ICON_PATHS.star;
+    return `<svg class="wf-icon ${extraClass}" viewBox="0 0 24 24" aria-hidden="true">${svgBody}</svg>`;
+}
+
 const FEATURED_SLUGS = [
     "wisp_prime_set",
     "gauss_prime_set",
@@ -28,6 +67,8 @@ const State = {
     zoom: Number(localStorage.getItem("wm_zoom")) || 100,
     theme: localStorage.getItem("wm_theme") || "dark",
     glowEnabled: localStorage.getItem("wm_glow") !== "false",
+    alwaysOnTop: localStorage.getItem("wm_always_on_top") === "true",
+    compactMode: false,
     lastWhisperData: null,
 
     // Catalogue complet Warframe Market
@@ -36,10 +77,33 @@ const State = {
     itemsBySlug: new Map(),
     catalogReady: false,
 
-    // Onglets du navigateur
+    // Onglets du navigateur (+ Onglet permanent inamovible WireMarket Hub)
     tabs: [],
     activeTabId: null,
+    lastRegularTabId: null,
     nextTabId: 1,
+    hubTab: {
+        id: "hub",
+        isPermanentHub: true,
+        url: "https://warframe.market/worldstate",
+        title: "WireMarket Hub — Rotations Warframe & Baro Ki'Teer",
+        icon: DEFAULT_FAVICON,
+        loading: false,
+        history: ["https://warframe.market/worldstate"],
+        historyIndex: 0,
+        viewState: {
+            hubSection: "planets",   // "planets" | "duviri" | "baro"
+            baroFilter: "all",       // "all" | "tradable" | "mods" | "weapons"
+            baroSort: "plat_desc",   // "plat_desc" | "ratio_desc" | "ducats_desc" | "name_asc"
+            baroSearch: "",
+            bountySyndicate: "Ostrons" // "Ostrons" | "Solaris United" | "Entrati"
+        },
+        cachedData: {}
+    },
+    worldstateData: null,
+    worldstateFetchedAt: 0,
+    baroPricesBySlug: new Map(),
+    baroPricesLoading: false,
 
     // Favoris & Historique
     bookmarks: (JSON.parse(localStorage.getItem("wm_bookmarks") || "null") || [
@@ -57,7 +121,16 @@ const State = {
     }),
     history: JSON.parse(localStorage.getItem("wm_history") || "[]"),
     favoriteItems: JSON.parse(localStorage.getItem("wm_fav_items") || "[]"),
-    activeDrawerTab: "history"
+    activeDrawerTab: "history",
+
+    // Système d'Alertes de Prix (Price Sniper) & Paramètres Sonores
+    priceAlerts: JSON.parse(localStorage.getItem("wm_price_alerts") || "[]"),
+    alertSoundEnabled: localStorage.getItem("wm_alert_sound") !== "false",
+    alertVolume: localStorage.getItem("wm_alert_volume") !== null ? Number(localStorage.getItem("wm_alert_volume")) : 80,
+    alertRepeat: localStorage.getItem("wm_alert_repeat") !== "false",
+    alertRepeatInterval: Math.max(5, Number(localStorage.getItem("wm_alert_interval")) || 30),
+    lastSniperScanTime: 0,
+    sniperScanning: false
 };
 
 function isItemFavorite(slug) {
@@ -103,6 +176,289 @@ function toggleFavoriteItem(slug) {
             renderActiveTabPage();
         }
     }
+}
+
+/* ==================== SYSTÈME D'ALERTES DE PRIX (PRICE SNIPER) & SON ==================== */
+
+let alertAudioInstance = null;
+
+function playAlertNotificationSound(forcePlay = false) {
+    if (!forcePlay && !State.alertSoundEnabled) return;
+    const vol = Math.max(0, Math.min(1, (Number(State.alertVolume) || 0) / 100));
+    if (vol <= 0 && !forcePlay) return;
+
+    const tryPlaySrc = (src, onFail) => {
+        try {
+            if (!alertAudioInstance || alertAudioInstance.dataset?.src !== src) {
+                alertAudioInstance = new Audio(src);
+                alertAudioInstance.dataset = { src };
+            }
+            alertAudioInstance.pause();
+            alertAudioInstance.currentTime = 0;
+            alertAudioInstance.volume = vol;
+            const p = alertAudioInstance.play();
+            if (p && typeof p.catch === "function") {
+                p.catch(() => {
+                    if (onFail) onFail();
+                });
+            }
+        } catch (e) {
+            if (onFail) onFail();
+        }
+    };
+
+    tryPlaySrc("notification.mp3", () => {
+        tryPlaySrc("http://127.0.0.1:8484/notification.mp3");
+    });
+}
+
+function savePriceAlerts() {
+    localStorage.setItem("wm_price_alerts", JSON.stringify(State.priceAlerts));
+    updateAlertCountBadge();
+}
+
+function updateAlertCountBadge() {
+    const el = document.getElementById("alert-count-badge");
+    if (el) {
+        const activeCount = State.priceAlerts.filter(a => a.enabled !== false).length;
+        el.textContent = State.priceAlerts.length > 0 ? `${activeCount}/${State.priceAlerts.length}` : "0";
+    }
+}
+
+function getAlertForSlug(slug) {
+    return State.priceAlerts.find(a => a.slug === slug) || null;
+}
+
+function upsertPriceAlert(slug, targetPrice, statusMode = "ingame") {
+    const cleanPrice = Math.max(1, Math.round(Number(targetPrice) || 1));
+    const existing = getAlertForSlug(slug);
+    if (existing) {
+        existing.targetPrice = cleanPrice;
+        existing.statusMode = statusMode || existing.statusMode || "ingame";
+        existing.enabled = true;
+        existing.notifiedOnce = false;
+        existing.lastNotifiedAt = 0;
+    } else {
+        State.priceAlerts.unshift({
+            id: Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+            slug,
+            targetPrice: cleanPrice,
+            statusMode: statusMode || "ingame",
+            enabled: true,
+            notifiedOnce: false,
+            lastNotifiedAt: 0,
+            lastBestPrice: null,
+            lastBestSeller: null,
+            lastCheckedAt: null
+        });
+    }
+    savePriceAlerts();
+    // Lancer une vérification immédiate
+    checkSinglePriceAlert( getAlertForSlug(slug), true ).then(() => {
+        renderActiveTabPage();
+    });
+}
+
+function removePriceAlert(slug) {
+    State.priceAlerts = State.priceAlerts.filter(a => a.slug !== slug);
+    savePriceAlerts();
+    const toastEl = document.querySelector(`.price-alert-toast[data-toast-slug="${CSS.escape(slug)}"]`);
+    if (toastEl) toastEl.remove();
+    renderActiveTabPage();
+}
+
+function togglePriceAlertActive(slug) {
+    const alertObj = getAlertForSlug(slug);
+    if (!alertObj) return;
+    alertObj.enabled = alertObj.enabled === false ? true : false;
+    if (alertObj.enabled) {
+        alertObj.notifiedOnce = false;
+        alertObj.lastNotifiedAt = 0;
+    } else {
+        const toastEl = document.querySelector(`.price-alert-toast[data-toast-slug="${CSS.escape(slug)}"]`);
+        if (toastEl) toastEl.remove();
+    }
+    savePriceAlerts();
+    if (alertObj.enabled) {
+        checkSinglePriceAlert(alertObj, true).then(() => renderActiveTabPage());
+    } else {
+        renderActiveTabPage();
+    }
+}
+
+async function checkSinglePriceAlert(alertObj, forceRefresh = true) {
+    if (!alertObj || alertObj.enabled === false) return false;
+    try {
+        const res = await apiFetch(`/api/v2/orders/item/${alertObj.slug}`, forceRefresh);
+        const orders = Array.isArray(res.data) ? res.data : [];
+        const validSells = orders.filter(o => {
+            if (!o.visible || o.type !== "sell") return false;
+            const st = o.user?.status || "offline";
+            if (alertObj.statusMode === "online") return st === "ingame" || st === "online";
+            return st === "ingame";
+        }).sort((a, b) => a.platinum - b.platinum);
+
+        alertObj.lastCheckedAt = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+        if (validSells.length > 0) {
+            const best = validSells[0];
+            alertObj.lastBestPrice = best.platinum;
+            alertObj.lastBestSeller = {
+                ingameName: best.user?.ingameName || "Tenno",
+                slug: best.user?.slug || best.user?.ingameName || "",
+                reputation: best.user?.reputation ?? 0,
+                status: best.user?.status || "ingame",
+                rank: best.rank,
+                quantity: best.quantity || 1
+            };
+
+            if (best.platinum <= alertObj.targetPrice) {
+                const now = Date.now();
+                const intervalMs = Math.max(5, Number(State.alertRepeatInterval) || 30) * 1000;
+                const shouldNotify = !alertObj.notifiedOnce || (State.alertRepeat && (now - (alertObj.lastNotifiedAt || 0) >= intervalMs - 500));
+
+                if (shouldNotify) {
+                    alertObj.notifiedOnce = true;
+                    alertObj.lastNotifiedAt = now;
+                    savePriceAlerts();
+                    showPriceAlertToast(alertObj);
+                    playAlertNotificationSound(false);
+                    return true;
+                }
+            } else {
+                // Si le prix est remonté au-dessus de la cible, réarmer l'alerte pour la prochaine baisse
+                alertObj.notifiedOnce = false;
+            }
+        } else {
+            alertObj.lastBestPrice = null;
+            alertObj.lastBestSeller = null;
+            alertObj.notifiedOnce = false;
+        }
+        savePriceAlerts();
+    } catch (e) {
+        console.warn("Erreur scan alerte:", alertObj.slug, e);
+    }
+    return false;
+}
+
+async function checkAllPriceAlerts(forceRefresh = true) {
+    if (State.sniperScanning) return;
+    const activeAlerts = State.priceAlerts.filter(a => a.enabled !== false);
+    if (!activeAlerts.length) return;
+
+    State.sniperScanning = true;
+    State.lastSniperScanTime = Date.now();
+    try {
+        for (const alertObj of activeAlerts) {
+            await checkSinglePriceAlert(alertObj, forceRefresh);
+        }
+        const tab = getActiveTab();
+        if (tab && parseWfmUrl(tab.url).route === "alerts") {
+            renderActiveTabPage();
+        }
+    } finally {
+        State.sniperScanning = false;
+    }
+}
+
+function showPriceAlertToast(alertObj) {
+    const container = document.getElementById("price-alert-toast-container");
+    if (!container) return;
+
+    const item = State.itemsBySlug.get(alertObj.slug);
+    const itemName = item ? getItemName(item) : alertObj.slug;
+    const itemEnName = item ? getItemEnName(item) : itemName;
+    const thumb = item ? getItemThumb(item) : DEFAULT_FAVICON;
+    const seller = alertObj.lastBestSeller || {};
+    const price = alertObj.lastBestPrice;
+    const itemUrl = `https://warframe.market/items/${alertObj.slug}`;
+
+    let toast = container.querySelector(`.price-alert-toast[data-toast-slug="${CSS.escape(alertObj.slug)}"]`);
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.className = "price-alert-toast";
+        toast.dataset.toastSlug = alertObj.slug;
+        container.prepend(toast);
+    } else {
+        // Animation de pulsation lors d'une répétition
+        toast.classList.remove("toast-pulse");
+        void toast.offsetWidth;
+        toast.classList.add("toast-pulse");
+    }
+
+    toast.innerHTML = `
+        <div class="toast-header">
+            <span class="toast-badge">${wfIcon("target", "wf-icon-sm")} ALERTE DE PRIX ATTEINTE !</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <button class="toast-mute-btn" data-toast-pause="${escapeHtml(alertObj.slug)}" title="Mettre cette alerte en pause (arrêter les répétitions)">${wfIcon("pause", "wf-icon-sm")} Pause</button>
+                <button class="chrome-icon-btn toast-close-btn" data-toast-close="${escapeHtml(alertObj.slug)}" title="Fermer la notification">✕</button>
+            </div>
+        </div>
+        <div class="toast-body">
+            <img class="toast-thumb" src="${escapeHtml(thumb)}" alt="" onerror="this.src='${DEFAULT_FAVICON}'" />
+            <div class="toast-info">
+                <div class="toast-item-title" data-toast-open="${escapeHtml(itemUrl)}">${escapeHtml(itemName)}</div>
+                <div class="toast-price-line">
+                    Vendu à <strong style="color:var(--sell-color);font-size:15px;">${price} Platinum</strong>
+                    <span style="color:var(--text-muted);font-size:11.5px;">(Cible : ≤ ${alertObj.targetPrice}p)</span>
+                </div>
+                <div class="toast-seller-line">
+                    Vendeur : <strong>${escapeHtml(seller.ingameName || "Tenno")}</strong> (${wfIcon("rep", "wf-icon-sm wf-icon-gold")} ${seller.reputation ?? 0})
+                </div>
+            </div>
+        </div>
+        <div class="toast-actions">
+            <button class="btn-secondary btn-sm" data-toast-open="${escapeHtml(itemUrl)}">Voir l'item</button>
+            <button class="btn-trade sell"
+                data-toast-whisper="1"
+                data-whisper-user="${escapeHtml(seller.ingameName || "")}"
+                data-whisper-item-en="${escapeHtml(itemEnName)}"
+                data-whisper-item-fr="${escapeHtml(itemName)}"
+                data-whisper-price="${price}"
+                data-whisper-type="sell"
+                data-whisper-rank="${seller.rank ?? ""}"
+                data-whisper-maxrank="${item?.maxRank ?? ""}">
+                Acheter ${price}p (/w)
+            </button>
+        </div>
+    `;
+
+    toast.querySelector("[data-toast-close]")?.addEventListener("click", () => {
+        toast.remove();
+    });
+    toast.querySelector("[data-toast-pause]")?.addEventListener("click", () => {
+        togglePriceAlertActive(alertObj.slug);
+        toast.remove();
+    });
+    toast.querySelectorAll("[data-toast-open]").forEach(el => {
+        el.addEventListener("click", () => {
+            navigateTab(State.activeTabId, el.dataset.toastOpen);
+        });
+    });
+    toast.querySelector("[data-toast-whisper]")?.addEventListener("click", (e) => {
+        const btn = e.currentTarget;
+        triggerWhisper({
+            user: btn.dataset.whisperUser,
+            itemEn: btn.dataset.whisperItemEn,
+            itemFr: btn.dataset.whisperItemFr,
+            price: btn.dataset.whisperPrice,
+            type: btn.dataset.whisperType,
+            rank: btn.dataset.whisperRank,
+            maxRank: btn.dataset.whisperMaxrank
+        });
+    });
+}
+
+function startPriceSniperScheduler() {
+    setInterval(() => {
+        if (!State.catalogReady) return;
+        const activeAlerts = State.priceAlerts.filter(a => a.enabled !== false);
+        if (!activeAlerts.length) return;
+        const intervalMs = Math.max(5, Number(State.alertRepeatInterval) || 30) * 1000;
+        if (Date.now() - State.lastSniperScanTime >= intervalMs) {
+            checkAllPriceAlerts(true);
+        }
+    }, 1000);
 }
 
 /* ==================== UTILITAIRES API & FORMATAGE ==================== */
@@ -347,8 +703,9 @@ function createTab(url = "https://warframe.market/", switchTo = true) {
 
 function closeTab(id, event) {
     if (event) event.stopPropagation();
+    if (id === "hub") return; // L'onglet logo WireMarket est permanent et ne peut pas être fermé
     if (State.tabs.length <= 1) {
-        // Si c'est le dernier onglet, retour à l'accueil
+        // Si c'est le dernier onglet standard, retour à l'accueil
         navigateTab(State.tabs[0].id, "https://warframe.market/");
         return;
     }
@@ -359,6 +716,7 @@ function closeTab(id, event) {
     if (wasActive) {
         const nextTab = State.tabs[Math.max(0, idx - 1)];
         State.activeTabId = nextTab.id;
+        State.lastRegularTabId = nextTab.id;
         syncBrowserChromeToActiveTab();
         renderActiveTabPage();
     }
@@ -366,19 +724,39 @@ function closeTab(id, event) {
 }
 
 function activateTab(id) {
+    if (id === "hub") {
+        State.activeTabId = "hub";
+        renderTabsBar();
+        syncBrowserChromeToActiveTab();
+        if (!State.hubTab.cachedData.worldstate && !State.hubTab.loading) {
+            loadTabRouteData(State.hubTab, { route: "worldstate", params: new URLSearchParams() }, false);
+        } else {
+            renderActiveTabPage();
+        }
+        return;
+    }
     const tab = State.tabs.find(t => t.id === id);
     if (!tab) return;
     State.activeTabId = id;
+    State.lastRegularTabId = id;
     renderTabsBar();
     syncBrowserChromeToActiveTab();
     renderActiveTabPage();
 }
 
 function getActiveTab() {
-    return State.tabs.find(t => t.id === State.activeTabId) || State.tabs[0];
+    if (State.activeTabId === "hub") return State.hubTab;
+    return State.tabs.find(t => t.id === State.activeTabId) || State.tabs[0] || State.hubTab;
 }
 
 function renderTabsBar() {
+    const brandTab = document.getElementById("app-brand-tab");
+    if (brandTab) {
+        const isHubActive = State.activeTabId === "hub";
+        brandTab.classList.toggle("active", isHubActive);
+        brandTab.setAttribute("aria-selected", isHubActive ? "true" : "false");
+    }
+
     const container = document.getElementById("tabs-container");
     container.classList.toggle("tabs-crowded", State.tabs.length >= 8);
     container.classList.toggle("tabs-very-crowded", State.tabs.length >= 18);
@@ -412,6 +790,24 @@ function renderTabsBar() {
 function syncBrowserChromeToActiveTab() {
     const tab = getActiveTab();
     if (!tab) return;
+    const isHub = State.activeTabId === "hub";
+
+    // Basculer la barre supérieure : masquer la barre du Market quand on est dans l'onglet Hub (Rotations & Marchand)
+    // et afficher à la place la barre de navigation dédiée aux 3 vues séparées (Planètes, Warframes & Armes, Marchand)
+    const wfmBanner = document.getElementById("wfm-top-banner");
+    const hubBanner = document.getElementById("wm-hub-top-banner");
+    const bookmarksBar = document.getElementById("bookmarks-bar");
+    if (wfmBanner) wfmBanner.classList.toggle("hidden", isHub);
+    if (hubBanner) hubBanner.classList.toggle("hidden", !isHub);
+    if (bookmarksBar) bookmarksBar.classList.toggle("hidden", isHub);
+
+    if (isHub) {
+        const currentSec = State.hubTab.viewState.hubSection || "planets";
+        document.querySelectorAll("[data-hub-sec]").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.hubSec === currentSec);
+        });
+    }
+
     const addrInput = document.getElementById("address-input");
     if (document.activeElement !== addrInput) {
         addrInput.value = tab.url;
@@ -425,7 +821,7 @@ function syncBrowserChromeToActiveTab() {
     document.getElementById("btn-bookmark-toggle").classList.toggle("bookmarked", isBookmarked);
 
     // Surligner le lien actif dans la bannière interne Warframe Market
-    document.querySelectorAll(".wfm-nav-link").forEach(btn => {
+    document.querySelectorAll(".wfm-nav-link:not(.hub-nav-link)").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.nav === tab.url);
     });
 }
@@ -478,11 +874,21 @@ function parseWfmUrl(url) {
     if (pathname === "/favorites" || pathname === "/favoris") {
         return { route: "favorites", params };
     }
+    if (pathname === "/alerts" || pathname === "/alertes") {
+        return { route: "alerts", params };
+    }
     if (pathname === "/tools/ducats" || pathname === "/ducats") {
         return { route: "ducats", params };
     }
     if (pathname === "/contracts" || pathname === "/riven" || pathname === "/auctions") {
         return { route: "contracts", params };
+    }
+    if (pathname === "/worldstate" || pathname.startsWith("/worldstate/") || pathname === "/rotations" || pathname === "/baro") {
+        let hubSec = null;
+        if (pathname === "/baro" || pathname === "/worldstate/baro") hubSec = "baro";
+        else if (pathname === "/worldstate/duviri") hubSec = "duviri";
+        else if (pathname === "/worldstate/planets") hubSec = "planets";
+        return { route: "worldstate", hubSec, params };
     }
     if (pathname === "/items" || pathname === "/items/") {
         return { route: "catalog", params };
@@ -507,10 +913,37 @@ function parseWfmUrl(url) {
 }
 
 async function navigateTab(tabId, rawUrl, options = { pushHistory: true, forceRefresh: false }) {
-    const tab = State.tabs.find(t => t.id === tabId);
-    if (!tab) return;
-
     const url = normalizeInputToUrl(rawUrl);
+    const parsed = parseWfmUrl(url);
+
+    // Si on navigue vers /worldstate, activer directement l'onglet permanent WireMarket Hub
+    if (parsed.route === "worldstate") {
+        State.activeTabId = "hub";
+        if (parsed.hubSec) {
+            State.hubTab.viewState.hubSection = parsed.hubSec;
+        }
+        const sec = State.hubTab.viewState.hubSection || "planets";
+        State.hubTab.url = `https://warframe.market/worldstate/${sec}`;
+        renderTabsBar();
+        syncBrowserChromeToActiveTab();
+        await loadTabRouteData(State.hubTab, parsed, options.forceRefresh);
+        return;
+    }
+
+    // Si l'utilisateur clique sur un item ou une autre page depuis l'onglet permanent Hub,
+    // ouvrir/naviguer dans l'onglet de marché actif afin de ne jamais remplacer l'onglet Hub WireMarket
+    let tab = (tabId === "hub") ? null : State.tabs.find(t => t.id === tabId);
+    if (!tab) {
+        tab = State.tabs.find(t => t.id === State.lastRegularTabId) || State.tabs[0];
+        if (!tab) {
+            createTab(url, true);
+            return;
+        }
+        State.activeTabId = tab.id;
+        State.lastRegularTabId = tab.id;
+        renderTabsBar();
+    }
+
     tab.url = url;
 
     if (options.pushHistory) {
@@ -521,7 +954,6 @@ async function navigateTab(tabId, rawUrl, options = { pushHistory: true, forceRe
         }
     }
 
-    const parsed = parseWfmUrl(url);
     if (parsed.subtab) {
         tab.viewState.subtab = parsed.subtab;
     }
@@ -549,7 +981,14 @@ async function loadTabRouteData(tab, parsed, forceRefresh = false) {
             await loadItemsCatalog();
         }
 
-        if (parsed.route === "home" || parsed.route === "recent") {
+        if (parsed.route === "worldstate") {
+            tab.title = "WireMarket Hub — Rotations Warframe & Baro Ki'Teer";
+            tab.icon = DEFAULT_FAVICON;
+            const ws = await fetchWorldstateData(forceRefresh);
+            tab.cachedData.worldstate = ws;
+            // Lancer le chargement des prix Platinum de Baro Ki'Teer
+            loadBaroPlatinumPrices(ws?.voidTrader?.inventory || [], forceRefresh);
+        } else if (parsed.route === "home" || parsed.route === "recent") {
             tab.title = parsed.route === "recent"
                 ? "Ordres Récents - Warframe Market"
                 : "Warframe Market — Acheter et Vendre des items";
@@ -562,7 +1001,7 @@ async function loadTabRouteData(tab, parsed, forceRefresh = false) {
             tab.icon = DEFAULT_FAVICON;
             recordHistory(tab.title, tab.url, tab.icon);
         } else if (parsed.route === "favorites") {
-            tab.title = `★ Mes Items Favoris (${State.favoriteItems.length}) - Warframe Market`;
+            tab.title = `✦ Mes Items Favoris (${State.favoriteItems.length}) - Warframe Market`;
             tab.icon = DEFAULT_FAVICON;
             const favDetails = await Promise.all(State.favoriteItems.map(async (slug) => {
                 const [itemRes, ordersRes] = await Promise.allSettled([
@@ -578,6 +1017,13 @@ async function loadTabRouteData(tab, parsed, forceRefresh = false) {
                 return { slug, item: itemData, orders: ordersData };
             }));
             tab.cachedData.favoritesDetails = favDetails.filter(f => f.item);
+            recordHistory(tab.title, tab.url, tab.icon);
+        } else if (parsed.route === "alerts") {
+            tab.title = `◈ Alertes de Prix (${State.priceAlerts.length}) - Warframe Market`;
+            tab.icon = DEFAULT_FAVICON;
+            if (forceRefresh && State.priceAlerts.length > 0) {
+                await checkAllPriceAlerts(true);
+            }
             recordHistory(tab.title, tab.url, tab.icon);
         } else if (parsed.route === "ducats") {
             tab.title = "Ducanator (Ducats / Platinum) - Warframe Market";
@@ -692,23 +1138,28 @@ function renderActiveTabPage() {
     const container = document.getElementById("tab-page-content");
     if (!tab) return;
 
-    if (tab.loading && !tab.cachedData.item && !tab.cachedData.recentOrders && parseWfmUrl(tab.url).route !== "catalog") {
+    const parsed = parseWfmUrl(tab.url);
+
+    if (tab.loading && !tab.cachedData.item && !tab.cachedData.recentOrders && !tab.cachedData.worldstate && parsed.route !== "catalog") {
         container.innerHTML = `
             <div class="loading-state">
                 <div class="loading-spinner-lg"></div>
-                <div>Chargement de <strong>${escapeHtml(tab.url)}</strong> depuis warframe.market...</div>
+                <div>Chargement de <strong>${escapeHtml(tab.url)}</strong>...</div>
             </div>
         `;
         return;
     }
 
-    const parsed = parseWfmUrl(tab.url);
-    if (parsed.route === "home") {
+    if (parsed.route === "worldstate") {
+        renderWorldstateHubPage(container, tab);
+    } else if (parsed.route === "home") {
         renderHomePage(container, tab);
     } else if (parsed.route === "recent") {
         renderRecentOrdersPage(container, tab);
     } else if (parsed.route === "favorites") {
         renderFavoritesPage(container, tab);
+    } else if (parsed.route === "alerts") {
+        renderAlertsPage(container, tab);
     } else if (parsed.route === "catalog") {
         renderCatalogPage(container, tab);
     } else if (parsed.route === "ducats") {
@@ -720,6 +1171,1294 @@ function renderActiveTabPage() {
     } else if (parsed.route === "profile") {
         renderProfilePage(container, tab);
     }
+}
+
+/* ==================== 0. ONGLET PERMANENT WIREMARKET HUB : ROTATIONS WARFRAME & BARO KI'TEER ==================== */
+
+// Table complète des 8 semaines de rotation d'Armes Incarnon Genesis (Duviri — Route de l'Acier)
+const DUVIRI_INCARNON_ROTATIONS = [
+    { week: 1, code: "Semaine A", weapons: ["Braton", "Lato", "Skana", "Paris", "Kunai"] },
+    { week: 2, code: "Semaine B", weapons: ["Bo", "Latron", "Furis", "Furax", "Strun"] },
+    { week: 3, code: "Semaine C", weapons: ["Lex", "Magistar", "Boltor", "Bronco", "Ceramic Dagger"] },
+    { week: 4, code: "Semaine D", weapons: ["Torid", "Dual Toxocyst", "Dual Ichor", "Miter", "Atomos"] },
+    { week: 5, code: "Semaine E", weapons: ["Ack & Brunt", "Soma", "Vasto", "Nami Solo", "Burston"] },
+    { week: 6, code: "Semaine F", weapons: ["Zylok", "Sibear", "Dread", "Despair", "Hate"] },
+    { week: 7, code: "Semaine G", weapons: ["Dera", "Sybaris", "Cestra", "Sicarus", "Okina"] },
+    { week: 8, code: "Semaine H", weapons: ["Gorgon", "Anku", "Angstrum", "Gammacor", "Boar"] }
+];
+
+// Table complète des 11 semaines de rotation de Warframes (Duviri — Circuit Normal)
+const DUVIRI_WARFRAME_ROTATIONS = [
+    { week: 1, frames: ["Excalibur", "Trinity", "Ember"] },
+    { week: 2, frames: ["Loki", "Mag", "Rhino"] },
+    { week: 3, frames: ["Ash", "Frost", "Nyx"] },
+    { week: 4, frames: ["Saryn", "Vauban", "Nova"] },
+    { week: 5, frames: ["Nekros", "Valkyr", "Oberon"] },
+    { week: 6, frames: ["Hydroid", "Mirage", "Limbo"] },
+    { week: 7, frames: ["Mesa", "Chroma", "Atlas"] },
+    { week: 8, frames: ["Ivara", "Inaros", "Titania"] },
+    { week: 9, frames: ["Nidus", "Octavia", "Harrow"] },
+    { week: 10, frames: ["Gara", "Khora", "Revenant"] },
+    { week: 11, frames: ["Garuda", "Baruuk", "Hildryn"] }
+];
+
+// Dictionnaire de correspondance des noms internes DE de Baro Ki'Teer vers les slugs Warframe Market
+const BARO_INTERNAL_TO_SLUG = {
+    "weapon glaive secondary headshot kill mod": "mark_of_the_beast",
+    "primed weapon faction damage murmurs": "primed_bane_of_the_murmur",
+    "grn orokin rifle weapon": "gotva_prime",
+    "archwing rifle ammo max mod expert": "primed_magazine_warp",
+    "primed Smite Corpus": "primed_smite_corpus",
+    "primed smite corpus": "primed_smite_corpus",
+    "primed rubedo-lined barrel": "primed_rubedo_lined_barrel",
+    "primed quickdraw": "primed_quickdraw",
+    "primed shotgun ammo mutation": "primed_shotgun_ammo_mutation",
+    "primed animal instinct": "primed_animal_instinct",
+    "vermillion storm": "vermillion_storm",
+    "split flights": "split_flights",
+    "fae path ephemera": "fae_path_ephemera",
+    "vastilok": "vastilok",
+    "zylok": "zylok",
+    "ignis wraith": "ignis_wraith_blueprint",
+    "supra vandal": "supra_vandal",
+    "glaxion vandal": "glaxion_vandal",
+    "opticor vandal": "opticor_vandal",
+    "quanta vandal": "quanta_vandal",
+    "mara detron": "mara_detron",
+    "prisma grinlok": "prisma_grinlok",
+    "prisma gorgon": "prisma_gorgon",
+    "prisma skana": "prisma_skana",
+    "prisma dual cleavers": "prisma_dual_cleavers",
+    "prisma obex": "prisma_obex",
+    "prisma angstrum": "prisma_angstrum",
+    "prisma twin gremlins": "prisma_twin_gremlins",
+    "prisma veritux": "prisma_veritux",
+    "prisma shade": "prisma_shade",
+    "prisma lenz": "prisma_lenz",
+    "prisma ohma": "prisma_ohma",
+    "vulkar wraith": "vulkar_wraith",
+    "halikar wraith": "halikar_wraith",
+    "viper wraith": "viper_wraith",
+    "machete wraith": "machete_wraith",
+    "prova vandal": "prova_vandal"
+};
+
+// Traductions lisibles pour les cosmétiques internes DE de Baro Ki'Teer
+const BARO_INTERNAL_LABELS = {
+    "weapon glaive secondary headshot kill mod": "Mark of the Beast (Marque de la Bête)",
+    "primed weapon faction damage murmurs": "Primed Bane of The Murmur (Fléau Accru du Murmure)",
+    "grn orokin rifle weapon": "Gotva Prime",
+    "archwing rifle ammo max mod expert": "Primed Magazine Warp / Munitions Accrues",
+    "baro void signal": "Signal du Néant de Baro (Clé de mission)",
+    "akvasto tang prime skin": "Aspect Akvasto Tekelu / Tang",
+    "dante owl glyph": "Glyphe Dante Hibou",
+    "void trader Gauss Floof": "Peluche Gauss de Baro Ki'Teer",
+    "void trader gauss floof": "Peluche Gauss de Baro Ki'Teer",
+    "garasu kubrow armor": "Armure de Kubrow Ki'Teer / Garasu",
+    "grineer settlement artillery scene": "Scène d'Artillerie de Colonie Grineer",
+    "pagefromthe waitresses": "Note perdue de Parvos / Fragment de Codex",
+    "redeemer saloon skin": "Aspect Redeemer Elixis / Saloon",
+    "corinth solstice skin": "Aspect Corinth Immortel / Solstice"
+};
+
+// Classiques vendables de Baro Ki'Teer (affichés si Baro est absent entre deux visites pour toujours voir les prix du marché)
+const BARO_CLASSIC_STOCK = [
+    { item: "Primed Continuity", ducats: 350, credits: 100000 },
+    { item: "Primed Flow", ducats: 350, credits: 110000 },
+    { item: "Primed Heated Charge", ducats: 350, credits: 175000 },
+    { item: "Primed Target Cracker", ducats: 400, credits: 150000 },
+    { item: "Primed Pistol Gambit", ducats: 400, credits: 220000 },
+    { item: "Primed Reach", ducats: 300, credits: 220000 },
+    { item: "Primed Point Blank", ducats: 300, credits: 110000 },
+    { item: "Primed Pressure Point", ducats: 385, credits: 300000 },
+    { item: "Primed Ravage", ducats: 280, credits: 100000 },
+    { item: "Primed Animal Instinct", ducats: 300, credits: 200000 },
+    { item: "Primed Rubedo-Lined Barrel", ducats: 350, credits: 175000 },
+    { item: "Primed Weapon Faction Damage Murmurs", ducats: 350, credits: 200000 },
+    { item: "Grn Orokin Rifle Weapon", ducats: 675, credits: 625000 },
+    { item: "Vastilok", ducats: 550, credits: 325000 },
+    { item: "Prisma Skana", ducats: 510, credits: 175000 },
+    { item: "Supra Vandal", ducats: 500, credits: 275000 },
+    { item: "Jolt", ducats: 300, credits: 150000 },
+    { item: "High Voltage", ducats: 300, credits: 150000 },
+    { item: "Voltaic Strike", ducats: 300, credits: 150000 },
+    { item: "Shell Shock", ducats: 300, credits: 150000 }
+];
+
+async function fetchWorldstateData(forceRefresh = false) {
+    if (!forceRefresh && State.worldstateData && (Date.now() - State.worldstateFetchedAt < 45000)) {
+        return State.worldstateData;
+    }
+
+    const headers = forceRefresh ? { "X-WM-Refresh": "true" } : {};
+
+    // 1. Proxy local /worldstate (Launcher.cs / server.py)
+    if (window.location.protocol.startsWith("http")) {
+        try {
+            const res = await fetch("/worldstate", { headers });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && (data.cetusCycle || data.voidTrader)) {
+                    State.worldstateData = data;
+                    State.worldstateFetchedAt = Date.now();
+                    return data;
+                }
+            }
+        } catch (e) {}
+    }
+
+    // 2. Essai via 127.0.0.1:8484 si ouvert en file://
+    try {
+        const res = await fetch("http://127.0.0.1:8484/worldstate", { headers });
+        if (res.ok) {
+            const data = await res.json();
+            if (data && (data.cetusCycle || data.voidTrader)) {
+                State.worldstateData = data;
+                State.worldstateFetchedAt = Date.now();
+                return data;
+            }
+        }
+    } catch (e) {}
+
+    // 3. Essai direct vers api.warframestat.us
+    try {
+        const directRes = await fetch("https://api.warframestat.us/pc/?language=fr");
+        if (directRes.ok) {
+            const data = await directRes.json();
+            if (data && (data.cetusCycle || data.voidTrader)) {
+                State.worldstateData = data;
+                State.worldstateFetchedAt = Date.now();
+                return data;
+            }
+        }
+    } catch (e) {}
+
+    return State.worldstateData || buildFallbackWorldstate();
+}
+
+function buildFallbackWorldstate() {
+    const now = Date.now();
+    // Calcul déterministe de secours si hors-ligne
+    const earthPeriod = 8 * 3600 * 1000;
+    const earthRem = earthPeriod - (now % earthPeriod);
+    const isEarthDay = (now % earthPeriod) < (4 * 3600 * 1000);
+
+    return {
+        cetusCycle: { isDay: true, state: "day", expiry: new Date(now + 3600 * 1000).toISOString() },
+        vallisCycle: { isWarm: false, state: "cold", expiry: new Date(now + 900 * 1000).toISOString() },
+        cambionCycle: { state: "fass", active: "fass", expiry: new Date(now + 2400 * 1000).toISOString() },
+        earthCycle: { isDay: isEarthDay, state: isEarthDay ? "day" : "night", expiry: new Date(now + earthRem).toISOString() },
+        duviriCycle: {
+            state: "Joie",
+            expiry: new Date(now + 5400 * 1000).toISOString(),
+            choices: [
+                { category: "normal", choices: DUVIRI_WARFRAME_ROTATIONS[0].frames },
+                { category: "hard", choices: DUVIRI_INCARNON_ROTATIONS[0].weapons }
+            ]
+        },
+        zarimanCycle: { isCorpus: true, state: "corpus", expiry: new Date(now + 4500 * 1000).toISOString() },
+        voidTrader: {
+            character: "Baro Ki'Teer",
+            active: false,
+            location: "Relais du Néant",
+            activation: new Date(now + 5 * 86400 * 1000).toISOString(),
+            expiry: new Date(now + 7 * 86400 * 1000).toISOString(),
+            inventory: BARO_CLASSIC_STOCK
+        },
+        syndicateMissions: []
+    };
+}
+
+function matchBaroItemToWfm(rawName) {
+    if (!rawName || !State.catalogReady) return null;
+    const cleanRaw = String(rawName).trim();
+    const low = cleanRaw.toLowerCase();
+
+    // 1. Dictionnaire explicite des noms internes DE
+    if (BARO_INTERNAL_TO_SLUG[low]) {
+        const direct = State.itemsBySlug.get(BARO_INTERNAL_TO_SLUG[low]);
+        if (direct) return direct;
+    }
+
+    // 2. Reliques (ex: "Neo O1 Relic (Intact)" -> "neo_o1_relic")
+    const relicMatch = cleanRaw.match(/\b(Lith|Meso|Neo|Axi|Requiem)\s+([A-Z0-9]+)\s+Relic/i);
+    if (relicMatch) {
+        const rSlug = `${relicMatch[1].toLowerCase()}_${relicMatch[2].toLowerCase()}_relic`;
+        if (State.itemsBySlug.has(rSlug)) return State.itemsBySlug.get(rSlug);
+    }
+
+    // 3. Slug direct normalisé (avec variantes _set et _blueprint)
+    const baseSlug = low
+        .replace(/\s*\(intact\)\s*/g, "")
+        .replace(/\s*blueprint\s*$/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+
+    const candidates = [
+        baseSlug,
+        `${baseSlug}_set`,
+        `${baseSlug}_blueprint`
+    ];
+    for (const c of candidates) {
+        if (State.itemsBySlug.has(c)) return State.itemsBySlug.get(c);
+    }
+
+    // 4. Recherche exacte par nom anglais ou français dans le catalogue
+    const normTarget = normalizeSearch(cleanRaw.replace(/\s*\(Intact\)\s*/i, ""));
+    for (const it of State.itemsList) {
+        if (normalizeSearch(getItemEnName(it)) === normTarget || normalizeSearch(getItemName(it)) === normTarget) {
+            return it;
+        }
+    }
+
+    return null;
+}
+
+function matchDuviriWeaponToWfm(weaponName) {
+    if (!weaponName || !State.catalogReady) return null;
+    const baseSlug = String(weaponName).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    // Priorité : Adaptateur Incarnon Genesis sur Warframe Market, puis Set Prime / Arme
+    const candidates = [
+        `${baseSlug}_incarnon_genesis`,
+        `${baseSlug}_prime_set`,
+        `${baseSlug}_vandal_set`,
+        `${baseSlug}_wraith_set`,
+        `prisma_${baseSlug}`,
+        baseSlug
+    ];
+    for (const c of candidates) {
+        if (State.itemsBySlug.has(c)) return State.itemsBySlug.get(c);
+    }
+    const matches = searchCatalog(weaponName, 1);
+    return matches[0] || null;
+}
+
+function matchDuviriWarframeToWfm(frameName) {
+    if (!frameName || !State.catalogReady) return null;
+    const baseSlug = String(frameName).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    const candidates = [
+        `${baseSlug}_prime_set`,
+        `${baseSlug}_prime_blueprint`,
+        baseSlug
+    ];
+    for (const c of candidates) {
+        if (State.itemsBySlug.has(c)) return State.itemsBySlug.get(c);
+    }
+    const matches = searchCatalog(`${frameName} Prime Set`, 1);
+    return matches[0] || null;
+}
+
+async function loadBaroPlatinumPrices(inventoryList, forceRefresh = false) {
+    if (!State.catalogReady) {
+        await loadItemsCatalog();
+    }
+    const sourceItems = (Array.isArray(inventoryList) && inventoryList.length > 0)
+        ? inventoryList
+        : BARO_CLASSIC_STOCK;
+
+    const slugsToFetch = [];
+    for (const entry of sourceItems) {
+        const wfmItem = matchBaroItemToWfm(entry.item);
+        if (wfmItem && wfmItem.slug) {
+            if (forceRefresh || !State.baroPricesBySlug.has(wfmItem.slug)) {
+                if (!slugsToFetch.includes(wfmItem.slug)) {
+                    slugsToFetch.push(wfmItem.slug);
+                }
+            }
+        }
+    }
+
+    if (slugsToFetch.length === 0) return;
+
+    State.baroPricesLoading = true;
+    try {
+        const batchSize = 5;
+        for (let i = 0; i < slugsToFetch.length; i += batchSize) {
+            const batch = slugsToFetch.slice(i, i + batchSize);
+            await Promise.allSettled(batch.map(async (slug) => {
+                try {
+                    const res = await apiFetch(`/api/v2/orders/item/${slug}`, forceRefresh);
+                    const orders = Array.isArray(res.data) ? res.data : [];
+
+                    // Vendeurs (Prix d'achat / Prix de revente listé)
+                    let sells = orders.filter(o => o.visible && o.type === "sell" && o.user?.status === "ingame")
+                        .sort((a, b) => a.platinum - b.platinum);
+                    if (sells.length === 0) {
+                        sells = orders.filter(o => o.visible && o.type === "sell" && (o.user?.status === "online" || o.user?.status === "ingame"))
+                            .sort((a, b) => a.platinum - b.platinum);
+                    }
+
+                    // Acheteurs (Prix de revente instantané)
+                    let buys = orders.filter(o => o.visible && o.type === "buy" && o.user?.status === "ingame")
+                        .sort((a, b) => b.platinum - a.platinum);
+                    if (buys.length === 0) {
+                        buys = orders.filter(o => o.visible && o.type === "buy" && (o.user?.status === "online" || o.user?.status === "ingame"))
+                            .sort((a, b) => b.platinum - a.platinum);
+                    }
+
+                    const bestSell = sells[0] || null;
+                    const bestBuy = buys[0] || null;
+
+                    State.baroPricesBySlug.set(slug, {
+                        loaded: true,
+                        minSell: bestSell ? bestSell.platinum : null,
+                        bestSeller: bestSell ? {
+                            ingameName: bestSell.user?.ingameName || "Tenno",
+                            reputation: bestSell.user?.reputation ?? 0,
+                            status: bestSell.user?.status || "ingame",
+                            rank: bestSell.rank ?? ""
+                        } : null,
+                        sellCount: sells.length,
+                        maxBuy: bestBuy ? bestBuy.platinum : null,
+                        bestBuyer: bestBuy ? {
+                            ingameName: bestBuy.user?.ingameName || "Tenno",
+                            reputation: bestBuy.user?.reputation ?? 0,
+                            status: bestBuy.user?.status || "ingame",
+                            rank: bestBuy.rank ?? ""
+                        } : null,
+                        buyCount: buys.length
+                    });
+                } catch (err) {
+                    State.baroPricesBySlug.set(slug, { loaded: true, minSell: null, maxBuy: null, sellCount: 0, buyCount: 0 });
+                }
+            }));
+
+            // Mettre à jour la grille Baro en direct au fil du chargement
+            if (State.activeTabId === "hub") {
+                const baroGridWrap = document.getElementById("baro-shop-dynamic-area");
+                if (baroGridWrap) {
+                    renderBaroShopDynamicArea(baroGridWrap, State.hubTab);
+                }
+            }
+        }
+    } finally {
+        State.baroPricesLoading = false;
+        if (State.activeTabId === "hub") {
+            const baroGridWrap = document.getElementById("baro-shop-dynamic-area");
+            if (baroGridWrap) {
+                renderBaroShopDynamicArea(baroGridWrap, State.hubTab);
+            }
+        }
+    }
+}
+
+function formatCountdownMs(ms) {
+    if (!Number.isFinite(ms) || ms <= 0) return "Rotation en cours...";
+    const totalSec = Math.floor(ms / 1000);
+    const days = Math.floor(totalSec / 86400);
+    const hours = Math.floor((totalSec % 86400) / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    const secs = totalSec % 60;
+
+    if (days > 0) {
+        return `${days}j ${String(hours).padStart(2, "0")}h ${String(mins).padStart(2, "0")}m ${String(secs).padStart(2, "0")}s`;
+    }
+    if (hours > 0) {
+        return `${hours}h ${String(mins).padStart(2, "0")}m ${String(secs).padStart(2, "0")}s`;
+    }
+    return `${mins}m ${String(secs).padStart(2, "0")}s`;
+}
+
+function updateLiveWorldstateTimers() {
+    const now = Date.now();
+    document.querySelectorAll("[data-ws-expiry]").forEach(el => {
+        const exp = Date.parse(el.dataset.wsExpiry);
+        if (!Number.isNaN(exp)) {
+            el.textContent = formatCountdownMs(exp - now);
+        }
+    });
+}
+
+// Images officielles 3D haute résolution (512x512, non aplaties) des Planètes Warframe (Digital Extremes / Wiki Officiel)
+const WF_PLANET_IMAGES = {
+    earth: "https://wiki.warframe.com/images/TheSteelPathEarth.png",
+    venus: "https://wiki.warframe.com/images/TheSteelPathVenus.png",
+    deimos: "https://wiki.warframe.com/images/TheSteelPathDeimos.png",
+    mercury: "https://wiki.warframe.com/images/TheSteelPathMercury.png",
+    mars: "https://wiki.warframe.com/images/TheSteelPathMars.png",
+    phobos: "https://wiki.warframe.com/images/TheSteelPathPhobos.png",
+    ceres: "https://wiki.warframe.com/images/TheSteelPathCeres.png",
+    jupiter: "https://wiki.warframe.com/images/TheSteelPathJupiter.png",
+    europa: "https://wiki.warframe.com/images/TheSteelPathEuropa.png",
+    saturn: "https://wiki.warframe.com/images/TheSteelPathSaturn.png",
+    uranus: "https://wiki.warframe.com/images/TheSteelPathUranus.png",
+    neptune: "https://wiki.warframe.com/images/TheSteelPathNeptune.png",
+    pluto: "https://wiki.warframe.com/images/TheSteelPathPluto.png",
+    sedna: "https://wiki.warframe.com/images/TheSteelPathSedna.png",
+    eris: "https://wiki.warframe.com/images/TheSteelPathEris.png",
+    lua: "https://wiki.warframe.com/images/TheSteelPathLua.png",
+    void: "https://wiki.warframe.com/images/TheSteelPathVoid.png",
+    kuva: "https://wiki.warframe.com/images/TheSteelPathKuvaFortress.png",
+    zariman: "https://wiki.warframe.com/images/TheSteelPathZariman.png",
+    duviri: "https://wiki.warframe.com/images/TheSteelPathDuviri.png",
+    baro_portrait: "https://wiki.warframe.com/images/BaroKiTeer.jpg"
+};
+
+function getDuviriSpiralImage() {
+    return WF_PLANET_IMAGES.duviri;
+}
+
+// Recalcule automatiquement la phase actuelle et le prochain timer si l'API renvoie un cycle décalé dans le passé
+function resolveLiveCycle(rawCycle, cycleType) {
+    const now = Date.now();
+    const c = rawCycle || {};
+    const expMs = Date.parse(c.expiry || "");
+    const actMs = Date.parse(c.activation || "");
+
+    if (cycleType === "cetus" || cycleType === "cambion") {
+        // Cycle de 150 min : 100 min Jour/Fass (6 000 000 ms) + 50 min Nuit/Vome (3 000 000 ms)
+        const period = 9000000;
+        const firstPhaseLen = 6000000;
+        const wasFirstPhase = cycleType === "cetus"
+            ? (c.isDay !== undefined ? c.isDay : String(c.state).toLowerCase() === "day")
+            : (String(c.state || c.active || "fass").toLowerCase() === "fass");
+
+        if (Number.isFinite(expMs) && expMs > now) {
+            return { isFirstPhase: wasFirstPhase, expiry: c.expiry };
+        }
+        const anchorStart = Number.isFinite(actMs)
+            ? (wasFirstPhase ? actMs : actMs - firstPhaseLen)
+            : (Number.isFinite(expMs) ? (wasFirstPhase ? expMs - firstPhaseLen : expMs - period) : 1700000000000);
+        const elapsed = ((now - anchorStart) % period + period) % period;
+        if (elapsed < firstPhaseLen) {
+            return { isFirstPhase: true, expiry: new Date(now + (firstPhaseLen - elapsed)).toISOString() };
+        }
+        return { isFirstPhase: false, expiry: new Date(now + (period - elapsed)).toISOString() };
+    }
+
+    if (cycleType === "vallis") {
+        // Cycle de 26m40s (1 600 000 ms) : 6m40s Chaud (400 000 ms) + 20m Froid (1 200 000 ms)
+        const period = 1600000;
+        const warmLen = 400000;
+        const wasWarm = c.isWarm !== undefined ? c.isWarm : (String(c.state).toLowerCase() === "warm");
+        if (Number.isFinite(expMs) && expMs > now) {
+            return { isFirstPhase: wasWarm, expiry: c.expiry };
+        }
+        const anchorStart = Number.isFinite(actMs)
+            ? (wasWarm ? actMs : actMs - warmLen)
+            : (Number.isFinite(expMs) ? (wasWarm ? expMs - warmLen : expMs - period) : 1700000000000);
+        const elapsed = ((now - anchorStart) % period + period) % period;
+        if (elapsed < warmLen) {
+            return { isFirstPhase: true, expiry: new Date(now + (warmLen - elapsed)).toISOString() };
+        }
+        return { isFirstPhase: false, expiry: new Date(now + (period - elapsed)).toISOString() };
+    }
+
+    // Pour Terre (4h), Duviri (2h), Zariman (2.5h)
+    if (Number.isFinite(expMs) && expMs > now) {
+        return { expiry: c.expiry };
+    }
+    const step = cycleType === "earth" ? 14400000 : (cycleType === "duviri" ? 7200000 : 9000000);
+    const base = Number.isFinite(expMs) ? expMs : now;
+    const rem = step - (((now - base) % step + step) % step);
+    return { expiry: new Date(now + rem).toISOString() };
+}
+
+function getDuviriMoodFrenchLabel(moodState) {
+    const m = String(moodState || "").toLowerCase();
+    if (m.includes("joy") || m.includes("joie")) return "JOIE (Joy)";
+    if (m.includes("anger") || m.includes("colère") || m.includes("colere")) return "COLÈRE (Anger)";
+    if (m.includes("envy") || m.includes("envie")) return "ENVIE (Envy)";
+    if (m.includes("sorrow") || m.includes("chagrin")) return "CHAGRIN (Sorrow)";
+    if (m.includes("fear") || m.includes("peur")) return "PEUR (Fear)";
+    return String(moodState || "JOIE").toUpperCase();
+}
+
+function getPlanetImageForLocation(locationStr) {
+    const loc = String(locationStr || "").toLowerCase();
+    if (loc.includes("saturn") || loc.includes("kronia")) return WF_PLANET_IMAGES.saturn;
+    if (loc.includes("mercur") || loc.includes("larunda")) return WF_PLANET_IMAGES.mercury;
+    if (loc.includes("pluto") || loc.includes("orcus")) return WF_PLANET_IMAGES.pluto;
+    if (loc.includes("earth") || loc.includes("terre") || loc.includes("strata") || loc.includes("cetus")) return WF_PLANET_IMAGES.earth;
+    if (loc.includes("mars") || loc.includes("maroo")) return WF_PLANET_IMAGES.mars;
+    if (loc.includes("venus") || loc.includes("vénus") || loc.includes("fortuna")) return WF_PLANET_IMAGES.venus;
+    if (loc.includes("deimos") || loc.includes("necralisk")) return WF_PLANET_IMAGES.deimos;
+    if (loc.includes("eris") || loc.includes("éris")) return WF_PLANET_IMAGES.eris;
+    if (loc.includes("europa") || loc.includes("europe")) return WF_PLANET_IMAGES.europa;
+    return WF_PLANET_IMAGES.void;
+}
+
+function renderWorldstateHubPage(container, tab) {
+    const ws = tab.cachedData.worldstate || State.worldstateData || buildFallbackWorldstate();
+
+    // 1. Données Cycles Planétaires (avec projection périodique en temps réel si l'ancre API vient d'expirer)
+    const cetus = ws.cetusCycle || {};
+    const vallis = ws.vallisCycle || {};
+    const cambion = ws.cambionCycle || {};
+    const earth = ws.earthCycle || {};
+    const duviri = ws.duviriCycle || {};
+    const zariman = ws.zarimanCycle || {};
+
+    const cetusLive = resolveLiveCycle(cetus, "cetus");
+    const vallisLive = resolveLiveCycle(vallis, "vallis");
+    const cambionLive = resolveLiveCycle(cambion, "cambion");
+    const earthLive = resolveLiveCycle(earth, "earth");
+    const duviriLive = resolveLiveCycle(duviri, "duviri");
+    const zarimanLive = resolveLiveCycle(zariman, "zariman");
+
+    const isCetusDay = cetusLive.isFirstPhase;
+    const isVallisWarm = vallisLive.isFirstPhase;
+    const isCambionFass = cambionLive.isFirstPhase;
+    const isEarthDay = earth.isDay !== undefined ? earth.isDay : (String(earth.state).toLowerCase() === "day");
+    const duviriMood = duviri.state || "Joie";
+    const duviriSpiralImg = getDuviriSpiralImage(duviriMood);
+    const duviriMoodFr = getDuviriMoodFrenchLabel(duviriMood);
+    const isZarimanCorpus = zariman.isCorpus !== undefined ? zariman.isCorpus : (String(zariman.state).toLowerCase() === "corpus");
+
+    // 2. Données Rotations Duviri (Armes Incarnon & Warframes)
+    const duviriChoices = Array.isArray(duviri.choices) ? duviri.choices : [];
+    const hardChoiceObj = duviriChoices.find(c => c.category === "hard" || c.categoryKey === "EXC_HARD");
+    const normalChoiceObj = duviriChoices.find(c => c.category === "normal" || c.categoryKey === "EXC_NORMAL");
+
+    const activeIncarnonWeapons = (hardChoiceObj && Array.isArray(hardChoiceObj.choices) && hardChoiceObj.choices.length > 0)
+        ? hardChoiceObj.choices
+        : DUVIRI_INCARNON_ROTATIONS[0].weapons;
+
+    const activeDuviriFrames = (normalChoiceObj && Array.isArray(normalChoiceObj.choices) && normalChoiceObj.choices.length > 0)
+        ? normalChoiceObj.choices
+        : DUVIRI_WARFRAME_ROTATIONS[0].frames;
+
+    // Identifier l'index de la semaine active dans les tables complètes
+    const activeIncarnonWeekIdx = DUVIRI_INCARNON_ROTATIONS.findIndex(r =>
+        r.weapons.some(w => activeIncarnonWeapons.map(x => x.toLowerCase()).includes(w.toLowerCase()))
+    );
+    const activeFrameWeekIdx = DUVIRI_WARFRAME_ROTATIONS.findIndex(r =>
+        r.frames.some(f => activeDuviriFrames.map(x => x.toLowerCase()).includes(f.toLowerCase()))
+    );
+
+    // Calcul de la fin de semaine (Lundi 00:00 UTC) pour la rotation hebdomadaire Duviri
+    const nowDate = new Date();
+    const daysUntilMonday = (8 - nowDate.getUTCDay()) % 7 || 7;
+    const nextMondayUtc = new Date(Date.UTC(
+        nowDate.getUTCFullYear(),
+        nowDate.getUTCMonth(),
+        nowDate.getUTCDate() + daysUntilMonday,
+        0, 0, 0
+    )).toISOString();
+
+    // 3. Mises à Prix des Planètes (Syndicate Missions)
+    const syndicates = Array.isArray(ws.syndicateMissions) ? ws.syndicateMissions : [];
+    const selectedSyndicateKey = tab.viewState.bountySyndicate || "Ostrons";
+
+    // 4. Baro Ki'Teer
+    const vt = ws.voidTrader || {};
+    const baroActive = !!vt.active;
+    const baroTargetIso = baroActive ? vt.expiry : vt.activation;
+    const baroPlanetImg = getPlanetImageForLocation(vt.location);
+
+    const activeSection = tab.viewState.hubSection || "planets";
+
+    const planetsSectionHtml = `
+        <!-- VUE 1 : CYCLES JOUR / NUIT DES PLANÈTES & MISES À PRIX -->
+        <section id="hub-sec-cycles" class="ws-section">
+            <div class="section-header">
+                <h2 class="section-title">${wfIcon("sun", "wf-icon-gold")} Cycles Jour / Nuit & États des Planètes en Direct</h2>
+                <span style="color:var(--text-muted);font-size:12px;">Compte à rebours synchronisé à la seconde</span>
+            </div>
+            <div class="ws-cycles-grid">
+                <!-- Cetus / Plaines d'Eidolon -->
+                <div class="ws-cycle-card ${isCetusDay ? "cycle-day" : "cycle-night"}">
+                    <div class="ws-cycle-main-row">
+                        <div class="ws-planet-img-wrap">
+                            <img class="ws-planet-img" src="${WF_PLANET_IMAGES.earth}" alt="Terre" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                        </div>
+                        <div class="ws-cycle-body">
+                            <div class="ws-cycle-top">
+                                <div>
+                                    <div class="ws-cycle-planet">TERRE · PLAINES D'EIDOLON (CETUS)</div>
+                                    <div class="ws-cycle-state">
+                                        ${isCetusDay ? wfIcon("sun", "wf-icon-gold") : wfIcon("moon", "wf-icon-cyan")}
+                                        <span>${isCetusDay ? "JOUR" : "NUIT (Eidolons Actifs)"}</span>
+                                    </div>
+                                </div>
+                                <span class="ws-cycle-timer" data-ws-expiry="${escapeHtml(cetusLive.expiry)}">
+                                    ${formatCountdownMs(Date.parse(cetusLive.expiry) - Date.now())}
+                                </span>
+                            </div>
+                            <div class="ws-cycle-sub">
+                                ${isCetusDay
+                                    ? "Les Eidolons dorment. Prochaine nuit dans le compteur ci-dessus."
+                                    : "Chasse au Teralyst, Gantulyst et Hydrolyst disponible (Arcanes Légendaires) !"}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vallée Orbis / Fortuna -->
+                <div class="ws-cycle-card ${isVallisWarm ? "cycle-warm" : "cycle-cold"}">
+                    <div class="ws-cycle-main-row">
+                        <div class="ws-planet-img-wrap">
+                            <img class="ws-planet-img" src="${WF_PLANET_IMAGES.venus}" alt="Vénus" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                        </div>
+                        <div class="ws-cycle-body">
+                            <div class="ws-cycle-top">
+                                <div>
+                                    <div class="ws-cycle-planet">VÉNUS · VALLÉE ORBIS (FORTUNA)</div>
+                                    <div class="ws-cycle-state">
+                                        ${wfIcon(isVallisWarm ? "sun" : "prime", isVallisWarm ? "wf-icon-gold" : "wf-icon-cyan")}
+                                        <span>${isVallisWarm ? "CHAUD" : "FROID"}</span>
+                                    </div>
+                                </div>
+                                <span class="ws-cycle-timer" data-ws-expiry="${escapeHtml(vallisLive.expiry)}">
+                                    ${formatCountdownMs(Date.parse(vallisLive.expiry) - Date.now())}
+                                </span>
+                            </div>
+                            <div class="ws-cycle-sub">
+                                Cycle thermique de la Vallée Orbis (Pêche des Servopoissons & Preneur de Profit).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Puy de Cambion / Deimos -->
+                <div class="ws-cycle-card ${isCambionFass ? "cycle-fass" : "cycle-vome"}">
+                    <div class="ws-cycle-main-row">
+                        <div class="ws-planet-img-wrap">
+                            <img class="ws-planet-img" src="${WF_PLANET_IMAGES.deimos}" alt="Deimos" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                        </div>
+                        <div class="ws-cycle-body">
+                            <div class="ws-cycle-top">
+                                <div>
+                                    <div class="ws-cycle-planet">DEIMOS · PUY DE CAMBION (NECRALISK)</div>
+                                    <div class="ws-cycle-state">
+                                        ${wfIcon("prime", isCambionFass ? "wf-icon-gold" : "wf-icon-cyan")}
+                                        <span>${isCambionFass ? "FASS (Chaos)" : "VOME (Ordre)"}</span>
+                                    </div>
+                                </div>
+                                <span class="ws-cycle-timer" data-ws-expiry="${escapeHtml(cambionLive.expiry)}">
+                                    ${formatCountdownMs(Date.parse(cambionLive.expiry) - Date.now())}
+                                </span>
+                            </div>
+                            <div class="ws-cycle-sub">
+                                ${isCambionFass
+                                    ? "Le Wyrm Fass domine Deimos — Necramechs & résidus de Vome au sol."
+                                    : "Le Wyrm Vome apaise Deimos — Résidus de Fass & faune nocturne."}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forêts de la Terre -->
+                <div class="ws-cycle-card ${isEarthDay ? "cycle-day" : "cycle-night"}">
+                    <div class="ws-cycle-main-row">
+                        <div class="ws-planet-img-wrap">
+                            <img class="ws-planet-img" src="${WF_PLANET_IMAGES.earth}" alt="Terre" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                        </div>
+                        <div class="ws-cycle-body">
+                            <div class="ws-cycle-top">
+                                <div>
+                                    <div class="ws-cycle-planet">TERRE · FORÊTS TERRESTRES (4H)</div>
+                                    <div class="ws-cycle-state">
+                                        ${isEarthDay ? wfIcon("sun", "wf-icon-gold") : wfIcon("moon", "wf-icon-cyan")}
+                                        <span>${isEarthDay ? "JOUR" : "NUIT"}</span>
+                                    </div>
+                                </div>
+                                <span class="ws-cycle-timer" data-ws-expiry="${escapeHtml(earthLive.expiry)}">
+                                    ${formatCountdownMs(Date.parse(earthLive.expiry) - Date.now())}
+                                </span>
+                            </div>
+                            <div class="ws-cycle-sub">
+                                Plantes du Bosquet d'Argent : ${isEarthDay ? "Pomme de Pin Solaire & Lys Dragon" : "Jadefeuille Nocturne & Sarracénie Crépusculaire"}.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duviri Spirale d'Émotion -->
+                <div class="ws-cycle-card cycle-duviri">
+                    <div class="ws-cycle-main-row">
+                        <div class="ws-planet-img-wrap">
+                            <img class="ws-planet-img" src="${escapeHtml(duviriSpiralImg)}" alt="Duviri" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                        </div>
+                        <div class="ws-cycle-body">
+                            <div class="ws-cycle-top">
+                                <div>
+                                    <div class="ws-cycle-planet">DUVIRI · SPIRALE D'ÉMOTION</div>
+                                    <div class="ws-cycle-state">
+                                        ${wfIcon("void", "wf-icon-riven")}
+                                        <span>${escapeHtml(duviriMoodFr)}</span>
+                                    </div>
+                                </div>
+                                <span class="ws-cycle-timer" data-ws-expiry="${escapeHtml(duviriLive.expiry)}">
+                                    ${formatCountdownMs(Date.parse(duviriLive.expiry) - Date.now())}
+                                </span>
+                            </div>
+                            <div class="ws-cycle-sub">
+                                Détermine le prince Wyrmling actif et les dégâts élémentaires de l'Orowyrm à Duviri.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zariman Ten Zero -->
+                <div class="ws-cycle-card cycle-zariman">
+                    <div class="ws-cycle-main-row">
+                        <div class="ws-planet-img-wrap">
+                            <img class="ws-planet-img" src="${WF_PLANET_IMAGES.zariman}" alt="Zariman Ten Zero" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                        </div>
+                        <div class="ws-cycle-body">
+                            <div class="ws-cycle-top">
+                                <div>
+                                    <div class="ws-cycle-planet">ZARIMAN TEN ZERO · OCCUPATION</div>
+                                    <div class="ws-cycle-state">
+                                        ${wfIcon("syndicate", isZarimanCorpus ? "wf-icon-cyan" : "wf-icon-gold")}
+                                        <span>${isZarimanCorpus ? "CORPUS" : "GRINEER"}</span>
+                                    </div>
+                                </div>
+                                <span class="ws-cycle-timer" data-ws-expiry="${escapeHtml(zarimanLive.expiry)}">
+                                    ${formatCountdownMs(Date.parse(zarimanLive.expiry) - Date.now())}
+                                </span>
+                            </div>
+                            <div class="ws-cycle-sub">
+                                Faction ennemie occupant actuellement les missions et mises à prix des Irréductibles.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MISES À PRIX DES PLANÈTES (BOUNTIES) -->
+        <section id="hub-sec-bounties" class="ws-section">
+            <div class="section-header">
+                <h2 class="section-title">${wfIcon("target", "wf-icon-gold")} Mises à Prix des Planètes en Direct (Cetus, Fortuna, Necralisk)</h2>
+                <div class="bounty-syndicate-tabs">
+                    <button class="filter-chip bounty-planet-tab ${selectedSyndicateKey === "Ostrons" ? "active" : ""}" data-bounty-synd="Ostrons">
+                        <img class="bounty-tab-planet-img" src="${WF_PLANET_IMAGES.earth}" alt="Terre"/>
+                        <span>Ostrons (Cetus — Terre)</span>
+                    </button>
+                    <button class="filter-chip bounty-planet-tab ${selectedSyndicateKey === "Solaris United" ? "active" : ""}" data-bounty-synd="Solaris United">
+                        <img class="bounty-tab-planet-img" src="${WF_PLANET_IMAGES.venus}" alt="Vénus"/>
+                        <span>Union Solaris (Fortuna — Vénus)</span>
+                    </button>
+                    <button class="filter-chip bounty-planet-tab ${selectedSyndicateKey === "Entrati" ? "active" : ""}" data-bounty-synd="Entrati">
+                        <img class="bounty-tab-planet-img" src="${WF_PLANET_IMAGES.deimos}" alt="Deimos"/>
+                        <span>Entrati (Necralisk — Deimos)</span>
+                    </button>
+                </div>
+            </div>
+            <div id="bounties-dynamic-area">
+                ${renderBountiesForSyndicateHtml(syndicates, selectedSyndicateKey)}
+            </div>
+        </section>
+    `;
+
+    const duviriSectionHtml = `
+        <!-- VUE 2 : ROTATIONS DUVIRI (WARFRAMES & ARMES INCARNON) -->
+        <section id="hub-sec-duviri" class="ws-section">
+            <div class="section-header">
+                <h2 class="section-title">${wfIcon("weapon", "wf-icon-riven")} Rotations du Circuit de Duviri (Armes Incarnon Genesis & Warframes)</h2>
+                <div class="ws-rot-timer-pill">
+                    ${wfIcon("clock", "wf-icon-sm wf-icon-cyan")}
+                    <span>Prochaine rotation hebdomadaire dans : <strong data-ws-expiry="${escapeHtml(nextMondayUtc)}">${formatCountdownMs(Date.parse(nextMondayUtc) - Date.now())}</strong></span>
+                </div>
+            </div>
+
+            <div class="duviri-active-columns">
+                <!-- Armes Incarnon de la Semaine (Route de l'Acier) -->
+                <div class="duviri-panel incarnon-panel">
+                    <div class="duviri-panel-header">
+                        <div>
+                            <span class="duviri-mode-badge hard">${wfIcon("weapon", "wf-icon-sm")} ROUTE DE L'ACIER — EN COURS</span>
+                            <h3>Armes Incarnon Genesis de cette semaine ${activeIncarnonWeekIdx >= 0 ? `(${DUVIRI_INCARNON_ROTATIONS[activeIncarnonWeekIdx].code})` : ""}</h3>
+                        </div>
+                    </div>
+                    <div class="duviri-active-items-grid">
+                        ${activeIncarnonWeapons.map(wName => {
+                            const wfmItem = matchDuviriWeaponToWfm(wName);
+                            const img = wfmItem ? getItemThumb(wfmItem) : DEFAULT_FAVICON;
+                            const url = wfmItem
+                                ? `https://warframe.market/items/${wfmItem.slug}`
+                                : `https://warframe.market/items?q=${encodeURIComponent(wName)}`;
+                            const subLabel = wfmItem ? getItemName(wfmItem) : `${wName} Incarnon`;
+                            return `
+                                <div class="duviri-item-card" data-open-url="${escapeHtml(url)}" title="Voir ${escapeHtml(wName)} sur Warframe Market">
+                                    <img src="${escapeHtml(img)}" alt="${escapeHtml(wName)}" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                    <div class="duviri-item-info">
+                                        <div class="duviri-item-name">${escapeHtml(wName)}</div>
+                                        <div class="duviri-item-sub">${escapeHtml(subLabel)}</div>
+                                    </div>
+                                    <button class="item-card-newtab" data-newtab-url="${escapeHtml(url)}" title="Ouvrir dans un nouvel onglet">↗</button>
+                                </div>
+                            `;
+                        }).join("")}
+                    </div>
+                </div>
+
+                <!-- Warframes de la Semaine (Circuit Normal) -->
+                <div class="duviri-panel warframe-panel">
+                    <div class="duviri-panel-header">
+                        <div>
+                            <span class="duviri-mode-badge normal">${wfIcon("warframe", "wf-icon-sm")} CIRCUIT NORMAL — EN COURS</span>
+                            <h3>Warframes disponibles cette semaine ${activeFrameWeekIdx >= 0 ? `(Semaine ${activeFrameWeekIdx + 1}/11)` : ""}</h3>
+                        </div>
+                    </div>
+                    <div class="duviri-active-items-grid">
+                        ${activeDuviriFrames.map(fName => {
+                            const wfmItem = matchDuviriWarframeToWfm(fName);
+                            const img = wfmItem ? getItemThumb(wfmItem) : DEFAULT_FAVICON;
+                            const url = wfmItem
+                                ? `https://warframe.market/items/${wfmItem.slug}`
+                                : `https://warframe.market/items?q=${encodeURIComponent(fName)}`;
+                            const subLabel = wfmItem ? getItemName(wfmItem) : `${fName} Prime Set`;
+                            return `
+                                <div class="duviri-item-card" data-open-url="${escapeHtml(url)}" title="Voir ${escapeHtml(fName)} Prime sur Warframe Market">
+                                    <img src="${escapeHtml(img)}" alt="${escapeHtml(fName)}" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                    <div class="duviri-item-info">
+                                        <div class="duviri-item-name">${escapeHtml(fName)}</div>
+                                        <div class="duviri-item-sub">${escapeHtml(subLabel)}</div>
+                                    </div>
+                                    <button class="item-card-newtab" data-newtab-url="${escapeHtml(url)}" title="Ouvrir dans un nouvel onglet">↗</button>
+                                </div>
+                            `;
+                        }).join("")}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendrier Complet des Rotations Duviri (8 semaines Incarnon + 11 semaines Warframes) -->
+            <div class="duviri-schedule-columns">
+                <div class="orders-panel" style="padding:14px 16px;">
+                    <h4 class="schedule-subtitle">${wfIcon("weapon", "wf-icon-sm wf-icon-riven")} Calendrier Complet des 8 Rotations d'Armes Incarnon (Route de l'Acier)</h4>
+                    <div class="duviri-rotation-list">
+                        ${DUVIRI_INCARNON_ROTATIONS.map((rot, idx) => {
+                            const isCurrent = idx === activeIncarnonWeekIdx;
+                            return `
+                                <div class="duviri-rotation-row ${isCurrent ? "active-week" : ""}">
+                                    <div class="rot-week-label">
+                                        <strong>${escapeHtml(rot.code)}</strong>
+                                        ${isCurrent ? `<span class="rot-current-pill">EN COURS</span>` : ""}
+                                    </div>
+                                    <div class="rot-weapons-chips">
+                                        ${rot.weapons.map(w => {
+                                            const wfm = matchDuviriWeaponToWfm(w);
+                                            const u = wfm ? `https://warframe.market/items/${wfm.slug}` : `https://warframe.market/items?q=${encodeURIComponent(w)}`;
+                                            return `<span class="rot-item-chip" data-open-url="${escapeHtml(u)}">${escapeHtml(w)}</span>`;
+                                        }).join("")}
+                                    </div>
+                                </div>
+                            `;
+                        }).join("")}
+                    </div>
+                </div>
+
+                <div class="orders-panel" style="padding:14px 16px;">
+                    <h4 class="schedule-subtitle">${wfIcon("warframe", "wf-icon-sm wf-icon-cyan")} Calendrier Complet des 11 Rotations de Warframes (Circuit Normal)</h4>
+                    <div class="duviri-rotation-list">
+                        ${DUVIRI_WARFRAME_ROTATIONS.map((rot, idx) => {
+                            const isCurrent = idx === activeFrameWeekIdx;
+                            return `
+                                <div class="duviri-rotation-row ${isCurrent ? "active-week" : ""}">
+                                    <div class="rot-week-label">
+                                        <strong>Semaine ${rot.week}</strong>
+                                        ${isCurrent ? `<span class="rot-current-pill">EN COURS</span>` : ""}
+                                    </div>
+                                    <div class="rot-weapons-chips">
+                                        ${rot.frames.map(f => {
+                                            const wfm = matchDuviriWarframeToWfm(f);
+                                            const u = wfm ? `https://warframe.market/items/${wfm.slug}` : `https://warframe.market/items?q=${encodeURIComponent(f)}`;
+                                            return `<span class="rot-item-chip" data-open-url="${escapeHtml(u)}">${escapeHtml(f)}</span>`;
+                                        }).join("")}
+                                    </div>
+                                </div>
+                            `;
+                        }).join("")}
+                    </div>
+                </div>
+            </div>
+        </section>
+    `;
+
+    const baroSectionHtml = `
+        <!-- VUE 3 : BOUTIQUE DE BARO KI'TEER -->
+        <section id="hub-sec-baro" class="ws-section">
+            <div class="baro-hero-banner ${baroActive ? "baro-active" : "baro-away"}">
+                <div class="baro-hero-left">
+                    <div class="baro-emblem">
+                        <img class="baro-portrait-img" src="${WF_PLANET_IMAGES.baro_portrait}" alt="Baro Ki'Teer" onerror="this.style.display='none'"/>
+                    </div>
+                    <div>
+                        <div class="baro-status-row">
+                            <span class="baro-status-badge ${baroActive ? "present" : "incoming"}">
+                                ${baroActive ? "● BARO KI'TEER EST PRÉSENT AU RELAIS" : "● EN APPROCHE DANS LE NÉANT"}
+                            </span>
+                            <span class="baro-location-pill">
+                                <img class="baro-loc-planet-img" src="${escapeHtml(baroPlanetImg)}" alt=""/>
+                                <span>${escapeHtml(vt.location || "Relais Tenno")}</span>
+                            </span>
+                        </div>
+                        <h2 class="baro-title">Boutique de Baro Ki'Teer — Marchand du Néant</h2>
+                        <div class="baro-subtitle">
+                            ${baroActive
+                                ? `Départ du relais dans : <strong class="baro-countdown" data-ws-expiry="${escapeHtml(baroTargetIso || "")}">${formatCountdownMs(Date.parse(baroTargetIso || "") - Date.now())}</strong>`
+                                : `Prochaine arrivée dans : <strong class="baro-countdown" data-ws-expiry="${escapeHtml(baroTargetIso || "")}">${formatCountdownMs(Date.parse(baroTargetIso || "") - Date.now())}</strong> (Affichage du catalogue de Baro Ki'Teer ci-dessous)`}
+                        </div>
+                    </div>
+                </div>
+                <div class="baro-hero-controls">
+                    <input type="text" id="baro-search-input" class="seller-search" placeholder="Rechercher un item de Baro..." value="${escapeHtml(tab.viewState.baroSearch || "")}"/>
+                    <select id="baro-sort-select" class="alert-inline-select">
+                        <option value="plat_desc" ${tab.viewState.baroSort === "plat_desc" ? "selected" : ""}>Trier : Prix Platinum (Décroissant)</option>
+                        <option value="ratio_desc" ${tab.viewState.baroSort === "ratio_desc" ? "selected" : ""}>Trier : Rentabilité (Plat / 100 Ducats)</option>
+                        <option value="ducats_desc" ${tab.viewState.baroSort === "ducats_desc" ? "selected" : ""}>Trier : Coût en Ducats</option>
+                        <option value="name_asc" ${tab.viewState.baroSort === "name_asc" ? "selected" : ""}>Trier : Nom (A → Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="baro-filter-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Afficher :</span>
+                    <button class="filter-chip ${tab.viewState.baroFilter === "all" ? "active" : ""}" data-baro-filter="all">Tous les items</button>
+                    <button class="filter-chip ${tab.viewState.baroFilter === "tradable" ? "active" : ""}" data-baro-filter="tradable">${wfIcon("plat", "wf-icon-sm wf-icon-cyan")} Vendables en Platinum uniquement</button>
+                    <button class="filter-chip ${tab.viewState.baroFilter === "mods" ? "active" : ""}" data-baro-filter="mods">${wfIcon("mod", "wf-icon-sm wf-icon-gold")} Mods Accrus & Mods</button>
+                    <button class="filter-chip ${tab.viewState.baroFilter === "weapons" ? "active" : ""}" data-baro-filter="weapons">${wfIcon("weapon", "wf-icon-sm wf-icon-cyan")} Armes & Reliques</button>
+                </div>
+                <button class="btn-secondary btn-sm" id="btn-baro-reload-prices">${wfIcon("repeat", "wf-icon-sm wf-icon-cyan")} Recalculer les prix Platinum</button>
+            </div>
+
+            <div id="baro-shop-dynamic-area"></div>
+        </section>
+    `;
+
+    container.innerHTML = activeSection === "duviri"
+        ? duviriSectionHtml
+        : (activeSection === "baro" ? baroSectionHtml : planetsSectionHtml);
+
+    // Rendu de la grille Baro Ki'Teer si on est sur la vue Marchand
+    const baroArea = container.querySelector("#baro-shop-dynamic-area");
+    if (baroArea) {
+        renderBaroShopDynamicArea(baroArea, tab);
+    }
+
+    // Changement de Syndicat pour les Mises à Prix
+    container.querySelectorAll("[data-bounty-synd]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            tab.viewState.bountySyndicate = btn.dataset.bountySynd;
+            container.querySelectorAll("[data-bounty-synd]").forEach(b => b.classList.toggle("active", b === btn));
+            const bArea = container.querySelector("#bounties-dynamic-area");
+            if (bArea) {
+                bArea.innerHTML = renderBountiesForSyndicateHtml(syndicates, tab.viewState.bountySyndicate);
+                bindCommonPageEvents(bArea, tab);
+            }
+        });
+    });
+
+    // Filtres Baro Ki'Teer
+    container.querySelectorAll("[data-baro-filter]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            tab.viewState.baroFilter = btn.dataset.baroFilter;
+            container.querySelectorAll("[data-baro-filter]").forEach(b => b.classList.toggle("active", b === btn));
+            if (baroArea) renderBaroShopDynamicArea(baroArea, tab);
+        });
+    });
+
+    const baroSearch = container.querySelector("#baro-search-input");
+    baroSearch?.addEventListener("input", () => {
+        tab.viewState.baroSearch = baroSearch.value;
+        if (baroArea) renderBaroShopDynamicArea(baroArea, tab);
+    });
+
+    const baroSort = container.querySelector("#baro-sort-select");
+    baroSort?.addEventListener("change", () => {
+        tab.viewState.baroSort = baroSort.value;
+        if (baroArea) renderBaroShopDynamicArea(baroArea, tab);
+    });
+
+    container.querySelector("#btn-baro-reload-prices")?.addEventListener("click", () => {
+        loadBaroPlatinumPrices(ws?.voidTrader?.inventory || [], true);
+    });
+
+    bindCommonPageEvents(container, tab);
+}
+
+function switchHubSection(secId) {
+    const valid = ["planets", "duviri", "baro"].includes(secId) ? secId : "planets";
+    State.hubTab.viewState.hubSection = valid;
+    State.hubTab.url = `https://warframe.market/worldstate/${valid}`;
+    if (State.activeTabId !== "hub") {
+        activateTab("hub");
+    } else {
+        syncBrowserChromeToActiveTab();
+        renderActiveTabPage();
+    }
+}
+
+function renderBountiesForSyndicateHtml(syndicates, syndicateKey) {
+    const syndObj = (syndicates || []).find(s =>
+        s.syndicateKey === syndicateKey ||
+        String(s.syndicate || "").toLowerCase().includes(syndicateKey.toLowerCase())
+    );
+
+    if (!syndObj || !Array.isArray(syndObj.jobs) || syndObj.jobs.length === 0) {
+        return `<div class="orders-panel" style="padding:24px;text-align:center;color:var(--text-muted);">Chargement des mises à prix en cours pour ${escapeHtml(syndicateKey)}...</div>`;
+    }
+
+    const expiryIso = syndObj.expiry || "";
+    const planetImg = syndicateKey === "Solaris United"
+        ? WF_PLANET_IMAGES.venus
+        : (syndicateKey === "Entrati" ? WF_PLANET_IMAGES.deimos : WF_PLANET_IMAGES.earth);
+    const planetZoneLabel = syndicateKey === "Solaris United"
+        ? "Vénus · Vallée Orbis (Fortuna)"
+        : (syndicateKey === "Entrati" ? "Deimos · Puy de Cambion (Necralisk)" : "Terre · Plaines d'Eidolon (Cetus)");
+
+    return `
+        <div class="bounty-header-strip">
+            <div class="bounty-header-planet-info">
+                <img class="bounty-header-planet-img" src="${planetImg}" alt=""/>
+                <span><strong>${escapeHtml(syndObj.syndicate || syndicateKey)}</strong> (${escapeHtml(planetZoneLabel)}) — ${syndObj.jobs.length} Mises à Prix actives</span>
+            </div>
+            <span>Renouvellement des récompenses dans : <strong class="ws-inline-timer" data-ws-expiry="${escapeHtml(expiryIso)}">${formatCountdownMs(Date.parse(expiryIso) - Date.now())}</strong></span>
+        </div>
+        <div class="bounties-grid">
+            ${syndObj.jobs.map(job => {
+                const levels = Array.isArray(job.enemyLevels) && job.enemyLevels.length >= 2
+                    ? `Niv. ${job.enemyLevels[0]} - ${job.enemyLevels[1]}`
+                    : "Niv. Variable";
+                const totalStanding = Array.isArray(job.standingStages)
+                    ? job.standingStages.reduce((a, b) => a + (Number(b) || 0), 0)
+                    : 0;
+                const rewards = Array.isArray(job.rewardPool) ? job.rewardPool : [];
+
+                return `
+                    <div class="bounty-card">
+                        <div class="bounty-card-top">
+                            <div class="bounty-title">${escapeHtml(job.type || "Mise à Prix")}</div>
+                            <div class="bounty-badges">
+                                <span class="bounty-lvl-badge">${escapeHtml(levels)}</span>
+                                ${totalStanding > 0 ? `<span class="bounty-rep-badge">${wfIcon("rep", "wf-icon-sm wf-icon-gold")} +${totalStanding.toLocaleString("fr-FR")}</span>` : ""}
+                            </div>
+                        </div>
+                        <div class="bounty-rewards-label">Récompenses de la rotation actuelle :</div>
+                        <div class="bounty-rewards-pool">
+                            ${rewards.length > 0 ? rewards.map(rName => {
+                                const wfm = matchBaroItemToWfm(rName);
+                                if (wfm) {
+                                    const itemUrl = `https://warframe.market/items/${wfm.slug}`;
+                                    return `<span class="bounty-reward-chip tradable" data-open-url="${escapeHtml(itemUrl)}" title="Échangeable sur Warframe Market — Cliquer pour voir le prix en Platinum">${wfIcon("plat", "wf-icon-sm wf-icon-cyan")} ${escapeHtml(rName)}</span>`;
+                                }
+                                return `<span class="bounty-reward-chip">${escapeHtml(rName)}</span>`;
+                            }).join("") : `<span style="color:var(--text-muted);font-size:12px;">Pool de récompenses standard du syndicat</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join("")}
+        </div>
+    `;
+}
+
+function renderBaroShopDynamicArea(areaContainer, tab) {
+    const ws = tab.cachedData.worldstate || State.worldstateData || buildFallbackWorldstate();
+    const rawInventory = (ws.voidTrader && Array.isArray(ws.voidTrader.inventory) && ws.voidTrader.inventory.length > 0)
+        ? ws.voidTrader.inventory
+        : BARO_CLASSIC_STOCK;
+
+    const enriched = rawInventory.map(entry => {
+        const rawName = String(entry.item || "Item du Néant");
+        const lowName = rawName.toLowerCase();
+        const wfmItem = matchBaroItemToWfm(rawName);
+        const isTradable = !!wfmItem;
+        const priceInfo = (wfmItem && State.baroPricesBySlug.get(wfmItem.slug)) || null;
+
+        const displayName = wfmItem
+            ? getItemName(wfmItem)
+            : (BARO_INTERNAL_LABELS[lowName] || BARO_INTERNAL_LABELS[rawName] || rawName);
+
+        const enSubName = wfmItem
+            ? getItemEnName(wfmItem)
+            : rawName;
+
+        const ducats = Number(entry.ducats) || 0;
+        const credits = Number(entry.credits) || 0;
+        const minSell = priceInfo?.minSell ?? null;
+        const maxBuy = priceInfo?.maxBuy ?? null;
+        const ratio = (minSell && ducats > 0) ? ((minSell / ducats) * 100) : 0;
+
+        const tags = wfmItem ? (wfmItem.tags || []) : [];
+        const isMod = tags.includes("mod") || lowName.includes("primed") || lowName.includes("mod");
+        const isWeaponOrRelic = tags.includes("weapon") || tags.includes("relic") || lowName.includes("relic") || lowName.includes("vandal") || lowName.includes("wraith") || lowName.includes("prisma") || lowName.includes("weapon");
+
+        return {
+            rawName,
+            displayName,
+            enSubName,
+            ducats,
+            credits,
+            wfmItem,
+            isTradable,
+            priceInfo,
+            minSell,
+            maxBuy,
+            ratio,
+            isMod,
+            isWeaponOrRelic
+        };
+    });
+
+    // Filtrage
+    const filterMode = tab.viewState.baroFilter || "all";
+    const searchQ = normalizeSearch(tab.viewState.baroSearch || "");
+
+    let filtered = enriched.filter(it => {
+        if (filterMode === "tradable" && !it.isTradable) return false;
+        if (filterMode === "mods" && !it.isMod) return false;
+        if (filterMode === "weapons" && !it.isWeaponOrRelic) return false;
+        if (searchQ) {
+            const hay = normalizeSearch(`${it.displayName} ${it.enSubName} ${it.rawName}`);
+            if (!hay.includes(searchQ)) return false;
+        }
+        return true;
+    });
+
+    // Tri
+    const sortMode = tab.viewState.baroSort || "plat_desc";
+    filtered.sort((a, b) => {
+        if (sortMode === "plat_desc") {
+            if (a.isTradable !== b.isTradable) return a.isTradable ? -1 : 1;
+            return (b.minSell || 0) - (a.minSell || 0) || (b.ducats - a.ducats);
+        }
+        if (sortMode === "ratio_desc") {
+            if (a.isTradable !== b.isTradable) return a.isTradable ? -1 : 1;
+            return (b.ratio || 0) - (a.ratio || 0);
+        }
+        if (sortMode === "ducats_desc") {
+            return b.ducats - a.ducats;
+        }
+        return a.displayName.localeCompare(b.displayName, "fr");
+    });
+
+    const totalTradable = enriched.filter(x => x.isTradable).length;
+
+    areaContainer.innerHTML = `
+        <div class="baro-summary-strip">
+            <span><strong>${filtered.length}</strong> / ${enriched.length} items affichés · <strong>${totalTradable} items vendables en Platinum</strong> sur Warframe Market</span>
+            ${State.baroPricesLoading ? `<span style="color:var(--accent-cyan);">${wfIcon("repeat", "wf-icon-sm wf-icon-cyan")} Synchronisation des prix Platinum en direct...</span>` : `<span style="color:var(--sell-color);">● Prix Platinum synchronisés avec Warframe Market</span>`}
+        </div>
+
+        <div class="baro-shop-grid">
+            ${filtered.map(it => {
+                const itemUrl = it.wfmItem ? `https://warframe.market/items/${it.wfmItem.slug}` : "";
+                const thumb = it.wfmItem ? getItemThumb(it.wfmItem) : DEFAULT_FAVICON;
+                const isFav = it.wfmItem ? isItemFavorite(it.wfmItem.slug) : false;
+
+                let platSectionHtml = "";
+                if (it.isTradable) {
+                    const pInfo = it.priceInfo;
+                    const sellText = pInfo
+                        ? (it.minSell !== null ? `${it.minSell} Platinum` : "Aucune offre en jeu")
+                        : "Calcul en cours...";
+                    const buyText = pInfo
+                        ? (it.maxBuy !== null ? `${it.maxBuy} Platinum` : "Aucun acheteur direct")
+                        : "Calcul en cours...";
+
+                    platSectionHtml = `
+                        <div class="baro-plat-box tradable">
+                            <div class="baro-plat-row">
+                                <span class="baro-plat-label">${wfIcon("plat", "wf-icon-sm wf-icon-cyan")} Prix d'Achat en Platinum (Vendeur) :</span>
+                                <strong class="baro-plat-val sell">${escapeHtml(sellText)}</strong>
+                            </div>
+                            <div class="baro-plat-row">
+                                <span class="baro-plat-label">${wfIcon("chart", "wf-icon-sm wf-icon-gold")} Prix de Revente Marché (Liste) :</span>
+                                <strong class="baro-plat-val sell">${it.minSell !== null ? `${it.minSell} Platinum` : "—"}</strong>
+                            </div>
+                            <div class="baro-plat-row">
+                                <span class="baro-plat-label">${wfIcon("plat", "wf-icon-sm wf-icon-riven")} Revente Directe (Acheteur immédiat) :</span>
+                                <strong class="baro-plat-val buy">${escapeHtml(buyText)}</strong>
+                            </div>
+                            ${it.ratio > 0 ? `
+                                <div class="baro-ratio-line">
+                                    Rentabilité Ducats → Plat : <strong>${it.ratio.toFixed(1)} Plat / 100 Ducats</strong>
+                                </div>
+                            ` : ""}
+                            <div class="baro-plat-actions">
+                                <button class="btn-secondary btn-sm" data-open-url="${escapeHtml(itemUrl)}">Fiche Marché</button>
+                                ${it.minSell !== null && pInfo?.bestSeller ? `
+                                    <button class="btn-trade sell"
+                                        data-whisper-user="${escapeHtml(pInfo.bestSeller.ingameName)}"
+                                        data-whisper-item-en="${escapeHtml(getItemEnName(it.wfmItem))}"
+                                        data-whisper-item-fr="${escapeHtml(getItemName(it.wfmItem))}"
+                                        data-whisper-price="${it.minSell}"
+                                        data-whisper-type="sell"
+                                        data-whisper-rank="${pInfo.bestSeller.rank}"
+                                        data-whisper-maxrank="${it.wfmItem.maxRank ?? ""}">
+                                        Acheter ${it.minSell}p (/w)
+                                    </button>
+                                ` : ""}
+                                ${it.maxBuy !== null && pInfo?.bestBuyer ? `
+                                    <button class="btn-trade buy"
+                                        data-whisper-user="${escapeHtml(pInfo.bestBuyer.ingameName)}"
+                                        data-whisper-item-en="${escapeHtml(getItemEnName(it.wfmItem))}"
+                                        data-whisper-item-fr="${escapeHtml(getItemName(it.wfmItem))}"
+                                        data-whisper-price="${it.maxBuy}"
+                                        data-whisper-type="buy"
+                                        data-whisper-rank="${pInfo.bestBuyer.rank}"
+                                        data-whisper-maxrank="${it.wfmItem.maxRank ?? ""}">
+                                        Revendre ${it.maxBuy}p (/w)
+                                    </button>
+                                ` : ""}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    platSectionHtml = `
+                        <div class="baro-plat-box non-tradable">
+                            <div class="non-tradable-badge">
+                                ${wfIcon("syndicate", "wf-icon-sm")} Cosmétique / Objet lié au compte (Non échangeable en Platinum)
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="baro-item-card ${it.isTradable ? "is-tradable" : "is-cosmetic"}">
+                        <div class="baro-card-top">
+                            <div class="baro-thumb-wrap" ${itemUrl ? `data-open-url="${escapeHtml(itemUrl)}"` : ""}>
+                                ${it.wfmItem
+                                    ? `<img class="baro-item-img" src="${escapeHtml(thumb)}" alt="${escapeHtml(it.displayName)}" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>`
+                                    : `<div class="baro-cosmetic-icon">${wfIcon("void", "wf-icon-gold")}</div>`
+                                }
+                            </div>
+                            <div class="baro-item-head-info">
+                                <div class="baro-badge-line">
+                                    ${it.isTradable
+                                        ? `<span class="baro-tag tradable-tag">${wfIcon("plat", "wf-icon-sm")} VENDABLE EN PLATINUM</span>`
+                                        : `<span class="baro-tag cosmetic-tag">COLLECTION DU NÉANT</span>`
+                                    }
+                                    ${it.wfmItem ? `
+                                        <div style="display:flex;gap:4px;">
+                                            <button class="item-card-fav-btn ${isFav ? "active" : ""}" data-fav-slug="${escapeHtml(it.wfmItem.slug)}" title="Ajouter aux favoris">${wfIcon("star", "wf-icon-sm")}</button>
+                                            <button class="item-card-newtab" data-newtab-url="${escapeHtml(itemUrl)}" title="Ouvrir dans un nouvel onglet">↗</button>
+                                        </div>
+                                    ` : ""}
+                                </div>
+                                <div class="baro-item-title" ${itemUrl ? `data-open-url="${escapeHtml(itemUrl)}"` : ""}>
+                                    ${escapeHtml(it.displayName)}
+                                </div>
+                                ${it.enSubName !== it.displayName ? `<div class="baro-item-sub">${escapeHtml(it.enSubName)}</div>` : ""}
+                            </div>
+                        </div>
+
+                        <!-- Coût d'achat chez Baro Ki'Teer (Ducats + Crédits) -->
+                        <div class="baro-cost-bar">
+                            <div class="baro-cost-pill ducats">
+                                ${wfIcon("ducats", "wf-icon-sm wf-icon-gold")}
+                                <span>Achat Baro : <strong>${it.ducats.toLocaleString("fr-FR")} Ducats</strong></span>
+                            </div>
+                            <div class="baro-cost-pill credits">
+                                ${wfIcon("credits", "wf-icon-sm wf-icon-cyan")}
+                                <span>+ <strong>${it.credits.toLocaleString("fr-FR")} Crédits</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Prix d'achat & de revente en Platinum -->
+                        ${platSectionHtml}
+                    </div>
+                `;
+            }).join("")}
+        </div>
+    `;
+
+    bindCommonPageEvents(areaContainer, tab);
 }
 
 /* ---------- 1. PAGE D'ACCUEIL (https://warframe.market/) ---------- */
@@ -737,12 +2476,12 @@ function renderHomePage(container, tab) {
                 <h1>Bienvenue sur <span>Warframe Market</span> (WireMarket)</h1>
                 <p>Consultez les ordres d'achat et de vente en temps réel, ouvrez plusieurs items dans des onglets dédiés et copiez vos messages d'échange <code>/w</code> en un clic.</p>
                 <div class="quick-tags">
-                    <button class="tag-chip" data-quick-cat="prime_set">✨ Sets Prime</button>
-                    <button class="tag-chip" data-quick-cat="warframe">🛡️ Warframes</button>
-                    <button class="tag-chip" data-quick-cat="weapon">⚔️ Armes</button>
-                    <button class="tag-chip" data-quick-cat="mod">💠 Mods</button>
-                    <button class="tag-chip" data-quick-cat="arcane_enhancement">🔮 Arcanes</button>
-                    <button class="tag-chip" data-quick-cat="relic">🏺 Reliques</button>
+                    <button class="tag-chip" data-quick-cat="prime_set">${wfIcon("prime", "wf-icon-gold")} Sets Prime</button>
+                    <button class="tag-chip" data-quick-cat="warframe">${wfIcon("warframe", "wf-icon-cyan")} Warframes</button>
+                    <button class="tag-chip" data-quick-cat="weapon">${wfIcon("weapon", "wf-icon-cyan")} Armes</button>
+                    <button class="tag-chip" data-quick-cat="mod">${wfIcon("mod", "wf-icon-cyan")} Mods</button>
+                    <button class="tag-chip" data-quick-cat="arcane_enhancement">${wfIcon("arcane", "wf-icon-riven")} Arcanes</button>
+                    <button class="tag-chip" data-quick-cat="relic">${wfIcon("relic", "wf-icon-gold")} Reliques</button>
                 </div>
             </div>
             <div>
@@ -796,7 +2535,7 @@ function renderItemCardHtml(item) {
                 <div class="item-card-sub">${escapeHtml(State.lang === "fr" && enName !== name ? enName : tags)}</div>
             </div>
             <div class="item-card-actions">
-                <button class="item-card-fav-btn ${isFav ? "active" : ""}" data-fav-slug="${escapeHtml(item.slug)}" title="${isFav ? "Retirer des items favoris" : "Ajouter aux items favoris"}">★</button>
+                <button class="item-card-fav-btn ${isFav ? "active" : ""}" data-fav-slug="${escapeHtml(item.slug)}" title="${isFav ? "Retirer des items favoris" : "Ajouter aux items favoris"}">${wfIcon("star", "wf-icon-sm")}</button>
                 <button class="item-card-newtab" data-newtab-url="${escapeHtml(url)}" title="Ouvrir dans un nouvel onglet">↗</button>
             </div>
         </div>
@@ -849,7 +2588,7 @@ function renderRecentOrdersTableHtml(orders) {
                                 <td>
                                     <div class="trader-cell">
                                         <span class="trader-name" data-open-url="https://warframe.market/profile/${encodeURIComponent(user.slug || user.ingameName || "")}">${escapeHtml(user.ingameName || "Tenno")}</span>
-                                        <span class="trader-rep" title="Réputation">☺ ${user.reputation ?? 0}</span>
+                                        <span class="trader-rep" title="Réputation">${wfIcon("rep", "wf-icon-sm wf-icon-gold")} ${user.reputation ?? 0}</span>
                                     </div>
                                 </td>
                                 <td>${renderStatusBadge(status)}</td>
@@ -943,6 +2682,10 @@ function renderItemPage(container, tab, slug) {
 
     const lowestSell = sellOrders.length > 0 ? sellOrders[0].platinum : "—";
     const highestBuy = buyOrders.length > 0 ? buyOrders[0].platinum : "—";
+    const existingAlert = getAlertForSlug(item.slug);
+    const defaultTargetPrice = existingAlert
+        ? existingAlert.targetPrice
+        : (typeof lowestSell === "number" ? Math.max(1, lowestSell - 2) : 20);
 
     container.innerHTML = `
         <div class="item-page-header">
@@ -953,18 +2696,45 @@ function renderItemPage(container, tab, slug) {
                         <h1>${escapeHtml(name)}</h1>
                         ${enName !== name ? `<span class="item-en-subtitle">(${escapeHtml(enName)})</span>` : ""}
                         <button class="btn-fav-hero ${isItemFavorite(item.slug) ? "active" : ""}" data-fav-slug="${escapeHtml(item.slug)}">
-                            ★ ${isItemFavorite(item.slug) ? "Dans vos Favoris" : "Ajouter aux Favoris"}
+                            ${wfIcon("star", "wf-icon-gold")} ${isItemFavorite(item.slug) ? "Dans vos Favoris" : "Ajouter aux Favoris"}
                         </button>
+                        <button class="btn-alert-hero ${existingAlert && existingAlert.enabled !== false ? "active" : ""}" id="btn-toggle-item-alert-box">
+                            ${wfIcon("alert", "wf-icon-cyan")} ${existingAlert ? `Alerte : ≤ ${existingAlert.targetPrice} Plat ${existingAlert.enabled === false ? "(Pause)" : ""}` : "Créer une alerte de prix"}
+                        </button>
+                    </div>
+
+                    <div id="item-alert-creator-box" class="item-alert-creator-box ${vs.showAlertBox || existingAlert ? "" : "hidden"}">
+                        <div class="item-alert-creator-left">
+                            <span>${wfIcon("target", "wf-icon-cyan")} <strong>Price Sniper :</strong> Me notifier dès qu'un vendeur</span>
+                            <select id="item-alert-status-select" class="alert-inline-select">
+                                <option value="ingame" ${(!existingAlert || existingAlert.statusMode === "ingame") ? "selected" : ""}>◆ En jeu (In Game)</option>
+                                <option value="online" ${(existingAlert && existingAlert.statusMode === "online") ? "selected" : ""}>◇ En jeu + En ligne</option>
+                            </select>
+                            <span>vend à <strong>≤</strong></span>
+                            <input type="number" id="item-alert-price-input" class="alert-inline-input" min="1" max="99999" value="${defaultTargetPrice}" />
+                            <span><strong>Platinum</strong></span>
+                        </div>
+                        <div class="item-alert-creator-actions">
+                            <button class="btn-primary btn-sm" id="btn-save-item-alert">
+                                ${existingAlert ? `${wfIcon("target", "wf-icon-sm")} Mettre à jour l'alerte` : `${wfIcon("alert", "wf-icon-sm")} Activer l'alerte`}
+                            </button>
+                            ${existingAlert ? `
+                                <button class="btn-secondary btn-sm" id="btn-pause-item-alert">
+                                    ${existingAlert.enabled === false ? `${wfIcon("play", "wf-icon-sm")} Réactiver` : `${wfIcon("pause", "wf-icon-sm")} Pause`}
+                                </button>
+                                <button class="btn-secondary btn-sm" id="btn-delete-item-alert" style="color:#ff7675;">${wfIcon("trash", "wf-icon-sm")} Supprimer</button>
+                            ` : ""}
+                        </div>
                     </div>
 
                     <div class="item-meta-badges">
                         <span class="meta-pill">Prix Vente Min : <strong style="color:var(--sell-color)">${lowestSell} Plat</strong></span>
                         <span class="meta-pill">Offre Achat Max : <strong style="color:var(--buy-color)">${highestBuy} Plat</strong></span>
-                        ${item.ducats ? `<span class="meta-pill ducats">🪙 Ducats : <strong>${item.ducats}</strong></span>` : ""}
-                        ${item.reqMasteryRank !== undefined ? `<span class="meta-pill">🏆 Palier Maîtrise : <strong>${item.reqMasteryRank}</strong></span>` : ""}
-                        ${item.tradingTax ? `<span class="meta-pill tax">💳 Taxe d'échange : <strong>${item.tradingTax.toLocaleString("fr-FR")} Crédits</strong></span>` : ""}
-                        ${hasRank ? `<span class="meta-pill">🔼 Rang Max : <strong>${item.maxRank}</strong></span>` : ""}
-                        <a class="meta-pill" href="${escapeHtml(wikiLink)}" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none;">📖 Wiki Officiel ↗</a>
+                        ${item.ducats ? `<span class="meta-pill ducats">${wfIcon("ducats", "wf-icon-sm wf-icon-gold")} Ducats : <strong>${item.ducats}</strong></span>` : ""}
+                        ${item.reqMasteryRank !== undefined ? `<span class="meta-pill">${wfIcon("mastery", "wf-icon-sm wf-icon-cyan")} Palier Maîtrise : <strong>${item.reqMasteryRank}</strong></span>` : ""}
+                        ${item.tradingTax ? `<span class="meta-pill tax">${wfIcon("credits", "wf-icon-sm wf-icon-cyan")} Taxe d'échange : <strong>${item.tradingTax.toLocaleString("fr-FR")} Crédits</strong></span>` : ""}
+                        ${hasRank ? `<span class="meta-pill">${wfIcon("rank", "wf-icon-sm wf-icon-gold")} Rang Max : <strong>${item.maxRank}</strong></span>` : ""}
+                        <a class="meta-pill" href="${escapeHtml(wikiLink)}" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none;">${wfIcon("codex", "wf-icon-sm wf-icon-cyan")} Wiki Officiel ↗</a>
                     </div>
 
                     ${desc ? `<p class="item-description">${escapeHtml(desc)}</p>` : ""}
@@ -988,9 +2758,9 @@ function renderItemPage(container, tab, slug) {
                 <div class="set-calc-box" id="set-calc-container">
                     ${tab.cachedData.setComparisonHtml || `
                         <div style="font-size:13px;color:var(--text-secondary);">
-                            💡 <strong>Astuce d'achat :</strong> Vérifiez s'il est moins cher d'acheter le Set complet ou chaque composant séparément en jeu.
+                            ${wfIcon("prime", "wf-icon-gold")} <strong>Astuce d'achat :</strong> Vérifiez s'il est moins cher d'acheter le Set complet ou chaque composant séparément en jeu.
                         </div>
-                        <button class="btn-secondary btn-sm" id="btn-calc-set-parts">⚖️ Comparer Set complet vs Pièces séparées</button>
+                        <button class="btn-secondary btn-sm" id="btn-calc-set-parts">${wfIcon("compare", "wf-icon-cyan")} Comparer Set complet vs Pièces séparées</button>
                     `}
                 </div>
             ` : ""}
@@ -1003,7 +2773,7 @@ function renderItemPage(container, tab, slug) {
                     Ordres en direct (${filteredOrders.length})
                 </button>
                 <button class="subtab-btn ${vs.subtab === "statistics" ? "active" : ""}" data-subtab="statistics">
-                    📈 Statistiques de prix (48h / 90j)
+                    ${wfIcon("chart", "wf-icon-sm")} Statistiques de prix (48h / 90j)
                 </button>
             </div>
 
@@ -1012,9 +2782,9 @@ function renderItemPage(container, tab, slug) {
                     <div class="filter-group">
                         <label>Statut vendeur :</label>
                         <select id="filter-status">
-                            <option value="ingame" ${vs.statusFilter === "ingame" ? "selected" : ""}>🟣 En jeu (In Game)</option>
-                            <option value="online" ${vs.statusFilter === "online" ? "selected" : ""}>🟢 En jeu + En ligne</option>
-                            <option value="all" ${vs.statusFilter === "all" ? "selected" : ""}>⚫ Tous (incl. Hors ligne)</option>
+                            <option value="ingame" ${vs.statusFilter === "ingame" ? "selected" : ""}>◆ En jeu (In Game)</option>
+                            <option value="online" ${vs.statusFilter === "online" ? "selected" : ""}>◇ En jeu + En ligne</option>
+                            <option value="all" ${vs.statusFilter === "all" ? "selected" : ""}>▫ Tous (incl. Hors ligne)</option>
                         </select>
                     </div>
 
@@ -1158,11 +2928,11 @@ function renderItemPage(container, tab, slug) {
                 if (setPrice !== null && partsTotal > 0) {
                     const diff = setPrice - partsTotal;
                     if (diff > 0) {
-                        verdict = `<span style="color:var(--sell-color);font-weight:700;">👉 Acheter les pièces séparément économise ${diff} Platinum ! (${partsTotal}p vs ${setPrice}p)</span>`;
+                        verdict = `<span style="color:var(--sell-color);font-weight:700;">${wfIcon("target", "wf-icon-sm")} Acheter les pièces séparément économise ${diff} Platinum ! (${partsTotal}p vs ${setPrice}p)</span>`;
                     } else if (diff < 0) {
-                        verdict = `<span style="color:var(--accent-cyan);font-weight:700;">👉 Le Set complet est moins cher de ${Math.abs(diff)} Platinum ! (${setPrice}p vs ${partsTotal}p)</span>`;
+                        verdict = `<span style="color:var(--accent-cyan);font-weight:700;">${wfIcon("target", "wf-icon-sm")} Le Set complet est moins cher de ${Math.abs(diff)} Platinum ! (${setPrice}p vs ${partsTotal}p)</span>`;
                     } else {
-                        verdict = `<span>👉 Le Set complet et les pièces séparées coûtent exactement le même prix (${setPrice}p).</span>`;
+                        verdict = `<span>${wfIcon("target", "wf-icon-sm")} Le Set complet et les pièces séparées coûtent exactement le même prix (${setPrice}p).</span>`;
                     }
                 }
 
@@ -1192,6 +2962,29 @@ function renderItemPage(container, tab, slug) {
     if (vs.subtab === "statistics") {
         drawStatsCanvas(tab);
     }
+
+    // Événements du créateur d'alerte sur la page de l'item
+    container.querySelector("#btn-toggle-item-alert-box")?.addEventListener("click", () => {
+        vs.showAlertBox = !vs.showAlertBox;
+        const box = container.querySelector("#item-alert-creator-box");
+        if (box) box.classList.toggle("hidden");
+    });
+
+    container.querySelector("#btn-save-item-alert")?.addEventListener("click", () => {
+        const priceVal = Number(container.querySelector("#item-alert-price-input")?.value || 1);
+        const statusVal = container.querySelector("#item-alert-status-select")?.value || "ingame";
+        vs.showAlertBox = true;
+        upsertPriceAlert(item.slug, priceVal, statusVal);
+    });
+
+    container.querySelector("#btn-pause-item-alert")?.addEventListener("click", () => {
+        togglePriceAlertActive(item.slug);
+    });
+
+    container.querySelector("#btn-delete-item-alert")?.addEventListener("click", () => {
+        vs.showAlertBox = false;
+        removePriceAlert(item.slug);
+    });
 }
 
 function renderOrderSideTableHtml(orders, item, side) {
@@ -1226,7 +3019,7 @@ function renderOrderSideTableHtml(orders, item, side) {
                                     <img class="trader-avatar" src="${escapeHtml(avatar)}" alt="" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>
                                     <div>
                                         <div class="trader-name" data-open-url="${escapeHtml(profileUrl)}">${escapeHtml(user.ingameName || "Tenno")}</div>
-                                        <div class="trader-rep">☺ ${user.reputation ?? 0}</div>
+                                        <div class="trader-rep">${wfIcon("rep", "wf-icon-sm wf-icon-gold")} ${user.reputation ?? 0}</div>
                                     </div>
                                 </div>
                             </td>
@@ -1261,12 +3054,12 @@ function renderOrderSideTableHtml(orders, item, side) {
 
 function renderStatusBadge(status) {
     if (status === "ingame") {
-        return `<span class="status-badge ingame">● En jeu</span>`;
+        return `<span class="status-badge ingame">◆ En jeu</span>`;
     }
     if (status === "online") {
-        return `<span class="status-badge online">● En ligne</span>`;
+        return `<span class="status-badge online">◆ En ligne</span>`;
     }
-    return `<span class="status-badge offline">● Hors ligne</span>`;
+    return `<span class="status-badge offline">◇ Hors ligne</span>`;
 }
 
 /* ---------- 3. ONGLET STATISTIQUES & GRAPHIQUE CANVAS ---------- */
@@ -1407,8 +3200,8 @@ function renderFavoritesPage(container, tab) {
     if (!State.favoriteItems.length || !details.length) {
         container.innerHTML = `
             <div class="orders-panel" style="padding:42px 24px;text-align:center;">
-                <h2 style="margin-bottom:8px;">★ Vous n'avez aucun item en favori pour le moment</h2>
-                <p style="color:var(--text-secondary);margin-bottom:18px;">Cliquez sur l'étoile <strong>★</strong> sur n'importe quel item (dans l'Accueil, le Catalogue ou sur la page d'un item) pour l'afficher ici avec toutes ses informations et ses prix en direct.</p>
+                <h2 style="margin-bottom:8px;">${wfIcon("star", "wf-icon-gold")} Vous n'avez aucun item en favori pour le moment</h2>
+                <p style="color:var(--text-secondary);margin-bottom:18px;">Cliquez sur l'étoile <strong>✦</strong> sur n'importe quel item (dans l'Accueil, le Catalogue ou sur la page d'un item) pour l'afficher ici avec toutes ses informations et ses prix en direct.</p>
                 <button class="btn-primary" data-open-url="https://warframe.market/items">Explorer le Catalogue des Items →</button>
             </div>
         `;
@@ -1446,13 +3239,13 @@ function renderFavoritesPage(container, tab) {
     container.innerHTML = `
         <div class="fav-summary-banner">
             <div>
-                <h2 class="section-title" style="margin-bottom:4px;">★ Mes Items Favoris (${enriched.length})</h2>
+                <h2 class="section-title" style="margin-bottom:4px;">${wfIcon("star", "wf-icon-gold")} Mes Items Favoris (${enriched.length})</h2>
                 <p style="font-size:12.5px;color:var(--text-secondary);">Toutes les informations, caractéristiques et prix en temps réel de vos items favoris.</p>
             </div>
             <div class="fav-summary-metrics">
-                <span class="meta-pill">💰 Coût Total Achat (En jeu) : <strong style="color:var(--sell-color)">${totalMinPlat} Platinum</strong></span>
-                <span class="meta-pill ducats">🪙 Total Ducats : <strong>${totalDucats}</strong></span>
-                <span class="meta-pill tax">💳 Taxes d'échange cumulées : <strong>${totalTax.toLocaleString("fr-FR")} Crédits</strong></span>
+                <span class="meta-pill">${wfIcon("plat", "wf-icon-sm wf-icon-cyan")} Coût Total Achat (En jeu) : <strong style="color:var(--sell-color)">${totalMinPlat} Platinum</strong></span>
+                <span class="meta-pill ducats">${wfIcon("ducats", "wf-icon-sm wf-icon-gold")} Total Ducats : <strong>${totalDucats}</strong></span>
+                <span class="meta-pill tax">${wfIcon("credits", "wf-icon-sm wf-icon-cyan")} Taxes d'échange cumulées : <strong>${totalTax.toLocaleString("fr-FR")} Crédits</strong></span>
                 <button class="btn-primary btn-sm" id="btn-refresh-favs">↻ Actualiser tous les prix</button>
             </div>
         </div>
@@ -1475,7 +3268,7 @@ function renderFavoritesPage(container, tab) {
                                         <span class="fav-card-title" data-open-url="${escapeHtml(itemUrl)}">${escapeHtml(name)}</span>
                                         <div style="display:flex;gap:6px;">
                                             <button class="item-card-newtab" style="opacity:1;" data-newtab-url="${escapeHtml(itemUrl)}" title="Ouvrir dans un nouvel onglet">↗</button>
-                                            <button class="item-card-fav-btn active" data-fav-slug="${escapeHtml(slug)}" title="Retirer des favoris">★</button>
+                                            <button class="item-card-fav-btn active" data-fav-slug="${escapeHtml(slug)}" title="Retirer des favoris">${wfIcon("star", "wf-icon-sm")}</button>
                                         </div>
                                     </div>
                                     <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
@@ -1486,11 +3279,11 @@ function renderFavoritesPage(container, tab) {
                             </div>
 
                             <div class="item-meta-badges" style="margin:12px 0;">
-                                ${item.ducats ? `<span class="meta-pill ducats">🪙 Ducats : <strong>${item.ducats}</strong></span>` : ""}
-                                ${item.reqMasteryRank !== undefined ? `<span class="meta-pill">🏆 MR : <strong>${item.reqMasteryRank}</strong></span>` : ""}
-                                ${item.tradingTax ? `<span class="meta-pill tax">💳 Taxe : <strong>${item.tradingTax.toLocaleString("fr-FR")} Cr</strong></span>` : ""}
-                                ${typeof item.maxRank === "number" ? `<span class="meta-pill">🔼 Rang Max : <strong>${item.maxRank}</strong></span>` : ""}
-                                <a class="meta-pill" href="${escapeHtml(wikiLink)}" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none;">📖 Wiki ↗</a>
+                                ${item.ducats ? `<span class="meta-pill ducats">${wfIcon("ducats", "wf-icon-sm wf-icon-gold")} Ducats : <strong>${item.ducats}</strong></span>` : ""}
+                                ${item.reqMasteryRank !== undefined ? `<span class="meta-pill">${wfIcon("mastery", "wf-icon-sm wf-icon-cyan")} MR : <strong>${item.reqMasteryRank}</strong></span>` : ""}
+                                ${item.tradingTax ? `<span class="meta-pill tax">${wfIcon("credits", "wf-icon-sm wf-icon-cyan")} Taxe : <strong>${item.tradingTax.toLocaleString("fr-FR")} Cr</strong></span>` : ""}
+                                ${typeof item.maxRank === "number" ? `<span class="meta-pill">${wfIcon("rank", "wf-icon-sm wf-icon-gold")} Rang Max : <strong>${item.maxRank}</strong></span>` : ""}
+                                <a class="meta-pill" href="${escapeHtml(wikiLink)}" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none;">${wfIcon("codex", "wf-icon-sm wf-icon-cyan")} Wiki ↗</a>
                             </div>
 
                             <div class="fav-price-box">
@@ -1518,7 +3311,7 @@ function renderFavoritesPage(container, tab) {
                         <div class="fav-card-footer">
                             ${bestSell ? `
                                 <div style="font-size:12px;color:var(--text-secondary);">
-                                    Moins cher : <strong class="trader-name" data-open-url="https://warframe.market/profile/${encodeURIComponent(bestSell.user?.slug || bestSell.user?.ingameName || "")}">${escapeHtml(bestSell.user?.ingameName || "Tenno")}</strong> (☺ ${bestSell.user?.reputation ?? 0})
+                                    Moins cher : <strong class="trader-name" data-open-url="https://warframe.market/profile/${encodeURIComponent(bestSell.user?.slug || bestSell.user?.ingameName || "")}">${escapeHtml(bestSell.user?.ingameName || "Tenno")}</strong> (${wfIcon("rep", "wf-icon-sm wf-icon-gold")} ${bestSell.user?.reputation ?? 0})
                                 </div>
                                 <div style="display:flex;gap:8px;">
                                     <button class="btn-secondary btn-sm" data-open-url="${escapeHtml(itemUrl)}">Voir tous les ordres</button>
@@ -1551,6 +3344,246 @@ function renderFavoritesPage(container, tab) {
     }
 }
 
+/* ---------- 3C. ONGLET ALERTES DE PRIX / PRICE SNIPER (https://warframe.market/alerts) ---------- */
+
+function renderAlertsPage(container, tab) {
+    const alerts = State.priceAlerts || [];
+    const activeCount = alerts.filter(a => a.enabled !== false).length;
+
+    container.innerHTML = `
+        <div class="fav-summary-banner">
+            <div>
+                <h2 class="section-title" style="margin-bottom:4px;">${wfIcon("alert", "wf-icon-cyan")} Système d'Alertes de Prix — Price Sniper (${activeCount} actives / ${alerts.length})</h2>
+                <p style="font-size:12.5px;color:var(--text-secondary);">
+                    Définissez votre prix cible en Platinum sur n'importe quel item : WireMarket surveille le marché en arrière-plan (toutes les <strong>${State.alertRepeatInterval}s</strong>) et vous alerte avec une notification visuelle et sonore dès qu'un joueur vend à votre prix.
+                </p>
+            </div>
+            <div class="fav-summary-metrics">
+                <button class="btn-secondary btn-sm" id="btn-alerts-test-sound">${wfIcon("sound", "wf-icon-sm wf-icon-cyan")} Tester le son (${State.alertVolume}%)</button>
+                <button class="btn-secondary btn-sm" id="btn-alerts-open-settings">${wfIcon("gear", "wf-icon-sm wf-icon-cyan")} Paramètres Son & Répétition</button>
+                <button class="btn-primary btn-sm" id="btn-alerts-scan-now">↻ Scanner toutes les alertes maintenant</button>
+            </div>
+        </div>
+
+        <!-- Formulaire d'ajout rapide d'une alerte -->
+        <div class="alert-create-panel">
+            <h3 style="font-size:14px;font-weight:800;margin-bottom:10px;color:var(--accent-cyan);">+ Créer une nouvelle Alerte de Prix</h3>
+            <div class="alert-create-form">
+                <div class="alert-search-wrap">
+                    <label>Item Warframe Market :</label>
+                    <input type="text" id="alert-item-search-input" autocomplete="off" placeholder="Tapez le nom d'un item (ex: Wisp Prime Set, Arcane Énergétique, Glaive Prime...)" />
+                    <input type="hidden" id="alert-selected-slug" value="" />
+                    <div id="alert-item-suggestions" class="omnibox-dropdown hidden"></div>
+                </div>
+                <div class="alert-field-wrap">
+                    <label>Prix cible max (≤ Platinum) :</label>
+                    <input type="number" id="alert-target-price-input" min="1" max="99999" value="40" />
+                </div>
+                <div class="alert-field-wrap">
+                    <label>Statut vendeur :</label>
+                    <select id="alert-status-mode-select">
+                        <option value="ingame" selected>◆ En jeu uniquement (In Game)</option>
+                        <option value="online">◇ En jeu + En ligne</option>
+                    </select>
+                </div>
+                <button class="btn-primary" id="btn-create-new-alert">${wfIcon("alert", "wf-icon-sm")} Ajouter l'alerte</button>
+            </div>
+        </div>
+
+        ${alerts.length === 0 ? `
+            <div class="orders-panel" style="padding:40px 24px;text-align:center;">
+                <h3 style="margin-bottom:8px;">${wfIcon("alert", "wf-icon-cyan")} Aucune alerte de prix configurée</h3>
+                <p style="color:var(--text-secondary);margin-bottom:16px;">
+                    Utilisez le formulaire ci-dessus ou cliquez sur le bouton <strong>« Créer une alerte de prix »</strong> directement sur la page de n'importe quel item.
+                </p>
+                <button class="btn-secondary" data-open-url="https://warframe.market/items">Parcourir le Catalogue →</button>
+            </div>
+        ` : `
+            <div class="fav-details-grid">
+                ${alerts.map(alertObj => {
+                    const item = State.itemsBySlug.get(alertObj.slug);
+                    const name = item ? getItemName(item) : alertObj.slug;
+                    const enName = item ? getItemEnName(item) : name;
+                    const thumb = item ? getItemIcon(item) : DEFAULT_FAVICON;
+                    const itemUrl = `https://warframe.market/items/${alertObj.slug}`;
+                    const isEnabled = alertObj.enabled !== false;
+                    const bestPrice = alertObj.lastBestPrice;
+                    const seller = alertObj.lastBestSeller;
+                    const isTriggered = isEnabled && bestPrice !== null && bestPrice <= alertObj.targetPrice;
+
+                    return `
+                        <div class="fav-detail-card alert-card ${isTriggered ? "alert-triggered" : ""} ${!isEnabled ? "alert-paused" : ""}">
+                            <div>
+                                <div class="fav-card-top">
+                                    <img class="fav-card-thumb" src="${escapeHtml(thumb)}" alt="${escapeHtml(name)}" data-open-url="${escapeHtml(itemUrl)}" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                    <div class="fav-card-info">
+                                        <div class="fav-card-title-row">
+                                            <span class="fav-card-title" data-open-url="${escapeHtml(itemUrl)}">${escapeHtml(name)}</span>
+                                            <div style="display:flex;gap:6px;align-items:center;">
+                                                <span class="status-badge ${isTriggered ? "online" : (isEnabled ? "ingame" : "offline")}">
+                                                    ${isTriggered ? `${wfIcon("target", "wf-icon-sm")} CIBLE ATTEINTE !` : (isEnabled ? "◆ Surveillance active" : "◇ En pause")}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
+                                            Condition : Vendeur ${alertObj.statusMode === "online" ? "En jeu / En ligne" : "En jeu"} · Dernier scan : ${escapeHtml(alertObj.lastCheckedAt || "En attente...")}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="fav-price-box" style="margin-top:12px;">
+                                    <div class="fav-price-col">
+                                        <span class="fav-price-label">Votre Prix Cible</span>
+                                        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                                            <span style="font-weight:800;color:var(--accent-cyan);">≤</span>
+                                            <input type="number" class="alert-card-price-input" data-alert-price-slug="${escapeHtml(alertObj.slug)}" value="${alertObj.targetPrice}" min="1" max="99999" />
+                                            <span style="font-size:12px;font-weight:700;">Plat</span>
+                                        </div>
+                                    </div>
+                                    <div class="fav-price-col">
+                                        <span class="fav-price-label">Meilleur Prix Actuel</span>
+                                        <span class="fav-price-val" style="color:${isTriggered ? "var(--sell-color)" : "var(--text-main)"}">
+                                            ${bestPrice !== null ? `${bestPrice} Plat` : "—"}
+                                        </span>
+                                    </div>
+                                    <div class="fav-price-col">
+                                        <span class="fav-price-label">Vendeur détecté</span>
+                                        <span class="fav-price-val" style="font-size:13px;">
+                                            ${seller ? escapeHtml(seller.ingameName) : "Aucun"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="fav-card-footer">
+                                <div style="display:flex;gap:6px;">
+                                    <button class="btn-secondary btn-sm" data-toggle-alert="${escapeHtml(alertObj.slug)}">
+                                        ${isEnabled ? `${wfIcon("pause", "wf-icon-sm")} Pause` : `${wfIcon("play", "wf-icon-sm")} Activer`}
+                                    </button>
+                                    <button class="btn-secondary btn-sm" data-delete-alert="${escapeHtml(alertObj.slug)}" style="color:#ff7675;">
+                                        ${wfIcon("trash", "wf-icon-sm")} Supprimer
+                                    </button>
+                                </div>
+                                <div style="display:flex;gap:8px;">
+                                    <button class="btn-secondary btn-sm" data-open-url="${escapeHtml(itemUrl)}">Voir l'item</button>
+                                    ${seller && bestPrice !== null ? `
+                                        <button class="btn-trade sell"
+                                            data-whisper-user="${escapeHtml(seller.ingameName || "")}"
+                                            data-whisper-item-en="${escapeHtml(enName)}"
+                                            data-whisper-item-fr="${escapeHtml(name)}"
+                                            data-whisper-price="${bestPrice}"
+                                            data-whisper-type="sell"
+                                            data-whisper-rank="${seller.rank ?? ""}"
+                                            data-whisper-maxrank="${item?.maxRank ?? ""}">
+                                            Acheter ${bestPrice}p (/w)
+                                        </button>
+                                    ` : ""}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join("")}
+            </div>
+        `}
+    `;
+
+    bindCommonPageEvents(container, tab);
+
+    container.querySelector("#btn-alerts-test-sound")?.addEventListener("click", () => {
+        playAlertNotificationSound(true);
+    });
+
+    container.querySelector("#btn-alerts-open-settings")?.addEventListener("click", () => {
+        renderThemesGrid();
+        document.getElementById("settings-modal")?.classList.remove("hidden");
+    });
+
+    container.querySelector("#btn-alerts-scan-now")?.addEventListener("click", async (e) => {
+        const btn = e.currentTarget;
+        btn.disabled = true;
+        btn.textContent = "⏳ Scan en cours...";
+        await checkAllPriceAlerts(true);
+        renderActiveTabPage();
+    });
+
+    // Autocomplétion du champ d'ajout d'alerte
+    const searchIn = container.querySelector("#alert-item-search-input");
+    const slugIn = container.querySelector("#alert-selected-slug");
+    const sugDrop = container.querySelector("#alert-item-suggestions");
+
+    if (searchIn && sugDrop) {
+        searchIn.addEventListener("input", () => {
+            const q = searchIn.value.trim();
+            slugIn.value = "";
+            if (!q) {
+                sugDrop.classList.add("hidden");
+                return;
+            }
+            const results = searchCatalog(q, 8);
+            if (!results.length) {
+                sugDrop.classList.add("hidden");
+                return;
+            }
+            sugDrop.innerHTML = results.map(it => `
+                <div class="omnibox-item" data-pick-slug="${escapeHtml(it.slug)}" data-pick-name="${escapeHtml(getItemName(it))}">
+                    <img src="${escapeHtml(getItemThumb(it))}" alt="" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                    <div class="omnibox-info">
+                        <div class="omnibox-title">${escapeHtml(getItemName(it))}</div>
+                        <div class="omnibox-url">${escapeHtml(it.slug)}</div>
+                    </div>
+                </div>
+            `).join("");
+            sugDrop.classList.remove("hidden");
+
+            sugDrop.querySelectorAll("[data-pick-slug]").forEach(row => {
+                row.addEventListener("mousedown", (e) => {
+                    e.preventDefault();
+                    slugIn.value = row.dataset.pickSlug;
+                    searchIn.value = row.dataset.pickName;
+                    sugDrop.classList.add("hidden");
+                });
+            });
+        });
+
+        searchIn.addEventListener("blur", () => {
+            setTimeout(() => sugDrop.classList.add("hidden"), 150);
+        });
+    }
+
+    container.querySelector("#btn-create-new-alert")?.addEventListener("click", () => {
+        let slug = slugIn?.value?.trim();
+        if (!slug && searchIn?.value?.trim()) {
+            const matches = searchCatalog(searchIn.value.trim(), 1);
+            if (matches.length > 0) slug = matches[0].slug;
+        }
+        if (!slug || !State.itemsBySlug.has(slug)) {
+            searchIn?.focus();
+            return;
+        }
+        const priceVal = Number(container.querySelector("#alert-target-price-input")?.value || 40);
+        const statusMode = container.querySelector("#alert-status-mode-select")?.value || "ingame";
+        upsertPriceAlert(slug, priceVal, statusMode);
+    });
+
+    container.querySelectorAll("[data-toggle-alert]").forEach(btn => {
+        btn.addEventListener("click", () => togglePriceAlertActive(btn.dataset.toggleAlert));
+    });
+
+    container.querySelectorAll("[data-delete-alert]").forEach(btn => {
+        btn.addEventListener("click", () => removePriceAlert(btn.dataset.deleteAlert));
+    });
+
+    container.querySelectorAll("[data-alert-price-slug]").forEach(inp => {
+        inp.addEventListener("change", () => {
+            const slug = inp.dataset.alertPriceSlug;
+            const alertObj = getAlertForSlug(slug);
+            if (alertObj) {
+                upsertPriceAlert(slug, Number(inp.value || 1), alertObj.statusMode);
+            }
+        });
+    });
+}
+
 /* ---------- 4. CATALOGUE COMPLET DES ITEMS (https://warframe.market/items) ---------- */
 
 function renderCatalogPage(container, tab) {
@@ -1576,13 +3609,13 @@ function renderCatalogPage(container, tab) {
 
         <div class="quick-tags" style="margin-bottom:18px;">
             <button class="tag-chip ${cat === "all" ? "active" : ""}" data-cat="all">Tous (${State.itemsList.length})</button>
-            <button class="tag-chip" data-cat="prime_set">✨ Sets Prime</button>
-            <button class="tag-chip" data-cat="warframe">🛡️ Warframes</button>
-            <button class="tag-chip" data-cat="weapon">⚔️ Armes</button>
-            <button class="tag-chip" data-cat="mod">💠 Mods</button>
-            <button class="tag-chip" data-cat="arcane_enhancement">🔮 Arcanes</button>
-            <button class="tag-chip" data-cat="relic">🏺 Reliques</button>
-            <button class="tag-chip" data-cat="syndicate">🎖️ Syndicats</button>
+            <button class="tag-chip ${cat === "prime_set" ? "active" : ""}" data-cat="prime_set">${wfIcon("prime", "wf-icon-gold")} Sets Prime</button>
+            <button class="tag-chip ${cat === "warframe" ? "active" : ""}" data-cat="warframe">${wfIcon("warframe", "wf-icon-cyan")} Warframes</button>
+            <button class="tag-chip ${cat === "weapon" ? "active" : ""}" data-cat="weapon">${wfIcon("weapon", "wf-icon-cyan")} Armes</button>
+            <button class="tag-chip ${cat === "mod" ? "active" : ""}" data-cat="mod">${wfIcon("mod", "wf-icon-cyan")} Mods</button>
+            <button class="tag-chip ${cat === "arcane_enhancement" ? "active" : ""}" data-cat="arcane_enhancement">${wfIcon("arcane", "wf-icon-riven")} Arcanes</button>
+            <button class="tag-chip ${cat === "relic" ? "active" : ""}" data-cat="relic">${wfIcon("relic", "wf-icon-gold")} Reliques</button>
+            <button class="tag-chip ${cat === "syndicate" ? "active" : ""}" data-cat="syndicate">${wfIcon("syndicate", "wf-icon-gold")} Syndicats</button>
         </div>
 
         <div class="featured-grid">
@@ -1637,7 +3670,7 @@ function renderDucanatorPage(container, tab) {
     if (ducatsList.length > 0) {
         container.innerHTML = `
             <div class="section-header">
-                <h2 class="section-title">🪙 Ducanator — Meilleurs Ratios Ducats / Platinum (En direct)</h2>
+                <h2 class="section-title">${wfIcon("ducats", "wf-icon-gold")} Ducanator — Meilleurs Ratios Ducats / Platinum (En direct)</h2>
                 <button class="btn-primary btn-sm" id="btn-refresh-ducats">↻ Actualiser les ratios</button>
             </div>
             <div class="orders-panel">
@@ -1665,7 +3698,7 @@ function renderDucanatorPage(container, tab) {
                                             <span class="trader-name" data-open-url="${escapeHtml(url)}">${escapeHtml(getItemName(item))}</span>
                                         </div>
                                     </td>
-                                    <td><span class="rank-badge">🪙 ${row.ducats} Ducats</span></td>
+                                    <td><span class="rank-badge">${wfIcon("ducats", "wf-icon-sm wf-icon-gold")} ${row.ducats} Ducats</span></td>
                                     <td><strong style="color:var(--sell-color)">${(row.ducats_per_platinum_wa || row.ducats_per_platinum || 0).toFixed(2)} Ducats/Plat</strong></td>
                                     <td>
                                         <span class="plat-price">
@@ -1699,7 +3732,7 @@ function renderDucanatorPage(container, tab) {
 
     container.innerHTML = `
         <div class="section-header">
-            <h2 class="section-title">🪙 Ducanator — Parties Prime pour Baro Ki'Teer</h2>
+            <h2 class="section-title">${wfIcon("ducats", "wf-icon-gold")} Ducanator — Parties Prime pour Baro Ki'Teer</h2>
             <span style="color:var(--text-secondary);font-size:13px;">Cliquez sur n'importe quel composant Prime pour consulter ses vendeurs en Platinum et sa valeur en Ducats.</span>
         </div>
         <div class="featured-grid">
@@ -1716,7 +3749,7 @@ function renderContractsPage(container, tab) {
 
     container.innerHTML = `
         <div class="section-header">
-            <h2 class="section-title">🔮 Contrats & Enchères de Mods Riven</h2>
+            <h2 class="section-title">${wfIcon("arcane", "wf-icon-riven")} Contrats & Enchères de Mods Riven</h2>
             <div class="orders-filters">
                 <div class="filter-group">
                     <label>Arme :</label>
@@ -1751,7 +3784,7 @@ function renderContractsPage(container, tab) {
                             <div class="riven-meta-pills" style="margin:8px 0 10px;">
                                 <span class="riven-pill">MR ${riven.mastery_level ?? 8}</span>
                                 <span class="riven-pill">Rang ${riven.mod_rank ?? 0}</span>
-                                <span class="riven-pill">🔄 ${riven.re_rolls ?? 0} Rolls</span>
+                                <span class="riven-pill">${wfIcon("repeat", "wf-icon-sm wf-icon-riven")} ${riven.re_rolls ?? 0} Rolls</span>
                                 ${riven.polarity ? `<span class="riven-pill">Polarité: ${escapeHtml(riven.polarity)}</span>` : ""}
                             </div>
                             <div class="riven-stats-list">
@@ -1766,7 +3799,7 @@ function renderContractsPage(container, tab) {
                         <div class="riven-footer">
                             <div>
                                 <div class="trader-name" data-open-url="https://warframe.market/profile/${encodeURIComponent(owner.ingame_name || "")}">${escapeHtml(owner.ingame_name || "Tenno")}</div>
-                                <div class="trader-rep">☺ ${owner.reputation ?? 0}</div>
+                                <div class="trader-rep">${wfIcon("rep", "wf-icon-sm wf-icon-gold")} ${owner.reputation ?? 0}</div>
                             </div>
                             <div style="display:flex;align-items:center;gap:10px;">
                                 <span class="plat-price">
@@ -1822,10 +3855,10 @@ function renderProfilePage(container, tab) {
                         ${renderStatusBadge(user.status || "offline")}
                     </div>
                     <div class="item-meta-badges">
-                        <span class="meta-pill">☺ Réputation : <strong>${user.reputation ?? 0}</strong></span>
-                        <span class="meta-pill">🖥️ Plateforme : <strong>${(user.platform || "PC").toUpperCase()}</strong></span>
-                        <span class="meta-pill">📦 Ordres de vente : <strong style="color:var(--sell-color)">${sellOrders.length}</strong></span>
-                        <span class="meta-pill">🛒 Ordres d'achat : <strong style="color:var(--buy-color)">${buyOrders.length}</strong></span>
+                        <span class="meta-pill">${wfIcon("rep", "wf-icon-sm wf-icon-gold")} Réputation : <strong>${user.reputation ?? 0}</strong></span>
+                        <span class="meta-pill">${wfIcon("codex", "wf-icon-sm wf-icon-cyan")} Plateforme : <strong>${(user.platform || "PC").toUpperCase()}</strong></span>
+                        <span class="meta-pill">${wfIcon("plat", "wf-icon-sm wf-icon-cyan")} Ordres de vente : <strong style="color:var(--sell-color)">${sellOrders.length}</strong></span>
+                        <span class="meta-pill">${wfIcon("credits", "wf-icon-sm wf-icon-gold")} Ordres d'achat : <strong style="color:var(--buy-color)">${buyOrders.length}</strong></span>
                     </div>
                 </div>
             </div>
@@ -2239,6 +4272,20 @@ function renderThemesGrid() {
 /* ==================== INITIALISATION DU NAVIGATEUR ==================== */
 
 function initBrowserEvents() {
+    // Onglet permanent inamovible sur le logo WireMarket (#app-brand-tab)
+    const brandTab = document.getElementById("app-brand-tab");
+    if (brandTab) {
+        brandTab.addEventListener("click", () => {
+            activateTab("hub");
+        });
+        brandTab.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                activateTab("hub");
+            }
+        });
+    }
+
     // Bouton Nouvel Onglet
     document.getElementById("btn-new-tab").addEventListener("click", () => {
         createTab("https://warframe.market/", true);
@@ -2275,10 +4322,25 @@ function initBrowserEvents() {
     });
 
     // Liens de la barre Warframe Market interne
-    document.querySelectorAll(".wfm-nav-link").forEach(btn => {
+    document.querySelectorAll(".wfm-nav-link:not(.hub-nav-link)").forEach(btn => {
         btn.addEventListener("click", () => {
             navigateTab(State.activeTabId, btn.dataset.nav);
         });
+    });
+
+    // Liens de la barre dédiée au Hub WireMarket (Planètes / Warframes & Armes / Marchand Baro)
+    document.querySelectorAll("[data-hub-sec]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            switchHubSection(btn.dataset.hubSec);
+        });
+    });
+
+    document.getElementById("wm-hub-brand-logo")?.addEventListener("click", () => {
+        switchHubSection("planets");
+    });
+
+    document.getElementById("btn-hub-header-refresh")?.addEventListener("click", () => {
+        loadTabRouteData(State.hubTab, { route: "worldstate", params: new URLSearchParams() }, true);
     });
 
     // Barre d'adresse (Omnibox)
@@ -2403,12 +4465,151 @@ function initBrowserEvents() {
         if (glowText) glowText.textContent = State.glowEnabled ? "Activé" : "Désactivé";
     }
 
+    function sendNativeWindowCommand(queryStr) {
+        fetch(`/__window?${queryStr}`).catch(() => {});
+        if (window.location.protocol === "file:") {
+            fetch(`http://127.0.0.1:8484/__window?${queryStr}`).catch(() => {});
+        }
+    }
+
+    function applyAlwaysOnTop(enabled, syncNative = true) {
+        State.alwaysOnTop = !!enabled;
+        localStorage.setItem("wm_always_on_top", String(State.alwaysOnTop));
+        document.getElementById("btn-pin-topmost")?.classList.toggle("active-pin", State.alwaysOnTop);
+        const modalBtn = document.getElementById("btn-modal-toggle-topmost");
+        const modalTxt = document.getElementById("topmost-status-text");
+        if (modalBtn) modalBtn.classList.toggle("active", State.alwaysOnTop);
+        if (modalTxt) modalTxt.textContent = State.alwaysOnTop ? "Activé (Épinglé)" : "Désactivé";
+        if (syncNative) {
+            sendNativeWindowCommand(`topmost=${State.alwaysOnTop ? "true" : "false"}`);
+        }
+    }
+
+    function applyCompactMode(enabled) {
+        State.compactMode = !!enabled;
+        document.body.classList.toggle("compact-mode", State.compactMode);
+        document.getElementById("btn-compact-mode")?.classList.toggle("active-pin", State.compactMode);
+        document.getElementById("btn-exit-compact-top")?.classList.toggle("hidden", !State.compactMode);
+
+        const modalBtn = document.getElementById("btn-modal-toggle-compact");
+        const modalTxt = document.getElementById("compact-status-text");
+        if (modalBtn) modalBtn.classList.toggle("active", State.compactMode);
+        if (modalTxt) modalTxt.textContent = State.compactMode ? "Activé (Mini-fenêtre)" : "Désactivé";
+
+        if (State.compactMode) {
+            // En mode compact, activer automatiquement l'épingle au premier plan pour rester visible en jeu
+            applyAlwaysOnTop(true, false);
+            sendNativeWindowCommand("compact=true&topmost=true");
+            try { window.resizeTo(460, 660); } catch (e) {}
+        } else {
+            sendNativeWindowCommand(`compact=false&topmost=${State.alwaysOnTop ? "true" : "false"}`);
+            try { window.resizeTo(1440, 900); } catch (e) {}
+        }
+    }
+
+    function syncAlertSettingsUI() {
+        const soundBtn = document.getElementById("btn-toggle-alert-sound");
+        const soundText = document.getElementById("alert-sound-status-text");
+        if (soundBtn) soundBtn.classList.toggle("active", State.alertSoundEnabled);
+        if (soundText) soundText.textContent = State.alertSoundEnabled ? "Activé" : "Désactivé";
+
+        const volSlider = document.getElementById("slider-alert-volume");
+        const volLabel = document.getElementById("alert-volume-label");
+        if (volSlider) volSlider.value = String(State.alertVolume);
+        if (volLabel) volLabel.textContent = `${State.alertVolume}%`;
+
+        const repBtn = document.getElementById("btn-toggle-alert-repeat");
+        const repText = document.getElementById("alert-repeat-status-text");
+        if (repBtn) repBtn.classList.toggle("active", State.alertRepeat);
+        if (repText) repText.textContent = State.alertRepeat ? "Activé" : "Désactivé";
+
+        const intInput = document.getElementById("input-alert-interval");
+        if (intInput && document.activeElement !== intInput) {
+            intInput.value = String(State.alertRepeatInterval);
+        }
+        document.querySelectorAll(".btn-interval-preset").forEach(chip => {
+            chip.classList.toggle("active", Number(chip.dataset.intervalSec) === Number(State.alertRepeatInterval));
+        });
+    }
+
     applyZoom(State.zoom);
     applyTheme(State.theme);
     applyGlow(State.glowEnabled);
+    syncAlertSettingsUI();
+    if (State.alwaysOnTop) {
+        setTimeout(() => applyAlwaysOnTop(true, true), 400);
+    }
+
+    document.getElementById("btn-pin-topmost")?.addEventListener("click", () => {
+        applyAlwaysOnTop(!State.alwaysOnTop, true);
+    });
+    document.getElementById("btn-modal-toggle-topmost")?.addEventListener("click", () => {
+        applyAlwaysOnTop(!State.alwaysOnTop, true);
+    });
+
+    document.getElementById("btn-compact-mode")?.addEventListener("click", () => {
+        applyCompactMode(!State.compactMode);
+    });
+    document.getElementById("btn-exit-compact-top")?.addEventListener("click", () => {
+        applyCompactMode(false);
+    });
+    document.getElementById("btn-modal-toggle-compact")?.addEventListener("click", () => {
+        applyCompactMode(!State.compactMode);
+    });
 
     document.getElementById("btn-toggle-glow")?.addEventListener("click", () => {
         applyGlow(!State.glowEnabled);
+    });
+
+    document.getElementById("btn-toggle-alert-sound")?.addEventListener("click", () => {
+        State.alertSoundEnabled = !State.alertSoundEnabled;
+        localStorage.setItem("wm_alert_sound", String(State.alertSoundEnabled));
+        syncAlertSettingsUI();
+    });
+
+    document.getElementById("slider-alert-volume")?.addEventListener("input", (e) => {
+        State.alertVolume = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+        localStorage.setItem("wm_alert_volume", String(State.alertVolume));
+        if (alertAudioInstance) {
+            alertAudioInstance.volume = State.alertVolume / 100;
+        }
+        syncAlertSettingsUI();
+        const tab = getActiveTab();
+        if (tab && parseWfmUrl(tab.url).route === "alerts") {
+            const testBtn = document.getElementById("btn-alerts-test-sound");
+            if (testBtn) testBtn.innerHTML = `${wfIcon("sound", "wf-icon-sm wf-icon-cyan")} Tester le son (${State.alertVolume}%)`;
+        }
+    });
+
+    document.getElementById("btn-test-alert-sound")?.addEventListener("click", () => {
+        playAlertNotificationSound(true);
+    });
+
+    document.getElementById("btn-toggle-alert-repeat")?.addEventListener("click", () => {
+        State.alertRepeat = !State.alertRepeat;
+        localStorage.setItem("wm_alert_repeat", String(State.alertRepeat));
+        syncAlertSettingsUI();
+    });
+
+    function setAlertIntervalSeconds(sec) {
+        const clamped = Math.max(5, Math.min(3600, Math.round(Number(sec) || 30)));
+        State.alertRepeatInterval = clamped;
+        localStorage.setItem("wm_alert_interval", String(clamped));
+        syncAlertSettingsUI();
+        const tab = getActiveTab();
+        if (tab && parseWfmUrl(tab.url).route === "alerts") {
+            renderActiveTabPage();
+        }
+    }
+
+    document.getElementById("input-alert-interval")?.addEventListener("change", (e) => {
+        setAlertIntervalSeconds(e.target.value);
+    });
+
+    document.querySelectorAll(".btn-interval-preset").forEach(btn => {
+        btn.addEventListener("click", () => {
+            setAlertIntervalSeconds(btn.dataset.intervalSec);
+        });
     });
 
     document.getElementById("btn-zoom-in")?.addEventListener("click", () => applyZoom(State.zoom + 10));
@@ -2438,8 +4639,8 @@ function initBrowserEvents() {
         renderDrawer();
         const btn = document.getElementById("btn-clear-history");
         if (btn) {
-            btn.textContent = "✓ Historique effacé !";
-            setTimeout(() => { btn.textContent = "🗑️ Effacer l'historique"; }, 1500);
+            btn.innerHTML = `${wfIcon("target", "wf-icon-sm wf-icon-cyan")} <span>Historique effacé !</span>`;
+            setTimeout(() => { btn.innerHTML = `${wfIcon("trash", "wf-icon-sm")} <span>Effacer l'historique</span>`; }, 1500);
         }
     });
 
@@ -2526,6 +4727,12 @@ function initBrowserEvents() {
         } else if ((e.ctrlKey || e.metaKey) && e.key === "0") {
             e.preventDefault();
             applyZoom(100);
+        } else if (e.altKey && e.key.toLowerCase() === "p") {
+            e.preventDefault();
+            applyAlwaysOnTop(!State.alwaysOnTop, true);
+        } else if (e.altKey && e.key.toLowerCase() === "m") {
+            e.preventDefault();
+            applyCompactMode(!State.compactMode);
         }
     });
 }
@@ -2533,8 +4740,15 @@ function initBrowserEvents() {
 // Démarrage de l'application WireMarket
 document.addEventListener("DOMContentLoaded", async () => {
     updateFavCountBadge();
+    updateAlertCountBadge();
     renderBookmarksBar();
     initBrowserEvents();
+    startPriceSniperScheduler();
+    setInterval(updateLiveWorldstateTimers, 1000);
     createTab("https://warframe.market/", true);
+    // Précharger les rotations Warframe & Baro Ki'Teer en arrière-plan pour un affichage instantané au clic sur WireMarket
+    fetchWorldstateData(false).then(ws => {
+        State.hubTab.cachedData.worldstate = ws;
+    }).catch(() => {});
 });
 

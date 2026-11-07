@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -37,6 +38,111 @@ namespace WireMarketLauncher
         }
 
         private static readonly ConcurrentDictionary<string, CacheEntry> ApiCache = new ConcurrentDictionary<string, CacheEntry>();
+
+        /* ==================== API WIN32 POUR MODE OVERLAY (TOPMOST & COMPACT) ==================== */
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder strText, int maxCount);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOZORDER = 0x0004;
+        private const uint SWP_SHOWWINDOW = 0x0040;
+        private const int SW_RESTORE = 9;
+
+        private static readonly ConcurrentDictionary<IntPtr, RECT> SavedWindowRects = new ConcurrentDictionary<IntPtr, RECT>();
+
+        private static int ApplyWindowOverlayState(string query)
+        {
+            bool hasTopmost = query.Contains("topmost=");
+            bool topmostVal = query.Contains("topmost=true") || query.Contains("topmost=1");
+            bool hasCompact = query.Contains("compact=");
+            bool compactVal = query.Contains("compact=true") || query.Contains("compact=1");
+
+            int matched = 0;
+            EnumWindows(delegate (IntPtr hWnd, IntPtr lParam)
+            {
+                if (!IsWindowVisible(hWnd)) return true;
+                StringBuilder sb = new StringBuilder(256);
+                if (GetWindowText(hWnd, sb, 256) > 0)
+                {
+                    string title = sb.ToString();
+                    if (title.IndexOf("WireMarket", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        matched++;
+                        if (hasTopmost)
+                        {
+                            SetWindowPos(hWnd, topmostVal ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                        }
+                        if (hasCompact)
+                        {
+                            ShowWindow(hWnd, SW_RESTORE);
+                            if (compactVal)
+                            {
+                                RECT cur;
+                                if (GetWindowRect(hWnd, out cur))
+                                {
+                                    int curW = cur.Right - cur.Left;
+                                    if (curW > 600)
+                                    {
+                                        SavedWindowRects[hWnd] = cur;
+                                    }
+                                    int targetW = 460;
+                                    int targetH = 660;
+                                    int newX = Math.Max(10, cur.Right - targetW);
+                                    int newY = Math.Max(10, cur.Top);
+                                    SetWindowPos(hWnd, IntPtr.Zero, newX, newY, targetW, targetH, SWP_NOZORDER | SWP_SHOWWINDOW);
+                                }
+                            }
+                            else
+                            {
+                                RECT saved;
+                                if (SavedWindowRects.TryRemove(hWnd, out saved))
+                                {
+                                    int w = Math.Max(960, saved.Right - saved.Left);
+                                    int h = Math.Max(680, saved.Bottom - saved.Top);
+                                    SetWindowPos(hWnd, IntPtr.Zero, saved.Left, saved.Top, w, h, SWP_NOZORDER | SWP_SHOWWINDOW);
+                                }
+                                else
+                                {
+                                    SetWindowPos(hWnd, IntPtr.Zero, 100, 60, 1440, 900, SWP_NOZORDER | SWP_SHOWWINDOW);
+                                }
+                            }
+                        }
+                    }
+                }
+                return true;
+            }, IntPtr.Zero);
+
+            return matched;
+        }
 
         [STAThread]
         static void Main(string[] args)
@@ -236,6 +342,23 @@ namespace WireMarketLauncher
                     return;
                 }
 
+                if (path == "/__window")
+                {
+                    int count = ApplyWindowOverlayState(query);
+                    byte[] winRes = Encoding.UTF8.GetBytes("{\"status\":\"ok\",\"windowsMatched\":" + count + "}");
+                    resp.StatusCode = 200;
+                    resp.ContentType = "application/json; charset=utf-8";
+                    resp.OutputStream.Write(winRes, 0, winRes.Length);
+                    resp.Close();
+                    return;
+                }
+
+                if (path == "/worldstate")
+                {
+                    ServeWorldstate(req, resp);
+                    return;
+                }
+
                 if (path.StartsWith("/api/"))
                 {
                     string target = "https://api.warframe.market" + path.Substring(4) + query;
@@ -358,6 +481,65 @@ namespace WireMarketLauncher
             outResp.Close();
         }
 
+        private static void ServeWorldstate(HttpListenerRequest inReq, HttpListenerResponse outResp)
+        {
+            bool forceRefresh = (inReq.Headers["X-WM-Refresh"] ?? "false") == "true";
+            string cacheKey = "worldstate_pc_fr";
+            CacheEntry cached;
+            if (!forceRefresh && ApiCache.TryGetValue(cacheKey, out cached))
+            {
+                if ((DateTime.UtcNow - cached.Timestamp).TotalSeconds < 45)
+                {
+                    outResp.StatusCode = 200;
+                    outResp.ContentType = "application/json; charset=utf-8";
+                    outResp.OutputStream.Write(cached.Body, 0, cached.Body.Length);
+                    outResp.Close();
+                    return;
+                }
+            }
+
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "curl.exe",
+                    Arguments = "-k -s --max-time 10 \"https://api.warframestat.us/pc/?language=fr\"",
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                };
+                using (Process p = Process.Start(psi))
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    p.StandardOutput.BaseStream.CopyTo(ms);
+                    p.WaitForExit(11000);
+                    byte[] data = ms.ToArray();
+                    if (data.Length > 200)
+                    {
+                        ApiCache[cacheKey] = new CacheEntry
+                        {
+                            Timestamp = DateTime.UtcNow,
+                            StatusCode = 200,
+                            ContentType = "application/json; charset=utf-8",
+                            Body = data
+                        };
+                        outResp.StatusCode = 200;
+                        outResp.ContentType = "application/json; charset=utf-8";
+                        outResp.OutputStream.Write(data, 0, data.Length);
+                        outResp.Close();
+                        return;
+                    }
+                }
+            }
+            catch { }
+
+            outResp.StatusCode = 502;
+            byte[] err = Encoding.UTF8.GetBytes("{\"error\":\"worldstate_unavailable\"}");
+            outResp.ContentType = "application/json; charset=utf-8";
+            outResp.OutputStream.Write(err, 0, err.Length);
+            outResp.Close();
+        }
+
         private static string GetMimeType(string filePath)
         {
             string ext = Path.GetExtension(filePath).ToLowerInvariant();
@@ -367,6 +549,7 @@ namespace WireMarketLauncher
             if (ext == ".png") return "image/png";
             if (ext == ".ico") return "image/x-icon";
             if (ext == ".svg") return "image/svg+xml";
+            if (ext == ".mp3") return "audio/mpeg";
             return "application/octet-stream";
         }
     }

@@ -13,7 +13,7 @@
     <header id="browser-chrome">
         <!-- 1. Barre d'onglets -->
         <div id="browser-tabs-bar">
-            <div class="app-brand" title="WireMarket - Navigateur Warframe Market">
+            <div id="app-brand-tab" class="app-brand" role="tab" tabindex="0" title="Onglet permanent WireMarket — Rotations Duviri, Cycles Jour/Nuit, Mises à prix & Shop de Baro Ki'Teer">
                 <img class="brand-logo-img" src="logo.png" alt="WireMarket" width="22" height="22" />
                 <span class="brand-text">WireMarket</span>
             </div>
@@ -27,6 +27,11 @@
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
+            </button>
+
+            <button id="btn-exit-compact-top" class="compact-exit-pill hidden" title="Quitter le mode compact et agrandir la fenêtre (Alt+M)">
+                <svg class="wf-icon wf-icon-sm wf-icon-cyan" viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                <span>Agrandir</span>
             </button>
         </div>
 
@@ -119,6 +124,24 @@
                     <button id="btn-zoom-in" class="zoom-btn" title="Zoomer (Ctrl +)" aria-label="Zoomer">+</button>
                 </div>
 
+                <!-- Bouton Épingle : Toujours au premier plan (au-dessus de Warframe) -->
+                <button id="btn-pin-topmost" class="chrome-icon-btn" title="Épingler WireMarket au-dessus de Warframe (Toujours au premier plan — Alt+P)">
+                    <svg class="wf-icon" viewBox="0 0 24 24">
+                        <polygon points="9 3 15 3 14 10 18 13 18 15 6 15 6 13 10 10 9 3"/>
+                        <line x1="12" y1="15" x2="12" y2="22"/>
+                    </svg>
+                </button>
+
+                <!-- Bouton Mode Compact / Mini-fenêtre -->
+                <button id="btn-compact-mode" class="chrome-icon-btn" title="Mode Compact / Mini-fenêtre pendant que tu joues (Alt+M)">
+                    <svg class="wf-icon" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="16" rx="2"/>
+                        <rect x="11" y="10" width="8" height="8" rx="1" fill="currentColor" fill-opacity="0.25"/>
+                        <polyline points="6 8 9 11"/>
+                        <polyline points="9 8 9 11 6 11"/>
+                    </svg>
+                </button>
+
                 <button id="btn-history-drawer" class="chrome-icon-btn" title="Historique de navigation & Favoris (Ctrl+H)">
                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.1" fill="none">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -144,8 +167,8 @@
     <!-- ==================== ZONE DE CONTENU (PAGE WARFRAME MARKET) ==================== -->
     <div id="main-workspace">
         <main id="browser-viewport">
-            <!-- En-tête interne fidèle à Warframe Market -->
-            <div class="wfm-top-banner">
+            <!-- En-tête interne fidèle à Warframe Market (masqué quand on est sur l'onglet Hub WireMarket) -->
+            <div class="wfm-top-banner" id="wfm-top-banner">
                 <div class="wfm-top-inner">
                     <div class="wfm-logo-group" id="wfm-brand-home" role="button" tabindex="0">
                         <div class="wfm-logo-emblem">
@@ -159,21 +182,31 @@
 
                     <nav class="wfm-main-nav">
                         <button class="wfm-nav-link" data-nav="https://warframe.market/">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 21 8.5 17.5 21 6.5 21 3 8.5"/><polygon points="12 7 16.5 11.5 12 17 7.5 11.5"/></svg>
                             <span>Marché</span>
                         </button>
                         <button class="wfm-nav-link" data-nav="https://warframe.market/favorites">
-                            <span>★ Favoris (<span id="fav-count-badge">0</span>)</span>
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 14.8 9.2 22 12 14.8 14.8 12 22 9.2 14.8 2 12 9.2 9.2"/></svg>
+                            <span>Favoris (<span id="fav-count-badge">0</span>)</span>
+                        </button>
+                        <button class="wfm-nav-link" data-nav="https://warframe.market/alerts">
+                            <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="12 2 19 9 19 16 21 18 3 18 5 16 5 9"/><polyline points="9.5 18 12 22 14.5 18"/><circle cx="12" cy="10" r="2"/></svg>
+                            <span>Alertes (<span id="alert-count-badge">0</span>)</span>
                         </button>
                         <button class="wfm-nav-link" data-nav="https://warframe.market/contracts">
+                            <svg class="wf-icon wf-icon-riven" viewBox="0 0 24 24"><polygon points="12 2 20 12 12 22 4 12"/><polygon points="12 7 15.5 12 12 17 8.5 12"/></svg>
                             <span>Contrats (Rivens)</span>
                         </button>
                         <button class="wfm-nav-link" data-nav="https://warframe.market/items">
+                            <svg class="wf-icon" viewBox="0 0 24 24"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="3" y1="7" x2="21" y2="17"/></svg>
                             <span>Catalogue (<span id="catalog-count-badge">...</span>)</span>
                         </button>
                         <button class="wfm-nav-link" data-nav="https://warframe.market/tools/ducats">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 20 6.5 20 17.5 12 22 4 17.5 4 6.5"/><polygon points="12 6.5 16 12 12 17.5 8 12"/></svg>
                             <span>Ducanator</span>
                         </button>
                         <button class="wfm-nav-link" data-nav="https://warframe.market/recent">
+                            <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polyline points="2 12 6 12 9 4 15 20 18 12 22 12"/></svg>
                             <span>Ordres Récents</span>
                         </button>
                     </nav>
@@ -198,6 +231,43 @@
                 </div>
             </div>
 
+            <!-- En-tête dédié au Hub WireMarket (affiché uniquement dans l'onglet permanent WireMarket) -->
+            <div class="wfm-top-banner wm-hub-banner hidden" id="wm-hub-top-banner">
+                <div class="wfm-top-inner">
+                    <div class="wfm-logo-group" id="wm-hub-brand-logo">
+                        <div class="wfm-logo-emblem">
+                            <img class="wfm-logo-img" src="logo.png" alt="WireMarket Hub Logo" width="36" height="36" />
+                        </div>
+                        <div class="wfm-logo-titles">
+                            <span class="wfm-title-main">WIREMARKET <span class="accent">HUB</span></span>
+                            <span class="wfm-title-sub">ROTATIONS WARFRAME & MARCHAND DU NÉANT</span>
+                        </div>
+                    </div>
+
+                    <nav class="wfm-main-nav wm-hub-nav">
+                        <button class="wfm-nav-link hub-nav-link active" data-hub-sec="planets">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>
+                            <span>Planètes & Mises à Prix</span>
+                        </button>
+                        <button class="wfm-nav-link hub-nav-link" data-hub-sec="duviri">
+                            <svg class="wf-icon wf-icon-riven" viewBox="0 0 24 24"><polygon points="21 3 15 3 3 15 3 21 9 21 21 9"/><line x1="13.5" y1="6.5" x2="17.5" y2="10.5"/><line x1="5" y1="14" x2="10" y2="19"/></svg>
+                            <span>Warframes & Armes (Duviri)</span>
+                        </button>
+                        <button class="wfm-nav-link hub-nav-link" data-hub-sec="baro">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 20 6.5 20 17.5 12 22 4 17.5 4 6.5"/><polygon points="12 6.5 16 12 12 17.5 8 12"/></svg>
+                            <span>Marchand Baro Ki'Teer</span>
+                        </button>
+                    </nav>
+
+                    <div class="wm-hub-banner-actions">
+                        <span class="ws-live-pill">● TEMPS RÉEL WARFRAME</span>
+                        <button class="btn-secondary btn-sm" id="btn-hub-header-refresh" title="Actualiser toutes les rotations et les prix Platinum">
+                            ↻ Actualiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Contenu dynamique de l'onglet actif -->
             <div id="tab-page-content">
                 <!-- Injecté par app.js selon l'URL de l'onglet actif -->
@@ -216,6 +286,9 @@
             <div id="drawer-body" class="drawer-body"></div>
         </aside>
     </div>
+
+    <!-- ==================== NOTIFICATIONS FLOTTANTES D'ALERTES DE PRIX ==================== -->
+    <div id="price-alert-toast-container" class="price-alert-toast-container"></div>
 
     <!-- ==================== BARRE DE MESSAGE D'ÉCHANGE (/w) ==================== -->
     <div id="whisper-bar" class="whisper-bar hidden">
@@ -265,7 +338,10 @@
 
             <div class="settings-body">
                 <div class="settings-section">
-                    <h3 class="settings-section-title">🎨 Thème de l'application (20 thèmes disponibles)</h3>
+                    <h3 class="settings-section-title">
+                        <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 22 12 12 22 2 12"/><polygon points="12 6 18 12 12 18 6 12"/></svg>
+                        <span>Thème de l'application (20 thèmes disponibles)</span>
+                    </h3>
                     <p class="settings-section-desc">Choisissez l'ambiance visuelle du navigateur et des pages Warframe Market :</p>
                     <div id="themes-grid" class="themes-grid">
                         <!-- Boutons de thèmes générés par JS -->
@@ -273,16 +349,103 @@
                 </div>
 
                 <div class="settings-section">
-                    <h3 class="settings-section-title">⚙️ Affichage & Navigation</h3>
+                    <h3 class="settings-section-title">
+                        <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="12 2 19 9 19 16 21 18 3 18 5 16 5 9"/><polyline points="9.5 18 12 22 14.5 18"/><circle cx="12" cy="10" r="2"/></svg>
+                        <span>Alertes de Prix & Son de Notification</span>
+                    </h3>
+                    <p class="settings-section-desc">Configurez le comportement sonore et la répétition des alertes de prix (Price Sniper) :</p>
                     <div class="settings-row">
-                        <span>✨ Effet de Glow (lueur sur les éléments interactifs)</span>
+                        <span class="settings-row-label">
+                            <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+                            <span>Son de notification des alertes</span>
+                        </span>
+                        <button id="btn-toggle-alert-sound" class="toolbar-pill active">
+                            <span class="dot"></span>
+                            <span id="alert-sound-status-text">Activé</span>
+                        </button>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-row-label">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><line x1="4" y1="18" x2="4" y2="14"/><line x1="9" y1="18" x2="9" y2="10"/><line x1="14" y1="18" x2="14" y2="6"/><line x1="19" y1="18" x2="19" y2="3"/></svg>
+                            <span>Volume du son de notification</span>
+                        </span>
+                        <div class="volume-control-wrap">
+                            <input type="range" id="slider-alert-volume" class="volume-slider" min="0" max="100" step="1" value="80" />
+                            <span id="alert-volume-label" class="volume-label">80%</span>
+                            <button id="btn-test-alert-sound" class="btn-secondary btn-sm" title="Écouter le son de notification">
+                                <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                                <span>Tester</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-row-label">
+                            <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polyline points="17 2 21 6 17 10"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 22 3 18 7 14"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                            <span>Répéter la notification (tant que l'offre est disponible)</span>
+                        </span>
+                        <button id="btn-toggle-alert-repeat" class="toolbar-pill active">
+                            <span class="dot"></span>
+                            <span id="alert-repeat-status-text">Activé</span>
+                        </button>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-row-label">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7"/><polyline points="12 7 12 12 16 14"/></svg>
+                            <span>Intervalle de répétition / scan (en secondes)</span>
+                        </span>
+                        <div class="interval-control-wrap">
+                            <div class="interval-presets">
+                                <button type="button" class="tag-chip btn-interval-preset" data-interval-sec="15">15s</button>
+                                <button type="button" class="tag-chip btn-interval-preset" data-interval-sec="30">30s</button>
+                                <button type="button" class="tag-chip btn-interval-preset" data-interval-sec="60">60s</button>
+                                <button type="button" class="tag-chip btn-interval-preset" data-interval-sec="120">120s</button>
+                            </div>
+                            <input type="number" id="input-alert-interval" class="interval-input" min="5" max="3600" step="5" value="30" />
+                            <span style="font-size:12px;color:var(--text-muted);">sec</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="settings-section-title">
+                        <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="12 2 20 7 20 17 12 22 4 17 4 7"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span>Affichage, Overlay & Navigation</span>
+                    </h3>
+                    <div class="settings-row">
+                        <span class="settings-row-label">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="9 3 15 3 14 10 18 13 18 15 6 15 6 13 10 10 9 3"/><line x1="12" y1="15" x2="12" y2="22"/></svg>
+                            <span>Épingler au premier plan (au-dessus de Warframe — <kbd>Alt+P</kbd>)</span>
+                        </span>
+                        <button id="btn-modal-toggle-topmost" class="toolbar-pill">
+                            <span class="dot"></span>
+                            <span id="topmost-status-text">Désactivé</span>
+                        </button>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-row-label">
+                            <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><rect x="11" y="10" width="8" height="8" rx="1"/></svg>
+                            <span>Mode Compact / Mini-fenêtre en jeu (<kbd>Alt+M</kbd>)</span>
+                        </span>
+                        <button id="btn-modal-toggle-compact" class="toolbar-pill">
+                            <span class="dot"></span>
+                            <span id="compact-status-text">Désactivé</span>
+                        </button>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-row-label">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5"/></svg>
+                            <span>Effet de Glow (lueur sur les éléments interactifs)</span>
+                        </span>
                         <button id="btn-toggle-glow" class="toolbar-pill active">
                             <span class="dot"></span>
                             <span id="glow-status-text">Activé</span>
                         </button>
                     </div>
                     <div class="settings-row">
-                        <span>Niveau de zoom de la page</span>
+                        <span class="settings-row-label">
+                            <svg class="wf-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
+                            <span>Niveau de zoom de la page</span>
+                        </span>
                         <div class="zoom-controls">
                             <button id="btn-modal-zoom-out" class="zoom-btn">−</button>
                             <button id="btn-modal-zoom-reset" class="zoom-level-btn">100%</button>
@@ -290,11 +453,20 @@
                         </div>
                     </div>
                     <div class="settings-row">
-                        <span>Historique de navigation</span>
-                        <button id="btn-clear-history" class="btn-secondary btn-sm">🗑️ Effacer l'historique</button>
+                        <span class="settings-row-label">
+                            <svg class="wf-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/><path d="M9 6V4h6v2"/></svg>
+                            <span>Historique de navigation</span>
+                        </span>
+                        <button id="btn-clear-history" class="btn-secondary btn-sm">
+                            <svg class="wf-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            <span>Effacer l'historique</span>
+                        </button>
                     </div>
                     <div class="settings-row">
-                        <span>Crédits de l'application</span>
+                        <span class="settings-row-label">
+                            <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 21 8.5 17.5 21 6.5 21 3 8.5"/><polygon points="12 7 16.5 11.5 12 17 7.5 11.5"/></svg>
+                            <span>Crédits de l'application</span>
+                        </span>
                         <strong style="color:var(--accent-cyan);">WireMarket — Fait par Nyxo_17</strong>
                     </div>
                 </div>

@@ -78,6 +78,20 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(b'{"status":"ok","app":"WireMarket"}')
             return
 
+        # Endpoint de contrôle de fenêtre (Toujours au premier plan / Mode Compact)
+        if req_path == "/__window":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(b'{"status":"ok"}')
+            return
+
+        # Proxy Worldstate Warframe (Rotations Duviri, Cycles Jour/Nuit, Mises à prix, Baro Ki'Teer)
+        if req_path == "/worldstate":
+            self.proxy_request("https://api.warframestat.us/pc/?language=fr", req_path, is_api=False)
+            return
+
         # Proxy API Warframe Market (/api/v2/... ou /api/v1/...)
         if req_path.startswith("/api/"):
             target_path = req_path[4:]  # retire "/api" -> "/v2/..."
