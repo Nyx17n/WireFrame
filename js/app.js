@@ -27,6 +27,7 @@ const State = {
     whisperLang: localStorage.getItem("wm_whisper_lang") || "en",
     zoom: Number(localStorage.getItem("wm_zoom")) || 100,
     theme: localStorage.getItem("wm_theme") || "dark",
+    glowEnabled: localStorage.getItem("wm_glow") !== "false",
     lastWhisperData: null,
 
     // Catalogue complet Warframe Market
@@ -379,6 +380,8 @@ function getActiveTab() {
 
 function renderTabsBar() {
     const container = document.getElementById("tabs-container");
+    container.classList.toggle("tabs-crowded", State.tabs.length >= 8);
+    container.classList.toggle("tabs-very-crowded", State.tabs.length >= 18);
     container.innerHTML = State.tabs.map(tab => {
         const isActive = tab.id === State.activeTabId;
         const iconHtml = tab.loading
@@ -2390,8 +2393,23 @@ function initBrowserEvents() {
         }
     }
 
+    function applyGlow(enabled) {
+        State.glowEnabled = !!enabled;
+        localStorage.setItem("wm_glow", String(State.glowEnabled));
+        document.body.classList.toggle("glow-enabled", State.glowEnabled);
+        const glowBtn = document.getElementById("btn-toggle-glow");
+        const glowText = document.getElementById("glow-status-text");
+        if (glowBtn) glowBtn.classList.toggle("active", State.glowEnabled);
+        if (glowText) glowText.textContent = State.glowEnabled ? "Activé" : "Désactivé";
+    }
+
     applyZoom(State.zoom);
     applyTheme(State.theme);
+    applyGlow(State.glowEnabled);
+
+    document.getElementById("btn-toggle-glow")?.addEventListener("click", () => {
+        applyGlow(!State.glowEnabled);
+    });
 
     document.getElementById("btn-zoom-in")?.addEventListener("click", () => applyZoom(State.zoom + 10));
     document.getElementById("btn-zoom-out")?.addEventListener("click", () => applyZoom(State.zoom - 10));

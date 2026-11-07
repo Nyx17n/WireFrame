@@ -139,9 +139,10 @@ html, body {
 #tabs-container {
     display: flex;
     align-items: flex-end;
-    gap: 4px;
-    flex: 1;
-    overflow-x: auto;
+    gap: 3px;
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow-x: hidden;
     overflow-y: hidden;
     height: 100%;
     scrollbar-width: none;
@@ -153,9 +154,10 @@ html, body {
 .browser-tab {
     display: flex;
     align-items: center;
-    gap: 8px;
-    min-width: 145px;
-    max-width: 235px;
+    gap: 7px;
+    width: 215px;
+    flex: 0 1 215px;
+    min-width: 32px;
     height: 32px;
     padding: 0 10px;
     background: var(--bg-tab-inactive);
@@ -166,18 +168,34 @@ html, body {
     cursor: pointer;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
     position: relative;
-    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* Quand beaucoup d'onglets sont ouverts : rétrécissement style Google Chrome */
+#tabs-container.tabs-crowded .browser-tab {
+    padding: 0 6px;
+    gap: 5px;
+}
+
+#tabs-container.tabs-crowded .browser-tab:not(.active) .tab-close {
+    display: none;
+}
+
+#tabs-container.tabs-very-crowded .browser-tab:not(.active) {
+    justify-content: center;
+    padding: 0 4px;
 }
 
 .browser-tab:hover {
-    background: #16202a;
+    background: var(--bg-card-hover);
     color: var(--text-main);
 }
 
 .browser-tab.active {
     background: var(--bg-tab-active);
     color: var(--text-main);
-    border-color: rgba(38, 185, 209, 0.35);
+    border-color: var(--border-medium);
+    min-width: 58px;
 }
 
 .browser-tab.active::before {
@@ -215,10 +233,15 @@ html, body {
 
 .tab-title {
     flex: 1;
+    min-width: 0;
     font-size: 12.5px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+#tabs-container.tabs-crowded .tab-title {
+    text-overflow: clip;
 }
 
 .tab-close {
@@ -1922,4 +1945,111 @@ html, body {
     gap: 10px;
     padding-top: 10px;
     border-top: 1px solid var(--border-subtle);
+}
+
+
+/* ==================== EFFET DE GLOW SUR LES ÉLÉMENTS INTERACTIFS ==================== */
+body.glow-enabled .browser-tab:hover {
+    box-shadow: 0 0 12px var(--accent-cyan-dim), inset 0 0 8px var(--accent-cyan-dim);
+}
+
+body.glow-enabled .browser-tab.active {
+    box-shadow: 0 -2px 14px var(--border-medium), inset 0 1px 10px var(--accent-cyan-dim);
+}
+
+body.glow-enabled .chrome-icon-btn:hover:not(:disabled),
+body.glow-enabled .zoom-btn:hover,
+body.glow-enabled .zoom-level-btn:hover,
+body.glow-enabled .platform-pill:hover,
+body.glow-enabled .lang-pill:hover,
+body.glow-enabled .toolbar-pill:hover {
+    box-shadow: 0 0 12px var(--border-medium);
+    text-shadow: 0 0 6px var(--accent-cyan);
+}
+
+body.glow-enabled .toolbar-pill.active {
+    box-shadow: 0 0 12px rgba(46, 213, 115, 0.35);
+}
+
+body.glow-enabled #address-bar-wrapper:hover,
+body.glow-enabled .wfm-search-box:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 12px var(--accent-cyan-dim);
+}
+
+body.glow-enabled #address-bar-wrapper:focus-within,
+body.glow-enabled .wfm-search-box:focus-within {
+    box-shadow: 0 0 18px var(--border-medium), 0 0 6px var(--accent-cyan);
+}
+
+body.glow-enabled .bookmark-chip:hover,
+body.glow-enabled .wfm-nav-link:hover,
+body.glow-enabled .wfm-nav-link.active,
+body.glow-enabled .tag-chip:hover,
+body.glow-enabled .tag-chip.active,
+body.glow-enabled .subtab-btn:hover,
+body.glow-enabled .subtab-btn.active,
+body.glow-enabled .set-part-btn:hover,
+body.glow-enabled .set-part-btn.active,
+body.glow-enabled .omnibox-newtab-btn:hover,
+body.glow-enabled .item-card-newtab:hover {
+    box-shadow: 0 0 14px var(--border-medium);
+}
+
+body.glow-enabled .item-card:hover,
+body.glow-enabled .fav-detail-card:hover,
+body.glow-enabled .theme-card:hover,
+body.glow-enabled .theme-card.active {
+    box-shadow: 0 0 18px var(--border-medium), 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+body.glow-enabled .riven-card:hover {
+    box-shadow: 0 0 20px rgba(165, 110, 255, 0.45), 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+body.glow-enabled .btn-primary {
+    box-shadow: 0 0 12px var(--border-medium);
+}
+body.glow-enabled .btn-primary:hover {
+    box-shadow: 0 0 20px var(--accent-cyan), 0 0 8px var(--border-bright);
+}
+
+body.glow-enabled .btn-secondary:hover,
+body.glow-enabled .filter-group select:hover,
+body.glow-enabled .filter-group input:hover,
+body.glow-enabled .filter-group select:focus,
+body.glow-enabled .filter-group input:focus,
+body.glow-enabled #catalog-filter-input:hover,
+body.glow-enabled #catalog-filter-input:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 12px var(--border-medium);
+}
+
+body.glow-enabled .btn-trade.sell {
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.22);
+}
+body.glow-enabled .btn-trade.sell:hover {
+    box-shadow: 0 0 18px rgba(46, 204, 113, 0.7), 0 0 6px #2ecc71;
+}
+
+body.glow-enabled .btn-trade.buy {
+    box-shadow: 0 0 10px rgba(230, 126, 34, 0.22);
+}
+body.glow-enabled .btn-trade.buy:hover {
+    box-shadow: 0 0 18px rgba(230, 126, 34, 0.7), 0 0 6px #e67e22;
+}
+
+body.glow-enabled .item-card-fav-btn:hover,
+body.glow-enabled .item-card-fav-btn.active,
+body.glow-enabled .btn-fav-hero:hover,
+body.glow-enabled .btn-fav-hero.active,
+body.glow-enabled .address-action-btn:hover,
+body.glow-enabled .address-action-btn.bookmarked {
+    box-shadow: 0 0 12px rgba(230, 195, 101, 0.45);
+    filter: drop-shadow(0 0 5px rgba(230, 195, 101, 0.55));
+}
+
+body.glow-enabled .trader-name:hover,
+body.glow-enabled .fav-card-title:hover {
+    text-shadow: 0 0 8px var(--accent-cyan);
 }
