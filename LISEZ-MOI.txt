@@ -1,0 +1,26 @@
+====================================================================
+  WIREMARKET — Navigateur dédié Warframe Market (warframe.market)
+  Créé et développé par Nyxo_17
+====================================================================
+
+COMMENT LANCER L'APPLICATION :
+1. Extrayez tous les fichiers de ce ZIP dans un dossier (ex: sur votre Bureau ou dans Documents).
+2. Double-cliquez sur "WireMarket.exe" (avec le logo doré sur fond blanc).
+   -> L'application démarre automatiquement son serveur local et s'ouvre dans sa fenêtre dédiée !
+
+ASTUCE POUR METTRE L'ICÔNE SUR VOTRE BUREAU :
+- Lancez "WireMarket.exe" une première fois depuis son dossier.
+- Ensuite, vous pouvez copier "WireMarket.exe" (ou faire Clic droit -> Envoyer vers -> Bureau) sur votre Bureau !
+- Aucun logiciel supplémentaire n'est obligatoire sur Windows 10 / 11 (le serveur est embarqué dans WireMarket.exe, et utilise Python s'il est installé).
+
+FONCTIONNALITÉS INCLUSES :
+- Navigation multi-onglets style navigateur (Ctrl+T, Ctrl+W, barre d'adresse, historique)
+- Recherche bilingue instantanée (FR / EN) parmi les 3 893 items de Warframe
+- Ordres d'achat et de vente en direct (En jeu / En ligne) + Copie du message "/w" en 1 clic
+- Comparateur automatique "Set Prime complet vs Pièces séparées"
+- Onglet "★ Favoris" avec fiches détaillées et calcul du coût total en Platinum
+- Contrats & Enchères de Mods Riven + Outil Ducanator (ratios Ducats/Platinum)
+- Paramètres (⚙️) avec 20 thèmes (Sombre, Clair, Full Black, Full White, et 16 thèmes colorés) + Zoom/Dézoom (Ctrl + Molette)
+
+Bon jeu et bons échanges, Tenno !
+

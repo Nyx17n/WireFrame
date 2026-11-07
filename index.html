@@ -112,10 +112,24 @@
                     </select>
                 </div>
 
+                <!-- Contrôles de Zoom / Dézoom -->
+                <div class="zoom-controls" title="Zoom de la page (Ctrl + Molette, Ctrl + / Ctrl - / Ctrl 0)">
+                    <button id="btn-zoom-out" class="zoom-btn" title="Dézoomer (Ctrl -)" aria-label="Dézoomer">−</button>
+                    <button id="btn-zoom-reset" class="zoom-level-btn" title="Réinitialiser le zoom à 100% (Ctrl+0)">100%</button>
+                    <button id="btn-zoom-in" class="zoom-btn" title="Zoomer (Ctrl +)" aria-label="Zoomer">+</button>
+                </div>
+
                 <button id="btn-history-drawer" class="chrome-icon-btn" title="Historique de navigation & Favoris (Ctrl+H)">
                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.1" fill="none">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </button>
+
+                <button id="btn-settings" class="chrome-icon-btn" title="Paramètres & Thèmes de WireMarket">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.1" fill="none">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg>
                 </button>
             </div>
@@ -139,13 +153,19 @@
                         </div>
                         <div class="wfm-logo-titles">
                             <span class="wfm-title-main">WARFRAME <span class="accent">MARKET</span></span>
-                            <span class="wfm-title-sub">PROPULSÉ PAR WIREMARKET BROWSER</span>
+                            <span class="wfm-title-sub">WIREMARKET BROWSER · CRÉÉ PAR NYXO_17</span>
                         </div>
                     </div>
 
                     <nav class="wfm-main-nav">
                         <button class="wfm-nav-link" data-nav="https://warframe.market/">
                             <span>Marché</span>
+                        </button>
+                        <button class="wfm-nav-link" data-nav="https://warframe.market/favorites">
+                            <span>★ Favoris (<span id="fav-count-badge">0</span>)</span>
+                        </button>
+                        <button class="wfm-nav-link" data-nav="https://warframe.market/contracts">
+                            <span>Contrats (Rivens)</span>
                         </button>
                         <button class="wfm-nav-link" data-nav="https://warframe.market/items">
                             <span>Catalogue (<span id="catalog-count-badge">...</span>)</span>
@@ -224,8 +244,56 @@
             <span id="status-items-loaded">Chargement du catalogue...</span>
             <span class="status-sep">|</span>
             <span>Raccourcis : <kbd>Ctrl+T</kbd> Nouvel onglet · <kbd>Ctrl+W</kbd> Fermer · <kbd>Ctrl+K</kbd> Rechercher</span>
+            <span class="status-sep">|</span>
+            <strong style="color:var(--accent-cyan);">Fait par Nyxo_17</strong>
         </div>
     </footer>
+
+    <!-- ==================== MODALE DES PARAMÈTRES & THÈMES ==================== -->
+    <div id="settings-modal" class="settings-modal-backdrop hidden">
+        <div class="settings-modal" role="dialog" aria-labelledby="settings-title">
+            <div class="settings-header">
+                <div class="settings-title-group">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <h2 id="settings-title">Paramètres de WireMarket</h2>
+                </div>
+                <button id="btn-close-settings" class="chrome-icon-btn" title="Fermer (Échap)">✕</button>
+            </div>
+
+            <div class="settings-body">
+                <div class="settings-section">
+                    <h3 class="settings-section-title">🎨 Thème de l'application (20 thèmes disponibles)</h3>
+                    <p class="settings-section-desc">Choisissez l'ambiance visuelle du navigateur et des pages Warframe Market :</p>
+                    <div id="themes-grid" class="themes-grid">
+                        <!-- Boutons de thèmes générés par JS -->
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="settings-section-title">⚙️ Affichage & Navigation</h3>
+                    <div class="settings-row">
+                        <span>Niveau de zoom de la page</span>
+                        <div class="zoom-controls">
+                            <button id="btn-modal-zoom-out" class="zoom-btn">−</button>
+                            <button id="btn-modal-zoom-reset" class="zoom-level-btn">100%</button>
+                            <button id="btn-modal-zoom-in" class="zoom-btn">+</button>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <span>Historique de navigation</span>
+                        <button id="btn-clear-history" class="btn-secondary btn-sm">🗑️ Effacer l'historique</button>
+                    </div>
+                    <div class="settings-row">
+                        <span>Crédits de l'application</span>
+                        <strong style="color:var(--accent-cyan);">WireMarket — Fait par Nyxo_17</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="js/app.js"></script>
 </body>

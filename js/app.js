@@ -25,6 +25,8 @@ const State = {
     platform: localStorage.getItem("wm_platform") || "pc",
     crossplay: localStorage.getItem("wm_crossplay") !== "false",
     whisperLang: localStorage.getItem("wm_whisper_lang") || "en",
+    zoom: Number(localStorage.getItem("wm_zoom")) || 100,
+    theme: localStorage.getItem("wm_theme") || "dark",
     lastWhisperData: null,
 
     // Catalogue complet Warframe Market
@@ -49,8 +51,41 @@ const State = {
         { title: "Arcane Énergétique", url: "https://warframe.market/items/arcane_energize", icon: DEFAULT_FAVICON }
     ],
     history: JSON.parse(localStorage.getItem("wm_history") || "[]"),
+    favoriteItems: JSON.parse(localStorage.getItem("wm_fav_items") || '["wisp_prime_set", "nikana_prime_set", "arcane_energize"]'),
     activeDrawerTab: "history"
 };
+
+function isItemFavorite(slug) {
+    return State.favoriteItems.includes(slug);
+}
+
+function updateFavCountBadge() {
+    const el = document.getElementById("fav-count-badge");
+    if (el) el.textContent = State.favoriteItems.length;
+}
+
+function toggleFavoriteItem(slug) {
+    if (!slug) return;
+    const idx = State.favoriteItems.indexOf(slug);
+    if (idx >= 0) {
+        State.favoriteItems.splice(idx, 1);
+    } else {
+        State.favoriteItems.unshift(slug);
+    }
+    localStorage.setItem("wm_fav_items", JSON.stringify(State.favoriteItems));
+    updateFavCountBadge();
+
+    // Si l'onglet actif est la page Favoris, recharger ses données
+    const tab = getActiveTab();
+    if (tab) {
+        const parsed = parseWfmUrl(tab.url);
+        if (parsed.route === "favorites") {
+            navigateTab(tab.id, tab.url, { pushHistory: false, forceRefresh: false });
+        } else {
+            renderActiveTabPage();
+        }
+    }
+}
 
 /* ==================== UTILITAIRES API & FORMATAGE ==================== */
 
@@ -391,8 +426,14 @@ function parseWfmUrl(url) {
     if (pathname === "/recent") {
         return { route: "recent", params };
     }
+    if (pathname === "/favorites" || pathname === "/favoris") {
+        return { route: "favorites", params };
+    }
     if (pathname === "/tools/ducats" || pathname === "/ducats") {
         return { route: "ducats", params };
+    }
+    if (pathname === "/contracts" || pathname === "/riven" || pathname === "/auctions") {
+        return { route: "contracts", params };
     }
     if (pathname === "/items" || pathname === "/items/") {
         return { route: "catalog", params };
@@ -471,9 +512,54 @@ async function loadTabRouteData(tab, parsed, forceRefresh = false) {
             tab.title = "Catalogue des Items - Warframe Market";
             tab.icon = DEFAULT_FAVICON;
             recordHistory(tab.title, tab.url, tab.icon);
+        } else if (parsed.route === "favorites") {
+            tab.title = `★ Mes Items Favoris (${State.favoriteItems.length}) - Warframe Market`;
+            tab.icon = DEFAULT_FAVICON;
+            const favDetails = await Promise.all(State.favoriteItems.map(async (slug) => {
+                const [itemRes, ordersRes] = await Promise.allSettled([
+                    apiFetch(`/api/v2/item/${slug}`, forceRefresh),
+                    apiFetch(`/api/v2/orders/item/${slug}`, forceRefresh)
+                ]);
+                const itemData = (itemRes.status === "fulfilled" && itemRes.value.data)
+                    ? itemRes.value.data
+                    : State.itemsBySlug.get(slug);
+                const ordersData = (ordersRes.status === "fulfilled" && Array.isArray(ordersRes.value.data))
+                    ? ordersRes.value.data
+                    : [];
+                return { slug, item: itemData, orders: ordersData };
+            }));
+            tab.cachedData.favoritesDetails = favDetails.filter(f => f.item);
+            recordHistory(tab.title, tab.url, tab.icon);
         } else if (parsed.route === "ducats") {
             tab.title = "Ducanator (Ducats / Platinum) - Warframe Market";
             tab.icon = DEFAULT_FAVICON;
+            try {
+                const ducatRes = await apiFetch("/api/v1/tools/ducats", forceRefresh);
+                tab.cachedData.ducatsData = ducatRes.payload?.previous_hour || ducatRes.payload?.previous_day || [];
+            } catch (e) {
+                tab.cachedData.ducatsData = [];
+            }
+            recordHistory(tab.title, tab.url, tab.icon);
+        } else if (parsed.route === "contracts") {
+            const weaponSlug = tab.viewState.rivenWeapon || parsed.params?.get("weapon") || "torid";
+            tab.viewState.rivenWeapon = weaponSlug;
+            tab.title = `Contrats Riven (${weaponSlug}) - Warframe Market`;
+            tab.icon = DEFAULT_FAVICON;
+            if (!State.rivenWeapons) {
+                const [wRes, aRes] = await Promise.allSettled([
+                    apiFetch("/api/v2/riven/weapons"),
+                    apiFetch("/api/v2/riven/attributes")
+                ]);
+                State.rivenWeapons = (wRes.status === "fulfilled" && wRes.value.data) ? wRes.value.data : [];
+                State.rivenAttrsBySlug = new Map();
+                if (aRes.status === "fulfilled" && Array.isArray(aRes.value.data)) {
+                    for (const attr of aRes.value.data) {
+                        State.rivenAttrsBySlug.set(attr.slug, attr);
+                    }
+                }
+            }
+            const aucRes = await apiFetch(`/api/v1/auctions/search?type=riven&weapon_url_name=${encodeURIComponent(weaponSlug)}&sort_by=price_asc`, forceRefresh);
+            tab.cachedData.auctions = aucRes.payload?.auctions || [];
             recordHistory(tab.title, tab.url, tab.icon);
         } else if (parsed.route === "item") {
             const slug = parsed.slug;
@@ -572,10 +658,14 @@ function renderActiveTabPage() {
         renderHomePage(container, tab);
     } else if (parsed.route === "recent") {
         renderRecentOrdersPage(container, tab);
+    } else if (parsed.route === "favorites") {
+        renderFavoritesPage(container, tab);
     } else if (parsed.route === "catalog") {
         renderCatalogPage(container, tab);
     } else if (parsed.route === "ducats") {
         renderDucanatorPage(container, tab);
+    } else if (parsed.route === "contracts") {
+        renderContractsPage(container, tab);
     } else if (parsed.route === "item") {
         renderItemPage(container, tab, parsed.slug);
     } else if (parsed.route === "profile") {
@@ -648,6 +738,7 @@ function renderItemCardHtml(item) {
     const name = getItemName(item);
     const enName = getItemEnName(item);
     const tags = (item.tags || []).slice(0, 3).join(" · ");
+    const isFav = isItemFavorite(item.slug);
     return `
         <div class="item-card" data-open-url="${escapeHtml(url)}">
             <img class="item-card-img" src="${escapeHtml(getItemThumb(item))}" alt="${escapeHtml(name)}" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>
@@ -655,7 +746,10 @@ function renderItemCardHtml(item) {
                 <div class="item-card-title">${escapeHtml(name)}</div>
                 <div class="item-card-sub">${escapeHtml(State.lang === "fr" && enName !== name ? enName : tags)}</div>
             </div>
-            <button class="item-card-newtab" data-newtab-url="${escapeHtml(url)}" title="Ouvrir dans un nouvel onglet">↗</button>
+            <div class="item-card-actions">
+                <button class="item-card-fav-btn ${isFav ? "active" : ""}" data-fav-slug="${escapeHtml(item.slug)}" title="${isFav ? "Retirer des items favoris" : "Ajouter aux items favoris"}">★</button>
+                <button class="item-card-newtab" data-newtab-url="${escapeHtml(url)}" title="Ouvrir dans un nouvel onglet">↗</button>
+            </div>
         </div>
     `;
 }
@@ -809,6 +903,9 @@ function renderItemPage(container, tab, slug) {
                     <div class="item-title-row">
                         <h1>${escapeHtml(name)}</h1>
                         ${enName !== name ? `<span class="item-en-subtitle">(${escapeHtml(enName)})</span>` : ""}
+                        <button class="btn-fav-hero ${isItemFavorite(item.slug) ? "active" : ""}" data-fav-slug="${escapeHtml(item.slug)}">
+                            ★ ${isItemFavorite(item.slug) ? "Dans vos Favoris" : "Ajouter aux Favoris"}
+                        </button>
                     </div>
 
                     <div class="item-meta-badges">
@@ -838,6 +935,14 @@ function renderItemPage(container, tab, slug) {
                             </button>
                         `;
                     }).join("")}
+                </div>
+                <div class="set-calc-box" id="set-calc-container">
+                    ${tab.cachedData.setComparisonHtml || `
+                        <div style="font-size:13px;color:var(--text-secondary);">
+                            💡 <strong>Astuce d'achat :</strong> Vérifiez s'il est moins cher d'acheter le Set complet ou chaque composant séparément en jeu.
+                        </div>
+                        <button class="btn-secondary btn-sm" id="btn-calc-set-parts">⚖️ Comparer Set complet vs Pièces séparées</button>
+                    `}
                 </div>
             ` : ""}
         </div>
@@ -974,6 +1079,58 @@ function renderItemPage(container, tab, slug) {
     const refreshBtn = container.querySelector("#btn-refresh-orders");
     if (refreshBtn) {
         refreshBtn.addEventListener("click", () => navigateTab(tab.id, tab.url, { pushHistory: false, forceRefresh: true }));
+    }
+
+    const calcBtn = container.querySelector("#btn-calc-set-parts");
+    if (calcBtn && setItems.length > 1) {
+        calcBtn.addEventListener("click", async () => {
+            calcBtn.disabled = true;
+            calcBtn.textContent = "⏳ Calcul en cours sur toutes les pièces...";
+            try {
+                const results = await Promise.all(setItems.map(async (part) => {
+                    const res = await apiFetch(`/api/v2/orders/item/${part.slug}`);
+                    const sells = (res.data || []).filter(o => o.visible && o.type === "sell" && o.user?.status === "ingame");
+                    sells.sort((a, b) => a.platinum - b.platinum);
+                    const minPlat = sells.length > 0 ? sells[0].platinum : null;
+                    const qty = part.quantityInSet || 1;
+                    return { part, minPlat, qty, isRoot: !!part.setRoot };
+                }));
+
+                const rootInfo = results.find(r => r.isRoot);
+                const partInfos = results.filter(r => !r.isRoot);
+                const partsTotal = partInfos.reduce((sum, r) => sum + ((r.minPlat || 0) * r.qty), 0);
+                const setPrice = rootInfo?.minPlat ?? null;
+
+                const breakdown = partInfos.map(r =>
+                    `<span class="meta-pill" data-open-url="https://warframe.market/items/${r.part.slug}" style="cursor:pointer;">${escapeHtml(getItemName(r.part))}${r.qty > 1 ? ` ×${r.qty}` : ""} : <strong>${r.minPlat !== null ? r.minPlat * r.qty + "p" : "N/A"}</strong></span>`
+                ).join(" ");
+
+                let verdict = "";
+                if (setPrice !== null && partsTotal > 0) {
+                    const diff = setPrice - partsTotal;
+                    if (diff > 0) {
+                        verdict = `<span style="color:var(--sell-color);font-weight:700;">👉 Acheter les pièces séparément économise ${diff} Platinum ! (${partsTotal}p vs ${setPrice}p)</span>`;
+                    } else if (diff < 0) {
+                        verdict = `<span style="color:var(--accent-cyan);font-weight:700;">👉 Le Set complet est moins cher de ${Math.abs(diff)} Platinum ! (${setPrice}p vs ${partsTotal}p)</span>`;
+                    } else {
+                        verdict = `<span>👉 Le Set complet et les pièces séparées coûtent exactement le même prix (${setPrice}p).</span>`;
+                    }
+                }
+
+                tab.cachedData.setComparisonHtml = `
+                    <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                            <div><strong>Comparatif En Jeu :</strong> Set complet = <strong style="color:var(--accent-cyan)">${setPrice ?? "—"}p</strong> | Somme des pièces = <strong style="color:var(--accent-gold)">${partsTotal}p</strong></div>
+                            ${verdict}
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;">${breakdown}</div>
+                    </div>
+                `;
+                renderActiveTabPage();
+            } catch (e) {
+                calcBtn.textContent = "Erreur lors du calcul";
+            }
+        });
     }
 
     container.querySelectorAll("[data-stats-range]").forEach(btn => {
@@ -1193,6 +1350,158 @@ function drawStatsCanvas(tab) {
     });
 }
 
+/* ---------- 3B. ONGLET MES ITEMS FAVORIS (https://warframe.market/favorites) ---------- */
+
+function renderFavoritesPage(container, tab) {
+    const details = tab.cachedData.favoritesDetails || [];
+
+    if (!State.favoriteItems.length || !details.length) {
+        container.innerHTML = `
+            <div class="orders-panel" style="padding:42px 24px;text-align:center;">
+                <h2 style="margin-bottom:8px;">★ Vous n'avez aucun item en favori pour le moment</h2>
+                <p style="color:var(--text-secondary);margin-bottom:18px;">Cliquez sur l'étoile <strong>★</strong> sur n'importe quel item (dans l'Accueil, le Catalogue ou sur la page d'un item) pour l'afficher ici avec toutes ses informations et ses prix en direct.</p>
+                <button class="btn-primary" data-open-url="https://warframe.market/items">Explorer le Catalogue des Items →</button>
+            </div>
+        `;
+        bindCommonPageEvents(container, tab);
+        return;
+    }
+
+    let totalMinPlat = 0;
+    let totalDucats = 0;
+    let totalTax = 0;
+
+    const enriched = details.map(({ slug, item, orders }) => {
+        const visibleSellsIngame = orders.filter(o => o.visible && o.type === "sell" && o.user?.status === "ingame")
+            .sort((a, b) => a.platinum - b.platinum);
+        const visibleBuysIngame = orders.filter(o => o.visible && o.type === "buy" && (o.user?.status === "ingame" || o.user?.status === "online"))
+            .sort((a, b) => b.platinum - a.platinum);
+
+        const bestSell = visibleSellsIngame[0] || null;
+        const bestBuy = visibleBuysIngame[0] || null;
+
+        if (bestSell) totalMinPlat += bestSell.platinum;
+        if (item.ducats) totalDucats += item.ducats;
+        if (item.tradingTax) totalTax += item.tradingTax;
+
+        return {
+            slug,
+            item,
+            bestSell,
+            bestBuy,
+            sellersCount: visibleSellsIngame.length,
+            buyersCount: visibleBuysIngame.length
+        };
+    });
+
+    container.innerHTML = `
+        <div class="fav-summary-banner">
+            <div>
+                <h2 class="section-title" style="margin-bottom:4px;">★ Mes Items Favoris (${enriched.length})</h2>
+                <p style="font-size:12.5px;color:var(--text-secondary);">Toutes les informations, caractéristiques et prix en temps réel de vos items favoris.</p>
+            </div>
+            <div class="fav-summary-metrics">
+                <span class="meta-pill">💰 Coût Total Achat (En jeu) : <strong style="color:var(--sell-color)">${totalMinPlat} Platinum</strong></span>
+                <span class="meta-pill ducats">🪙 Total Ducats : <strong>${totalDucats}</strong></span>
+                <span class="meta-pill tax">💳 Taxes d'échange cumulées : <strong>${totalTax.toLocaleString("fr-FR")} Crédits</strong></span>
+                <button class="btn-primary btn-sm" id="btn-refresh-favs">↻ Actualiser tous les prix</button>
+            </div>
+        </div>
+
+        <div class="fav-details-grid">
+            ${enriched.map(({ slug, item, bestSell, bestBuy, sellersCount, buyersCount }) => {
+                const name = getItemName(item);
+                const enName = getItemEnName(item);
+                const desc = getItemDescription(item);
+                const wikiLink = getItemWikiLink(item);
+                const itemUrl = `https://warframe.market/items/${slug}`;
+                const tags = (item.tags || []).join(" · ");
+                return `
+                    <div class="fav-detail-card">
+                        <div>
+                            <div class="fav-card-top">
+                                <img class="fav-card-thumb" src="${escapeHtml(getItemIcon(item))}" alt="${escapeHtml(name)}" data-open-url="${escapeHtml(itemUrl)}" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                <div class="fav-card-info">
+                                    <div class="fav-card-title-row">
+                                        <span class="fav-card-title" data-open-url="${escapeHtml(itemUrl)}">${escapeHtml(name)}</span>
+                                        <div style="display:flex;gap:6px;">
+                                            <button class="item-card-newtab" style="opacity:1;" data-newtab-url="${escapeHtml(itemUrl)}" title="Ouvrir dans un nouvel onglet">↗</button>
+                                            <button class="item-card-fav-btn active" data-fav-slug="${escapeHtml(slug)}" title="Retirer des favoris">★</button>
+                                        </div>
+                                    </div>
+                                    <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
+                                        ${enName !== name ? `<strong>${escapeHtml(enName)}</strong> · ` : ""}${escapeHtml(tags)}
+                                    </div>
+                                    ${desc ? `<p class="fav-card-desc" title="${escapeHtml(desc)}">${escapeHtml(desc)}</p>` : ""}
+                                </div>
+                            </div>
+
+                            <div class="item-meta-badges" style="margin:12px 0;">
+                                ${item.ducats ? `<span class="meta-pill ducats">🪙 Ducats : <strong>${item.ducats}</strong></span>` : ""}
+                                ${item.reqMasteryRank !== undefined ? `<span class="meta-pill">🏆 MR : <strong>${item.reqMasteryRank}</strong></span>` : ""}
+                                ${item.tradingTax ? `<span class="meta-pill tax">💳 Taxe : <strong>${item.tradingTax.toLocaleString("fr-FR")} Cr</strong></span>` : ""}
+                                ${typeof item.maxRank === "number" ? `<span class="meta-pill">🔼 Rang Max : <strong>${item.maxRank}</strong></span>` : ""}
+                                <a class="meta-pill" href="${escapeHtml(wikiLink)}" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none;">📖 Wiki ↗</a>
+                            </div>
+
+                            <div class="fav-price-box">
+                                <div class="fav-price-col">
+                                    <span class="fav-price-label">Meilleur Prix Vente (En jeu)</span>
+                                    <span class="fav-price-val" style="color:var(--sell-color)">
+                                        ${bestSell ? `${bestSell.platinum} Plat` : "Aucun"}
+                                    </span>
+                                </div>
+                                <div class="fav-price-col">
+                                    <span class="fav-price-label">Meilleure Offre Achat</span>
+                                    <span class="fav-price-val" style="color:var(--buy-color)">
+                                        ${bestBuy ? `${bestBuy.platinum} Plat` : "Aucune"}
+                                    </span>
+                                </div>
+                                <div class="fav-price-col">
+                                    <span class="fav-price-label">Offres En Ligne</span>
+                                    <span class="fav-price-val">
+                                        ${sellersCount} Vend. / ${buyersCount} Ach.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="fav-card-footer">
+                            ${bestSell ? `
+                                <div style="font-size:12px;color:var(--text-secondary);">
+                                    Moins cher : <strong class="trader-name" data-open-url="https://warframe.market/profile/${encodeURIComponent(bestSell.user?.slug || bestSell.user?.ingameName || "")}">${escapeHtml(bestSell.user?.ingameName || "Tenno")}</strong> (☺ ${bestSell.user?.reputation ?? 0})
+                                </div>
+                                <div style="display:flex;gap:8px;">
+                                    <button class="btn-secondary btn-sm" data-open-url="${escapeHtml(itemUrl)}">Voir tous les ordres</button>
+                                    <button class="btn-trade sell"
+                                        data-whisper-user="${escapeHtml(bestSell.user?.ingameName || "")}"
+                                        data-whisper-item-en="${escapeHtml(enName)}"
+                                        data-whisper-item-fr="${escapeHtml(name)}"
+                                        data-whisper-price="${bestSell.platinum}"
+                                        data-whisper-type="sell"
+                                        data-whisper-rank="${bestSell.rank ?? ""}"
+                                        data-whisper-maxrank="${item.maxRank ?? ""}">
+                                        Acheter ${bestSell.platinum}p (/w)
+                                    </button>
+                                </div>
+                            ` : `
+                                <span style="font-size:12px;color:var(--text-muted);">Aucun vendeur "En jeu" actuellement</span>
+                                <button class="btn-secondary btn-sm" data-open-url="${escapeHtml(itemUrl)}">Voir la page complète →</button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join("")}
+        </div>
+    `;
+
+    bindCommonPageEvents(container, tab);
+    const refreshBtn = container.querySelector("#btn-refresh-favs");
+    if (refreshBtn) {
+        refreshBtn.addEventListener("click", () => navigateTab(tab.id, tab.url, { pushHistory: false, forceRefresh: true }));
+    }
+}
+
 /* ---------- 4. CATALOGUE COMPLET DES ITEMS (https://warframe.market/items) ---------- */
 
 function renderCatalogPage(container, tab) {
@@ -1274,6 +1583,66 @@ function renderRecentOrdersPage(container, tab) {
 }
 
 function renderDucanatorPage(container, tab) {
+    const ducatsList = (tab.cachedData.ducatsData || []).slice().sort((a, b) => (b.ducats_per_platinum_wa || 0) - (a.ducats_per_platinum_wa || 0));
+
+    if (ducatsList.length > 0) {
+        container.innerHTML = `
+            <div class="section-header">
+                <h2 class="section-title">🪙 Ducanator — Meilleurs Ratios Ducats / Platinum (En direct)</h2>
+                <button class="btn-primary btn-sm" id="btn-refresh-ducats">↻ Actualiser les ratios</button>
+            </div>
+            <div class="orders-panel">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Pièce Prime</th>
+                            <th>Valeur Ducats</th>
+                            <th>Ratio (Ducats / Plat)</th>
+                            <th>Prix Moyen (WA)</th>
+                            <th>Volume vendu</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${ducatsList.slice(0, 60).map(row => {
+                            const item = State.itemsById.get(row.item);
+                            if (!item) return "";
+                            const url = `https://warframe.market/items/${item.slug}`;
+                            return `
+                                <tr>
+                                    <td>
+                                        <div class="trader-cell">
+                                            <img class="trader-avatar" style="border-radius:4px;" src="${escapeHtml(getItemThumb(item))}" alt=""/>
+                                            <span class="trader-name" data-open-url="${escapeHtml(url)}">${escapeHtml(getItemName(item))}</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="rank-badge">🪙 ${row.ducats} Ducats</span></td>
+                                    <td><strong style="color:var(--sell-color)">${(row.ducats_per_platinum_wa || row.ducats_per_platinum || 0).toFixed(2)} Ducats/Plat</strong></td>
+                                    <td>
+                                        <span class="plat-price">
+                                            <span>${(row.wa_price || row.median || 0).toFixed(1)}</span>
+                                            <span class="plat-icon"></span>
+                                        </span>
+                                    </td>
+                                    <td>${row.volume || 0}</td>
+                                    <td>
+                                        <button class="btn-secondary btn-sm" data-open-url="${escapeHtml(url)}">Voir les offres →</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join("")}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        bindCommonPageEvents(container, tab);
+        const btn = container.querySelector("#btn-refresh-ducats");
+        if (btn) {
+            btn.addEventListener("click", () => navigateTab(tab.id, tab.url, { pushHistory: false, forceRefresh: true }));
+        }
+        return;
+    }
+
     const primeParts = State.itemsList.filter(i => {
         const tags = i.tags || [];
         return tags.includes("prime") && !tags.includes("set");
@@ -1289,6 +1658,102 @@ function renderDucanatorPage(container, tab) {
         </div>
     `;
     bindCommonPageEvents(container, tab);
+}
+
+function renderContractsPage(container, tab) {
+    const weapons = State.rivenWeapons || [];
+    const currentWeapon = tab.viewState.rivenWeapon || "torid";
+    const auctions = (tab.cachedData.auctions || []).filter(a => a.visible && !a.closed);
+
+    container.innerHTML = `
+        <div class="section-header">
+            <h2 class="section-title">🔮 Contrats & Enchères de Mods Riven</h2>
+            <div class="orders-filters">
+                <div class="filter-group">
+                    <label>Arme :</label>
+                    <select id="riven-weapon-select">
+                        ${weapons.map(w => `
+                            <option value="${escapeHtml(w.slug)}" ${w.slug === currentWeapon ? "selected" : ""}>
+                                ${escapeHtml(getItemName(w))}
+                            </option>
+                        `).join("")}
+                    </select>
+                </div>
+                <button class="btn-primary btn-sm" id="btn-refresh-rivens">↻ Rechercher</button>
+            </div>
+        </div>
+
+        <div class="riven-grid">
+            ${auctions.slice(0, 48).map(auc => {
+                const riven = auc.item || {};
+                const owner = auc.owner || {};
+                const attrs = riven.attributes || [];
+                const price = auc.buyout_price || auc.starting_price || 0;
+                const weaponObj = weapons.find(w => w.slug === riven.weapon_url_name);
+                const weaponTitle = weaponObj ? getItemName(weaponObj) : (riven.weapon_url_name || "").replace(/_/g, " ");
+                const fullRivenName = `${weaponTitle} ${riven.name || ""}`;
+                return `
+                    <div class="riven-card">
+                        <div>
+                            <div class="riven-header">
+                                <div class="riven-title">${escapeHtml(fullRivenName)}</div>
+                                ${renderStatusBadge(owner.status || "offline")}
+                            </div>
+                            <div class="riven-meta-pills" style="margin:8px 0 10px;">
+                                <span class="riven-pill">MR ${riven.mastery_level ?? 8}</span>
+                                <span class="riven-pill">Rang ${riven.mod_rank ?? 0}</span>
+                                <span class="riven-pill">🔄 ${riven.re_rolls ?? 0} Rolls</span>
+                                ${riven.polarity ? `<span class="riven-pill">Polarité: ${escapeHtml(riven.polarity)}</span>` : ""}
+                            </div>
+                            <div class="riven-stats-list">
+                                ${attrs.map(at => {
+                                    const attrDef = State.rivenAttrsBySlug?.get(at.url_name);
+                                    const attrName = attrDef ? getItemName(attrDef) : at.url_name.replace(/_/g, " ");
+                                    const sign = at.value > 0 ? "+" : "";
+                                    return `<div class="riven-stat ${at.positive ? "pos" : "neg"}">${sign}${at.value}% ${escapeHtml(attrName)}</div>`;
+                                }).join("")}
+                            </div>
+                        </div>
+                        <div class="riven-footer">
+                            <div>
+                                <div class="trader-name" data-open-url="https://warframe.market/profile/${encodeURIComponent(owner.ingame_name || "")}">${escapeHtml(owner.ingame_name || "Tenno")}</div>
+                                <div class="trader-rep">☺ ${owner.reputation ?? 0}</div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="plat-price">
+                                    <span>${price}</span>
+                                    <span class="plat-icon"></span>
+                                </span>
+                                <button class="btn-trade sell"
+                                    data-whisper-user="${escapeHtml(owner.ingame_name || "")}"
+                                    data-whisper-item-en="${escapeHtml(fullRivenName)} (Riven)"
+                                    data-whisper-item-fr="${escapeHtml(fullRivenName)} (Riven)"
+                                    data-whisper-price="${price}"
+                                    data-whisper-type="sell"
+                                    data-whisper-rank=""
+                                    data-whisper-maxrank="">
+                                    Acheter (/w)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("")}
+        </div>
+    `;
+
+    bindCommonPageEvents(container, tab);
+    const wSel = container.querySelector("#riven-weapon-select");
+    if (wSel) {
+        wSel.addEventListener("change", () => {
+            tab.viewState.rivenWeapon = wSel.value;
+            navigateTab(tab.id, `https://warframe.market/contracts?weapon=${encodeURIComponent(wSel.value)}`);
+        });
+    }
+    const rBtn = container.querySelector("#btn-refresh-rivens");
+    if (rBtn) {
+        rBtn.addEventListener("click", () => navigateTab(tab.id, tab.url, { pushHistory: false, forceRefresh: true }));
+    }
 }
 
 function renderProfilePage(container, tab) {
@@ -1399,7 +1864,7 @@ function bindCommonPageEvents(container, tab) {
     // Liens internes data-open-url (clic gauche = onglet actif, Ctrl+Clic ou Clic molette = nouvel onglet)
     container.querySelectorAll("[data-open-url]").forEach(el => {
         el.addEventListener("click", (e) => {
-            if (e.target.closest("[data-newtab-url]")) return;
+            if (e.target.closest("[data-newtab-url]") || e.target.closest("[data-fav-slug]")) return;
             const url = el.dataset.openUrl;
             if (e.ctrlKey || e.metaKey) {
                 createTab(url, true);
@@ -1412,6 +1877,14 @@ function bindCommonPageEvents(container, tab) {
                 e.preventDefault();
                 createTab(el.dataset.openUrl, false);
             }
+        });
+    });
+
+    // Boutons étoile (Ajouter/Retirer des items favoris)
+    container.querySelectorAll("[data-fav-slug]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleFavoriteItem(btn.dataset.favSlug);
         });
     });
 
@@ -1618,6 +2091,97 @@ function renderSearchSuggestions(query, dropdownEl, onSelectUrl) {
     });
 }
 
+/* ==================== SYSTÈME DE 20 THÈMES & PARAMÈTRES ==================== */
+
+const THEMES = [
+    // Classiques
+    { id: "dark", label: "Sombre (Défaut)", mode: "dark", bg: "#0f161d", card: "#17212b", chrome: "#0a0e12", accent: "#26b9d1" },
+    { id: "light", label: "Clair", mode: "light", bg: "#f1f5f9", card: "#ffffff", chrome: "#e2e8f0", accent: "#0284c7" },
+    { id: "full-black", label: "Full Black", mode: "dark", bg: "#000000", card: "#080808", chrome: "#000000", accent: "#26b9d1" },
+    { id: "full-white", label: "Full White", mode: "light", bg: "#ffffff", card: "#ffffff", chrome: "#f8fafc", accent: "#0f172a" },
+
+    // Bleu
+    { id: "blue-dark", label: "Bleu Sombre", mode: "dark", bg: "#0b132b", card: "#14213d", chrome: "#070b19", accent: "#3b82f6" },
+    { id: "blue-light", label: "Bleu Clair", mode: "light", bg: "#eff6ff", card: "#ffffff", chrome: "#dbeafe", accent: "#2563eb" },
+
+    // Cyan
+    { id: "cyan-dark", label: "Cyan Sombre", mode: "dark", bg: "#081c24", card: "#0e2a35", chrome: "#051217", accent: "#06b6d4" },
+    { id: "cyan-light", label: "Cyan Clair", mode: "light", bg: "#ecfeff", card: "#ffffff", chrome: "#cffafe", accent: "#0891b2" },
+
+    // Vert
+    { id: "green-dark", label: "Vert Sombre", mode: "dark", bg: "#091e16", card: "#112d22", chrome: "#05120d", accent: "#10b981" },
+    { id: "green-light", label: "Vert Clair", mode: "light", bg: "#ecfdf5", card: "#ffffff", chrome: "#d1fae5", accent: "#059669" },
+
+    // Jaune
+    { id: "yellow-dark", label: "Jaune Sombre", mode: "dark", bg: "#1c190a", card: "#292410", chrome: "#121006", accent: "#eab308" },
+    { id: "yellow-light", label: "Jaune Clair", mode: "light", bg: "#fefce8", card: "#ffffff", chrome: "#fef08a", accent: "#ca8a04" },
+
+    // Rouge
+    { id: "red-dark", label: "Rouge Sombre", mode: "dark", bg: "#1f0b0e", card: "#2e1216", chrome: "#130608", accent: "#ef4444" },
+    { id: "red-light", label: "Rouge Clair", mode: "light", bg: "#fef2f2", card: "#ffffff", chrome: "#fee2e2", accent: "#dc2626" },
+
+    // Orange
+    { id: "orange-dark", label: "Orange Sombre", mode: "dark", bg: "#1f1209", card: "#2e1c0f", chrome: "#140b05", accent: "#f97316" },
+    { id: "orange-light", label: "Orange Clair", mode: "light", bg: "#fff7ed", card: "#ffffff", chrome: "#ffedd5", accent: "#ea580c" },
+
+    // Violet
+    { id: "purple-dark", label: "Violet Sombre", mode: "dark", bg: "#160d29", card: "#22153d", chrome: "#0d0719", accent: "#a855f7" },
+    { id: "purple-light", label: "Violet Clair", mode: "light", bg: "#faf5ff", card: "#ffffff", chrome: "#f3e8ff", accent: "#9333ea" },
+
+    // Rose
+    { id: "pink-dark", label: "Rose Sombre", mode: "dark", bg: "#210b18", card: "#331226", chrome: "#14060e", accent: "#ec4899" },
+    { id: "pink-light", label: "Rose Clair", mode: "light", bg: "#fdf2f8", card: "#ffffff", chrome: "#fce7f3", accent: "#db2777" }
+];
+
+function applyTheme(themeId) {
+    const t = THEMES.find(x => x.id === themeId) || THEMES[0];
+    State.theme = t.id;
+    localStorage.setItem("wm_theme", t.id);
+
+    const root = document.documentElement;
+    const isLight = t.mode === "light";
+
+    root.style.setProperty("--bg-chrome", t.chrome);
+    root.style.setProperty("--bg-tab-bar", t.chrome);
+    root.style.setProperty("--bg-tab-inactive", isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.03)");
+    root.style.setProperty("--bg-tab-active", t.card);
+    root.style.setProperty("--bg-nav-bar", t.card);
+    root.style.setProperty("--bg-bookmarks", isLight ? t.chrome : t.bg);
+    root.style.setProperty("--bg-page", t.bg);
+    root.style.setProperty("--bg-card", t.card);
+    root.style.setProperty("--bg-card-hover", isLight ? "#f8fafc" : "rgba(255,255,255,0.06)");
+    root.style.setProperty("--bg-elevated", isLight ? "#f1f5f9" : "rgba(255,255,255,0.07)");
+    root.style.setProperty("--bg-input", isLight ? "#ffffff" : t.chrome);
+
+    root.style.setProperty("--text-main", isLight ? "#0f172a" : "#e6eef6");
+    root.style.setProperty("--text-secondary", isLight ? "#334155" : "#9fb1c3");
+    root.style.setProperty("--text-muted", isLight ? "#64748b" : "#66788a");
+
+    root.style.setProperty("--accent-cyan", t.accent);
+    root.style.setProperty("--accent-cyan-hover", t.accent);
+    root.style.setProperty("--accent-cyan-dim", `${t.accent}24`);
+    root.style.setProperty("--border-subtle", isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.08)");
+    root.style.setProperty("--border-medium", `${t.accent}55`);
+    root.style.setProperty("--border-bright", t.accent);
+
+    renderThemesGrid();
+}
+
+function renderThemesGrid() {
+    const grid = document.getElementById("themes-grid");
+    if (!grid) return;
+    grid.innerHTML = THEMES.map(t => `
+        <button class="theme-card ${State.theme === t.id ? "active" : ""}" data-theme-id="${t.id}">
+            <span class="theme-swatch" style="background: linear-gradient(135deg, ${t.bg} 50%, ${t.accent} 50%);"></span>
+            <span>${escapeHtml(t.label)}</span>
+        </button>
+    `).join("");
+
+    grid.querySelectorAll("[data-theme-id]").forEach(btn => {
+        btn.addEventListener("click", () => applyTheme(btn.dataset.themeId));
+    });
+}
+
 /* ==================== INITIALISATION DU NAVIGATEUR ==================== */
 
 function initBrowserEvents() {
@@ -1756,6 +2320,69 @@ function initBrowserEvents() {
         if (tab) navigateTab(tab.id, tab.url, { pushHistory: false, forceRefresh: true });
     });
 
+    // Contrôles de Zoom / Dézoom
+    function applyZoom(val) {
+        const clamped = Math.min(200, Math.max(50, Math.round(val / 5) * 5));
+        State.zoom = clamped;
+        localStorage.setItem("wm_zoom", String(clamped));
+        const viewport = document.getElementById("browser-viewport");
+        if (viewport) {
+            viewport.style.zoom = `${clamped}%`;
+        }
+        const resetBtn = document.getElementById("btn-zoom-reset");
+        if (resetBtn) {
+            resetBtn.textContent = `${clamped}%`;
+        }
+        const modalResetBtn = document.getElementById("btn-modal-zoom-reset");
+        if (modalResetBtn) {
+            modalResetBtn.textContent = `${clamped}%`;
+        }
+    }
+
+    applyZoom(State.zoom);
+    applyTheme(State.theme);
+
+    document.getElementById("btn-zoom-in")?.addEventListener("click", () => applyZoom(State.zoom + 10));
+    document.getElementById("btn-zoom-out")?.addEventListener("click", () => applyZoom(State.zoom - 10));
+    document.getElementById("btn-zoom-reset")?.addEventListener("click", () => applyZoom(100));
+
+    document.getElementById("btn-modal-zoom-in")?.addEventListener("click", () => applyZoom(State.zoom + 10));
+    document.getElementById("btn-modal-zoom-out")?.addEventListener("click", () => applyZoom(State.zoom - 10));
+    document.getElementById("btn-modal-zoom-reset")?.addEventListener("click", () => applyZoom(100));
+
+    // Modale des Paramètres (Engrenage)
+    const settingsModal = document.getElementById("settings-modal");
+    document.getElementById("btn-settings")?.addEventListener("click", () => {
+        renderThemesGrid();
+        settingsModal.classList.remove("hidden");
+    });
+    document.getElementById("btn-close-settings")?.addEventListener("click", () => {
+        settingsModal.classList.add("hidden");
+    });
+    settingsModal?.addEventListener("click", (e) => {
+        if (e.target === settingsModal) settingsModal.classList.add("hidden");
+    });
+
+    document.getElementById("btn-clear-history")?.addEventListener("click", () => {
+        State.history = [];
+        localStorage.setItem("wm_history", "[]");
+        renderDrawer();
+        const btn = document.getElementById("btn-clear-history");
+        if (btn) {
+            btn.textContent = "✓ Historique effacé !";
+            setTimeout(() => { btn.textContent = "🗑️ Effacer l'historique"; }, 1500);
+        }
+    });
+
+    // Zoom avec Ctrl + Molette de la souris
+    window.addEventListener("wheel", (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            if (e.deltaY < 0) applyZoom(State.zoom + 10);
+            else if (e.deltaY > 0) applyZoom(State.zoom - 10);
+        }
+    }, { passive: false });
+
     // Tiroir Historique & Favoris
     const drawer = document.getElementById("side-drawer");
     document.getElementById("btn-history-drawer").addEventListener("click", () => {
@@ -1821,12 +2448,22 @@ function initBrowserEvents() {
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
             e.preventDefault();
             toggleBookmarkCurrentTab();
+        } else if ((e.ctrlKey || e.metaKey) && (e.key === "+" || e.key === "=")) {
+            e.preventDefault();
+            applyZoom(State.zoom + 10);
+        } else if ((e.ctrlKey || e.metaKey) && e.key === "-") {
+            e.preventDefault();
+            applyZoom(State.zoom - 10);
+        } else if ((e.ctrlKey || e.metaKey) && e.key === "0") {
+            e.preventDefault();
+            applyZoom(100);
         }
     });
 }
 
 // Démarrage de l'application WireMarket
 document.addEventListener("DOMContentLoaded", async () => {
+    updateFavCountBadge();
     renderBookmarksBar();
     initBrowserEvents();
     createTab("https://warframe.market/", true);

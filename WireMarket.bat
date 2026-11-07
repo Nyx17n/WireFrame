@@ -17,6 +17,7 @@ echo  ^| ^|/ ^|/ / / /  /  __/ /  / / /_/ / /  / ,^< /  __/ /_
 echo  ^|__/^|__/_/_/   \___/_/  /_/\__,_/_/  /_/^|_^\___/\__/  
 echo.
 echo   Navigateur Warframe Market (https://warframe.market)
+echo   Cree par Nyxo_17
 echo ============================================================================
 echo.
 
