@@ -147,6 +147,34 @@ def sync_version_in_files(new_ver: str, iso_date: str, fr_date: str):
         )
         app_js_path.write_text(js, encoding="utf-8")
 
+    # 4. Mettre à jour README.md
+    readme_path = ROOT_DIR / "README.md"
+    if readme_path.exists():
+        readme = readme_path.read_text(encoding="utf-8")
+        readme = re.sub(
+            r'(<code\s+id="readme-version">)v?[0-9]+\.[0-9]+\.[0-9]+(</code>)',
+            rf"\g<1>v{new_ver}\g<2>",
+            readme,
+        )
+        readme = re.sub(
+            r'(<code\s+id="readme-date">)[0-9]{4}-[0-9]{2}-[0-9]{2}(</code>)',
+            rf"\g<1>{iso_date}\g<2>",
+            readme,
+        )
+        readme = re.sub(
+            r'(###\s+`v)[0-9]+\.[0-9]+\.[0-9]+(`\s+—\s+`)[0-9]{4}-[0-9]{2}-[0-9]{2}(`\s+\(Latest\))',
+            rf"\g<1>{new_ver}\g<2>{iso_date}\g<3>",
+            readme,
+            count=1,
+        )
+        readme = re.sub(
+            r'(###\s+`v)[0-9]+\.[0-9]+\.[0-9]+(`\s+—\s+`)[0-9]{2}/[0-9]{2}/[0-9]{4}(`\s+\(Version actuelle\))',
+            rf"\g<1>{new_ver}\g<2>{fr_date}\g<3>",
+            readme,
+            count=1,
+        )
+        readme_path.write_text(readme, encoding="utf-8")
+
 
 def compile_exe_if_needed():
     """Recompile WireMarket.exe si Launcher.cs existe et que csc.exe est disponible."""
@@ -194,6 +222,7 @@ def rebuild_zip():
         "logo.png",
         "server.py",
         "LISEZ-MOI.txt",
+        "README.md",
     ]
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -224,6 +253,7 @@ def stage_updated_files():
         "version.json",
         "index.html",
         "js/app.js",
+        "README.md",
         "WireMarket.zip",
     ]
     if (ROOT_DIR / "WireMarket.exe").exists():
