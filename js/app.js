@@ -133,6 +133,7 @@ const State = {
     // Système d'Alertes de Prix (Price Sniper) & Paramètres Sonores
     priceAlerts: JSON.parse(localStorage.getItem("wm_price_alerts") || "[]"),
     alertSoundEnabled: localStorage.getItem("wm_alert_sound") !== "false",
+    alertSoundChoice: localStorage.getItem("wm_alert_sound_choice") || "default", // "default" (notification.mp3) | "bell" (notification-bell.wav)
     alertVolume: localStorage.getItem("wm_alert_volume") !== null ? Number(localStorage.getItem("wm_alert_volume")) : 80,
     alertRepeat: localStorage.getItem("wm_alert_repeat") !== "false",
     alertRepeatInterval: Math.max(5, Number(localStorage.getItem("wm_alert_interval")) || 30),
@@ -640,7 +641,13 @@ function renderWorldAlertsPanelHtml(filterCategory = "all") {
                         Activez les notifications sonores automatiques pour être prévenu en jeu sans avoir à surveiller le compteur.
                     </div>
                 </div>
-                <button class="btn-secondary btn-sm" data-test-world-sound="1">${wfIcon("sound", "wf-icon-sm wf-icon-cyan")} Tester le son</button>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <select class="select-sm" data-select-world-sound="1" title="Choisir le son de notification">
+                        <option value="default" ${State.alertSoundChoice !== "bell" ? "selected" : ""}>🔔 Son 1 : Classique</option>
+                        <option value="bell" ${State.alertSoundChoice === "bell" ? "selected" : ""}>🔔 Son 2 : Cloche (Bell)</option>
+                    </select>
+                    <button class="btn-secondary btn-sm" data-test-world-sound="1">${wfIcon("sound", "wf-icon-sm wf-icon-cyan")} Tester le son</button>
+                </div>
             </div>
             <div class="world-alerts-grid">
                 ${rules.map(r => {
@@ -675,6 +682,11 @@ function bindWorldAlertsPanelEvents(container) {
     });
     container.querySelectorAll("[data-test-world-sound]").forEach(btn => {
         btn.addEventListener("click", () => playAlertNotificationSound(true));
+    });
+    container.querySelectorAll("[data-select-world-sound]").forEach(sel => {
+        sel.addEventListener("change", () => {
+            setAlertSoundChoice(sel.value, true);
+        });
     });
 }
 
@@ -727,10 +739,35 @@ function toggleFavoriteItem(slug) {
 
 let alertAudioInstance = null;
 
-function playAlertNotificationSound(forcePlay = false) {
+function getAlertSoundFile(choice = State.alertSoundChoice) {
+    return choice === "bell" ? "notification-bell.wav" : "notification.mp3";
+}
+
+function getAlertSoundLabel(choice = State.alertSoundChoice) {
+    return choice === "bell" ? "Son 2 : Cloche (Bell)" : "Son 1 : Classique";
+}
+
+function setAlertSoundChoice(choice, preview = true) {
+    const clean = choice === "bell" ? "bell" : "default";
+    State.alertSoundChoice = clean;
+    localStorage.setItem("wm_alert_sound_choice", clean);
+    document.querySelectorAll(".btn-sound-choice").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.soundChoice === clean);
+    });
+    document.querySelectorAll("[data-select-world-sound], #select-alerts-sound-choice").forEach(sel => {
+        if (sel.value !== clean) sel.value = clean;
+    });
+    if (preview) {
+        playAlertNotificationSound(true, clean);
+    }
+}
+
+function playAlertNotificationSound(forcePlay = false, overrideChoice = null) {
     if (!forcePlay && !State.alertSoundEnabled) return;
     const vol = Math.max(0, Math.min(1, (Number(State.alertVolume) || 0) / 100));
     if (vol <= 0 && !forcePlay) return;
+
+    const soundFile = getAlertSoundFile(overrideChoice || State.alertSoundChoice);
 
     const tryPlaySrc = (src, onFail) => {
         try {
@@ -740,7 +777,7 @@ function playAlertNotificationSound(forcePlay = false) {
             }
             alertAudioInstance.pause();
             alertAudioInstance.currentTime = 0;
-            alertAudioInstance.volume = vol;
+            alertAudioInstance.volume = vol > 0 ? vol : 0.8;
             const p = alertAudioInstance.play();
             if (p && typeof p.catch === "function") {
                 p.catch(() => {
@@ -752,8 +789,8 @@ function playAlertNotificationSound(forcePlay = false) {
         }
     };
 
-    tryPlaySrc("notification.mp3", () => {
-        tryPlaySrc("http://127.0.0.1:8484/notification.mp3");
+    tryPlaySrc(soundFile, () => {
+        tryPlaySrc(`http://127.0.0.1:8484/${soundFile}`);
     });
 }
 
@@ -5094,6 +5131,10 @@ function renderAlertsPage(container, tab) {
                 </p>
             </div>
             <div class="fav-summary-metrics">
+                <select class="select-sm" id="select-alerts-sound-choice" title="Choisir le son de notification">
+                    <option value="default" ${State.alertSoundChoice !== "bell" ? "selected" : ""}>🔔 Son 1 : Classique</option>
+                    <option value="bell" ${State.alertSoundChoice === "bell" ? "selected" : ""}>🔔 Son 2 : Cloche (Bell)</option>
+                </select>
                 <button class="btn-secondary btn-sm" id="btn-alerts-test-sound">${wfIcon("sound", "wf-icon-sm wf-icon-cyan")} Tester le son (${State.alertVolume}%)</button>
                 <button class="btn-secondary btn-sm" id="btn-alerts-open-settings">${wfIcon("gear", "wf-icon-sm wf-icon-cyan")} Paramètres Son & Répétition</button>
                 <button class="btn-primary btn-sm" id="btn-alerts-scan-now">↻ Scanner toutes les alertes maintenant</button>
@@ -5231,6 +5272,10 @@ function renderAlertsPage(container, tab) {
 
     container.querySelector("#btn-alerts-test-sound")?.addEventListener("click", () => {
         playAlertNotificationSound(true);
+    });
+
+    container.querySelector("#select-alerts-sound-choice")?.addEventListener("change", (e) => {
+        setAlertSoundChoice(e.target.value, true);
     });
 
     container.querySelector("#btn-alerts-open-settings")?.addEventListener("click", () => {
@@ -6406,6 +6451,10 @@ function initBrowserEvents() {
         if (soundBtn) soundBtn.classList.toggle("active", State.alertSoundEnabled);
         if (soundText) soundText.textContent = State.alertSoundEnabled ? "Activé" : "Désactivé";
 
+        document.querySelectorAll(".btn-sound-choice").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.soundChoice === (State.alertSoundChoice === "bell" ? "bell" : "default"));
+        });
+
         const volSlider = document.getElementById("slider-alert-volume");
         const volLabel = document.getElementById("alert-volume-label");
         if (volSlider) volSlider.value = String(State.alertVolume);
@@ -6488,6 +6537,12 @@ function initBrowserEvents() {
 
     document.getElementById("btn-test-alert-sound")?.addEventListener("click", () => {
         playAlertNotificationSound(true);
+    });
+
+    document.querySelectorAll(".btn-sound-choice").forEach(btn => {
+        btn.addEventListener("click", () => {
+            setAlertSoundChoice(btn.dataset.soundChoice, true);
+        });
     });
 
     document.getElementById("btn-toggle-alert-repeat")?.addEventListener("click", () => {
@@ -6642,6 +6697,383 @@ function initBrowserEvents() {
     });
 }
 
+/* ==================== SYSTÈME DE MISE À JOUR (.ZIP GITHUB) & NOTES DE PATCH (CHANGELOG) ==================== */
+
+const DEFAULT_VERSION_MANIFEST = {
+    version: "1.6.1",
+    date: "2026-11-08",
+    title: "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
+    repo: "Nyxo-17/wiremarket_v1",
+    zipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
+    changelog: [
+        {
+            version: "1.6.1",
+            date: "08/11/2026",
+            title: "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
+            badge: "NOUVEAU",
+            changes: [
+                "Nouvelle tab Hub « Invasions, Acier & Nightwave » : suivi en direct des Invasions (Catalyseurs, Formas, pièces Wraith/Vandal avec lien Platinum), Alertes du Lotus, Événements et Défis des Ondes Nocturnes.",
+                "Rotation Hebdomadaire de Teshin (Honneurs de la Route de l'Acier) avec calendrier des 8 semaines + Boutique Permanente (Evergreens).",
+                "Arbitrage en Direct & Catalogue Essence Vitus : accès rapide à tous les Mods Galvanisés et Mods d'Arbitrage pour vérifier leur rentabilité en Platinum.",
+                "Système de Mise à Jour .zip via GitHub (Releases + branche main) avec protection anti-blocage antivirus (Rollback automatique) et fenêtre « Quoi de neuf ? (Patch Notes) ».",
+                "4 nouvelles alertes sonores : Invasion Rare (Catalyseur/Forma), Invasion Arme Wraith/Vandal, Forma Umbra chez Teshin, et Arbitrage S-Tier."
+            ]
+        },
+        {
+            version: "1.5.0",
+            date: "08/11/2026",
+            title: "Fissures du Néant, Chasse à l'Archonte, Sortie, Panier Multi-Achats & Thème Bicolore",
+            badge: "MAJEUR",
+            changes: [
+                "Nouvelle tab Hub « Fissures & Missions » : Fissures du Néant en direct avec filtre ⚡ Missions Rapides uniquement.",
+                "Suivi en direct de la Chasse à l'Archonte hebdomadaire et de la Sortie quotidienne avec images 3D des planètes.",
+                "Panier Multi-Achats & Liste de Courses avec Détecteur de Groupage d'Échanges (vendeurs possédant plusieurs items de votre panier).",
+                "Personnalisation de Thème Bicolore : Couleur Principale + Couleur Secondaire indépendantes.",
+                "Alertes sonores automatiques de Cycles Planétaires & Fissures."
+            ]
+        }
+    ]
+};
+
+const UpdaterState = {
+    localManifest: DEFAULT_VERSION_MANIFEST,
+    remoteManifest: null,
+    githubRelease: null,
+    updateAvailable: false,
+    remoteVersion: "1.6.1",
+    downloadZipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
+};
+
+function compareSemver(vA, vB) {
+    const clean = (v) => String(v || "0.0.0").replace(/^v/i, "").trim().split(".").map(n => parseInt(n, 10) || 0);
+    const a = clean(vA);
+    const b = clean(vB);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+        const x = a[i] || 0;
+        const y = b[i] || 0;
+        if (x > y) return 1;
+        if (x < y) return -1;
+    }
+    return 0;
+}
+
+function renderChangelogModalContent() {
+    const localVer = UpdaterState.localManifest?.version || "1.6.0";
+    const remoteVer = UpdaterState.remoteVersion || localVer;
+    const hasUpdate = UpdaterState.updateAvailable;
+
+    const settingsLocalVerEl = document.getElementById("settings-local-version");
+    if (settingsLocalVerEl) settingsLocalVerEl.textContent = `v${localVer}`;
+
+    const settingsStatusEl = document.getElementById("settings-update-status-text");
+    if (settingsStatusEl) {
+        if (hasUpdate) {
+            settingsStatusEl.innerHTML = `<strong style="color:var(--sell-color);">⬆ Nouvelle version v${escapeHtml(remoteVer)} disponible sur GitHub !</strong>`;
+        } else {
+            settingsStatusEl.textContent = `Votre application est à jour (v${localVer})`;
+        }
+    }
+
+    const navUpdateBtn = document.getElementById("btn-update-available");
+    const navUpdateLabel = document.getElementById("update-nav-version-label");
+    if (navUpdateBtn) {
+        navUpdateBtn.classList.toggle("hidden", !hasUpdate);
+    }
+    if (navUpdateLabel) {
+        navUpdateLabel.textContent = `v${remoteVer}`;
+    }
+
+    const curVerPill = document.getElementById("changelog-current-ver-pill");
+    if (curVerPill) {
+        curVerPill.textContent = hasUpdate
+            ? `MISE À JOUR DISPONIBLE : v${localVer} → v${remoteVer}`
+            : `VERSION INSTALLÉE : v${localVer}`;
+        curVerPill.classList.toggle("has-update", hasUpdate);
+    }
+
+    const bannerStatus = document.getElementById("changelog-banner-status");
+    if (bannerStatus) {
+        bannerStatus.innerHTML = hasUpdate
+            ? `<span style="color:var(--sell-color);font-weight:700;">Une nouvelle version (v${escapeHtml(remoteVer)}) est prête sur GitHub !</span> Cliquez sur « Installer la dernière version (.zip) » pour mettre à jour WireMarket.`
+            : `Connecté au dépôt GitHub <strong>Nyxo-17/wiremarket_v1</strong> — Protection Rollback Antivirus active.`;
+    }
+
+    const entriesContainer = document.getElementById("changelog-entries-container");
+    if (!entriesContainer) return;
+
+    // Fusionner les notes de patch distantes (si plus récentes) avec les notes locales
+    const entries = [];
+    const seenVersions = new Set();
+
+    if (UpdaterState.githubRelease && UpdaterState.githubRelease.tag_name) {
+        const relVer = String(UpdaterState.githubRelease.tag_name).replace(/^v/i, "");
+        if (!seenVersions.has(relVer)) {
+            seenVersions.add(relVer);
+            const rawBody = String(UpdaterState.githubRelease.body || "").split(/\r?\n/).map(l => l.replace(/^[-*•]\s*/, "").trim()).filter(Boolean);
+            entries.push({
+                version: relVer,
+                date: UpdaterState.githubRelease.published_at ? new Date(UpdaterState.githubRelease.published_at).toLocaleDateString("fr-FR") : "GitHub Release",
+                title: UpdaterState.githubRelease.name || `Release GitHub v${relVer}`,
+                badge: "GITHUB RELEASE",
+                changes: rawBody.length > 0 ? rawBody : ["Archive WireMarket.zip disponible dans la Release GitHub."]
+            });
+        }
+    }
+
+    for (const src of [UpdaterState.remoteManifest, UpdaterState.localManifest, DEFAULT_VERSION_MANIFEST]) {
+        if (src && Array.isArray(src.changelog)) {
+            for (const item of src.changelog) {
+                if (item && item.version && !seenVersions.has(item.version)) {
+                    seenVersions.add(item.version);
+                    entries.push(item);
+                }
+            }
+        }
+    }
+
+    entriesContainer.innerHTML = entries.map((entry, idx) => {
+        const isCurrent = entry.version === localVer;
+        return `
+            <div class="changelog-card ${idx === 0 ? "latest-release" : ""}">
+                <div class="changelog-card-header">
+                    <div class="changelog-card-title-group">
+                        <span class="changelog-version-tag">v${escapeHtml(entry.version)}</span>
+                        ${entry.badge ? `<span class="changelog-type-badge">${escapeHtml(entry.badge)}</span>` : ""}
+                        ${isCurrent ? `<span class="rot-current-pill">INSTALLÉE</span>` : ""}
+                        <h3 class="changelog-card-title">${escapeHtml(entry.title || "")}</h3>
+                    </div>
+                    <span class="changelog-card-date">${escapeHtml(entry.date || "")}</span>
+                </div>
+                <ul class="changelog-bullet-list">
+                    ${(entry.changes || []).map(line => `
+                        <li>${escapeHtml(line)}</li>
+                    `).join("")}
+                </ul>
+            </div>
+        `;
+    }).join("");
+}
+
+function openChangelogModal() {
+    renderChangelogModalContent();
+    document.getElementById("changelog-modal")?.classList.remove("hidden");
+    const curVer = UpdaterState.localManifest?.version || "1.6.0";
+    localStorage.setItem("wm_last_seen_version", curVer);
+}
+
+async function checkForGitHubUpdates(showFeedback = false) {
+    const checkBtns = [
+        document.getElementById("btn-settings-check-update"),
+        document.getElementById("btn-modal-check-update")
+    ].filter(Boolean);
+
+    if (showFeedback) {
+        checkBtns.forEach(b => {
+            b.disabled = true;
+            b.textContent = "⏳ Vérification GitHub...";
+        });
+    }
+
+    try {
+        // 1. Charger version.json local
+        try {
+            const localRes = await fetch(`version.json?t=${Date.now()}`);
+            if (localRes.ok) {
+                const localData = await localRes.json();
+                if (localData && localData.version) {
+                    UpdaterState.localManifest = localData;
+                }
+            }
+        } catch (e) {}
+
+        // 2. Interroger le serveur local /__update/check (ou GitHub directement en fallback)
+        let remoteManifest = null;
+        let githubRelease = null;
+
+        try {
+            const srvRes = await fetch(`/__update/check?t=${Date.now()}`);
+            if (srvRes.ok) {
+                const srvData = await srvRes.json();
+                if (srvData.local && srvData.local.version) UpdaterState.localManifest = srvData.local;
+                if (srvData.remote && srvData.remote.version) remoteManifest = srvData.remote;
+                if (srvData.githubRelease && srvData.githubRelease.tag_name) githubRelease = srvData.githubRelease;
+            }
+        } catch (e) {}
+
+        if (!remoteManifest) {
+            try {
+                const directRes = await fetch(`https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/version.json?t=${Date.now()}`);
+                if (directRes.ok) remoteManifest = await directRes.json();
+            } catch (e) {}
+        }
+
+        if (!githubRelease) {
+            try {
+                const relRes = await fetch("https://api.github.com/repos/Nyxo-17/wiremarket_v1/releases/latest");
+                if (relRes.ok) {
+                    const relData = await relRes.json();
+                    if (relData && relData.tag_name) githubRelease = relData;
+                }
+            } catch (e) {}
+        }
+
+        UpdaterState.remoteManifest = remoteManifest;
+        UpdaterState.githubRelease = githubRelease;
+
+        const localVer = UpdaterState.localManifest?.version || "1.6.0";
+        let bestRemoteVer = localVer;
+        let bestZipUrl = UpdaterState.localManifest?.zipUrl || "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip";
+
+        if (remoteManifest && remoteManifest.version) {
+            if (compareSemver(remoteManifest.version, bestRemoteVer) >= 0) {
+                bestRemoteVer = remoteManifest.version;
+                if (remoteManifest.zipUrl) bestZipUrl = remoteManifest.zipUrl;
+            }
+        }
+
+        if (githubRelease && githubRelease.tag_name) {
+            const relVer = String(githubRelease.tag_name).replace(/^v/i, "");
+            if (compareSemver(relVer, bestRemoteVer) > 0) {
+                bestRemoteVer = relVer;
+            }
+            if (Array.isArray(githubRelease.assets)) {
+                const zipAsset = githubRelease.assets.find(a => String(a.name || "").toLowerCase().endsWith(".zip"));
+                if (zipAsset && zipAsset.browser_download_url) {
+                    bestZipUrl = zipAsset.browser_download_url;
+                }
+            }
+        }
+
+        UpdaterState.remoteVersion = bestRemoteVer;
+        UpdaterState.downloadZipUrl = bestZipUrl;
+        UpdaterState.updateAvailable = compareSemver(bestRemoteVer, localVer) > 0;
+
+        renderChangelogModalContent();
+
+        if (showFeedback) {
+            checkBtns.forEach(b => {
+                b.disabled = false;
+                b.textContent = UpdaterState.updateAvailable
+                    ? `⬆ v${bestRemoteVer} disponible !`
+                    : "✓ Aucune MAJ (À jour)";
+                setTimeout(() => {
+                    b.textContent = b.id === "btn-modal-check-update" ? "↻ Vérifier GitHub" : "↻ Vérifier les mises à jour";
+                }, 2500);
+            });
+        }
+    } catch (err) {
+        if (showFeedback) {
+            checkBtns.forEach(b => {
+                b.disabled = false;
+                b.textContent = "↻ Vérifier GitHub";
+            });
+        }
+    }
+}
+
+async function applyGitHubZipUpdate() {
+    const installBtns = [
+        document.getElementById("btn-settings-apply-update"),
+        document.getElementById("btn-modal-install-update")
+    ].filter(Boolean);
+
+    const progBox = document.getElementById("changelog-progress-box");
+    const progLabel = document.getElementById("changelog-progress-label");
+    const progBar = document.getElementById("changelog-progress-bar");
+
+    // Ouvrir la modale de suivi si elle n'est pas déjà ouverte
+    document.getElementById("changelog-modal")?.classList.remove("hidden");
+    if (progBox) progBox.classList.remove("hidden");
+    if (progLabel) progLabel.textContent = "Téléchargement de WireMarket.zip depuis GitHub et vérification anti-blocage...";
+    if (progBar) progBar.style.width = "45%";
+
+    installBtns.forEach(b => {
+        b.disabled = true;
+        b.textContent = "⏳ Installation en cours...";
+    });
+
+    try {
+        const zipParam = encodeURIComponent(UpdaterState.downloadZipUrl || "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip");
+        const res = await fetch(`/__update/apply?zipUrl=${zipParam}`);
+        const data = await res.json();
+
+        if (!res.ok || data.status !== "ok") {
+            throw new Error(data.message || "Échec de la mise à jour.");
+        }
+
+        if (progBar) progBar.style.width = "100%";
+        const rollbackNote = data.exeStatus === "antivirus_protected_rollback"
+            ? " (Protection Antivirus : interface mise à jour à 100%, exécutable conservé en sécurité)"
+            : "";
+
+        if (progLabel) {
+            progLabel.innerHTML = `<span style="color:var(--sell-color);font-weight:800;">✓ Mise à jour installée avec succès${escapeHtml(rollbackNote)} ! Rechargement dans 2 secondes...</span>`;
+        }
+
+        setTimeout(() => {
+            window.location.reload();
+        }, 1800);
+    } catch (err) {
+        if (progBar) progBar.style.width = "100%";
+        if (progLabel) {
+            progLabel.innerHTML = `<span style="color:#ff7675;font-weight:700;">⚠ ${escapeHtml(err.message || "Impossible de télécharger WireMarket.zip depuis GitHub.")}</span>`;
+        }
+        installBtns.forEach(b => {
+            b.disabled = false;
+            b.textContent = "⬇ Télécharger & Installer (.zip)";
+        });
+    }
+}
+
+async function initUpdaterAndChangelog() {
+    const changelogModal = document.getElementById("changelog-modal");
+
+    document.getElementById("btn-close-changelog")?.addEventListener("click", () => {
+        changelogModal?.classList.add("hidden");
+    });
+    changelogModal?.addEventListener("click", (e) => {
+        if (e.target === changelogModal) changelogModal.classList.add("hidden");
+    });
+
+    document.getElementById("btn-settings-open-changelog")?.addEventListener("click", () => {
+        openChangelogModal();
+    });
+    document.getElementById("btn-update-available")?.addEventListener("click", () => {
+        openChangelogModal();
+    });
+
+    document.getElementById("btn-settings-check-update")?.addEventListener("click", () => {
+        checkForGitHubUpdates(true);
+    });
+    document.getElementById("btn-modal-check-update")?.addEventListener("click", () => {
+        checkForGitHubUpdates(true);
+    });
+
+    document.getElementById("btn-settings-apply-update")?.addEventListener("click", () => {
+        applyGitHubZipUpdate();
+    });
+    document.getElementById("btn-modal-install-update")?.addEventListener("click", () => {
+        applyGitHubZipUpdate();
+    });
+
+    await checkForGitHubUpdates(false);
+
+    // Option 4 : Afficher automatiquement la fenêtre « Quoi de neuf ? (Patch Notes) » une seule fois après chaque nouvelle version
+    const currentVer = UpdaterState.localManifest?.version || "1.6.0";
+    const lastSeenVer = localStorage.getItem("wm_last_seen_version");
+    if (lastSeenVer !== currentVer) {
+        localStorage.setItem("wm_last_seen_version", currentVer);
+        setTimeout(() => {
+            openChangelogModal();
+        }, 650);
+    }
+
+    // Vérifier silencieusement toutes les 30 minutes si une nouvelle version a été publiée sur GitHub
+    setInterval(() => {
+        checkForGitHubUpdates(false);
+    }, 30 * 60 * 1000);
+}
+
 // Démarrage de l'application WireMarket
 document.addEventListener("DOMContentLoaded", async () => {
     updateFavCountBadge();
@@ -6652,6 +7084,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     startPriceSniperScheduler();
     setInterval(updateLiveWorldstateTimers, 1000);
     createTab("https://warframe.market/", true);
+    initUpdaterAndChangelog();
     // Précharger les rotations Warframe & Baro Ki'Teer en arrière-plan pour un affichage instantané au clic sur WireMarket
     fetchWorldstateData(false).then(ws => {
         State.hubTab.cachedData.worldstate = ws;

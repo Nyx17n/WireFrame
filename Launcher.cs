@@ -60,6 +60,9 @@ namespace WireMarketLauncher
         [DllImport("user32.dll")]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool DeleteFile(string lpFileName);
+
         [StructLayout(LayoutKind.Sequential)]
         private struct RECT
         {
@@ -359,6 +362,18 @@ namespace WireMarketLauncher
                     return;
                 }
 
+                if (path == "/__update/check")
+                {
+                    ServeUpdateCheck(rootDir, resp);
+                    return;
+                }
+
+                if (path == "/__update/apply")
+                {
+                    ServeUpdateApply(rootDir, query, resp);
+                    return;
+                }
+
                 if (path.StartsWith("/api/"))
                 {
                     string target = "https://api.warframe.market" + path.Substring(4) + query;
@@ -540,16 +555,250 @@ namespace WireMarketLauncher
             outResp.Close();
         }
 
+        private static string FetchUrlString(string url, int timeoutSec)
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "curl.exe",
+                    Arguments = "-k -s -L --max-time " + timeoutSec + " -H \"User-Agent: WireMarket-Updater/1.6\" \"" + url + "\"",
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    StandardOutputEncoding = Encoding.UTF8
+                };
+                using (Process p = Process.Start(psi))
+                {
+                    string output = p.StandardOutput.ReadToEnd();
+                    p.WaitForExit((timeoutSec + 2) * 1000);
+                    return output;
+                }
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        private static void ServeUpdateCheck(string rootDir, HttpListenerResponse outResp)
+        {
+            string localVerJsonPath = Path.Combine(rootDir, "version.json");
+            string localJson = File.Exists(localVerJsonPath)
+                ? File.ReadAllText(localVerJsonPath, Encoding.UTF8)
+                : "{\"version\":\"1.6.0\"}";
+
+            string remoteJson = FetchUrlString("https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/version.json?t=" + DateTime.UtcNow.Ticks, 10);
+            string releaseJson = FetchUrlString("https://api.github.com/repos/Nyxo-17/wiremarket_v1/releases/latest", 10);
+
+            if (string.IsNullOrWhiteSpace(remoteJson) || !remoteJson.TrimStart().StartsWith("{"))
+            {
+                remoteJson = "null";
+            }
+            if (string.IsNullOrWhiteSpace(releaseJson) || !releaseJson.TrimStart().StartsWith("{"))
+            {
+                releaseJson = "null";
+            }
+
+            string combined = "{\"status\":\"ok\",\"local\":" + localJson + ",\"remote\":" + remoteJson + ",\"githubRelease\":" + releaseJson + "}";
+            byte[] data = Encoding.UTF8.GetBytes(combined);
+            outResp.StatusCode = 200;
+            outResp.ContentType = "application/json; charset=utf-8";
+            outResp.OutputStream.Write(data, 0, data.Length);
+            outResp.Close();
+        }
+
+        private static void CopyDirectorySafe(string sourceDir, string targetDir, out string exeUpdateStatus)
+        {
+            exeUpdateStatus = "unchanged";
+            Directory.CreateDirectory(targetDir);
+
+            foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                string relDir = dirPath.Substring(sourceDir.Length).TrimStart('\\', '/');
+                if (relDir.StartsWith(".git", StringComparison.OrdinalIgnoreCase)) continue;
+                Directory.CreateDirectory(Path.Combine(targetDir, relDir));
+            }
+
+            foreach (string filePath in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+            {
+                string relFile = filePath.Substring(sourceDir.Length).TrimStart('\\', '/');
+                if (relFile.StartsWith(".git", StringComparison.OrdinalIgnoreCase)) continue;
+
+                // Supprimer le marqueur Zone.Identifier (Mark of the Web) pour éviter tout blocage SmartScreen
+                try { DeleteFile(filePath + ":Zone.Identifier"); } catch { }
+
+                string destFile = Path.Combine(targetDir, relFile);
+                Directory.CreateDirectory(Path.GetDirectoryName(destFile));
+
+                if (string.Equals(Path.GetFileName(relFile), "WireMarket.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    string bakFile = destFile + ".bak";
+                    try
+                    {
+                        if (File.Exists(bakFile))
+                        {
+                            try { File.Delete(bakFile); } catch { }
+                        }
+                        if (File.Exists(destFile))
+                        {
+                            File.Move(destFile, bakFile);
+                        }
+                        File.Copy(filePath, destFile, true);
+                        try { DeleteFile(destFile + ":Zone.Identifier"); } catch { }
+
+                        FileInfo fi = new FileInfo(destFile);
+                        if (fi.Exists && fi.Length > 20000)
+                        {
+                            exeUpdateStatus = "updated_from_zip";
+                        }
+                        else
+                        {
+                            throw new IOException("Exe file blocked or empty");
+                        }
+                    }
+                    catch
+                    {
+                        // Protection Antivirus / Rollback : si l'antivirus bloque le nouveau .exe, on restaure immédiatement l'ancien .exe fonctionnel !
+                        try
+                        {
+                            if (!File.Exists(destFile) && File.Exists(bakFile))
+                            {
+                                File.Move(bakFile, destFile);
+                            }
+                        }
+                        catch { }
+                        exeUpdateStatus = "antivirus_protected_rollback";
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        File.Copy(filePath, destFile, true);
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private static void ServeUpdateApply(string rootDir, string query, HttpListenerResponse outResp)
+        {
+            string zipUrl = "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip";
+            if (!string.IsNullOrEmpty(query) && query.Contains("zipUrl="))
+            {
+                try
+                {
+                    int idx = query.IndexOf("zipUrl=") + 7;
+                    string rawParam = query.Substring(idx).Split('&')[0];
+                    string decoded = Uri.UnescapeDataString(rawParam);
+                    if (decoded.StartsWith("https://github.com/Nyxo-17/") || decoded.StartsWith("https://raw.githubusercontent.com/Nyxo-17/") || decoded.StartsWith("https://objects.githubusercontent.com/"))
+                    {
+                        zipUrl = decoded;
+                    }
+                }
+                catch { }
+            }
+
+            string tempRoot = Path.Combine(Path.GetTempPath(), "WireMarket_AutoUpdate_" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            string zipPath = Path.Combine(tempRoot, "WireMarket_Update.zip");
+            string extractDir = Path.Combine(tempRoot, "extracted");
+
+            try
+            {
+                Directory.CreateDirectory(tempRoot);
+                Directory.CreateDirectory(extractDir);
+
+                // 1. Télécharger le .zip depuis GitHub
+                ProcessStartInfo psiDl = new ProcessStartInfo
+                {
+                    FileName = "curl.exe",
+                    Arguments = "-k -s -L --max-time 45 -o \"" + zipPath + "\" \"" + zipUrl + "\"",
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
+                using (Process pDl = Process.Start(psiDl))
+                {
+                    pDl.WaitForExit(48000);
+                }
+
+                FileInfo zipInfo = new FileInfo(zipPath);
+                if (!zipInfo.Exists || zipInfo.Length < 5000)
+                {
+                    throw new Exception("Impossible de télécharger WireMarket.zip depuis GitHub (archive introuvable ou connexion interrompue).");
+                }
+
+                // Supprimer Zone.Identifier sur l'archive .zip avant extraction pour que Windows ne marque aucun fichier extrait
+                try { DeleteFile(zipPath + ":Zone.Identifier"); } catch { }
+
+                // 2. Extraire le .zip via PowerShell Expand-Archive
+                ProcessStartInfo psiEx = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = "-NoProfile -ExecutionPolicy Bypass -Command \"Expand-Archive -Path '" + zipPath.Replace("'", "''") + "' -DestinationPath '" + extractDir.Replace("'", "''") + "' -Force\"",
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
+                using (Process pEx = Process.Start(psiEx))
+                {
+                    pEx.WaitForExit(30000);
+                }
+
+                // Trouver le dossier racine extrait (au cas où le zip contient un sous-dossier unique)
+                string sourceRoot = extractDir;
+                if (!File.Exists(Path.Combine(sourceRoot, "index.html")))
+                {
+                    string[] subDirs = Directory.GetDirectories(extractDir);
+                    if (subDirs.Length == 1 && File.Exists(Path.Combine(subDirs[0], "index.html")))
+                    {
+                        sourceRoot = subDirs[0];
+                    }
+                }
+
+                if (!File.Exists(Path.Combine(sourceRoot, "index.html")))
+                {
+                    throw new Exception("L'archive téléchargée ne contient pas index.html.");
+                }
+
+                // 3. Copier les fichiers en toute sécurité avec protection Rollback anti-blocage antivirus sur WireMarket.exe
+                string exeStatus;
+                CopyDirectorySafe(sourceRoot, rootDir, out exeStatus);
+                ApiCache.Clear();
+
+                string okJson = "{\"status\":\"ok\",\"exeStatus\":\"" + exeStatus + "\",\"message\":\"Mise à jour installée avec succès !\"}";
+                byte[] okBytes = Encoding.UTF8.GetBytes(okJson);
+                outResp.StatusCode = 200;
+                outResp.ContentType = "application/json; charset=utf-8";
+                outResp.OutputStream.Write(okBytes, 0, okBytes.Length);
+                outResp.Close();
+            }
+            catch (Exception ex)
+            {
+                string errMsg = ex.Message.Replace("\"", "'").Replace("\r", " ").Replace("\n", " ");
+                byte[] errBytes = Encoding.UTF8.GetBytes("{\"status\":\"error\",\"message\":\"" + errMsg + "\"}");
+                outResp.StatusCode = 500;
+                outResp.ContentType = "application/json; charset=utf-8";
+                outResp.OutputStream.Write(errBytes, 0, errBytes.Length);
+                outResp.Close();
+            }
+            finally
+            {
+                try { Directory.Delete(tempRoot, true); } catch { }
+            }
+        }
+
         private static string GetMimeType(string filePath)
         {
             string ext = Path.GetExtension(filePath).ToLowerInvariant();
             if (ext == ".html") return "text/html; charset=utf-8";
             if (ext == ".css") return "text/css; charset=utf-8";
             if (ext == ".js") return "application/javascript; charset=utf-8";
+            if (ext == ".json") return "application/json; charset=utf-8";
             if (ext == ".png") return "image/png";
             if (ext == ".ico") return "image/x-icon";
             if (ext == ".svg") return "image/svg+xml";
             if (ext == ".mp3") return "audio/mpeg";
+            if (ext == ".wav") return "audio/wav";
             return "application/octet-stream";
         }
     }

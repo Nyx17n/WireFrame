@@ -1,0 +1,46 @@
+{
+  "version": "1.6.1",
+  "date": "2026-11-08",
+  "title": "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
+  "repo": "Nyxo-17/wiremarket_v1",
+  "zipUrl": "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
+  "changelog": [
+    {
+      "version": "1.6.1",
+      "date": "08/11/2026",
+      "title": "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
+      "badge": "NOUVEAU",
+      "changes": [
+        "Nouvelle tab Hub « Invasions, Acier & Nightwave » : suivi en direct des Invasions (Catalyseurs, Formas, pièces Wraith/Vandal avec lien Platinum), Alertes du Lotus, Événements et Défis des Ondes Nocturnes.",
+        "Rotation Hebdomadaire de Teshin (Honneurs de la Route de l'Acier) avec calendrier des 8 semaines + Boutique Permanente (Evergreens).",
+        "Arbitrage en Direct & Catalogue Essence Vitus : accès rapide à tous les Mods Galvanisés et Mods d'Arbitrage pour vérifier leur rentabilité en Platinum.",
+        "Système de Mise à Jour .zip via GitHub (Releases + branche main) avec protection anti-blocage antivirus (Rollback automatique) et fenêtre « Quoi de neuf ? (Patch Notes) ».",
+        "Choix entre 2 sons de notification (Son 1 : Classique & Son 2 : Cloche Bell) + 4 nouvelles alertes sonores (Invasion Rare, Arme Wraith/Vandal, Forma Umbra Teshin, Arbitrage S-Tier)."
+      ]
+    },
+    {
+      "version": "1.5.0",
+      "date": "08/11/2026",
+      "title": "Fissures du Néant, Chasse à l'Archonte, Sortie, Panier Multi-Achats & Thème Bicolore",
+      "badge": "MAJEUR",
+      "changes": [
+        "Nouvelle tab Hub « Fissures & Missions » : Fissures du Néant en direct (Normal, Route de l'Acier, Tempêtes Railjack, Omnia) avec filtre ⚡ Missions Rapides uniquement.",
+        "Suivi en direct de la Chasse à l'Archonte hebdomadaire et de la Sortie quotidienne avec images 3D des planètes.",
+        "Panier Multi-Achats & Liste de Courses : calcul automatique du budget Platinum, de la taxe en Crédits et Détecteur de Groupage d'Échanges (vendeurs possédant plusieurs items de votre panier).",
+        "Personnalisation de Thème Bicolore : choix indépendant de la Couleur Principale (fond) et de la Couleur Secondaire (accents, boutons, icônes, lueur Glow).",
+        "Alertes sonores automatiques pour la Nuit sur Cetus (et pré-alerte 5 min), Cycle Chaud Vénus, Cycle Vome Deimos, Baro Ki'Teer et Fissures Rapides."
+      ]
+    },
+    {
+      "version": "1.4.0",
+      "date": "07/11/2026",
+      "title": "WireMarket Hub, Rotations Duviri & Boutique Baro Ki'Teer",
+      "badge": "HUB",
+      "changes": [
+        "Onglet permanent inamovible sur le logo WireMarket regroupant les cycles planétaires (Cetus, Fortuna, Deimos, Terre, Duviri, Zariman) et les Mises à Prix.",
+        "Rotations hebdomadaires du Circuit de Duviri (Armes Incarnon Genesis & Warframes) avec calendrier complet.",
+        "Boutique de Baro Ki'Teer avec prix en Ducats, Crédits et comparateur de prix d'achat/revente en Platinum en direct."
+      ]
+    }
+  ]
+}

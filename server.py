@@ -16,6 +16,9 @@ import os
 import sys
 import json
 import time
+import shutil
+import zipfile
+import tempfile
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8484
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -92,6 +95,16 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
             self.proxy_request("https://api.warframestat.us/pc/?language=fr", req_path, is_api=False)
             return
 
+        # Vérification des mises à jour GitHub (Releases + main/version.json)
+        if req_path == "/__update/check":
+            self.handle_update_check()
+            return
+
+        # Téléchargement & installation sécurisée de WireMarket.zip avec Rollback anti-blocage antivirus
+        if req_path == "/__update/apply":
+            self.handle_update_apply(parsed.query)
+            return
+
         # Proxy API Warframe Market (/api/v2/... ou /api/v1/...)
         if req_path.startswith("/api/"):
             target_path = req_path[4:]  # retire "/api" -> "/v2/..."
@@ -108,6 +121,105 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
 
         # Fichiers statiques locaux (HTML, CSS, JS)
         return super().do_GET()
+
+    def fetch_json_safe(self, url, timeout=10):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "WireMarket-Updater/1.6"})
+            with urllib.request.urlopen(req, context=SSL_CTX, timeout=timeout) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            return None
+
+    def handle_update_check(self):
+        local_path = os.path.join(ROOT_DIR, "version.json")
+        local_data = {"version": "1.6.0"}
+        if os.path.exists(local_path):
+            try:
+                with open(local_path, "r", encoding="utf-8") as f:
+                    local_data = json.load(f)
+            except Exception:
+                pass
+
+        remote_data = self.fetch_json_safe(f"https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/version.json?t={int(time.time())}")
+        release_data = self.fetch_json_safe("https://api.github.com/repos/Nyxo-17/wiremarket_v1/releases/latest")
+
+        payload = json.dumps({
+            "status": "ok",
+            "local": local_data,
+            "remote": remote_data,
+            "githubRelease": release_data
+        }).encode("utf-8")
+        self.send_ResponseData(200, "application/json; charset=utf-8", payload, cached=False)
+
+    def handle_update_apply(self, query_str):
+        params = urllib.parse.parse_qs(query_str or "")
+        zip_url = "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
+        if "zipUrl" in params and params["zipUrl"]:
+            cand = params["zipUrl"][0]
+            if cand.startswith(("https://github.com/Nyxo-17/", "https://raw.githubusercontent.com/Nyxo-17/", "https://objects.githubusercontent.com/")):
+                zip_url = cand
+
+        temp_dir = tempfile.mkdtemp(prefix="WireMarket_Update_")
+        zip_path = os.path.join(temp_dir, "WireMarket.zip")
+        extract_dir = os.path.join(temp_dir, "extracted")
+        try:
+            req = urllib.request.Request(zip_url, headers={"User-Agent": "WireMarket-Updater/1.6"})
+            with urllib.request.urlopen(req, context=SSL_CTX, timeout=45) as resp:
+                with open(zip_path, "wb") as out_f:
+                    shutil.copyfileobj(resp, out_f)
+
+            with zipfile.ZipFile(zip_path, "r") as zf:
+                zf.extractall(extract_dir)
+
+            source_root = extract_dir
+            if not os.path.exists(os.path.join(source_root, "index.html")):
+                subs = [os.path.join(extract_dir, d) for d in os.listdir(extract_dir) if os.path.isdir(os.path.join(extract_dir, d))]
+                if len(subs) == 1 and os.path.exists(os.path.join(subs[0], "index.html")):
+                    source_root = subs[0]
+
+            exe_status = "unchanged"
+            for root, dirs, files in os.walk(source_root):
+                rel_dir = os.path.relpath(root, source_root)
+                if rel_dir.startswith(".git"):
+                    continue
+                target_sub = ROOT_DIR if rel_dir == "." else os.path.join(ROOT_DIR, rel_dir)
+                os.makedirs(target_sub, exist_ok=True)
+                for fname in files:
+                    src_file = os.path.join(root, fname)
+                    dst_file = os.path.join(target_sub, fname)
+                    if fname.lower() == "wiremarket.exe":
+                        bak_file = dst_file + ".bak"
+                        try:
+                            if os.path.exists(bak_file):
+                                try:
+                                    os.remove(bak_file)
+                                except Exception:
+                                    pass
+                            if os.path.exists(dst_file):
+                                os.replace(dst_file, bak_file)
+                            shutil.copy2(src_file, dst_file)
+                            exe_status = "updated_from_zip"
+                        except Exception:
+                            if not os.path.exists(dst_file) and os.path.exists(bak_file):
+                                try:
+                                    os.replace(bak_file, dst_file)
+                                except Exception:
+                                    pass
+                            exe_status = "antivirus_protected_rollback"
+                    else:
+                        try:
+                            shutil.copy2(src_file, dst_file)
+                        except Exception:
+                            pass
+
+            CACHE.clear()
+            ok_body = json.dumps({"status": "ok", "exeStatus": exe_status, "message": "Mise à jour installée avec succès !"}).encode("utf-8")
+            self.send_ResponseData(200, "application/json; charset=utf-8", ok_body, cached=False)
+        except Exception as e:
+            err_body = json.dumps({"status": "error", "message": str(e)}).encode("utf-8")
+            self.send_ResponseData(500, "application/json; charset=utf-8", err_body, cached=False)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
     def proxy_request(self, target_url, req_path, is_api=True):
         lang = self.headers.get("X-WM-Language", "fr")

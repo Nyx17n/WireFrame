@@ -4381,4 +4381,190 @@ body.glow-enabled .invasion-card.invasion-rare {
     border-color: rgba(46, 204, 113, 0.4);
 }
 
+/* ==================== SYSTÈME DE MISE À JOUR (.ZIP GITHUB) & NOTES DE PATCH (CHANGELOG) ==================== */
+.update-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 13px;
+    background: rgba(46, 204, 113, 0.18);
+    border: 1px solid var(--sell-color);
+    color: var(--sell-color);
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.update-nav-pill:hover {
+    background: var(--sell-color);
+    color: #061016;
+}
+
+body.glow-enabled .update-nav-pill {
+    box-shadow: 0 0 14px rgba(46, 204, 113, 0.45);
+}
+
+.changelog-modal-box {
+    max-width: 820px;
+}
+
+.changelog-update-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+}
+
+.changelog-banner-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.changelog-ver-pill {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 10px;
+    background: var(--accent-cyan-dim);
+    color: var(--accent-cyan);
+    border: 1px solid var(--border-medium);
+}
+
+.changelog-ver-pill.has-update {
+    background: rgba(46, 204, 113, 0.18);
+    color: var(--sell-color);
+    border-color: var(--sell-color);
+}
+
+.changelog-banner-status {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+}
+
+.changelog-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.changelog-progress-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+}
+
+.changelog-progress-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+}
+
+.changelog-entries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.changelog-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.changelog-card.latest-release {
+    border-left-color: var(--accent-gold);
+    border-color: var(--border-medium);
+}
+
+body.glow-enabled .changelog-card.latest-release {
+    box-shadow: 0 0 16px var(--accent-cyan-dim);
+}
+
+.changelog-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.changelog-card-title-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.changelog-version-tag {
+    font-family: 'Consolas', monospace;
+    font-size: 12.5px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--accent-cyan);
+    border: 1px solid var(--border-medium);
+}
+
+.changelog-type-badge {
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--accent-gold-dim);
+    color: var(--accent-gold);
+    border: 1px solid var(--border-medium);
+}
+
+.changelog-card-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.changelog-card-date {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.changelog-bullet-list {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+.changelog-bullet-list li::marker {
+    color: var(--accent-cyan);
+}
+
+
 
