@@ -6,7 +6,7 @@
     <title>WireMarket — Warframe Market Browser</title>
     <link rel="icon" type="image/x-icon" href="/logo.ico">
     <link rel="shortcut icon" type="image/png" href="/logo.png">
-    <link rel="stylesheet" href="css/style.css">
+    <link id="wm-main-stylesheet" rel="stylesheet" href="css/style.css?v=1.6.1">
 </head>
 <body>
     <!-- ==================== CHROME DU NAVIGATEUR WIREMARKET ==================== -->
@@ -283,6 +283,10 @@
                         <button class="wfm-nav-link hub-nav-link" data-hub-sec="baro">
                             <svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 20 6.5 20 17.5 12 22 4 17.5 4 6.5"/><polygon points="12 6.5 16 12 12 17.5 8 12"/></svg>
                             <span>Marchand Baro Ki'Teer</span>
+                        </button>
+                        <button class="wfm-nav-link hub-nav-link" data-hub-sec="news">
+                            <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+                            <span>Actualités (News)</span>
                         </button>
                     </nav>
 
@@ -562,7 +566,7 @@
                     <div class="settings-row">
                         <span class="settings-row-label">
                             <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="12 2 20 7 20 17 12 22 4 17 4 7"/><circle cx="12" cy="12" r="3"/></svg>
-                            <span>Version installée : <strong id="settings-local-version" style="color:var(--accent-cyan);">v1.6.2</strong> · <span id="settings-update-status-text" style="color:var(--text-secondary);">À jour</span></span>
+                            <span>Version installée : <strong id="settings-local-version" style="color:var(--accent-cyan);">v1.6.1</strong> · <span id="settings-update-status-text" style="color:var(--text-secondary);">À jour</span></span>
                         </span>
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <button id="btn-settings-open-changelog" class="btn-secondary btn-sm">
@@ -596,7 +600,7 @@
                 <!-- Bandeau d'état de mise à jour GitHub -->
                 <div id="changelog-update-banner" class="changelog-update-banner">
                     <div class="changelog-banner-left">
-                        <div class="changelog-ver-pill" id="changelog-current-ver-pill">VERSION INSTALLÉE : v1.6.2</div>
+                        <div class="changelog-ver-pill" id="changelog-current-ver-pill">VERSION INSTALLÉE : v1.6.1</div>
                         <div class="changelog-banner-status" id="changelog-banner-status">
                             Connecté au dépôt GitHub <strong>Nyxo-17/wiremarket_v1</strong> — Protection Rollback Antivirus active.
                         </div>
@@ -623,18 +627,18 @@
     </div>
 
     <!-- ==================== MENU CONTEXTUEL CLIC DROIT SUR UN ONGLET ==================== -->
-    <div id="tab-context-menu" class="tab-context-menu hidden" role="menu"></div>
+    <div id="tab-context-menu" class="tab-context-menu hidden" role="menu" style="background-color: var(--bg-chrome, #0a0e12);"></div>
 
     <!-- ==================== PANNEAU DE RÉORGANISATION DES PAGES OUVERTES ==================== -->
-    <div id="tabs-organizer-popover" class="tabs-organizer-popover hidden" role="dialog" aria-label="Réorganiser les pages ouvertes">
-        <div class="tabs-org-header">
+    <div id="tabs-organizer-popover" class="tabs-organizer-popover hidden" role="dialog" aria-label="Réorganiser les pages ouvertes" style="background-color: var(--bg-page, #0f161d);">
+        <div class="tabs-org-header" style="background-color: var(--bg-chrome, #0a0e12);">
             <div class="tabs-org-title">
                 <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
                 <span>Pages Ouvertes & Réorganisation (<span id="tabs-org-total-label">1</span>)</span>
             </div>
             <button id="btn-close-tabs-organizer" class="chrome-icon-btn" title="Fermer">✕</button>
         </div>
-        <div class="tabs-org-toolbar">
+        <div class="tabs-org-toolbar" style="background-color: var(--bg-tab-bar, #0c1116);">
             <input type="text" id="tabs-org-search-input" class="tabs-org-search" placeholder="Filtrer les pages ouvertes..." autocomplete="off" />
             <div class="tabs-org-quick-actions">
                 <button type="button" id="btn-tabs-sort-type" class="btn-secondary btn-xs" title="Regrouper par catégorie (Accueil, Catalogue, Items, Panier, Alertes)">📂 Par type</button>
@@ -642,15 +646,15 @@
                 <button type="button" id="btn-tabs-dedupe" class="btn-secondary btn-xs" title="Fermer les onglets ouverts en double sur la même URL">🧹 Doublons</button>
             </div>
         </div>
-        <div class="tabs-org-hint">
+        <div class="tabs-org-hint" style="background-color: var(--bg-chrome, #0a0e12);">
             💡 Glissez-déposez les onglets directement dans la barre du haut ou utilisez cette liste (glisser, <strong>▲/▼</strong>, <strong>📌</strong>) pour les réorganiser.
         </div>
-        <div id="tabs-org-list" class="tabs-org-list">
+        <div id="tabs-org-list" class="tabs-org-list" style="background-color: var(--bg-page, #0f161d);">
             <!-- Généré par JS -->
         </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=1.6.1"></script>
 </body>
 </html>
 

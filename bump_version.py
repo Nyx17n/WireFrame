@@ -103,6 +103,16 @@ def sync_version_in_files(new_ver: str, iso_date: str, fr_date: str):
             rf"\g<1>v{new_ver}\g<2>",
             html,
         )
+        html = re.sub(
+            r'(href="css/style\.css\?v=)[0-9]+\.[0-9]+\.[0-9]+(")',
+            rf"\g<1>{new_ver}\g<2>",
+            html,
+        )
+        html = re.sub(
+            r'(src="js/app\.js\?v=)[0-9]+\.[0-9]+\.[0-9]+(")',
+            rf"\g<1>{new_ver}\g<2>",
+            html,
+        )
         index_path.write_text(html, encoding="utf-8")
 
     # 3. Mettre à jour js/app.js (DEFAULT_VERSION_MANIFEST & UpdaterState)

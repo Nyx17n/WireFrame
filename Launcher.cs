@@ -395,6 +395,7 @@ namespace WireMarketLauncher
                     byte[] bytes = File.ReadAllBytes(localPath);
                     resp.StatusCode = 200;
                     resp.ContentType = GetMimeType(localPath);
+                    resp.AddHeader("Cache-Control", "no-cache, no-store, must-revalidate");
                     resp.OutputStream.Write(bytes, 0, bytes.Length);
                     resp.Close();
                     return;

@@ -1927,11 +1927,12 @@ function parseWfmUrl(url) {
     if (pathname === "/contracts" || pathname === "/riven" || pathname === "/auctions") {
         return { route: "contracts", params };
     }
-    if (pathname === "/worldstate" || pathname.startsWith("/worldstate/") || pathname === "/rotations" || pathname === "/baro" || pathname === "/fissures" || pathname === "/invasions") {
+    if (pathname === "/worldstate" || pathname.startsWith("/worldstate/") || pathname === "/rotations" || pathname === "/baro" || pathname === "/fissures" || pathname === "/invasions" || pathname === "/news" || pathname === "/actualites") {
         let hubSec = null;
         if (pathname === "/baro" || pathname === "/worldstate/baro") hubSec = "baro";
         else if (pathname === "/fissures" || pathname === "/worldstate/fissures") hubSec = "fissures";
         else if (pathname === "/invasions" || pathname === "/worldstate/invasions") hubSec = "invasions";
+        else if (pathname === "/news" || pathname === "/actualites" || pathname === "/worldstate/news") hubSec = "news";
         else if (pathname === "/worldstate/duviri") hubSec = "duviri";
         else if (pathname === "/worldstate/planets") hubSec = "planets";
         return { route: "worldstate", hubSec, params };
@@ -3855,11 +3856,14 @@ function renderWorldstateHubPage(container, tab) {
     `;
 
     const invasionsSectionHtml = renderInvasionsAndSteelPathSectionHtml(ws, tab);
+    const newsSectionHtml = renderWarframeNewsSectionHtml(ws, tab);
 
     if (activeSection === "fissures") {
         container.innerHTML = fissuresSectionHtml;
     } else if (activeSection === "invasions") {
         container.innerHTML = invasionsSectionHtml;
+    } else if (activeSection === "news") {
+        container.innerHTML = newsSectionHtml;
     } else if (activeSection === "duviri") {
         container.innerHTML = duviriSectionHtml;
     } else if (activeSection === "baro") {
@@ -3867,6 +3871,14 @@ function renderWorldstateHubPage(container, tab) {
     } else {
         container.innerHTML = planetsSectionHtml;
     }
+
+    // Filtres Actualités Warframe (News)
+    container.querySelectorAll("[data-news-filter]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            tab.viewState.newsFilter = btn.dataset.newsFilter;
+            renderWorldstatePage(container, tab);
+        });
+    });
 
     // Rendu dynamique des Fissures si on est sur la vue Fissures & Missions
     const fissuresArea = container.querySelector("#fissures-dynamic-area");
@@ -3947,7 +3959,7 @@ function renderWorldstateHubPage(container, tab) {
 }
 
 function switchHubSection(secId) {
-    const valid = ["planets", "fissures", "invasions", "duviri", "baro"].includes(secId) ? secId : "planets";
+    const valid = ["planets", "fissures", "invasions", "duviri", "baro", "news"].includes(secId) ? secId : "planets";
     State.hubTab.viewState.hubSection = valid;
     State.hubTab.url = `https://warframe.market/worldstate/${valid}`;
     if (State.activeTabId !== "hub") {
@@ -3956,6 +3968,260 @@ function switchHubSection(secId) {
         syncBrowserChromeToActiveTab();
         renderActiveTabPage();
     }
+}
+
+/* ==================== ACTUALITÉS OFFICIELLES WARFRAME (NEWS), BOOSTERS & DARVO ==================== */
+
+function getNewsTitle(item) {
+    if (!item) return "Actualité Warframe";
+    const tr = item.translations || {};
+    if (State.lang === "fr" && tr.fr) return tr.fr;
+    if (tr[State.lang]) return tr[State.lang];
+    if (tr.fr) return tr.fr;
+    if (tr.en) return tr.en;
+    return item.message || "Actualité Warframe";
+}
+
+function getNewsCategoryInfo(item) {
+    const msg = String(getNewsTitle(item) + " " + (item?.message || "")).toLowerCase();
+    const dateStr = String(item?.date || "");
+    const isPermanent = dateStr.startsWith("1970");
+
+    if (item?.update || msg.includes("hotfix") || msg.includes("update") || msg.includes("patch") || msg.includes("mise à jour")) {
+        return { key: "update", label: "🔧 MISE À JOUR / HOTFIX", badgeClass: "news-badge-update" };
+    }
+    if (item?.primeAccess || msg.includes("prime resurgence") || msg.includes("résurgence prime") || msg.includes("prime access")) {
+        return { key: "prime", label: "👑 PRIME & RÉSURGENCE", badgeClass: "news-badge-prime" };
+    }
+    if (item?.stream || msg.includes("devstream") || msg.includes("twitch") || msg.includes("drop") || msg.includes("prime time")) {
+        return { key: "stream", label: "📺 STREAM & TWITCH DROPS", badgeClass: "news-badge-stream" };
+    }
+    if (isPermanent || msg.includes("discord") || msg.includes("wiki") || msg.includes("forum")) {
+        return { key: "community", label: "🌐 LIEN OFFICIEL", badgeClass: "news-badge-community" };
+    }
+    return { key: "event", label: "📰 ACTUALITÉ WARFRAME", badgeClass: "news-badge-event" };
+}
+
+function findPrimeMarketSlugsInNews(item) {
+    const raw = String((item?.translations?.en || "") + " " + (item?.message || "") + " " + getNewsTitle(item));
+    const matches = [];
+    const seen = new Set();
+    const regex = /\b([A-Z][a-z]+)\s+Prime\b/g;
+    let m;
+    while ((m = regex.exec(raw)) !== null) {
+        const candidateName = m[1].toLowerCase();
+        if (["access", "resurgence", "time", "gaming", "vault"].includes(candidateName)) continue;
+        const setSlug = `${candidateName}_prime_set`;
+        if (!seen.has(setSlug) && State.itemsBySlug.has(setSlug)) {
+            seen.add(setSlug);
+            matches.push({
+                slug: setSlug,
+                label: `${m[1]} Prime Set`
+            });
+        }
+    }
+    return matches;
+}
+
+function formatNewsRelativeDate(dateIso) {
+    if (!dateIso || String(dateIso).startsWith("1970")) return "Lien permanent officiel";
+    const ts = Date.parse(dateIso);
+    if (!Number.isFinite(ts)) return "";
+    const d = new Date(ts);
+    const dateFormatted = d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
+    const diffDays = Math.max(0, Math.floor((Date.now() - ts) / 86400000));
+    const rel = diffDays === 0 ? "Aujourd'hui" : (diffDays === 1 ? "Hier" : `Il y a ${diffDays} j`);
+    return `${dateFormatted} (${rel})`;
+}
+
+function getSortedWarframeNews(ws) {
+    const rawNews = Array.isArray(ws?.news) ? [...ws.news] : [];
+    return rawNews.sort((a, b) => {
+        const aPerm = String(a?.date || "").startsWith("1970");
+        const bPerm = String(b?.date || "").startsWith("1970");
+        if (aPerm !== bPerm) return aPerm ? 1 : -1;
+        const tA = Date.parse(a?.date || "") || 0;
+        const tB = Date.parse(b?.date || "") || 0;
+        return tB - tA;
+    });
+}
+
+function renderWarframeNewsSectionHtml(ws, tab) {
+    const sortedNews = getSortedWarframeNews(ws);
+    const activeFilter = tab.viewState?.newsFilter || "all";
+
+    const filteredNews = sortedNews.filter(n => {
+        if (activeFilter === "all") return true;
+        const cat = getNewsCategoryInfo(n);
+        if (activeFilter === "event") return cat.key === "event" || cat.key === "community";
+        return cat.key === activeFilter;
+    });
+
+    const globalUpgrades = Array.isArray(ws?.globalUpgrades) ? ws.globalUpgrades : [];
+    const dailyDeals = Array.isArray(ws?.dailyDeals) ? ws.dailyDeals : [];
+
+    return `
+        <section id="hub-sec-news" class="ws-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">${wfIcon("codex", "wf-icon-cyan")} Actualités Officielles Warframe, Boosters Serveur & Offre de Darvo</h2>
+                    <p style="font-size:12.5px;color:var(--text-secondary);margin-top:2px;">
+                        Toutes les annonces officielles de Digital Extremes en direct (Hotfix, Résurgence Prime, Devstreams, Twitch Drops et événements en cours).
+                    </p>
+                </div>
+            </div>
+
+            ${(globalUpgrades.length > 0 || dailyDeals.length > 0) ? `
+                <div class="news-top-highlights">
+                    ${globalUpgrades.map(up => {
+                        const label = `${up.upgrade || "Booster Serveur"} ${up.operationSymbol || "x"}${up.upgradeOperationValue || 2}`;
+                        return `
+                            <div class="news-highlight-card booster">
+                                <div>
+                                    <span class="duviri-mode-badge hard">⚡ BOOSTER GLOBAL ACTIF EN JEU</span>
+                                    <h3 style="margin-top:6px;font-size:15px;color:var(--accent-gold);">${escapeHtml(label)}</h3>
+                                    <p style="font-size:12px;color:var(--text-secondary);margin-top:3px;">Bonus multiplicateur actif pour tous les joueurs sur l'ensemble du Système Origine.</p>
+                                </div>
+                                ${up.expiry ? `
+                                    <span class="ws-cycle-timer" data-ws-expiry="${escapeHtml(up.expiry)}">
+                                        ${formatCountdownMs(Date.parse(up.expiry) - Date.now())}
+                                    </span>
+                                ` : ""}
+                            </div>
+                        `;
+                    }).join("")}
+
+                    ${dailyDeals.map(deal => {
+                        const remaining = Math.max(0, (Number(deal.total) || 0) - (Number(deal.sold) || 0));
+                        const pctLeft = deal.total > 0 ? Math.round((remaining / deal.total) * 100) : 100;
+                        return `
+                            <div class="news-highlight-card darvo">
+                                <div style="flex:1;">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                                        <span class="duviri-mode-badge normal">🏷️ OFFRE DU JOUR DE DARVO (-${deal.discount || 0}%)</span>
+                                        ${deal.expiry ? `
+                                            <span class="ws-cycle-timer" data-ws-expiry="${escapeHtml(deal.expiry)}">
+                                                ${formatCountdownMs(Date.parse(deal.expiry) - Date.now())}
+                                            </span>
+                                        ` : ""}
+                                    </div>
+                                    <div style="display:flex;align-items:baseline;gap:10px;margin-top:6px;">
+                                        <h3 style="font-size:15px;color:var(--text-main);">${escapeHtml(deal.item || "Article de Darvo")}</h3>
+                                        <span style="font-size:13px;font-weight:800;color:var(--sell-color);">${deal.salePrice ?? "?"} Plat</span>
+                                        <span style="font-size:11.5px;text-decoration:line-through;color:var(--text-muted);">${deal.originalPrice ?? "?"} Plat</span>
+                                    </div>
+                                    <div style="font-size:11.5px;color:var(--text-secondary);margin-top:4px;">
+                                        Stock restant : <strong>${remaining} / ${deal.total || 0}</strong> (${pctLeft}%)
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            ` : ""}
+
+            <!-- Barre de filtres des Actualités -->
+            <div class="fissures-filter-bar" style="margin-bottom:14px;">
+                <div class="filter-group">
+                    <span class="filter-label">Catégorie :</span>
+                    <button class="filter-chip ${activeFilter === "all" ? "active" : ""}" data-news-filter="all">Toutes (${sortedNews.length})</button>
+                    <button class="filter-chip ${activeFilter === "update" ? "active" : ""}" data-news-filter="update">🔧 Mises à jour & Hotfix</button>
+                    <button class="filter-chip ${activeFilter === "prime" ? "active" : ""}" data-news-filter="prime">👑 Prime & Résurgence</button>
+                    <button class="filter-chip ${activeFilter === "stream" ? "active" : ""}" data-news-filter="stream">📺 Streams & Twitch Drops</button>
+                    <button class="filter-chip ${activeFilter === "event" ? "active" : ""}" data-news-filter="event">🌐 Événements & Communauté</button>
+                </div>
+            </div>
+
+            <!-- Grille des Cartes d'Actualités Warframe -->
+            <div class="wf-news-grid">
+                ${filteredNews.map(n => {
+                    const title = getNewsTitle(n);
+                    const cat = getNewsCategoryInfo(n);
+                    const dateLabel = formatNewsRelativeDate(n.date);
+                    const rawImg = n.imageLink || "";
+                    const hasCustomImg = rawImg && !rawImg.includes("news-placeholder.png");
+                    const imgSrc = hasCustomImg ? rawImg : "logo.png";
+                    const primeLinks = findPrimeMarketSlugsInNews(n);
+                    const hasExpiry = n.expiry && Date.parse(n.expiry) > Date.now();
+
+                    return `
+                        <article class="wf-news-card ${hasCustomImg ? "" : "placeholder-img"}">
+                            <div class="wf-news-banner-wrap">
+                                <img class="wf-news-banner-img" src="${escapeHtml(imgSrc)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                <span class="wf-news-cat-badge ${cat.badgeClass}">${cat.label}</span>
+                                ${hasExpiry ? `
+                                    <span class="wf-news-expiry-pill ws-cycle-timer" data-ws-expiry="${escapeHtml(n.expiry)}">
+                                        ⏳ ${formatCountdownMs(Date.parse(n.expiry) - Date.now())}
+                                    </span>
+                                ` : ""}
+                            </div>
+                            <div class="wf-news-body">
+                                <div class="wf-news-date">${escapeHtml(dateLabel)}</div>
+                                <h3 class="wf-news-title">${escapeHtml(title)}</h3>
+                                ${primeLinks.length > 0 ? `
+                                    <div class="wf-news-prime-links">
+                                        ${primeLinks.map(pl => `
+                                            <button type="button" class="btn-secondary btn-xs" data-open-url="https://warframe.market/items/${escapeHtml(pl.slug)}">
+                                                ${wfIcon("plat", "wf-icon-sm wf-icon-gold")} ${escapeHtml(pl.label)} (Prix) →
+                                            </button>
+                                        `).join("")}
+                                    </div>
+                                ` : ""}
+                                <div class="wf-news-footer">
+                                    ${n.link ? `
+                                        <a class="btn-primary btn-sm wf-news-ext-link" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer">
+                                            <span>Lire l'article officiel ↗</span>
+                                        </a>
+                                    ` : ""}
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }).join("")}
+            </div>
+        </section>
+    `;
+}
+
+function renderHomeNewsStripHtml() {
+    const ws = State.worldstateData || State.hubTab?.cachedData?.worldstate;
+    if (!ws || !Array.isArray(ws.news) || ws.news.length === 0) return "";
+
+    const topNews = getSortedWarframeNews(ws)
+        .filter(n => !String(n?.date || "").startsWith("1970"))
+        .slice(0, 4);
+
+    if (topNews.length === 0) return "";
+
+    return `
+        <section class="home-news-section">
+            <div class="section-header">
+                <h2 class="section-title">${wfIcon("codex", "wf-icon-cyan")} Dernières Actualités Officielles Warframe</h2>
+                <button class="btn-secondary btn-sm" data-open-url="https://warframe.market/worldstate/news">Voir toutes les Actualités (${ws.news.length}) →</button>
+            </div>
+            <div class="home-news-strip">
+                ${topNews.map(n => {
+                    const title = getNewsTitle(n);
+                    const cat = getNewsCategoryInfo(n);
+                    const dateLabel = formatNewsRelativeDate(n.date);
+                    const rawImg = n.imageLink || "";
+                    const hasCustomImg = rawImg && !rawImg.includes("news-placeholder.png");
+                    const imgSrc = hasCustomImg ? rawImg : "logo.png";
+
+                    return `
+                        <a class="home-news-mini-card" href="${escapeHtml(n.link || "#")}" target="_blank" rel="noopener noreferrer" title="Ouvrir l'article officiel : ${escapeHtml(title)}">
+                            <img class="home-news-mini-thumb" src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                            <div class="home-news-mini-info">
+                                <span class="wf-news-cat-inline ${cat.badgeClass}">${cat.label}</span>
+                                <div class="home-news-mini-title">${escapeHtml(title)}</div>
+                                <div class="home-news-mini-date">${escapeHtml(dateLabel)} · Lire ↗</div>
+                            </div>
+                        </a>
+                    `;
+                }).join("")}
+            </div>
+        </section>
+    `;
 }
 
 function renderFissuresDynamicArea(areaContainer, tab, ws) {
@@ -4342,6 +4608,8 @@ function renderHomePage(container, tab) {
                 <button class="btn-primary" id="btn-hero-refresh">↻ Actualiser le marché en direct</button>
             </div>
         </section>
+
+        ${renderHomeNewsStripHtml()}
 
         <section>
             <div class="section-header">
@@ -6698,7 +6966,15 @@ function initBrowserEvents() {
         }
     });
 
+    function refreshLiveStylesheet() {
+        const cssLink = document.getElementById("wm-main-stylesheet") || document.querySelector('link[rel="stylesheet"]');
+        if (cssLink) {
+            cssLink.href = `css/style.css?t=${Date.now()}`;
+        }
+    }
+
     document.getElementById("btn-reload").addEventListener("click", () => {
+        refreshLiveStylesheet();
         const tab = getActiveTab();
         if (tab) navigateTab(tab.id, tab.url, { pushHistory: false, forceRefresh: true });
     });
@@ -7245,6 +7521,7 @@ function initBrowserEvents() {
             addrInput.select();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r") {
             e.preventDefault();
+            refreshLiveStylesheet();
             const tab = getActiveTab();
             if (tab) navigateTab(tab.id, tab.url, { pushHistory: false, forceRefresh: true });
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
@@ -7272,14 +7549,14 @@ function initBrowserEvents() {
 /* ==================== SYSTÈME DE MISE À JOUR (.ZIP GITHUB) & NOTES DE PATCH (CHANGELOG) ==================== */
 
 const DEFAULT_VERSION_MANIFEST = {
-    version: "1.6.2",
+    version: "1.6.1",
     date: "2026-11-08",
     title: "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
     repo: "Nyxo-17/wiremarket_v1",
     zipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
     changelog: [
         {
-            version: "1.6.2",
+            version: "1.6.1",
             date: "08/11/2026",
             title: "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
             badge: "NOUVEAU",
@@ -7312,7 +7589,7 @@ const UpdaterState = {
     remoteManifest: null,
     githubRelease: null,
     updateAvailable: false,
-    remoteVersion: "1.6.2",
+    remoteVersion: "1.6.1",
     downloadZipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
 };
 
@@ -7660,6 +7937,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Précharger les rotations Warframe & Baro Ki'Teer en arrière-plan pour un affichage instantané au clic sur WireMarket
     fetchWorldstateData(false).then(ws => {
         State.hubTab.cachedData.worldstate = ws;
+        const curTab = getActiveTab();
+        if (curTab && parseWfmUrl(curTab.url).route === "home") {
+            renderActiveTabPage();
+        }
     }).catch(() => {});
 });
 
