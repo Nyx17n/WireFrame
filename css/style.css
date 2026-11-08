@@ -5198,6 +5198,81 @@ body.is-dragging-tab * {
     color: var(--text-muted);
 }
 
+/* ==================== ÉCRAN DE CHARGEMENT INITIAL (SPLASH SCREEN) ==================== */
+
+.wm-splash-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: var(--bg-page, #0a0e12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+}
+
+.wm-splash-loader.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.wm-splash-box {
+    width: 340px;
+    max-width: 88vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.wm-splash-logo {
+    width: 68px;
+    height: 68px;
+    object-fit: contain;
+    border-radius: 12px;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6));
+}
+
+.wm-splash-title {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    color: var(--text-main, #e6eef6);
+}
+
+.wm-splash-title span {
+    color: var(--accent-cyan, #26b9d1);
+}
+
+.wm-splash-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.wm-splash-fill {
+    height: 100%;
+    width: 15%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-cyan, #26b9d1), var(--accent-gold, #e6c365));
+    transition: width 0.25s ease;
+}
+
+.wm-splash-meta {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary, #9fb1c3);
+}
+
+
 
 
 

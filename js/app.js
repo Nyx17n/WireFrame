@@ -1181,14 +1181,49 @@ function recordHistory(title, url, icon = DEFAULT_FAVICON) {
     }
 }
 
-/* ==================== CHARGEMENT DU CATALOGUE (3893 ITEMS) ==================== */
+/* ==================== ÉCRAN DE CHARGEMENT INITIAL & CATALOGUE (3893 ITEMS) ==================== */
+
+let splashFinished = false;
+
+function setSplashProgress(pct, statusText) {
+    if (splashFinished) return;
+    const clamped = Math.max(0, Math.min(100, Math.round(pct)));
+    const fillEl = document.getElementById("wm-splash-bar-fill");
+    const pctEl = document.getElementById("wm-splash-pct");
+    const statusEl = document.getElementById("wm-splash-status");
+    if (fillEl) fillEl.style.width = `${clamped}%`;
+    if (pctEl) pctEl.textContent = `${clamped}%`;
+    if (statusEl && statusText) statusEl.textContent = statusText;
+}
+
+function finishSplashScreen() {
+    if (splashFinished) return;
+    splashFinished = true;
+    const splashEl = document.getElementById("wm-splash-loader");
+    const fillEl = document.getElementById("wm-splash-bar-fill");
+    const pctEl = document.getElementById("wm-splash-pct");
+    const statusEl = document.getElementById("wm-splash-status");
+    if (fillEl) fillEl.style.width = "100%";
+    if (pctEl) pctEl.textContent = "100%";
+    if (statusEl) statusEl.textContent = "Prêt !";
+    if (splashEl) {
+        setTimeout(() => {
+            splashEl.classList.add("fade-out");
+            setTimeout(() => {
+                splashEl.classList.add("hidden");
+            }, 320);
+        }, 180);
+    }
+}
 
 async function loadItemsCatalog() {
     const statusEl = document.getElementById("status-items-loaded");
     const connEl = document.getElementById("status-connection");
     try {
         statusEl.textContent = "Synchronisation du catalogue warframe.market...";
+        setSplashProgress(45, "Chargement du catalogue Warframe Market...");
         const json = await apiFetch("/api/v2/items");
+        setSplashProgress(80, "Indexation des items (FR/EN)...");
         const items = json.data || [];
         State.itemsList = items;
         State.itemsById.clear();
@@ -1216,11 +1251,13 @@ async function loadItemsCatalog() {
             }
         }
         renderBookmarksBar();
+        finishSplashScreen();
     } catch (err) {
         console.error(err);
         connEl.className = "status-indicator error";
         connEl.textContent = "● Erreur de connexion API";
         statusEl.textContent = "Impossible de joindre api.warframe.market";
+        finishSplashScreen();
     }
 }
 
@@ -7549,14 +7586,14 @@ function initBrowserEvents() {
 /* ==================== SYSTÈME DE MISE À JOUR (.ZIP GITHUB) & NOTES DE PATCH (CHANGELOG) ==================== */
 
 const DEFAULT_VERSION_MANIFEST = {
-    version: "1.6.2",
+    version: "1.6.1",
     date: "2026-11-08",
     title: "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
     repo: "Nyxo-17/wiremarket_v1",
     zipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
     changelog: [
         {
-            version: "1.6.2",
+            version: "1.6.1",
             date: "08/11/2026",
             title: "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
             badge: "NOUVEAU",
@@ -7589,7 +7626,7 @@ const UpdaterState = {
     remoteManifest: null,
     githubRelease: null,
     updateAvailable: false,
-    remoteVersion: "1.6.2",
+    remoteVersion: "1.6.1",
     downloadZipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
 };
 
@@ -7925,6 +7962,10 @@ async function initUpdaterAndChangelog() {
 
 // Démarrage de l'application WireMarket
 document.addEventListener("DOMContentLoaded", async () => {
+    setSplashProgress(25, "Initialisation de l'interface...");
+    // Sécurité : masquer l'écran de chargement au bout de 3.2s maximum même si la connexion est lente
+    setTimeout(() => finishSplashScreen(), 3200);
+
     updateFavCountBadge();
     updateCartCountBadge();
     updateAlertCountBadge();
