@@ -1256,9 +1256,18 @@ function searchCatalog(query, limit = 12) {
     return scored.slice(0, limit).map(s => s.item);
 }
 
-/* ==================== MOTEUR D'ONGLETS DU NAVIGATEUR ==================== */
+/* ==================== MOTEUR D'ONGLETS DU NAVIGATEUR & RÉORGANISATION ==================== */
 
-function createTab(url = "https://warframe.market/", switchTo = true) {
+let tabBarDragState = null; // { tabId, startX, isDragging }
+let tabOrgDragId = null;
+
+function enforcePinnedTabOrder() {
+    const pinned = State.tabs.filter(t => !!t.pinned);
+    const unpinned = State.tabs.filter(t => !t.pinned);
+    State.tabs = [...pinned, ...unpinned];
+}
+
+function createTab(url = "https://warframe.market/", switchTo = true, options = {}) {
     const id = State.nextTabId++;
     const tab = {
         id,
@@ -1266,6 +1275,7 @@ function createTab(url = "https://warframe.market/", switchTo = true) {
         title: "Nouvel onglet - Warframe Market",
         icon: DEFAULT_FAVICON,
         loading: false,
+        pinned: !!options.pinned,
         history: [url],
         historyIndex: 0,
         // État des filtres propres à l'onglet
@@ -1281,7 +1291,19 @@ function createTab(url = "https://warframe.market/", switchTo = true) {
         },
         cachedData: {}
     };
-    State.tabs.push(tab);
+
+    if (options.insertAfterId) {
+        const refIdx = State.tabs.findIndex(t => t.id === options.insertAfterId);
+        if (refIdx !== -1) {
+            State.tabs.splice(refIdx + 1, 0, tab);
+        } else {
+            State.tabs.push(tab);
+        }
+    } else {
+        State.tabs.push(tab);
+    }
+
+    enforcePinnedTabOrder();
     renderTabsBar();
     if (switchTo) {
         activateTab(id);
@@ -1294,7 +1316,8 @@ function closeTab(id, event) {
     if (event) event.stopPropagation();
     if (id === "hub") return; // L'onglet logo WireMarket est permanent et ne peut pas être fermé
     if (State.tabs.length <= 1) {
-        // Si c'est le dernier onglet standard, retour à l'accueil
+        // Si c'est le dernier onglet standard, le désépingler et retour à l'accueil
+        State.tabs[0].pinned = false;
         navigateTab(State.tabs[0].id, "https://warframe.market/");
         return;
     }
@@ -1338,6 +1361,398 @@ function getActiveTab() {
     return State.tabs.find(t => t.id === State.activeTabId) || State.tabs[0] || State.hubTab;
 }
 
+function togglePinTab(tabId) {
+    const tab = State.tabs.find(t => t.id === tabId);
+    if (!tab) return;
+    tab.pinned = !tab.pinned;
+    enforcePinnedTabOrder();
+    renderTabsBar();
+}
+
+function duplicateTab(tabId) {
+    const tab = State.tabs.find(t => t.id === tabId);
+    if (!tab) return;
+    createTab(tab.url, true, { pinned: false, insertAfterId: tab.id });
+}
+
+function moveTabByOffset(tabId, delta) {
+    const idx = State.tabs.findIndex(t => t.id === tabId);
+    if (idx === -1) return;
+    const tab = State.tabs[idx];
+    const targetIdx = idx + delta;
+    if (targetIdx < 0 || targetIdx >= State.tabs.length) return;
+    const targetTab = State.tabs[targetIdx];
+    // Respecter la frontière entre onglets épinglés et normaux
+    if (!!tab.pinned !== !!targetTab.pinned) return;
+
+    State.tabs.splice(idx, 1);
+    State.tabs.splice(targetIdx, 0, tab);
+    renderTabsBar();
+}
+
+function moveTabToExtreme(tabId, extreme = "first") {
+    const idx = State.tabs.findIndex(t => t.id === tabId);
+    if (idx === -1) return;
+    const tab = State.tabs[idx];
+    const isPinned = !!tab.pinned;
+    State.tabs.splice(idx, 1);
+
+    const pinnedCount = State.tabs.filter(t => !!t.pinned).length;
+    if (isPinned) {
+        const dest = extreme === "first" ? 0 : pinnedCount;
+        State.tabs.splice(dest, 0, tab);
+    } else {
+        const dest = extreme === "first" ? pinnedCount : State.tabs.length;
+        State.tabs.splice(dest, 0, tab);
+    }
+    renderTabsBar();
+}
+
+function reorderTabBeforeOrAfter(draggedId, targetId, placeAfter = false) {
+    if (draggedId === targetId) return;
+    const fromIdx = State.tabs.findIndex(t => t.id === draggedId);
+    const toIdx = State.tabs.findIndex(t => t.id === targetId);
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    const draggedTab = State.tabs[fromIdx];
+    const targetTab = State.tabs[toIdx];
+    // Si on glisse un onglet normal sur un onglet épinglé (ou inversement), synchroniser ou bloquer
+    if (!!draggedTab.pinned !== !!targetTab.pinned) return;
+
+    State.tabs.splice(fromIdx, 1);
+    const newTargetIdx = State.tabs.findIndex(t => t.id === targetId);
+    const insertIdx = placeAfter ? newTargetIdx + 1 : newTargetIdx;
+    State.tabs.splice(insertIdx, 0, draggedTab);
+    renderTabsBar();
+}
+
+function closeOtherTabs(keepTabId) {
+    State.tabs = State.tabs.filter(t => t.id === keepTabId || !!t.pinned);
+    if (!State.tabs.some(t => t.id === State.activeTabId) && State.activeTabId !== "hub") {
+        const next = State.tabs.find(t => t.id === keepTabId) || State.tabs[0];
+        if (next) {
+            State.activeTabId = next.id;
+            State.lastRegularTabId = next.id;
+            syncBrowserChromeToActiveTab();
+            renderActiveTabPage();
+        }
+    }
+    renderTabsBar();
+}
+
+function closeTabsToRight(refTabId) {
+    const refIdx = State.tabs.findIndex(t => t.id === refTabId);
+    if (refIdx === -1) return;
+    State.tabs = State.tabs.filter((t, i) => i <= refIdx || !!t.pinned);
+    if (!State.tabs.some(t => t.id === State.activeTabId) && State.activeTabId !== "hub") {
+        const next = State.tabs[State.tabs.length - 1];
+        if (next) {
+            State.activeTabId = next.id;
+            State.lastRegularTabId = next.id;
+            syncBrowserChromeToActiveTab();
+            renderActiveTabPage();
+        }
+    }
+    renderTabsBar();
+}
+
+function closeDuplicateTabs() {
+    const seenUrls = new Set();
+    const kept = [];
+    for (const tab of State.tabs) {
+        const normUrl = String(tab.url || "").trim().toLowerCase().replace(/\/+$/, "");
+        if (tab.pinned || !seenUrls.has(normUrl)) {
+            seenUrls.add(normUrl);
+            kept.push(tab);
+        }
+    }
+    if (kept.length === 0 && State.tabs.length > 0) {
+        kept.push(State.tabs[0]);
+    }
+    State.tabs = kept;
+    if (!State.tabs.some(t => t.id === State.activeTabId) && State.activeTabId !== "hub") {
+        const next = State.tabs[0];
+        if (next) {
+            State.activeTabId = next.id;
+            State.lastRegularTabId = next.id;
+            syncBrowserChromeToActiveTab();
+            renderActiveTabPage();
+        }
+    }
+    renderTabsBar();
+}
+
+function sortOpenTabsByTitle() {
+    const pinned = State.tabs.filter(t => !!t.pinned);
+    const unpinned = State.tabs.filter(t => !t.pinned);
+    unpinned.sort((a, b) => String(a.title || "").localeCompare(String(b.title || ""), "fr", { sensitivity: "base" }));
+    State.tabs = [...pinned, ...unpinned];
+    renderTabsBar();
+}
+
+function getTabRouteOrderWeight(tab) {
+    const parsed = parseWfmUrl(tab.url || "");
+    const weights = {
+        home: 1,
+        catalog: 2,
+        item: 3,
+        favorites: 4,
+        cart: 5,
+        alerts: 6,
+        ducats: 7,
+        recent: 8,
+        profile: 9
+    };
+    return weights[parsed.route] || 10;
+}
+
+function getTabCategoryBadgeLabel(tab) {
+    const parsed = parseWfmUrl(tab.url || "");
+    const labels = {
+        home: "Accueil",
+        catalog: "Catalogue",
+        item: "Item",
+        favorites: "Favoris",
+        cart: "Panier",
+        alerts: "Alertes",
+        ducats: "Ducats",
+        recent: "Récents",
+        profile: "Profil"
+    };
+    return labels[parsed.route] || "Page";
+}
+
+function sortOpenTabsByCategory() {
+    const pinned = State.tabs.filter(t => !!t.pinned);
+    const unpinned = State.tabs.filter(t => !t.pinned);
+    unpinned.sort((a, b) => {
+        const wDiff = getTabRouteOrderWeight(a) - getTabRouteOrderWeight(b);
+        if (wDiff !== 0) return wDiff;
+        return String(a.title || "").localeCompare(String(b.title || ""), "fr", { sensitivity: "base" });
+    });
+    State.tabs = [...pinned, ...unpinned];
+    renderTabsBar();
+}
+
+function hideTabContextMenu() {
+    document.getElementById("tab-context-menu")?.classList.add("hidden");
+}
+
+function openTabContextMenu(tabId, clientX, clientY) {
+    const menu = document.getElementById("tab-context-menu");
+    if (!menu) return;
+    const idx = State.tabs.findIndex(t => t.id === tabId);
+    if (idx === -1) return;
+    const tab = State.tabs[idx];
+    const canMoveLeft = idx > 0 && (!!State.tabs[idx - 1].pinned === !!tab.pinned);
+    const canMoveRight = idx < State.tabs.length - 1 && (!!State.tabs[idx + 1].pinned === !!tab.pinned);
+
+    menu.innerHTML = `
+        <div class="tab-ctx-header">
+            <img src="${escapeHtml(tab.icon)}" alt="" onerror="this.src='${DEFAULT_FAVICON}'"/>
+            <span>${escapeHtml(tab.title)}</span>
+        </div>
+        <button type="button" class="tab-ctx-item" data-ctx-action="pin">
+            <span>📌 ${tab.pinned ? "Désépingler cet onglet" : "Épingler cet onglet à gauche"}</span>
+        </button>
+        <div class="tab-ctx-sep"></div>
+        <button type="button" class="tab-ctx-item" data-ctx-action="move-left" ${!canMoveLeft ? "disabled" : ""}>
+            <span>⬅ Déplacer vers la gauche</span>
+            <kbd>Alt+Shift+←</kbd>
+        </button>
+        <button type="button" class="tab-ctx-item" data-ctx-action="move-right" ${!canMoveRight ? "disabled" : ""}>
+            <span>➡ Déplacer vers la droite</span>
+            <kbd>Alt+Shift+→</kbd>
+        </button>
+        <button type="button" class="tab-ctx-item" data-ctx-action="move-first" ${!canMoveLeft ? "disabled" : ""}>
+            <span>⏮ Placer en première position</span>
+        </button>
+        <button type="button" class="tab-ctx-item" data-ctx-action="move-last" ${!canMoveRight ? "disabled" : ""}>
+            <span>⏭ Placer en dernière position</span>
+        </button>
+        <div class="tab-ctx-sep"></div>
+        <button type="button" class="tab-ctx-item" data-ctx-action="duplicate">
+            <span>⧉ Dupliquer cette page</span>
+        </button>
+        <button type="button" class="tab-ctx-item" data-ctx-action="reload">
+            <span>↻ Actualiser cette page</span>
+            <kbd>Ctrl+R</kbd>
+        </button>
+        <button type="button" class="tab-ctx-item" data-ctx-action="dedupe">
+            <span>🧹 Fermer les pages en doublon</span>
+        </button>
+        <div class="tab-ctx-sep"></div>
+        <button type="button" class="tab-ctx-item" data-ctx-action="close-right" ${idx >= State.tabs.length - 1 ? "disabled" : ""}>
+            <span>✕ Fermer les pages à droite</span>
+        </button>
+        <button type="button" class="tab-ctx-item" data-ctx-action="close-others" ${State.tabs.length <= 1 ? "disabled" : ""}>
+            <span>✕ Fermer les autres pages</span>
+        </button>
+        <button type="button" class="tab-ctx-item danger" data-ctx-action="close">
+            <span>✕ Fermer cette page</span>
+            <kbd>Ctrl+W</kbd>
+        </button>
+    `;
+
+    menu.classList.remove("hidden");
+    const menuWidth = 265;
+    const menuHeight = 350;
+    const left = Math.max(8, Math.min(window.innerWidth - menuWidth - 10, clientX));
+    const top = Math.max(8, Math.min(window.innerHeight - menuHeight - 10, clientY));
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+
+    menu.querySelectorAll("[data-ctx-action]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const action = btn.dataset.ctxAction;
+            hideTabContextMenu();
+            if (action === "pin") togglePinTab(tabId);
+            else if (action === "move-left") moveTabByOffset(tabId, -1);
+            else if (action === "move-right") moveTabByOffset(tabId, 1);
+            else if (action === "move-first") moveTabToExtreme(tabId, "first");
+            else if (action === "move-last") moveTabToExtreme(tabId, "last");
+            else if (action === "duplicate") duplicateTab(tabId);
+            else if (action === "reload") navigateTab(tabId, tab.url, { pushHistory: false, forceRefresh: true });
+            else if (action === "dedupe") closeDuplicateTabs();
+            else if (action === "close-right") closeTabsToRight(tabId);
+            else if (action === "close-others") closeOtherTabs(tabId);
+            else if (action === "close") closeTab(tabId);
+        });
+    });
+}
+
+function renderTabsOrganizerList() {
+    const popover = document.getElementById("tabs-organizer-popover");
+    const listEl = document.getElementById("tabs-org-list");
+    const countLabel = document.getElementById("tabs-org-total-label");
+    if (countLabel) countLabel.textContent = String(State.tabs.length);
+    if (!popover || popover.classList.contains("hidden") || !listEl) return;
+
+    const searchQ = normalizeSearch(document.getElementById("tabs-org-search-input")?.value || "");
+    const filteredTabs = State.tabs.filter(t => {
+        if (!searchQ) return true;
+        return normalizeSearch(t.title).includes(searchQ) || normalizeSearch(t.url).includes(searchQ);
+    });
+
+    if (filteredTabs.length === 0) {
+        listEl.innerHTML = `<div style="padding:18px;text-align:center;color:var(--text-muted);font-size:12.5px;">Aucune page ouverte ne correspond à votre filtre.</div>`;
+        return;
+    }
+
+    listEl.innerHTML = filteredTabs.map(tab => {
+        const realIdx = State.tabs.findIndex(t => t.id === tab.id);
+        const isActive = tab.id === State.activeTabId;
+        const canUp = realIdx > 0 && (!!State.tabs[realIdx - 1].pinned === !!tab.pinned);
+        const canDown = realIdx < State.tabs.length - 1 && (!!State.tabs[realIdx + 1].pinned === !!tab.pinned);
+        const catLabel = getTabCategoryBadgeLabel(tab);
+
+        return `
+            <div class="tabs-org-row ${isActive ? "active" : ""} ${tab.pinned ? "pinned" : ""}"
+                 draggable="true"
+                 data-org-tab-id="${tab.id}">
+                <span class="tabs-org-drag-handle" title="Glisser-déposer pour changer l'ordre">⋮⋮</span>
+                <span class="tabs-org-index">#${realIdx + 1}</span>
+                <img class="tabs-org-favicon" src="${escapeHtml(tab.icon)}" alt="" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                <div class="tabs-org-info" data-org-activate="${tab.id}">
+                    <div class="tabs-org-row-title">
+                        ${tab.pinned ? `<span class="tab-pinned-tag">📌 ÉPINGLÉ</span>` : ""}
+                        <span class="tab-cat-tag">${escapeHtml(catLabel)}</span>
+                        <span>${escapeHtml(tab.title)}</span>
+                    </div>
+                    <div class="tabs-org-row-url">${escapeHtml(tab.url)}</div>
+                </div>
+                <div class="tabs-org-actions">
+                    <button type="button" class="tabs-org-btn" data-org-move-up="${tab.id}" ${!canUp ? "disabled" : ""} title="Déplacer vers la gauche / monter">▲</button>
+                    <button type="button" class="tabs-org-btn" data-org-move-down="${tab.id}" ${!canDown ? "disabled" : ""} title="Déplacer vers la droite / descendre">▼</button>
+                    <button type="button" class="tabs-org-btn ${tab.pinned ? "active" : ""}" data-org-pin="${tab.id}" title="${tab.pinned ? "Désépingler" : "Épingler à gauche"}">📌</button>
+                    <button type="button" class="tabs-org-btn" data-org-dup="${tab.id}" title="Dupliquer cette page">⧉</button>
+                    <button type="button" class="tabs-org-btn danger" data-org-close="${tab.id}" title="Fermer cette page">✕</button>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    listEl.querySelectorAll("[data-org-activate]").forEach(el => {
+        el.addEventListener("click", () => {
+            activateTab(Number(el.dataset.orgActivate));
+        });
+    });
+
+    listEl.querySelectorAll("[data-org-move-up]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            moveTabByOffset(Number(btn.dataset.orgMoveUp), -1);
+        });
+    });
+
+    listEl.querySelectorAll("[data-org-move-down]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            moveTabByOffset(Number(btn.dataset.orgMoveDown), 1);
+        });
+    });
+
+    listEl.querySelectorAll("[data-org-pin]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            togglePinTab(Number(btn.dataset.orgPin));
+        });
+    });
+
+    listEl.querySelectorAll("[data-org-dup]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            duplicateTab(Number(btn.dataset.orgDup));
+        });
+    });
+
+    listEl.querySelectorAll("[data-org-close]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeTab(Number(btn.dataset.orgClose), e);
+        });
+    });
+
+    // Glisser-déposer vertical dans la liste du gestionnaire d'onglets
+    listEl.querySelectorAll(".tabs-org-row").forEach(row => {
+        const rowId = Number(row.dataset.orgTabId);
+        row.addEventListener("dragstart", (e) => {
+            tabOrgDragId = rowId;
+            row.classList.add("dragging");
+            if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = "move";
+                try { e.dataTransfer.setData("text/plain", String(rowId)); } catch (err) {}
+            }
+        });
+        row.addEventListener("dragend", () => {
+            tabOrgDragId = null;
+            row.classList.remove("dragging");
+            listEl.querySelectorAll(".tabs-org-row").forEach(r => r.classList.remove("drop-above", "drop-below"));
+        });
+        row.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            if (!tabOrgDragId || tabOrgDragId === rowId) return;
+            const rect = row.getBoundingClientRect();
+            const isAfter = (e.clientY - rect.top) > rect.height / 2;
+            row.classList.toggle("drop-above", !isAfter);
+            row.classList.toggle("drop-below", isAfter);
+        });
+        row.addEventListener("dragleave", () => {
+            row.classList.remove("drop-above", "drop-below");
+        });
+        row.addEventListener("drop", (e) => {
+            e.preventDefault();
+            row.classList.remove("drop-above", "drop-below");
+            if (!tabOrgDragId || tabOrgDragId === rowId) return;
+            const rect = row.getBoundingClientRect();
+            const isAfter = (e.clientY - rect.top) > rect.height / 2;
+            reorderTabBeforeOrAfter(tabOrgDragId, rowId, isAfter);
+            tabOrgDragId = null;
+        });
+    });
+}
+
 function renderTabsBar() {
     const brandTab = document.getElementById("app-brand-tab");
     if (brandTab) {
@@ -1346,34 +1761,71 @@ function renderTabsBar() {
         brandTab.setAttribute("aria-selected", isHubActive ? "true" : "false");
     }
 
+    const countBadge = document.getElementById("open-tabs-count-badge");
+    if (countBadge) {
+        countBadge.textContent = String(State.tabs.length);
+    }
+
     const container = document.getElementById("tabs-container");
     container.classList.toggle("tabs-crowded", State.tabs.length >= 8);
     container.classList.toggle("tabs-very-crowded", State.tabs.length >= 18);
-    container.innerHTML = State.tabs.map(tab => {
+    container.innerHTML = State.tabs.map((tab, idx) => {
         const isActive = tab.id === State.activeTabId;
+        const isDragging = tabBarDragState && tabBarDragState.isDragging && tabBarDragState.tabId === tab.id;
         const iconHtml = tab.loading
             ? `<div class="tab-spinner"></div>`
-            : `<img class="tab-favicon" src="${escapeHtml(tab.icon)}" alt="" onerror="this.src='${DEFAULT_FAVICON}'"/>`;
+            : `<img class="tab-favicon" src="${escapeHtml(tab.icon)}" alt="" draggable="false" onerror="this.src='${DEFAULT_FAVICON}'"/>`;
         return `
-            <div class="browser-tab ${isActive ? "active" : ""}" data-tab-id="${tab.id}" title="${escapeHtml(tab.title)}\n${escapeHtml(tab.url)}">
+            <div class="browser-tab ${isActive ? "active" : ""} ${tab.pinned ? "pinned-tab" : ""} ${isDragging ? "tab-dragging" : ""}"
+                 data-tab-id="${tab.id}"
+                 data-tab-index="${idx}"
+                 title="${escapeHtml(tab.title)}\n${escapeHtml(tab.url)}\n(Glisser pour réorganiser · Clic droit pour les options)">
+                ${tab.pinned ? `<span class="tab-pin-dot" title="Onglet épinglé">📌</span>` : ""}
                 ${iconHtml}
                 <span class="tab-title">${escapeHtml(tab.title)}</span>
-                <button class="tab-close" data-close-tab="${tab.id}" title="Fermer l'onglet (Ctrl+W)">✕</button>
+                ${tab.pinned ? "" : `<button class="tab-close" data-close-tab="${tab.id}" title="Fermer l'onglet (Ctrl+W)">✕</button>`}
             </div>
         `;
     }).join("");
 
     container.querySelectorAll(".browser-tab").forEach(el => {
         const id = Number(el.dataset.tabId);
-        el.addEventListener("click", () => activateTab(id));
+
+        el.addEventListener("mousedown", (e) => {
+            if (e.button !== 0) return;
+            if (e.target.closest("[data-close-tab]")) return;
+            tabBarDragState = {
+                tabId: id,
+                startX: e.clientX,
+                isDragging: false
+            };
+        });
+
+        el.addEventListener("click", (e) => {
+            if (e.target.closest("[data-close-tab]")) return;
+            if (tabBarDragState && tabBarDragState.wasDragged) {
+                tabBarDragState = null;
+                return;
+            }
+            activateTab(id);
+        });
+
         el.addEventListener("auxclick", (e) => {
             if (e.button === 1) closeTab(id, e);
+        });
+
+        el.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openTabContextMenu(id, e.clientX, e.clientY);
         });
     });
 
     container.querySelectorAll("[data-close-tab]").forEach(btn => {
         btn.addEventListener("click", (e) => closeTab(Number(btn.dataset.closeTab), e));
     });
+
+    renderTabsOrganizerList();
 }
 
 function syncBrowserChromeToActiveTab() {
@@ -6655,6 +7107,112 @@ function initBrowserEvents() {
         document.getElementById("whisper-bar").classList.add("hidden");
     });
 
+    // ==================== GESTIONNAIRE & RÉORGANISATION DES PAGES OUVERTES ====================
+    const tabsOrgPopover = document.getElementById("tabs-organizer-popover");
+    const tabsOrgBtn = document.getElementById("btn-tabs-organizer");
+
+    tabsOrgBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hideTabContextMenu();
+        if (tabsOrgPopover) {
+            tabsOrgPopover.classList.toggle("hidden");
+            if (!tabsOrgPopover.classList.contains("hidden")) {
+                renderTabsOrganizerList();
+                document.getElementById("tabs-org-search-input")?.focus();
+            }
+        }
+    });
+
+    document.getElementById("btn-close-tabs-organizer")?.addEventListener("click", () => {
+        tabsOrgPopover?.classList.add("hidden");
+    });
+
+    document.getElementById("tabs-org-search-input")?.addEventListener("input", () => {
+        renderTabsOrganizerList();
+    });
+
+    document.getElementById("btn-tabs-sort-az")?.addEventListener("click", () => {
+        sortOpenTabsByTitle();
+    });
+
+    document.getElementById("btn-tabs-sort-type")?.addEventListener("click", () => {
+        sortOpenTabsByCategory();
+    });
+
+    document.getElementById("btn-tabs-dedupe")?.addEventListener("click", () => {
+        closeDuplicateTabs();
+    });
+
+    // Glisser-déposer horizontal en direct dans la barre d'onglets (#tabs-container)
+    window.addEventListener("mousemove", (e) => {
+        if (!tabBarDragState) return;
+        const dx = Math.abs(e.clientX - tabBarDragState.startX);
+        if (!tabBarDragState.isDragging) {
+            if (dx < 6) return;
+            tabBarDragState.isDragging = true;
+            tabBarDragState.wasDragged = true;
+            hideTabContextMenu();
+            document.body.classList.add("is-dragging-tab");
+            const activeDragEl = document.querySelector(`.browser-tab[data-tab-id="${tabBarDragState.tabId}"]`);
+            if (activeDragEl) activeDragEl.classList.add("tab-dragging");
+        }
+
+        const container = document.getElementById("tabs-container");
+        if (!container) return;
+        const draggedIdx = State.tabs.findIndex(t => t.id === tabBarDragState.tabId);
+        if (draggedIdx === -1) return;
+        const draggedTab = State.tabs[draggedIdx];
+
+        const tabEls = Array.from(container.querySelectorAll(".browser-tab"));
+        for (const el of tabEls) {
+            const otherId = Number(el.dataset.tabId);
+            if (otherId === tabBarDragState.tabId) continue;
+            const otherIdx = State.tabs.findIndex(t => t.id === otherId);
+            if (otherIdx === -1) continue;
+            const otherTab = State.tabs[otherIdx];
+            if (!!otherTab.pinned !== !!draggedTab.pinned) continue;
+
+            const rect = el.getBoundingClientRect();
+            const midX = rect.left + rect.width / 2;
+
+            if (draggedIdx < otherIdx && e.clientX > midX) {
+                State.tabs.splice(draggedIdx, 1);
+                State.tabs.splice(otherIdx, 0, draggedTab);
+                renderTabsBar();
+                break;
+            } else if (draggedIdx > otherIdx && e.clientX < midX) {
+                State.tabs.splice(draggedIdx, 1);
+                State.tabs.splice(otherIdx, 0, draggedTab);
+                renderTabsBar();
+                break;
+            }
+        }
+    });
+
+    window.addEventListener("mouseup", () => {
+        if (!tabBarDragState) return;
+        const wasDragging = tabBarDragState.isDragging;
+        document.body.classList.remove("is-dragging-tab");
+        if (wasDragging) {
+            document.querySelectorAll(".browser-tab.tab-dragging").forEach(el => el.classList.remove("tab-dragging"));
+            setTimeout(() => { tabBarDragState = null; }, 30);
+        } else {
+            tabBarDragState = null;
+        }
+    });
+
+    // Fermer le menu contextuel et le panneau d'organisation au clic extérieur
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest("#tab-context-menu")) {
+            hideTabContextMenu();
+        }
+        if (tabsOrgPopover && !tabsOrgPopover.classList.contains("hidden")) {
+            if (!e.target.closest("#tabs-organizer-popover") && !e.target.closest("#btn-tabs-organizer")) {
+                tabsOrgPopover.classList.add("hidden");
+            }
+        }
+    });
+
     // Raccourcis clavier de navigateur
     window.addEventListener("keydown", (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "t") {
@@ -6663,6 +7221,20 @@ function initBrowserEvents() {
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "w") {
             e.preventDefault();
             closeTab(State.activeTabId);
+        } else if ((e.altKey && e.shiftKey && e.key === "ArrowLeft") || ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "PageUp")) {
+            e.preventDefault();
+            if (State.activeTabId !== "hub") moveTabByOffset(State.activeTabId, -1);
+        } else if ((e.altKey && e.shiftKey && e.key === "ArrowRight") || ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "PageDown")) {
+            e.preventDefault();
+            if (State.activeTabId !== "hub") moveTabByOffset(State.activeTabId, 1);
+        } else if ((e.ctrlKey || e.metaKey) && e.key === "Tab") {
+            e.preventDefault();
+            if (State.tabs.length > 1) {
+                const curIdx = State.tabs.findIndex(t => t.id === State.activeTabId);
+                const dir = e.shiftKey ? -1 : 1;
+                const nextIdx = (curIdx + dir + State.tabs.length) % State.tabs.length;
+                activateTab(State.tabs[nextIdx].id);
+            }
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
             e.preventDefault();
             searchInput.focus();
@@ -6700,14 +7272,14 @@ function initBrowserEvents() {
 /* ==================== SYSTÈME DE MISE À JOUR (.ZIP GITHUB) & NOTES DE PATCH (CHANGELOG) ==================== */
 
 const DEFAULT_VERSION_MANIFEST = {
-    version: "1.6.1",
+    version: "1.6.2",
     date: "2026-11-08",
     title: "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
     repo: "Nyxo-17/wiremarket_v1",
     zipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
     changelog: [
         {
-            version: "1.6.1",
+            version: "1.6.2",
             date: "08/11/2026",
             title: "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
             badge: "NOUVEAU",
@@ -6740,7 +7312,7 @@ const UpdaterState = {
     remoteManifest: null,
     githubRelease: null,
     updateAvailable: false,
-    remoteVersion: "1.6.1",
+    remoteVersion: "1.6.2",
     downloadZipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
 };
 

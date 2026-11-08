@@ -4566,5 +4566,401 @@ body.glow-enabled .changelog-card.latest-release {
     color: var(--accent-cyan);
 }
 
+/* ==================== RÉORGANISATION DES ONGLETS, ÉPINGLAGE & GESTIONNAIRE DE PAGES ==================== */
+
+body.is-dragging-tab,
+body.is-dragging-tab * {
+    user-select: none !important;
+    cursor: grabbing !important;
+}
+
+.browser-tab.tab-dragging {
+    background: var(--bg-card-hover) !important;
+    border-color: var(--accent-cyan) !important;
+    box-shadow: 0 -2px 16px rgba(38, 185, 209, 0.35);
+    z-index: 25;
+    transform: translateY(-1px);
+}
+
+.browser-tab.pinned-tab {
+    width: 52px;
+    flex: 0 0 52px;
+    min-width: 48px;
+    justify-content: center;
+    padding: 0 6px;
+    gap: 4px;
+    border-color: rgba(230, 195, 101, 0.35);
+}
+
+.browser-tab.pinned-tab .tab-title {
+    display: none;
+}
+
+.tab-pin-dot {
+    font-size: 10px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.tabs-organizer-btn {
+    width: auto !important;
+    padding: 0 8px !important;
+    gap: 5px;
+    margin-left: 2px;
+    border: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.tabs-organizer-btn:hover {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+}
+
+.tabs-count-pill {
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 8px;
+    background: var(--accent-cyan-dim);
+    color: var(--accent-cyan);
+    line-height: 1.2;
+}
+
+/* Menu contextuel clic droit sur un onglet */
+.tab-context-menu {
+    position: fixed;
+    z-index: 9999;
+    width: 265px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    backdrop-filter: blur(12px);
+}
+
+.tab-ctx-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--accent-cyan);
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 3px;
+}
+
+.tab-ctx-header img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.tab-ctx-header span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tab-ctx-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+}
+
+.tab-ctx-item:hover:not(:disabled) {
+    background: var(--accent-cyan-dim);
+    color: var(--accent-cyan);
+}
+
+.tab-ctx-item.danger:hover:not(:disabled) {
+    background: rgba(255, 107, 107, 0.15);
+    color: #ff7675;
+}
+
+.tab-ctx-item:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.tab-ctx-item kbd {
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-family: inherit;
+}
+
+.tab-ctx-sep {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 3px 4px;
+}
+
+/* Panneau déroulant de réorganisation des pages ouvertes */
+.tabs-organizer-popover {
+    position: fixed;
+    top: 42px;
+    right: 16px;
+    width: 520px;
+    max-width: calc(100vw - 24px);
+    max-height: 75vh;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.72);
+    z-index: 9500;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tabs-org-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 14px;
+    background: var(--bg-chrome);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.tabs-org-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.tabs-org-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+}
+
+.tabs-org-search {
+    flex: 1;
+    min-width: 150px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-input);
+    color: var(--text-main);
+    font-size: 12px;
+    outline: none;
+}
+
+.tabs-org-search:focus {
+    border-color: var(--accent-cyan);
+}
+
+.tabs-org-quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.btn-xs {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+}
+
+.tabs-org-hint {
+    padding: 6px 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.tabs-org-list {
+    padding: 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 52vh;
+}
+
+.tabs-org-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    transition: border-color 0.14s, background 0.14s, transform 0.12s;
+}
+
+.tabs-org-row:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-medium);
+}
+
+.tabs-org-row.active {
+    border-color: var(--accent-cyan);
+    background: linear-gradient(90deg, var(--accent-cyan-dim), var(--bg-card));
+}
+
+.tabs-org-row.pinned {
+    border-left: 3px solid var(--accent-gold);
+}
+
+.tabs-org-row.dragging {
+    opacity: 0.45;
+    border-style: dashed;
+}
+
+.tabs-org-row.drop-above {
+    border-top: 2px solid var(--accent-cyan);
+}
+
+.tabs-org-row.drop-below {
+    border-bottom: 2px solid var(--accent-cyan);
+}
+
+.tabs-org-drag-handle {
+    cursor: grab;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 800;
+    padding: 0 3px;
+    user-select: none;
+}
+
+.tabs-org-index {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    min-width: 22px;
+}
+
+.tabs-org-favicon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.tabs-org-info {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.tabs-org-row-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tab-pinned-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: var(--accent-gold-dim);
+    color: var(--accent-gold);
+    flex-shrink: 0;
+}
+
+.tab-cat-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: var(--accent-cyan-dim);
+    color: var(--accent-cyan);
+    flex-shrink: 0;
+}
+
+.tabs-org-row-url {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+}
+
+.tabs-org-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.tabs-org-btn {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    border: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.tabs-org-btn:hover:not(:disabled) {
+    background: var(--accent-cyan-dim);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+}
+
+.tabs-org-btn.active {
+    background: var(--accent-gold-dim);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.tabs-org-btn.danger:hover:not(:disabled) {
+    background: rgba(255, 107, 107, 0.18);
+    border-color: #ff7675;
+    color: #ff7675;
+}
+
+.tabs-org-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+
 
 

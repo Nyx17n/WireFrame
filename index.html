@@ -29,6 +29,15 @@
                 </svg>
             </button>
 
+            <button id="btn-tabs-organizer" class="chrome-icon-btn tabs-organizer-btn" title="Réorganiser & gérer les pages ouvertes (Glisser-déposer, Trier, Épingler)" aria-label="Gérer les pages ouvertes">
+                <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
+                    <rect x="3" y="4" width="18" height="4" rx="1"></rect>
+                    <rect x="3" y="10" width="18" height="4" rx="1"></rect>
+                    <rect x="3" y="16" width="18" height="4" rx="1"></rect>
+                </svg>
+                <span id="open-tabs-count-badge" class="tabs-count-pill">1</span>
+            </button>
+
             <button id="btn-exit-compact-top" class="compact-exit-pill hidden" title="Quitter le mode compact et agrandir la fenêtre (Alt+M)">
                 <svg class="wf-icon wf-icon-sm wf-icon-cyan" viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                 <span>Agrandir</span>
@@ -553,7 +562,7 @@
                     <div class="settings-row">
                         <span class="settings-row-label">
                             <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="12 2 20 7 20 17 12 22 4 17 4 7"/><circle cx="12" cy="12" r="3"/></svg>
-                            <span>Version installée : <strong id="settings-local-version" style="color:var(--accent-cyan);">v1.6.1</strong> · <span id="settings-update-status-text" style="color:var(--text-secondary);">À jour</span></span>
+                            <span>Version installée : <strong id="settings-local-version" style="color:var(--accent-cyan);">v1.6.2</strong> · <span id="settings-update-status-text" style="color:var(--text-secondary);">À jour</span></span>
                         </span>
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <button id="btn-settings-open-changelog" class="btn-secondary btn-sm">
@@ -587,7 +596,7 @@
                 <!-- Bandeau d'état de mise à jour GitHub -->
                 <div id="changelog-update-banner" class="changelog-update-banner">
                     <div class="changelog-banner-left">
-                        <div class="changelog-ver-pill" id="changelog-current-ver-pill">VERSION INSTALLÉE : v1.6.1</div>
+                        <div class="changelog-ver-pill" id="changelog-current-ver-pill">VERSION INSTALLÉE : v1.6.2</div>
                         <div class="changelog-banner-status" id="changelog-banner-status">
                             Connecté au dépôt GitHub <strong>Nyxo-17/wiremarket_v1</strong> — Protection Rollback Antivirus active.
                         </div>
@@ -610,6 +619,34 @@
                     <!-- Généré par JS depuis version.json -->
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ==================== MENU CONTEXTUEL CLIC DROIT SUR UN ONGLET ==================== -->
+    <div id="tab-context-menu" class="tab-context-menu hidden" role="menu"></div>
+
+    <!-- ==================== PANNEAU DE RÉORGANISATION DES PAGES OUVERTES ==================== -->
+    <div id="tabs-organizer-popover" class="tabs-organizer-popover hidden" role="dialog" aria-label="Réorganiser les pages ouvertes">
+        <div class="tabs-org-header">
+            <div class="tabs-org-title">
+                <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
+                <span>Pages Ouvertes & Réorganisation (<span id="tabs-org-total-label">1</span>)</span>
+            </div>
+            <button id="btn-close-tabs-organizer" class="chrome-icon-btn" title="Fermer">✕</button>
+        </div>
+        <div class="tabs-org-toolbar">
+            <input type="text" id="tabs-org-search-input" class="tabs-org-search" placeholder="Filtrer les pages ouvertes..." autocomplete="off" />
+            <div class="tabs-org-quick-actions">
+                <button type="button" id="btn-tabs-sort-type" class="btn-secondary btn-xs" title="Regrouper par catégorie (Accueil, Catalogue, Items, Panier, Alertes)">📂 Par type</button>
+                <button type="button" id="btn-tabs-sort-az" class="btn-secondary btn-xs" title="Trier les onglets par ordre alphabétique (A → Z)">🔤 Trier A→Z</button>
+                <button type="button" id="btn-tabs-dedupe" class="btn-secondary btn-xs" title="Fermer les onglets ouverts en double sur la même URL">🧹 Doublons</button>
+            </div>
+        </div>
+        <div class="tabs-org-hint">
+            💡 Glissez-déposez les onglets directement dans la barre du haut ou utilisez cette liste (glisser, <strong>▲/▼</strong>, <strong>📌</strong>) pour les réorganiser.
+        </div>
+        <div id="tabs-org-list" class="tabs-org-list">
+            <!-- Généré par JS -->
         </div>
     </div>
 
