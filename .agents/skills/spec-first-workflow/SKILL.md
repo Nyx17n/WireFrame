@@ -23,9 +23,9 @@ Avant tout wireframe ou code sur un module, assure-toi que le CDC définit :
 - Les règles de gestion (calculs de taxes, ratios Ducats/Plat, filtres, alertes).
 - Les contrats IPC (`src/shared/`) et les exigences de sécurité/validation (`zod`).
 
-## Étape 3 — Wireframes dans `docs/02-wireframes/`
-Pour chaque vue retenue dans le CDC, produis et valide avec Maxime un wireframe couvrant :
-1. **Disposition Desktop normale (`1440×900`)** : zones, hiérarchie visuelle, navigation, actions principales.
+## Étape 3 — Wireframes Excalidraw dans `docs/02-wireframes/`
+Pour chaque vue retenue dans le CDC, produis et valide avec Maxime un fichier `.excalidraw` couvrant :
+1. **Disposition Desktop normale (`1440×900`)** : zones, hiérarchie visuelle, navigation, composants `shadcn/ui` envisagés, actions principales.
 2. **Adaptation Mode Compact Overlay (`460×660`)** : ce qui est condensé ou replié pour rester lisible par-dessus Warframe.
 3. **Les 4 états UI obligatoires** : Chargement (*Skeleton*), Vide (*Empty state*), Nominal, Erreur réseau/API.
 
@@ -38,3 +38,4 @@ Une fois le jalon validé, implémente toujours du bas vers le haut :
 3. `src/preload/` : Exposition unitaire typée dans `contextBridge`.
 4. `src/renderer/` : Client IPC -> Store/Hooks -> Composants React purs (< 200 lignes, zéro `dangerouslySetInnerHTML`).
 5. Avant tout `git commit`, exécute `git status` pour vérifier qu'aucun binaire (`.exe`, `.zip`, `dist/`, `node_modules/`) n'est suivi.
+

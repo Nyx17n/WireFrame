@@ -37,7 +37,10 @@ Ces règles s'appliquent **inconditionnellement** à toutes les sessions de trav
 
 ## 4. Architecture Cible & Design Patterns (Electron + React + TypeScript)
 
-- **Stack officielle** : **Electron** + **React** + **TypeScript strict** (`strict: true`, zéro `any` implicite ou abusif), outillé avec `electron-vite`.
+- **Stack officielle (100 % TypeScript strict)** :
+  - **Runtime & Backend local** : **Electron** + **Node.js** (Main Process), outillé avec `electron-vite`.
+  - **Frontend & Design System** : **React** + **shadcn/ui** (Tailwind CSS + primitives accessibles Radix UI) + **TypeScript strict** (`strict: true`, zéro `any` implicite ou abusif).
+  - **Maquettage (Wireframes)** : Fichiers **Excalidraw** (`.excalidraw`) versionnés dans `docs/02-wireframes/`.
 - **Zéro serveur HTTP local** :
   - N'ouvre **aucun** serveur HTTP/TCP local (`127.0.0.1:xxxx`). Toute communication entre l'UI et le système/réseau passe par l'**IPC typé d'Electron** (`ipcMain.handle` <-> `ipcRenderer.invoke` via `preload`).
 - **Séparation stricte des responsabilités (Clean / Layered Architecture)** :
