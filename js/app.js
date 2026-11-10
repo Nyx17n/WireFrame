@@ -7586,14 +7586,14 @@ function initBrowserEvents() {
 /* ==================== SYSTÈME DE MISE À JOUR (.ZIP GITHUB) & NOTES DE PATCH (CHANGELOG) ==================== */
 
 const DEFAULT_VERSION_MANIFEST = {
-    version: "1.6.1",
-    date: "2026-11-08",
+    version: "1.6.2",
+    date: "2026-11-10",
     title: "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
     repo: "Nyxo-17/wiremarket_v1",
     zipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
     changelog: [
         {
-            version: "1.6.1",
+            version: "1.6.2",
             date: "08/11/2026",
             title: "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
             badge: "NOUVEAU",
@@ -7626,7 +7626,7 @@ const UpdaterState = {
     remoteManifest: null,
     githubRelease: null,
     updateAvailable: false,
-    remoteVersion: "1.6.1",
+    remoteVersion: "1.6.2",
     downloadZipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
 };
 
@@ -7786,6 +7786,12 @@ async function checkForGitHubUpdates(showFeedback = false) {
             }
         } catch (e) {}
 
+        if (!remoteManifest) {
+            try {
+                const glRes = await fetch(`https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/version.json?t=${Date.now()}`);
+                if (glRes.ok) remoteManifest = await glRes.json();
+            } catch (e) {}
+        }
         if (!remoteManifest) {
             try {
                 const directRes = await fetch(`https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/version.json?t=${Date.now()}`);

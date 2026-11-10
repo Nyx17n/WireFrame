@@ -2,8 +2,8 @@
   <img src="logo.png" alt="WireMarket Logo" width="96" height="96" />
   <h1>WireMarket — Warframe Market Browser & Live Worldstate Hub</h1>
   <p>
-    <strong>Current Version / Version actuelle :</strong> <code id="readme-version">v1.6.1</code> &nbsp;·&nbsp;
-    <strong>Updated / Mis à jour :</strong> <code id="readme-date">2026-11-08</code> &nbsp;·&nbsp;
+    <strong>Current Version / Version actuelle :</strong> <code id="readme-version">v1.6.2</code> &nbsp;·&nbsp;
+    <strong>Updated / Mis à jour :</strong> <code id="readme-date">2026-11-10</code> &nbsp;·&nbsp;
     <strong>Author / Auteur :</strong> <a href="https://github.com/Nyxo-17">Nyxo_17</a>
   </p>
   <p>
@@ -112,7 +112,7 @@ Click the permanent **WireMarket** logo tab at the top-left to access the real-t
 
 ## 📜 Version History & Changelog (EN)
 
-### `v1.6.1` — `2026-11-08` (Latest)
+### `v1.6.2` — `2026-11-10` (Latest)
 - **Official Warframe News Hub & Home Strip**: Added the `Actualités (News)` tab in the Hub + live news strip on the Home page with Global Server Boosters, Darvo's Daily Deal, category filters, and automatic Prime Resurgence market links.
 - **Open Tabs Reorganization System**: Live horizontal drag-and-drop on the tab bar, right-click tab context menu, tab pinning (`📌`), and the **Open Pages Organizer** popover (search, `▲`/`▼` reorder, sort `A→Z` or by category, and 1-click duplicate tab cleanup).
 - **Dual Notification Sounds**: Added choice between **Sound 1: Classic (`notification.mp3`)** and **Sound 2: Bell (`notification-bell.wav`)** in Settings and Alerts pages.
@@ -229,7 +229,7 @@ Cliquez sur l'onglet permanent **WireMarket** en haut à gauche pour accéder au
 
 ## 📜 Historique des Versions & Mises à Jour (FR)
 
-### `v1.6.1` — `08/11/2026` (Version actuelle)
+### `v1.6.2` — `10/11/2026` (Version actuelle)
 - **Actualités Officielles Warframe (News), Boosters & Darvo** : Ajout de l'onglet `Actualités (News)` dans le Hub + bandeau d'actualités sur la page d'accueil avec Boosters Serveur, Offre de Darvo, filtres par catégorie et liens directs vers les sets de Résurgence Prime.
 - **Système de Réorganisation des Pages Ouvertes** : Glisser-déposer horizontal en direct dans la barre d'onglets, menu contextuel clic droit, épinglage d'onglets (`📌`) et panneau **Pages Ouvertes & Réorganisation** (recherche, déplacement `▲`/`▼`, tri `A→Z` ou par catégorie, suppression des doublons).
 - **2 Sons de Notification au choix** : Choix entre **Son 1 : Classique (`notification.mp3`)** et **Son 2 : Cloche (`notification-bell.wav`)**.
