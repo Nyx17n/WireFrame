@@ -6,7 +6,7 @@
     <title>WireFrame — Warframe Companion & Market</title>
     <link rel="icon" type="image/x-icon" href="/logo.ico">
     <link rel="shortcut icon" type="image/png" href="/logo.png">
-    <link id="wm-main-stylesheet" rel="stylesheet" href="css/style.css?v=1.6.1">
+    <link id="wm-main-stylesheet" rel="stylesheet" href="css/style.css?v=1.6.2">
 </head>
 <body>
     <!-- ==================== ÉCRAN DE CHARGEMENT INITIAL ==================== -->
@@ -611,7 +611,7 @@
                     <div class="settings-row">
                         <span class="settings-row-label">
                             <svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="12 2 20 7 20 17 12 22 4 17 4 7"/><circle cx="12" cy="12" r="3"/></svg>
-                            <span>Version installée : <strong id="settings-local-version" style="color:var(--accent-cyan);">v1.6.1</strong> · <span id="settings-update-status-text" style="color:var(--text-secondary);">À jour</span></span>
+                            <span>Version installée : <strong id="settings-local-version" style="color:var(--accent-cyan);">v1.6.2</strong> · <span id="settings-update-status-text" style="color:var(--text-secondary);">À jour</span></span>
                         </span>
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <button id="btn-settings-open-changelog" class="btn-secondary btn-sm">
@@ -645,7 +645,7 @@
                 <!-- Bandeau d'état de mise à jour GitHub -->
                 <div id="changelog-update-banner" class="changelog-update-banner">
                     <div class="changelog-banner-left">
-                        <div class="changelog-ver-pill" id="changelog-current-ver-pill">VERSION INSTALLÉE : v1.6.1</div>
+                        <div class="changelog-ver-pill" id="changelog-current-ver-pill">VERSION INSTALLÉE : v1.6.2</div>
                         <div class="changelog-banner-status" id="changelog-banner-status">
                             Connecté au dépôt GitHub <strong>Nyxo-17/wiremarket_v1</strong> — Protection Rollback Antivirus active.
                         </div>
@@ -657,7 +657,7 @@
                 </div>
 
                 <div id="changelog-progress-box" class="changelog-progress-box hidden">
-                    <div class="changelog-progress-label" id="changelog-progress-label">Téléchargement de WireMarket.zip depuis GitHub en cours...</div>
+                    <div class="changelog-progress-label" id="changelog-progress-label">Téléchargement de WireFrame.zip depuis GitHub en cours...</div>
                     <div class="invasion-progress-track">
                         <div id="changelog-progress-bar" class="invasion-progress-fill" style="width:35%;"></div>
                     </div>
@@ -699,9 +699,31 @@
         </div>
     </div>
 
-    <script src="js/codex-data.js?v=1.6.1"></script>
-    <script src="js/codex-data.js?v=1.6.1"></script>
-    <script src="js/app.js?v=1.6.1"></script>
+    <script>
+        // Sécurité anti-blocage de l'écran de chargement (ex: antivirus tiers ralentissant le 1er scan ou ouverture hors serveur)
+        (function () {
+            function forceHideSplash() {
+                var el = document.getElementById("wm-splash-loader");
+                if (!el || el.classList.contains("hidden")) return;
+                el.classList.add("wire-centered");
+                el.classList.add("fade-out");
+                setTimeout(function () { el.classList.add("hidden"); }, 400);
+            }
+            setTimeout(function () {
+                if (!window.__WM_BOOT_OK__ && location.protocol.indexOf("http") === 0 && !location.hash.includes("retried")) {
+                    location.replace(location.pathname + location.search + "#retried");
+                    location.reload();
+                    return;
+                }
+                forceHideSplash();
+            }, 3400);
+            window.addEventListener("error", function () {
+                setTimeout(forceHideSplash, 1200);
+            });
+        })();
+    </script>
+    <script src="js/app.js?v=1.6.2"></script>
+    <script defer src="js/codex-data.js?v=1.6.2"></script>
 </body>
 </html>
 

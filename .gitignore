@@ -1,7 +1,7 @@
 # ==========================================================================
-# WireMarket — Fichier .gitignore
+# WireFrame — Fichier .gitignore
 # Empêche l'envoi des fichiers temporaires, caches et exécutables compilés (.exe)
-# sur GitHub afin d'éviter tout faux positif des filtres anti-malware GitHub.
+# sur GitHub / GitLab afin d'éviter tout faux positif des filtres anti-malware.
 # ==========================================================================
 
 # Exécutables Windows compilés & sauvegardes Rollback (générés localement depuis Launcher.cs)

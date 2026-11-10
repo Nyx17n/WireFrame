@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-WireMarket — Auto-Bump de Version & Packaging automatique lors d'un `git commit`.
+WireFrame — Auto-Bump de Version & Packaging automatique lors d'un `git commit`.
 Exécuté automatiquement par le hook Git `.git/hooks/pre-commit` (et `.githooks/pre-commit`).
 
 Options manuelles :
@@ -70,14 +70,15 @@ def sync_version_in_files(new_ver: str, iso_date: str, fr_date: str):
         data = {
             "version": new_ver,
             "date": iso_date,
-            "title": "Mise à jour WireMarket",
-            "repo": "Nyxo-17/wiremarket_v1",
-            "zipUrl": "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
+            "title": "Mise à jour WireFrame",
+            "repo": "nyxo_17/wiremarket_v1",
+            "zipUrl": "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireFrame.zip",
             "changelog": [],
         }
 
     data["version"] = new_ver
     data["date"] = iso_date
+    data["zipUrl"] = "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireFrame.zip"
 
     changelog = data.get("changelog")
     if isinstance(changelog, list) and len(changelog) > 0:
@@ -177,40 +178,59 @@ def sync_version_in_files(new_ver: str, iso_date: str, fr_date: str):
 
 
 def compile_exe_if_needed():
-    """Recompile WireMarket.exe si Launcher.cs existe et que csc.exe est disponible."""
+    """Recompile WireFrame.exe si Launcher.cs existe et que csc.exe est disponible."""
     csc_path = Path(r"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe")
     launcher_cs = ROOT_DIR / "Launcher.cs"
-    exe_path = ROOT_DIR / "WireMarket.exe"
+    exe_path = ROOT_DIR / "WireFrame.exe"
+    bak_path = ROOT_DIR / "WireFrame.exe.bak"
+    tmp_exe = ROOT_DIR / "WireFrame.tmp.exe"
     ico_path = ROOT_DIR / "logo.ico"
 
     if not csc_path.exists() or not launcher_cs.exists():
         return
 
     try:
-        # Vérifier si Launcher.cs est plus récent que WireMarket.exe
+        # Vérifier si Launcher.cs est plus récent que WireFrame.exe
         if exe_path.exists() and launcher_cs.stat().st_mtime <= exe_path.stat().st_mtime:
             return
         cmd = [
             str(csc_path),
             "/nologo",
             "/target:winexe",
-            f"/out:{exe_path}",
+            f"/out:{tmp_exe}",
             "/r:System.IO.Compression.dll",
             "/r:System.IO.Compression.FileSystem.dll",
         ]
         if ico_path.exists():
             cmd.append(f"/win32icon:{ico_path}")
         cmd.append(str(launcher_cs))
-        subprocess.run(cmd, cwd=str(ROOT_DIR), capture_output=True, timeout=15)
+        res = subprocess.run(cmd, cwd=str(ROOT_DIR), capture_output=True, timeout=15)
+        if res.returncode == 0 and tmp_exe.exists():
+            if exe_path.exists():
+                try:
+                    exe_path.unlink()
+                except OSError:
+                    # Si WireFrame.exe est en cours d'exécution sous Windows, NTFS autorise son renommage !
+                    try:
+                        if bak_path.exists():
+                            bak_path.unlink()
+                    except OSError:
+                        pass
+                    exe_path.replace(bak_path)
+            tmp_exe.replace(exe_path)
     except Exception:
-        pass
+        if tmp_exe.exists():
+            try:
+                tmp_exe.unlink()
+            except OSError:
+                pass
 
 
 def rebuild_zip():
-    """Reconstruit WireMarket.zip (sans .exe dans le dépôt Git pour éviter les faux positifs GitHub, et complet avec .exe sur le Bureau)."""
-    zip_path = ROOT_DIR / "WireMarket.zip"
-    items_for_git_zip = [
-        "WireMarket.bat",
+    """Reconstruit WireFrame.zip sans aucun .exe (WireFrame.bat génère WireFrame.exe localement chez l'utilisateur)."""
+    zip_path = ROOT_DIR / "WireFrame.zip"
+    items_for_zip = [
+        "WireFrame.bat",
         "Launcher.cs",
         "index.html",
         "version.json",
@@ -226,36 +246,32 @@ def rebuild_zip():
         "README.md",
     ]
 
+    def write_item_to_zip(zf_obj: zipfile.ZipFile, p: Path, arc: str):
+        if p.suffix.lower() == ".bat":
+            # Toujours forcer CRLF + ASCII propre pour éviter les bugs d'offset de cmd.exe sous Windows
+            raw = p.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+            zf_obj.writestr(arc, raw, compress_type=zipfile.ZIP_DEFLATED)
+        else:
+            zf_obj.write(p, arcname=arc)
+
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for rel_name in items_for_git_zip:
+        for rel_name in items_for_zip:
             p = ROOT_DIR / rel_name
             if not p.exists():
                 continue
             if p.is_file():
-                zf.write(p, arcname=rel_name)
+                write_item_to_zip(zf, p, rel_name)
             elif p.is_dir():
                 for sub in sorted(p.rglob("*")):
                     if sub.is_file():
                         arc = str(sub.relative_to(ROOT_DIR)).replace("\\", "/")
-                        zf.write(sub, arcname=arc)
+                        write_item_to_zip(zf, sub, arc)
 
-    # Copier une archive complète (incluant WireMarket.exe prêt à l'emploi) sur le Bureau si présent
-    desktop_zip = Path.home() / "Desktop" / "WireMarket.zip"
+    # Copier la même archive propre sans .exe sur le Bureau (WireFrame.bat compilera WireFrame.exe au 1er lancement)
+    desktop_zip = Path.home() / "Desktop" / "WireFrame.zip"
     if desktop_zip.parent.exists():
         try:
-            items_for_desktop = ["WireMarket.exe"] + items_for_git_zip
-            with zipfile.ZipFile(desktop_zip, "w", zipfile.ZIP_DEFLATED) as dzf:
-                for rel_name in items_for_desktop:
-                    p = ROOT_DIR / rel_name
-                    if not p.exists():
-                        continue
-                    if p.is_file():
-                        dzf.write(p, arcname=rel_name)
-                    elif p.is_dir():
-                        for sub in sorted(p.rglob("*")):
-                            if sub.is_file():
-                                arc = str(sub.relative_to(ROOT_DIR)).replace("\\", "/")
-                                dzf.write(sub, arcname=arc)
+            shutil.copy2(zip_path, desktop_zip)
         except Exception:
             pass
 
@@ -267,7 +283,7 @@ def stage_updated_files():
         "index.html",
         "js/app.js",
         "README.md",
-        "WireMarket.zip",
+        "WireFrame.zip",
     ]
     if (ROOT_DIR / "notification-bell.wav").exists():
         files_to_stage.append("notification-bell.wav")
@@ -327,7 +343,7 @@ def main():
     if from_hook:
         stage_updated_files()
 
-    print(f"[WireMarket Auto-Version] v{current_ver} -> v{new_ver} ({iso_date}) | WireMarket.zip mis a jour.")
+    print(f"[WireFrame Auto-Version] v{current_ver} -> v{new_ver} ({iso_date}) | WireFrame.zip mis a jour.")
 
 
 if __name__ == "__main__":

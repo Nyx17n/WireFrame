@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -24,6 +25,11 @@ namespace WireMarketLauncher
         private const int PORT = 8484;
         private static readonly string AppUrl = "http://127.0.0.1:" + PORT;
         private static readonly string ConfigFile = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "WireFrame",
+            "install_path.txt"
+        );
+        private static readonly string LegacyConfigFile = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "WireMarket",
             "install_path.txt"
@@ -147,13 +153,88 @@ namespace WireMarketLauncher
             return matched;
         }
 
+        private static void UnblockDirectoryFiles(string dir)
+        {
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir)) return;
+            try
+            {
+                foreach (string f in Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories))
+                {
+                    if (f.IndexOf("\\.git\\", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                    try { DeleteFile(f + ":Zone.Identifier"); } catch { }
+                }
+            }
+            catch { }
+        }
+
+        private static byte[] ReadFileBytesSafe(string path)
+        {
+            Exception lastEx = null;
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                try
+                {
+                    using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                    {
+                        long len = fs.Length;
+                        byte[] buffer = new byte[len];
+                        int offset = 0;
+                        while (offset < len)
+                        {
+                            int read = fs.Read(buffer, offset, (int)Math.Min(65536, len - offset));
+                            if (read <= 0) break;
+                            offset += read;
+                        }
+                        return buffer;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lastEx = ex;
+                    Thread.Sleep(60);
+                }
+            }
+            throw lastEx ?? new IOException("Unable to read file: " + path);
+        }
+
+        private static void WriteBytesResponse(HttpListenerResponse resp, int statusCode, string contentType, byte[] bytes, string cacheControl)
+        {
+            resp.StatusCode = statusCode;
+            resp.ContentType = contentType;
+            if (!string.IsNullOrEmpty(cacheControl))
+            {
+                resp.AddHeader("Cache-Control", cacheControl);
+            }
+            resp.ContentLength64 = bytes.Length;
+            int offset = 0;
+            const int chunkSize = 65536;
+            while (offset < bytes.Length)
+            {
+                int count = Math.Min(chunkSize, bytes.Length - offset);
+                resp.OutputStream.Write(bytes, offset, count);
+                offset += count;
+            }
+            resp.OutputStream.Flush();
+            resp.OutputStream.Close();
+        }
+
         [STAThread]
         static void Main(string[] args)
         {
-            // Mode serveur intégré en arrière-plan : WireMarket.exe --server "<workDir>"
+            // Désactiver la détection automatique de proxy Windows (WPAD) qui ajoute 1 à 3s de latence au démarrage
+            WebRequest.DefaultWebProxy = null;
+
+            // Mode serveur intégré en arrière-plan : WireFrame.exe --server "<workDir>"
             if (args.Length >= 1 && args[0] == "--server")
             {
-                string dir = args.Length >= 2 ? args[1] : AppDomain.CurrentDomain.BaseDirectory;
+                string dir = args.Length >= 2
+                    ? args[1].Trim().Trim('"').TrimEnd('\\', '/')
+                    : AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\', '/');
+                if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+                {
+                    dir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\', '/');
+                }
+                UnblockDirectoryFiles(dir);
                 RunEmbeddedServer(dir, PORT);
                 return;
             }
@@ -161,19 +242,20 @@ namespace WireMarketLauncher
             try
             {
                 string workDir = ResolveWorkspaceDir();
+                UnblockDirectoryFiles(workDir);
 
                 // Démarrer le serveur local intégré s'il n'est pas déjà actif
                 if (!IsServerRunning())
                 {
                     StartBackgroundServer(workDir);
-                    for (int i = 0; i < 35; i++)
+                    for (int i = 0; i < 60; i++)
                     {
                         if (IsServerRunning()) break;
-                        Thread.Sleep(150);
+                        Thread.Sleep(40);
                     }
                 }
 
-                // Ouvrir WireMarket dans une fenêtre dédiée (--app)
+                // Ouvrir WireFrame dans une fenêtre dédiée (--app)
                 LaunchDedicatedBrowserWindow();
             }
             catch (Exception ex)
@@ -201,16 +283,19 @@ namespace WireMarketLauncher
                 return exeDir;
             }
 
-            if (File.Exists(ConfigFile))
+            foreach (string cfg in new string[] { ConfigFile, LegacyConfigFile })
             {
-                string saved = File.ReadAllText(ConfigFile, Encoding.UTF8).Trim();
-                if (Directory.Exists(saved) && File.Exists(Path.Combine(saved, "index.html")))
+                if (File.Exists(cfg))
                 {
-                    return saved;
+                    string saved = File.ReadAllText(cfg, Encoding.UTF8).Trim();
+                    if (Directory.Exists(saved) && File.Exists(Path.Combine(saved, "index.html")))
+                    {
+                        return saved;
+                    }
                 }
             }
 
-            string fallback = @"c:\Users\maxim\Documents\workspace\wiremarket_v1";
+            string fallback = @"c:\Users\maxim\Documents\workspace\wireframe";
             if (File.Exists(Path.Combine(fallback, "index.html")))
             {
                 return fallback;
@@ -223,8 +308,19 @@ namespace WireMarketLauncher
         {
             try
             {
+                using (TcpClient tcp = new TcpClient())
+                {
+                    IAsyncResult ar = tcp.BeginConnect("127.0.0.1", PORT, null, null);
+                    if (!ar.AsyncWaitHandle.WaitOne(80))
+                    {
+                        return false;
+                    }
+                    tcp.EndConnect(ar);
+                }
+
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create(AppUrl + "/__health");
-                req.Timeout = 700;
+                req.Proxy = null;
+                req.Timeout = 250;
                 using (HttpWebResponse resp = (HttpWebResponse)req.GetResponse())
                 {
                     return resp.StatusCode == HttpStatusCode.OK;
@@ -238,7 +334,7 @@ namespace WireMarketLauncher
 
         private static void StartBackgroundServer(string workDir)
         {
-            // Toujours utiliser le serveur C# natif embarqué dans WireMarket.exe
+            // Toujours utiliser le serveur C# natif embarqué dans WireFrame.exe
             // (Evite le bug de l'alias Microsoft Store python.exe sur les PC où Python n'est pas installé)
             ProcessStartInfo psiSelf = new ProcessStartInfo
             {
@@ -337,7 +433,14 @@ namespace WireMarketLauncher
 
                 if (path == "/__health")
                 {
-                    byte[] ok = Encoding.UTF8.GetBytes("{\"status\":\"ok\",\"app\":\"WireMarket\"}");
+                    if (!File.Exists(Path.Combine(rootDir, "index.html")))
+                    {
+                        resp.StatusCode = 503;
+                        resp.Close();
+                        Environment.Exit(0);
+                        return;
+                    }
+                    byte[] ok = Encoding.UTF8.GetBytes("{\"status\":\"ok\",\"app\":\"WireFrame\"}");
                     resp.StatusCode = 200;
                     resp.ContentType = "application/json; charset=utf-8";
                     resp.OutputStream.Write(ok, 0, ok.Length);
@@ -392,16 +495,12 @@ namespace WireMarketLauncher
                 string localPath = Path.Combine(rootDir, path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
                 if (File.Exists(localPath))
                 {
-                    byte[] bytes = File.ReadAllBytes(localPath);
-                    resp.StatusCode = 200;
-                    resp.ContentType = GetMimeType(localPath);
-                    resp.AddHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-                    resp.OutputStream.Write(bytes, 0, bytes.Length);
-                    resp.Close();
+                    byte[] bytes = ReadFileBytesSafe(localPath);
+                    WriteBytesResponse(resp, 200, GetMimeType(localPath), bytes, "no-cache, must-revalidate");
                     return;
                 }
 
-                // Fallback sur les ressources embarquées dans WireMarket.exe (si lancé directement depuis le .zip sans extraire !)
+                // Fallback sur les ressources embarquées dans WireFrame.exe (si lancé directement depuis le .zip sans extraire !)
                 string resName = path.TrimStart('/').Replace('/', '_');
                 using (Stream resStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resName))
                 {
@@ -411,10 +510,7 @@ namespace WireMarketLauncher
                         {
                             resStream.CopyTo(ms);
                             byte[] bytes = ms.ToArray();
-                            resp.StatusCode = 200;
-                            resp.ContentType = GetMimeType(path);
-                            resp.OutputStream.Write(bytes, 0, bytes.Length);
-                            resp.Close();
+                            WriteBytesResponse(resp, 200, GetMimeType(path), bytes, "no-cache, must-revalidate");
                             return;
                         }
                     }
@@ -425,6 +521,7 @@ namespace WireMarketLauncher
             }
             catch
             {
+                try { resp.StatusCode = 500; } catch { }
                 try { resp.Close(); } catch { }
             }
         }
@@ -455,7 +552,8 @@ namespace WireMarketLauncher
             try
             {
                 HttpWebRequest webReq = (HttpWebRequest)WebRequest.Create(targetUrl);
-                webReq.UserAgent = "WireMarket/1.2 (Windows; Warframe Market Browser)";
+                webReq.Proxy = null;
+                webReq.UserAgent = "WireFrame/1.6 (Windows; Warframe Market Browser)";
                 webReq.Accept = isApi ? "application/json" : "*/*";
                 webReq.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 webReq.Timeout = 15000;
@@ -636,7 +734,8 @@ namespace WireMarketLauncher
                 string destFile = Path.Combine(targetDir, relFile);
                 Directory.CreateDirectory(Path.GetDirectoryName(destFile));
 
-                if (string.Equals(Path.GetFileName(relFile), "WireMarket.exe", StringComparison.OrdinalIgnoreCase))
+                string fileNameOnly = Path.GetFileName(relFile);
+                if (string.Equals(fileNameOnly, "WireFrame.exe", StringComparison.OrdinalIgnoreCase) || string.Equals(fileNameOnly, "WireMarket.exe", StringComparison.OrdinalIgnoreCase))
                 {
                     string bakFile = destFile + ".bak";
                     try
@@ -689,7 +788,7 @@ namespace WireMarketLauncher
 
         private static void ServeUpdateApply(string rootDir, string query, HttpListenerResponse outResp)
         {
-            string zipUrl = "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireMarket.zip";
+            string zipUrl = "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireFrame.zip";
             if (!string.IsNullOrEmpty(query) && query.Contains("zipUrl="))
             {
                 try
@@ -705,8 +804,8 @@ namespace WireMarketLauncher
                 catch { }
             }
 
-            string tempRoot = Path.Combine(Path.GetTempPath(), "WireMarket_AutoUpdate_" + Guid.NewGuid().ToString("N").Substring(0, 8));
-            string zipPath = Path.Combine(tempRoot, "WireMarket_Update.zip");
+            string tempRoot = Path.Combine(Path.GetTempPath(), "WireFrame_AutoUpdate_" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            string zipPath = Path.Combine(tempRoot, "WireFrame_Update.zip");
             string extractDir = Path.Combine(tempRoot, "extracted");
 
             try
@@ -714,7 +813,7 @@ namespace WireMarketLauncher
                 Directory.CreateDirectory(tempRoot);
                 Directory.CreateDirectory(extractDir);
 
-                // 1. Télécharger le .zip depuis GitHub
+                // 1. Télécharger le .zip depuis GitHub / GitLab
                 ProcessStartInfo psiDl = new ProcessStartInfo
                 {
                     FileName = "curl.exe",
@@ -730,7 +829,7 @@ namespace WireMarketLauncher
                 FileInfo zipInfo = new FileInfo(zipPath);
                 if (!zipInfo.Exists || zipInfo.Length < 5000)
                 {
-                    throw new Exception("Impossible de télécharger WireMarket.zip depuis GitHub (archive introuvable ou connexion interrompue).");
+                    throw new Exception("Impossible de télécharger WireFrame.zip (archive introuvable ou connexion interrompue).");
                 }
 
                 // Supprimer Zone.Identifier sur l'archive .zip avant extraction pour que Windows ne marque aucun fichier extrait
@@ -765,7 +864,7 @@ namespace WireMarketLauncher
                     throw new Exception("L'archive téléchargée ne contient pas index.html.");
                 }
 
-                // 3. Copier les fichiers en toute sécurité avec protection Rollback anti-blocage antivirus sur WireMarket.exe
+                // 3. Copier les fichiers en toute sécurité avec protection Rollback anti-blocage antivirus sur WireFrame.exe
                 string exeStatus;
                 CopyDirectorySafe(sourceRoot, rootDir, out exeStatus);
                 ApiCache.Clear();

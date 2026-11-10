@@ -61,17 +61,36 @@ const FEATURED_SLUGS = [
     "primed_continuity"
 ];
 
+function safeGetStorage(key, fallback = null) {
+    try {
+        const val = localStorage.getItem(key);
+        return val !== null ? val : fallback;
+    } catch (_e) {
+        return fallback;
+    }
+}
+
+function safeParseJson(raw, fallback) {
+    if (!raw) return fallback;
+    try {
+        const parsed = JSON.parse(raw);
+        return parsed !== null && parsed !== undefined ? parsed : fallback;
+    } catch (_e) {
+        return fallback;
+    }
+}
+
 const State = {
-    lang: localStorage.getItem("wm_lang") || "fr",
-    platform: localStorage.getItem("wm_platform") || "pc",
-    crossplay: localStorage.getItem("wm_crossplay") !== "false",
-    whisperLang: localStorage.getItem("wm_whisper_lang") || "en",
-    zoom: Number(localStorage.getItem("wm_zoom")) || 100,
-    theme: localStorage.getItem("wm_theme") || "dark",
-    primaryColor: localStorage.getItem("wm_primary_color") || "",
-    secondaryColor: localStorage.getItem("wm_secondary_color") || "",
-    glowEnabled: localStorage.getItem("wm_glow") !== "false",
-    alwaysOnTop: localStorage.getItem("wm_always_on_top") === "true",
+    lang: safeGetStorage("wm_lang", "fr") || "fr",
+    platform: safeGetStorage("wm_platform", "pc") || "pc",
+    crossplay: safeGetStorage("wm_crossplay", "true") !== "false",
+    whisperLang: safeGetStorage("wm_whisper_lang", "en") || "en",
+    zoom: Number(safeGetStorage("wm_zoom", "100")) || 100,
+    theme: safeGetStorage("wm_theme", "dark") || "dark",
+    primaryColor: safeGetStorage("wm_primary_color", "") || "",
+    secondaryColor: safeGetStorage("wm_secondary_color", "") || "",
+    glowEnabled: safeGetStorage("wm_glow", "true") !== "false",
+    alwaysOnTop: safeGetStorage("wm_always_on_top", "false") === "true",
     compactMode: false,
     lastWhisperData: null,
 
@@ -81,7 +100,7 @@ const State = {
     itemsBySlug: new Map(),
     catalogReady: false,
 
-    // Onglets du navigateur (+ Onglet permanent inamovible WireMarket Hub)
+    // Onglets du navigateur (+ Onglet permanent inamovible WireFrame Hub)
     tabs: [],
     activeTabId: null,
     lastRegularTabId: null,
@@ -113,38 +132,38 @@ const State = {
     baroPricesLoading: false,
 
     // Favoris & Historique
-    bookmarks: (JSON.parse(localStorage.getItem("wm_bookmarks") || "null") || [
+    bookmarks: (safeParseJson(safeGetStorage("wm_bookmarks"), null) || [
         { title: "Accueil Marché", url: "https://warframe.market/", icon: DEFAULT_FAVICON },
         { title: "Catalogue Complet", url: "https://warframe.market/items", icon: DEFAULT_FAVICON },
         { title: "Ordres Récents", url: "https://warframe.market/recent", icon: DEFAULT_FAVICON },
         { title: "Ducanator (Ducats)", url: "https://warframe.market/tools/ducats", icon: DEFAULT_FAVICON }
     ]).filter(b => {
-        const favs = JSON.parse(localStorage.getItem("wm_fav_items") || "[]");
+        const favs = safeParseJson(safeGetStorage("wm_fav_items"), []);
         const m = (b.url || "").match(/warframe\.market\/items\/([a-z0-9_]+)/i);
         if (m && ["wisp_prime_set", "nikana_prime_set", "arcane_energize"].includes(m[1]) && !favs.includes(m[1])) {
             return false;
         }
         return true;
     }),
-    history: JSON.parse(localStorage.getItem("wm_history") || "[]"),
-    favoriteItems: JSON.parse(localStorage.getItem("wm_fav_items") || "[]"),
+    history: safeParseJson(safeGetStorage("wm_history"), []),
+    favoriteItems: safeParseJson(safeGetStorage("wm_fav_items"), []),
     activeDrawerTab: "history",
 
     // Système d'Alertes de Prix (Price Sniper) & Paramètres Sonores
-    priceAlerts: JSON.parse(localStorage.getItem("wm_price_alerts") || "[]"),
-    alertSoundEnabled: localStorage.getItem("wm_alert_sound") !== "false",
-    alertSoundChoice: localStorage.getItem("wm_alert_sound_choice") || "default", // "default" (notification.mp3) | "bell" (notification-bell.wav)
-    alertVolume: localStorage.getItem("wm_alert_volume") !== null ? Number(localStorage.getItem("wm_alert_volume")) : 80,
-    alertRepeat: localStorage.getItem("wm_alert_repeat") !== "false",
-    alertRepeatInterval: Math.max(5, Number(localStorage.getItem("wm_alert_interval")) || 30),
+    priceAlerts: safeParseJson(safeGetStorage("wm_price_alerts"), []),
+    alertSoundEnabled: safeGetStorage("wm_alert_sound", "true") !== "false",
+    alertSoundChoice: safeGetStorage("wm_alert_sound_choice", "default") || "default", // "default" (notification.mp3) | "bell" (notification-bell.wav)
+    alertVolume: safeGetStorage("wm_alert_volume") !== null ? Number(safeGetStorage("wm_alert_volume")) : 80,
+    alertRepeat: safeGetStorage("wm_alert_repeat", "true") !== "false",
+    alertRepeatInterval: Math.max(5, Number(safeGetStorage("wm_alert_interval", "30")) || 30),
     lastSniperScanTime: 0,
     sniperScanning: false,
 
     // Panier Multi-Achats & Liste de Courses (Option 5)
-    shoppingCart: JSON.parse(localStorage.getItem("wm_shopping_cart") || "[]"),
+    shoppingCart: safeParseJson(safeGetStorage("wm_shopping_cart"), []),
 
     // Alertes de Cycles Planétaires & Fissures (Option 7)
-    worldAlerts: JSON.parse(localStorage.getItem("wm_world_alerts") || "{}"),
+    worldAlerts: safeParseJson(safeGetStorage("wm_world_alerts"), {}),
     worldAlertLastNotified: {}
 };
 
@@ -8803,14 +8822,14 @@ function initBrowserEvents() {
 /* ==================== SYSTÈME DE MISE À JOUR (.ZIP GITHUB) & NOTES DE PATCH (CHANGELOG) ==================== */
 
 const DEFAULT_VERSION_MANIFEST = {
-    version: "1.6.1",
+    version: "1.6.2",
     date: "2026-11-10",
     title: "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
-    repo: "Nyxo-17/wiremarket_v1",
-    zipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
+    repo: "nyxo_17/wiremarket_v1",
+    zipUrl: "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireFrame.zip",
     changelog: [
         {
-            version: "1.6.1",
+            version: "1.6.2",
             date: "08/11/2026",
             title: "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
             badge: "NOUVEAU",
@@ -8843,8 +8862,8 @@ const UpdaterState = {
     remoteManifest: null,
     githubRelease: null,
     updateAvailable: false,
-    remoteVersion: "1.6.1",
-    downloadZipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
+    remoteVersion: "1.6.2",
+    downloadZipUrl: "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireFrame.zip"
 };
 
 function compareSemver(vA, vB) {
@@ -8918,7 +8937,7 @@ function renderChangelogModalContent() {
                 date: UpdaterState.githubRelease.published_at ? new Date(UpdaterState.githubRelease.published_at).toLocaleDateString("fr-FR") : "GitHub Release",
                 title: UpdaterState.githubRelease.name || `Release GitHub v${relVer}`,
                 badge: "GITHUB RELEASE",
-                changes: rawBody.length > 0 ? rawBody : ["Archive WireMarket.zip disponible dans la Release GitHub."]
+                changes: rawBody.length > 0 ? rawBody : ["Archive WireFrame.zip disponible dans la Release GitHub."]
             });
         }
     }
@@ -9031,7 +9050,7 @@ async function checkForGitHubUpdates(showFeedback = false) {
 
         const localVer = UpdaterState.localManifest?.version || "1.6.0";
         let bestRemoteVer = localVer;
-        let bestZipUrl = UpdaterState.localManifest?.zipUrl || "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip";
+        let bestZipUrl = UpdaterState.localManifest?.zipUrl || "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireFrame.zip";
 
         if (remoteManifest && remoteManifest.version) {
             if (compareSemver(remoteManifest.version, bestRemoteVer) >= 0) {
@@ -9093,7 +9112,7 @@ async function applyGitHubZipUpdate() {
     // Ouvrir la modale de suivi si elle n'est pas déjà ouverte
     document.getElementById("changelog-modal")?.classList.remove("hidden");
     if (progBox) progBox.classList.remove("hidden");
-    if (progLabel) progLabel.textContent = "Téléchargement de WireMarket.zip depuis GitHub et vérification anti-blocage...";
+    if (progLabel) progLabel.textContent = "Téléchargement de WireFrame.zip et vérification anti-blocage...";
     if (progBar) progBar.style.width = "45%";
 
     installBtns.forEach(b => {
@@ -9102,7 +9121,7 @@ async function applyGitHubZipUpdate() {
     });
 
     try {
-        const zipParam = encodeURIComponent(UpdaterState.downloadZipUrl || "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip");
+        const zipParam = encodeURIComponent(UpdaterState.downloadZipUrl || "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireFrame.zip");
         const res = await fetch(`/__update/apply?zipUrl=${zipParam}`);
         const data = await res.json();
 
@@ -9125,7 +9144,7 @@ async function applyGitHubZipUpdate() {
     } catch (err) {
         if (progBar) progBar.style.width = "100%";
         if (progLabel) {
-            progLabel.innerHTML = `<span style="color:#ff7675;font-weight:700;">⚠ ${escapeHtml(err.message || "Impossible de télécharger WireMarket.zip depuis GitHub.")}</span>`;
+            progLabel.innerHTML = `<span style="color:#ff7675;font-weight:700;">⚠ ${escapeHtml(err.message || "Impossible de télécharger WireFrame.zip.")}</span>`;
         }
         installBtns.forEach(b => {
             b.disabled = false;
@@ -9183,25 +9202,29 @@ async function initUpdaterAndChangelog() {
     }, 30 * 60 * 1000);
 }
 
-// Démarrage de l'application WireMarket
-document.addEventListener("DOMContentLoaded", async () => {
+// Démarrage de l'application WireFrame (compatible même si DOMContentLoaded est déjà passé)
+function bootWireFrameApp() {
+    if (window.__WM_BOOT_OK__) return;
+    window.__WM_BOOT_OK__ = true;
+
     // À 1.82s (dès que COMPANION glisse vers le bas), centrer immédiatement "WIRE" sans aucun temps mort
     setTimeout(() => {
         document.getElementById("wm-splash-loader")?.classList.add("wire-centered");
     }, 1820);
-    // À 2.18s, fermer l'écran de chargement en fondu
+    // À 2.18s, fermer l'écran de chargement en fondu quoi qu'il arrive
     setTimeout(() => finishSplashScreen(), 2180);
 
-    updateFavCountBadge();
-    updateCartCountBadge();
-    updateAlertCountBadge();
-    renderBookmarksBar();
-    initBrowserEvents();
-    startPriceSniperScheduler();
+    try { updateFavCountBadge(); } catch (_e) {}
+    try { updateCartCountBadge(); } catch (_e) {}
+    try { updateAlertCountBadge(); } catch (_e) {}
+    try { renderBookmarksBar(); } catch (_e) {}
+    try { initBrowserEvents(); } catch (_e) {}
+    try { startPriceSniperScheduler(); } catch (_e) {}
     setInterval(updateLiveWorldstateTimers, 1000);
-    createTab("https://warframe.market/welcome", true);
-    initUpdaterAndChangelog();
-    // Précharger les rotations Warframe & Baro Ki'Teer en arrière-plan pour un affichage instantané au clic sur WireMarket
+    try { createTab("https://warframe.market/welcome", true); } catch (_e) {}
+    try { initUpdaterAndChangelog(); } catch (_e) {}
+
+    // Précharger les rotations Warframe & Baro Ki'Teer en arrière-plan pour un affichage instantané au clic sur WireFrame
     fetchWorldstateData(false).then(ws => {
         State.hubTab.cachedData.worldstate = ws;
         const curTab = getActiveTab();
@@ -9209,5 +9232,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             renderActiveTabPage();
         }
     }).catch(() => {});
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootWireFrameApp);
+} else {
+    bootWireFrameApp();
+}
 

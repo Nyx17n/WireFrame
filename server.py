@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-WireMarket - Serveur Local & Proxy API Warframe Market
+WireFrame - Serveur Local & Proxy API Warframe Market
 Permet d'interroger https://api.warframe.market et de charger les images
 sans blocage CORS ni erreur de certificat SSL.
 """
@@ -58,7 +58,7 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
         # Journalisation propre et discrète dans la console Batch
         msg = format % args
         if not any(ext in msg for ext in (".png", ".jpg", ".svg", ".ico", "/assets/")):
-            sys.stdout.write(f"[WireMarket] {msg}\n")
+            sys.stdout.write(f"[WireFrame] {msg}\n")
             sys.stdout.flush()
 
     def do_OPTIONS(self):
@@ -78,7 +78,7 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
-            self.wfile.write(b'{"status":"ok","app":"WireMarket"}')
+            self.wfile.write(b'{"status":"ok","app":"WireFrame"}')
             return
 
         # Endpoint de contrôle de fenêtre (Toujours au premier plan / Mode Compact)
@@ -100,7 +100,7 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_update_check()
             return
 
-        # Téléchargement & installation sécurisée de WireMarket.zip avec Rollback anti-blocage antivirus
+        # Téléchargement & installation sécurisée de WireFrame.zip avec Rollback anti-blocage antivirus
         if req_path == "/__update/apply":
             self.handle_update_apply(parsed.query)
             return
@@ -155,17 +155,17 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_update_apply(self, query_str):
         params = urllib.parse.parse_qs(query_str or "")
-        zip_url = "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireMarket.zip"
+        zip_url = "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireFrame.zip"
         if "zipUrl" in params and params["zipUrl"]:
             cand = params["zipUrl"][0]
             if cand.startswith(("https://gitlab.com/nyxo_17/", "https://github.com/Nyxo-17/", "https://raw.githubusercontent.com/Nyxo-17/", "https://objects.githubusercontent.com/")):
                 zip_url = cand
 
-        temp_dir = tempfile.mkdtemp(prefix="WireMarket_Update_")
-        zip_path = os.path.join(temp_dir, "WireMarket.zip")
+        temp_dir = tempfile.mkdtemp(prefix="WireFrame_Update_")
+        zip_path = os.path.join(temp_dir, "WireFrame.zip")
         extract_dir = os.path.join(temp_dir, "extracted")
         try:
-            req = urllib.request.Request(zip_url, headers={"User-Agent": "WireMarket-Updater/1.6"})
+            req = urllib.request.Request(zip_url, headers={"User-Agent": "WireFrame-Updater/1.6"})
             with urllib.request.urlopen(req, context=SSL_CTX, timeout=45) as resp:
                 with open(zip_path, "wb") as out_f:
                     shutil.copyfileobj(resp, out_f)
@@ -189,7 +189,7 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
                 for fname in files:
                     src_file = os.path.join(root, fname)
                     dst_file = os.path.join(target_sub, fname)
-                    if fname.lower() == "wiremarket.exe":
+                    if fname.lower() in ("wireframe.exe", "wiremarket.exe"):
                         bak_file = dst_file + ".bak"
                         try:
                             if os.path.exists(bak_file):
@@ -291,13 +291,13 @@ def main():
     os.chdir(ROOT_DIR)
     with ThreadedHTTPServer(("127.0.0.1", PORT), WireMarketHandler) as httpd:
         print(f"============================================================")
-        print(f"  WireMarket - Serveur & Proxy API Warframe Market actif")
+        print(f"  WireFrame - Serveur & Proxy API Warframe Market actif")
         print(f"  URL Locale : http://127.0.0.1:{PORT}")
         print(f"============================================================")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            print("\n[WireMarket] Arret du serveur.")
+            print("\n[WireFrame] Arret du serveur.")
 
 
 if __name__ == "__main__":

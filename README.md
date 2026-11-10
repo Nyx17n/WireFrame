@@ -2,14 +2,14 @@
   <img src="logo.png" alt="WireFrame Logo" width="96" height="96" />
   <h1>WireFrame — Warframe Companion, Codex & Market Browser</h1>
   <p>
-    <strong>Current Version / Version actuelle :</strong> <code id="readme-version">v1.6.1</code> &nbsp;·&nbsp;
+    <strong>Current Version / Version actuelle :</strong> <code id="readme-version">v1.6.2</code> &nbsp;·&nbsp;
     <strong>Updated / Mis à jour :</strong> <code id="readme-date">2026-11-10</code> &nbsp;·&nbsp;
     <strong>Author / Auteur :</strong> <a href="https://github.com/Nyxo-17">Nyxo_17</a>
   </p>
   <p>
     <a href="#-english-documentation">🇬🇧 <strong>English Documentation</strong></a> &nbsp;|&nbsp;
     <a href="#-documentation-française">🇫🇷 <strong>Documentation Française</strong></a> &nbsp;|&nbsp;
-    <a href="https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip">⬇ <strong>Download / Télécharger WireMarket.zip</strong></a>
+    <a href="https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireFrame.zip">⬇ <strong>Download / Télécharger WireFrame.zip</strong></a>
   </p>
 </div>
 
@@ -18,16 +18,16 @@
 # 🇬🇧 English Documentation
 
 ## 📌 Overview
-**WireMarket** (created by **Nyxo_17**) is a standalone, ultra-fast desktop browser and companion hub built specifically for **Warframe Market** (`warframe.market`) and **Warframe Live Worldstate** tracking on Windows.
+**WireFrame** (created by **Nyxo_17**) is a standalone, ultra-fast desktop browser and companion hub built specifically for **Warframe Market** (`warframe.market`) and **Warframe Live Worldstate** tracking on Windows.
 
-It combines multi-tab market browsing, real-time price sniping, a multi-item shopping cart with bundle seller detection, a Ducat-to-Platinum calculator, and a complete live Warframe Hub (Planetary Cycles, Void Fissures, Invasions, Steel Path, Arbitrations, Nightwave, Duviri Circuit, Baro Ki'Teer, and Official Warframe News) in a single lightweight native app (`WireMarket.exe`).
+It combines multi-tab market browsing, real-time price sniping, a multi-item shopping cart with bundle seller detection, a Ducat-to-Platinum calculator, and a complete live Warframe Hub (Planetary Cycles, Void Fissures, Invasions, Steel Path, Arbitrations, Nightwave, Duviri Circuit, Baro Ki'Teer, and Official Warframe News) in a single lightweight native app (`WireFrame.exe`).
 
 ---
 
 ## 🚀 Quick Start & Installation
-1. Download **[`WireMarket.zip`](https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip)** from this repository.
-2. Extract the archive to any folder and launch **`WireMarket.exe`** (or **`WireMarket.bat`**).
-   - *No Python or external runtime installation is required*: `WireMarket.exe` embeds its own native local proxy server and launches a dedicated app window automatically.
+1. Download **[`WireFrame.zip`](https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireFrame.zip)** from this repository.
+2. Extract the archive to any folder and run **`WireFrame.bat`** once: it automatically builds and installs **`WireFrame.exe`** locally on your PC (avoiding any Windows SmartScreen / Discord `.exe` false positives) and opens the app.
+   - Afterwards, launch **`WireFrame.exe`** directly (*no Python or external runtime required*).
 
 ---
 
@@ -44,7 +44,7 @@ It combines multi-tab market browsing, real-time price sniping, a multi-item sho
 - **1-Click In-Game Whisper (`/w`)**: Automatically generates and copies the exact `/w SellerName Hi! I want to buy: "..." for Xp (warframe.market)` message to your clipboard (toggleable between EN and FR).
 
 ### 2. 🎯 Price Sniper (Background Price Alerts) & Dual Notification Sounds
-- **Automated Price Monitoring**: Set a target maximum Platinum price on any item; WireMarket scans the live market in the background (configurable interval from `5s` to `3600s`) and triggers an instant visual toast + audio alert as soon as an in-game seller posts an offer at or below your target price.
+- **Automated Price Monitoring**: Set a target maximum Platinum price on any item; WireFrame scans the live market in the background (configurable interval from `5s` to `3600s`) and triggers an instant visual toast + audio alert as soon as an in-game seller posts an offer at or below your target price.
 - **2 Selectable Notification Sounds**:
   - **🔔 Sound 1: Classic (`notification.mp3`)**
   - **🔔 Sound 2: Bell (`notification-bell.wav`)**
@@ -55,10 +55,10 @@ It combines multi-tab market browsing, real-time price sniping, a multi-item sho
 - **Multi-Item Seller Detector ("Trade Bundling")**: Automatically scans the top in-game sellers for every item in your cart and highlights sellers who have **2 or more of your cart items in stock at the same time**, with a 1-click grouped `/w` message so you can buy multiple items in a single Dojo visit.
 
 ### 4. ⚖️ Set vs. Separate Parts Profit Calculator
-- On any Prime Set or weapon set page, WireMarket automatically fetches the live lowest in-game prices for both the **Complete Set** and **each individual blueprint/part**, telling you whether it is cheaper to buy the parts separately or more profitable to assemble and sell the full set.
+- On any Prime Set or weapon set page, WireFrame automatically fetches the live lowest in-game prices for both the **Complete Set** and **each individual blueprint/part**, telling you whether it is cheaper to buy the parts separately or more profitable to assemble and sell the full set.
 
-### 5. 🪐 WireMarket Hub — Live Warframe Worldstate (6 Dedicated Tabs)
-Click the permanent **WireMarket** logo tab at the top-left to access the real-time Warframe Hub:
+### 5. 🪐 WireFrame Hub — Live Warframe Worldstate (6 Dedicated Tabs)
+Click the permanent **WireFrame** logo tab at the top-left to access the real-time Warframe Hub:
 - **☀️ Planets & Bounties (`Planètes & Mises à Prix`)**:
   - Live countdowns and visual cards for **Cetus / Earth** (Day/Night), **Orb Vallis / Fortuna** (Warm/Cold), **Cambion Drift / Deimos** (Fass/Vome), **Duviri** (Joy, Anger, Envy, Sorrow, Fear), and **Zariman Ten Zero** (Corpus/Grineer).
   - Live **Bounties (`Mises à Prix`)** for Ostrons, Solaris United, and Entrati with stage counts, enemy levels, and rotating reward pools.
@@ -84,11 +84,11 @@ Click the permanent **WireMarket** logo tab at the top-left to access the real-t
 - Toggle automatic background sound alerts for: **Cetus Night**, **Cetus Night 5-min Pre-Alert** (Eidolon prep), **Orb Vallis Warm Cycle**, **Deimos Vome Cycle**, **Baro Ki'Teer Arrival**, **Fast Void Fissures**, **Steel Path Omnia Fissures**, **Rare Invasions (Catalyst/Reactor/Forma)**, **Wraith/Vandal Weapon Invasions**, **Teshin Umbra Forma Week**, and **S-Tier Endurance Arbitrations**.
 
 ### 7. 🎨 Overlay Mode, Dual-Color Themes & GitHub Auto-Updater
-- **Always on Top (`Alt + P`) & Compact Mini-Overlay (`Alt + M`)**: Keep WireMarket pinned over Warframe in borderless windowed mode.
+- **Always on Top (`Alt + P`) & Compact Mini-Overlay (`Alt + M`)**: Keep WireFrame pinned over Warframe in borderless windowed mode.
 - **Preset Themes + Custom Dual-Color Theme Engine**: Choose from 6 built-in themes (*Orokin Dark, Tenno Light, Lotus Amethyst, Prime Gold, Kuva Crimson, Corpus Matrix*) or pick your own **Primary (background)** and **Secondary (accent/glow)** colors.
 - **1-Click GitHub `.zip` Auto-Updater with Antivirus Rollback Protection**:
   - Checks `Nyxo-17/wiremarket_v1` on GitHub for new releases or commits.
-  - Automatically removes Windows `Zone.Identifier` SmartScreen flags and creates a safe `.exe.bak` backup before updating: if a third-party antivirus blocks `.exe` replacement, WireMarket automatically restores the working executable while updating 100% of the HTML/CSS/JS interface without ever breaking your installation.
+  - Automatically removes Windows `Zone.Identifier` SmartScreen flags and creates a safe `.exe.bak` backup before updating: if a third-party antivirus blocks `.exe` replacement, WireFrame automatically restores the working executable while updating 100% of the HTML/CSS/JS interface without ever breaking your installation.
   - Includes a **"What's New? (Patch Notes / Changelog)"** modal that automatically displays after each update.
 
 ---
@@ -112,11 +112,11 @@ Click the permanent **WireMarket** logo tab at the top-left to access the real-t
 
 ## 📜 Version History & Changelog (EN)
 
-### `v1.6.1` — `2026-11-10` (Latest)
+### `v1.6.2` — `2026-11-10` (Latest)
 - **Official Warframe News Hub & Home Strip**: Added the `Actualités (News)` tab in the Hub + live news strip on the Home page with Global Server Boosters, Darvo's Daily Deal, category filters, and automatic Prime Resurgence market links.
 - **Open Tabs Reorganization System**: Live horizontal drag-and-drop on the tab bar, right-click tab context menu, tab pinning (`📌`), and the **Open Pages Organizer** popover (search, `▲`/`▼` reorder, sort `A→Z` or by category, and 1-click duplicate tab cleanup).
 - **Dual Notification Sounds**: Added choice between **Sound 1: Classic (`notification.mp3`)** and **Sound 2: Bell (`notification-bell.wav`)** in Settings and Alerts pages.
-- **Automated Git Pre-Commit Version & `.zip` Builder**: Added `bump_version.py` and `.githooks/pre-commit` to automatically increment the version and rebuild `WireMarket.zip` on every `git commit`.
+- **Automated Git Pre-Commit Version & `.zip` Builder**: Added `bump_version.py` and `.githooks/pre-commit` to automatically increment the version and rebuild `WireFrame.zip` on every `git commit`.
 
 ### `v1.6.0` — `2026-11-08`
 - **New Hub Tab — Invasions, Steel Path & Nightwave**: Live Invasions with 1-click Platinum checks on Wraith/Vandal parts, Teshin's weekly Steel Path Honors + Evergreens, Live Arbitration + Galvanized Mods showcase, Lotus Alerts, Events, and Nightwave challenges.
@@ -129,7 +129,7 @@ Click the permanent **WireMarket** logo tab at the top-left to access the real-t
 - **Custom Dual-Color Theme Picker**: Independent Primary & Secondary color pickers + Planetary & Fissure audio alerts.
 
 ### `v1.4.0` — `2026-11-07`
-- **WireMarket Hub, Duviri Circuit & Baro Ki'Teer**: Permanent Hub tab with planetary cycles, bounties, Duviri rotations, and Baro Ki'Teer Ducat/Platinum comparator.
+- **WireFrame Hub, Duviri Circuit & Baro Ki'Teer**: Permanent Hub tab with planetary cycles, bounties, Duviri rotations, and Baro Ki'Teer Ducat/Platinum comparator.
 
 ---
 ---
@@ -137,16 +137,16 @@ Click the permanent **WireMarket** logo tab at the top-left to access the real-t
 # 🇫🇷 Documentation Française
 
 ## 📌 Présentation
-**WireMarket** (créé par **Nyxo_17**) est un navigateur de bureau autonome et ultra-rapide conçu spécialement pour **Warframe Market** (`warframe.market`) et le suivi en temps réel de l'état du monde **Warframe (Worldstate)** sous Windows.
+**WireFrame** (créé par **Nyxo_17**) est un navigateur de bureau autonome et ultra-rapide conçu spécialement pour **Warframe Market** (`warframe.market`) et le suivi en temps réel de l'état du monde **Warframe (Worldstate)** sous Windows.
 
-Il réunit dans une seule application légère (`WireMarket.exe`) la navigation multi-onglets sur le marché, un **Price Sniper** (alertes de prix en arrière-plan), un **Panier Multi-Achats** avec détecteur de vendeurs groupés, un comparateur Ducats/Platinum et un **Hub Warframe complet en direct** (Cycles planétaires, Fissures du Néant, Invasions, Route de l'Acier, Arbitrage, Ondes Nocturnes, Circuit de Duviri, Baro Ki'Teer et Actualités officielles Warframe).
+Il réunit dans une seule application légère (`WireFrame.exe`) la navigation multi-onglets sur le marché, un **Price Sniper** (alertes de prix en arrière-plan), un **Panier Multi-Achats** avec détecteur de vendeurs groupés, un comparateur Ducats/Platinum et un **Hub Warframe complet en direct** (Cycles planétaires, Fissures du Néant, Invasions, Route de l'Acier, Arbitrage, Ondes Nocturnes, Circuit de Duviri, Baro Ki'Teer et Actualités officielles Warframe).
 
 ---
 
 ## 🚀 Installation & Démarrage Rapide
-1. Téléchargez **[`WireMarket.zip`](https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip)** depuis ce dépôt GitHub.
-2. Extrayez le dossier où vous le souhaitez et lancez **`WireMarket.exe`** (ou **`WireMarket.bat`**).
-   - *Aucune installation de Python ou de composant externe n'est requise* : `WireMarket.exe` embarque son propre serveur local C# et ouvre automatiquement une fenêtre dédiée.
+1. Téléchargez **[`WireFrame.zip`](https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireFrame.zip)** depuis ce dépôt GitHub.
+2. Extrayez l'archive dans un dossier et lancez **`WireFrame.bat`** une première fois : il génère et installe automatiquement **`WireFrame.exe`** sur votre PC (aucun faux positif Windows SmartScreen / Discord puisque aucun `.exe` n'est dans le `.zip`) et ouvre l'application.
+   - Par la suite, lancez directement **`WireFrame.exe`** (*aucune installation de Python ou de composant externe n'est requise*).
 
 ---
 
@@ -163,7 +163,7 @@ Il réunit dans une seule application légère (`WireMarket.exe`) la navigation 
 - **Message d'échange `/w` en 1 clic** : Génère et copie automatiquement la commande `/w Pseudo Bonjour ! Je voudrais acheter...` prête à être collée dans le chat Warframe (bascule FR / EN en 1 clic).
 
 ### 2. 🎯 Price Sniper (Alertes de Prix) & 2 Sons de Notification au choix
-- **Surveillance automatique en arrière-plan** : Définissez un prix cible en Platinum sur n'importe quel item ; WireMarket scanne le marché toutes les X secondes (`5s` à `3600s`) et affiche une alerte visuelle et sonore dès qu'un joueur **En jeu** vend à votre prix.
+- **Surveillance automatique en arrière-plan** : Définissez un prix cible en Platinum sur n'importe quel item ; WireFrame scanne le marché toutes les X secondes (`5s` à `3600s`) et affiche une alerte visuelle et sonore dès qu'un joueur **En jeu** vend à votre prix.
 - **Choix entre 2 Sonneries de Notification** :
   - **🔔 Son 1 : Classique (`notification.mp3`)**
   - **🔔 Son 2 : Cloche / Bell (`notification-bell.wav`)**
@@ -176,8 +176,8 @@ Il réunit dans une seule application légère (`WireMarket.exe`) la navigation 
 ### 4. ⚖️ Calculateur de Rentabilité « Set Complet vs Pièces Détachées »
 - Sur la fiche de n'importe quel Set Prime, compare en direct le prix du **Set complet** face à la somme des **pièces achetées séparément**, et indique l'économie ou le profit d'assemblage en Platinum.
 
-### 5. 🪐 WireMarket Hub — Suivi Warframe en Temps Réel (6 Onglets dédiés)
-Cliquez sur l'onglet permanent **WireMarket** en haut à gauche pour accéder aux 6 sections temps réel :
+### 5. 🪐 WireFrame Hub — Suivi Warframe en Temps Réel (6 Onglets dédiés)
+Cliquez sur l'onglet permanent **WireFrame** en haut à gauche pour accéder aux 6 sections temps réel :
 - **☀️ Planètes & Mises à Prix** :
   - Cycles en direct pour **Cetus / Terre** (Jour/Nuit), **Vallée Orbis / Fortuna** (Chaud/Froid), **Puy de Cambion / Deimos** (Fass/Vome), **Duviri** (Spirales d'humeur) et **Zariman Ten Zero** (Corpus/Grineer), ainsi que les **Mises à Prix** (Ostrons, Union Solaris, Entrati).
 - **⚡ Fissures & Missions** :
@@ -201,11 +201,11 @@ Cliquez sur l'onglet permanent **WireMarket** en haut à gauche pour accéder au
 - Notifications sonores automatiques activables en 1 clic pour : **Nuit sur Cetus**, **Pré-alerte 5 min avant la Nuit sur Cetus** (chasse Eidolon), **Cycle Chaud sur Vénus**, **Cycle Vome sur Deimos**, **Arrivée de Baro Ki'Teer**, **Fissures Rapides**, **Fissures Omnia Route de l'Acier**, **Invasions Rares (Catalyseur/Réacteur/Forma)**, **Invasions d'Armes Wraith/Vandal**, **Forma Umbra chez Teshin**, et **Arbitrage S-Tier**.
 
 ### 7. 🎨 Mode Overlay, Thèmes Bicolores & Mise à Jour Automatique GitHub
-- **Toujours au premier plan (`Alt + P`) & Mode Compact Mini-Fenêtre (`Alt + M`)** : Gardez WireMarket épinglé par-dessus Warframe.
+- **Toujours au premier plan (`Alt + P`) & Mode Compact Mini-Fenêtre (`Alt + M`)** : Gardez WireFrame épinglé par-dessus Warframe.
 - **6 Thèmes prédéfinis + Personnalisation Bicolore** : Choisissez indépendamment votre **Couleur Principale** (fond) et votre **Couleur Secondaire** (accents, boutons, icônes, lueur Glow).
 - **Système de Mise à Jour `.zip` via GitHub avec Protection Rollback Antivirus** :
   - Vérifie et installe en 1 clic la dernière version depuis `Nyxo-17/wiremarket_v1`.
-  - Supprime automatiquement le marqueur Windows `Zone.Identifier` et protège `WireMarket.exe` via un système de sauvegarde `.exe.bak` (Rollback automatique si un antivirus tiers bloque le remplacement de l'exécutable, tout en mettant à jour 100 % de l'interface HTML/CSS/JS).
+  - Supprime automatiquement le marqueur Windows `Zone.Identifier` et protège `WireFrame.exe` via un système de sauvegarde `.exe.bak` (Rollback automatique si un antivirus tiers bloque le remplacement de l'exécutable, tout en mettant à jour 100 % de l'interface HTML/CSS/JS).
   - Fenêtre **« Quoi de neuf ? (Patch Notes) »** affichée automatiquement à chaque nouvelle version.
 
 ---
@@ -229,11 +229,11 @@ Cliquez sur l'onglet permanent **WireMarket** en haut à gauche pour accéder au
 
 ## 📜 Historique des Versions & Mises à Jour (FR)
 
-### `v1.6.1` — `10/11/2026` (Version actuelle)
+### `v1.6.2` — `10/11/2026` (Version actuelle)
 - **Actualités Officielles Warframe (News), Boosters & Darvo** : Ajout de l'onglet `Actualités (News)` dans le Hub + bandeau d'actualités sur la page d'accueil avec Boosters Serveur, Offre de Darvo, filtres par catégorie et liens directs vers les sets de Résurgence Prime.
 - **Système de Réorganisation des Pages Ouvertes** : Glisser-déposer horizontal en direct dans la barre d'onglets, menu contextuel clic droit, épinglage d'onglets (`📌`) et panneau **Pages Ouvertes & Réorganisation** (recherche, déplacement `▲`/`▼`, tri `A→Z` ou par catégorie, suppression des doublons).
 - **2 Sons de Notification au choix** : Choix entre **Son 1 : Classique (`notification.mp3`)** et **Son 2 : Cloche (`notification-bell.wav`)**.
-- **Mise à jour automatique de la version au Commit** : Ajout du script `bump_version.py` et du hook Git `pre-commit` qui incrémente la version et reconstruit `WireMarket.zip` automatiquement à chaque `git commit`.
+- **Mise à jour automatique de la version au Commit** : Ajout du script `bump_version.py` et du hook Git `pre-commit` qui incrémente la version et reconstruit `WireFrame.zip` automatiquement à chaque `git commit`.
 
 ### `v1.6.0` — `08/11/2026`
 - **Nouvel onglet Hub « Invasions, Acier & Nightwave »** : Suivi en direct des Invasions (avec liens Platinum sur les pièces Wraith/Vandal), Rotation hebdomadaire de Teshin (Route de l'Acier) + Boutique Permanente, Arbitrage en direct + Mods Galvanisés, Alertes du Lotus, Événements et Défis Nightwave.
@@ -246,5 +246,5 @@ Cliquez sur l'onglet permanent **WireMarket** en haut à gauche pour accéder au
 - **Thème Bicolore Personnalisé** & Alertes sonores de cycles planétaires.
 
 ### `v1.4.0` — `07/11/2026`
-- **WireMarket Hub, Circuit de Duviri & Boutique de Baro Ki'Teer** : Onglet Hub permanent, cycles planétaires, mises à prix, rotations Duviri et comparateur Ducats/Platinum pour Baro Ki'Teer.
+- **WireFrame Hub, Circuit de Duviri & Boutique de Baro Ki'Teer** : Onglet Hub permanent, cycles planétaires, mises à prix, rotations Duviri et comparateur Ducats/Platinum pour Baro Ki'Teer.
 
