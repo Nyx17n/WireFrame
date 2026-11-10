@@ -27,6 +27,12 @@ if %errorlevel% equ 0 (
     echo [INFO] Le serveur local WireMarket est deja actif sur %APP_URL%
 ) else (
     echo [1/2] Demarrage du serveur local ^& Proxy API Warframe Market sur le port %PORT%...
+    if not exist "%~dp0WireMarket.exe" (
+        if exist "%SystemRoot%\Microsoft.NET\Framework64\v4.0.30319\csc.exe" (
+            echo [INFO] Compilation automatique de WireMarket.exe depuis Launcher.cs...
+            "%SystemRoot%\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /out:"%~dp0WireMarket.exe" /win32icon:"%~dp0logo.ico" /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll "%~dp0Launcher.cs" >nul 2>&1
+        )
+    )
     if exist "%~dp0WireMarket.exe" (
         start "WireMarket Server" /min "%~dp0WireMarket.exe" --server "%~dp0"
     ) else (

@@ -1,12 +1,12 @@
 {
-  "version": "1.6.2",
+  "version": "1.6.3",
   "date": "2026-11-10",
   "title": "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
   "repo": "nyxo_17/wiremarket_v1",
   "zipUrl": "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireMarket.zip",
   "changelog": [
     {
-      "version": "1.6.2",
+      "version": "1.6.3",
       "date": "10/11/2026",
       "title": "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
       "badge": "NOUVEAU",

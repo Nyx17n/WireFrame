@@ -207,11 +207,11 @@ def compile_exe_if_needed():
 
 
 def rebuild_zip():
-    """Reconstruit WireMarket.zip (et met à jour la copie sur le Bureau si possible)."""
+    """Reconstruit WireMarket.zip (sans .exe dans le dépôt Git pour éviter les faux positifs GitHub, et complet avec .exe sur le Bureau)."""
     zip_path = ROOT_DIR / "WireMarket.zip"
-    items_to_pack = [
-        "WireMarket.exe",
+    items_for_git_zip = [
         "WireMarket.bat",
+        "Launcher.cs",
         "index.html",
         "version.json",
         "css",
@@ -226,7 +226,7 @@ def rebuild_zip():
     ]
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for rel_name in items_to_pack:
+        for rel_name in items_for_git_zip:
             p = ROOT_DIR / rel_name
             if not p.exists():
                 continue
@@ -238,11 +238,23 @@ def rebuild_zip():
                         arc = str(sub.relative_to(ROOT_DIR)).replace("\\", "/")
                         zf.write(sub, arcname=arc)
 
-    # Copier sur le Bureau si présent
+    # Copier une archive complète (incluant WireMarket.exe prêt à l'emploi) sur le Bureau si présent
     desktop_zip = Path.home() / "Desktop" / "WireMarket.zip"
     if desktop_zip.parent.exists():
         try:
-            shutil.copy2(zip_path, desktop_zip)
+            items_for_desktop = ["WireMarket.exe"] + items_for_git_zip
+            with zipfile.ZipFile(desktop_zip, "w", zipfile.ZIP_DEFLATED) as dzf:
+                for rel_name in items_for_desktop:
+                    p = ROOT_DIR / rel_name
+                    if not p.exists():
+                        continue
+                    if p.is_file():
+                        dzf.write(p, arcname=rel_name)
+                    elif p.is_dir():
+                        for sub in sorted(p.rglob("*")):
+                            if sub.is_file():
+                                arc = str(sub.relative_to(ROOT_DIR)).replace("\\", "/")
+                                dzf.write(sub, arcname=arc)
         except Exception:
             pass
 
@@ -256,8 +268,6 @@ def stage_updated_files():
         "README.md",
         "WireMarket.zip",
     ]
-    if (ROOT_DIR / "WireMarket.exe").exists():
-        files_to_stage.append("WireMarket.exe")
     if (ROOT_DIR / "notification-bell.wav").exists():
         files_to_stage.append("notification-bell.wav")
 

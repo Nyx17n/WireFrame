@@ -1,6 +1,47 @@
+# ==========================================================================
+# WireMarket — Fichier .gitignore
+# Empêche l'envoi des fichiers temporaires, caches et exécutables compilés (.exe)
+# sur GitHub afin d'éviter tout faux positif des filtres anti-malware GitHub.
+# ==========================================================================
+
+# Exécutables Windows compilés & sauvegardes Rollback (générés localement depuis Launcher.cs)
+*.exe
+*.exe.bak
+*.dll
+*.pdb
+*.obj
+bin/
+obj/
+
+# Caches Python & environnements virtuels
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Fichiers système Windows / macOS / Linux
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+desktop.ini
+$RECYCLE.BIN/
 
+# Éditeurs & IDE (VS Code, Visual Studio, JetBrains)
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.swo
+
+# Fichiers temporaires & journaux (logs)
+*.log
+*.tmp
+*.temp
+*.bak
+~*

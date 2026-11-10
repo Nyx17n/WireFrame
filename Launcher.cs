@@ -587,10 +587,14 @@ namespace WireMarketLauncher
             string localVerJsonPath = Path.Combine(rootDir, "version.json");
             string localJson = File.Exists(localVerJsonPath)
                 ? File.ReadAllText(localVerJsonPath, Encoding.UTF8)
-                : "{\"version\":\"1.6.0\"}";
+                : "{\"version\":\"1.6.1\"}";
 
-            string remoteJson = FetchUrlString("https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/version.json?t=" + DateTime.UtcNow.Ticks, 10);
-            string releaseJson = FetchUrlString("https://api.github.com/repos/Nyxo-17/wiremarket_v1/releases/latest", 10);
+            string remoteJson = FetchUrlString("https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/version.json?t=" + DateTime.UtcNow.Ticks, 10);
+            if (string.IsNullOrWhiteSpace(remoteJson) || !remoteJson.TrimStart().StartsWith("{"))
+            {
+                remoteJson = FetchUrlString("https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/version.json?t=" + DateTime.UtcNow.Ticks, 10);
+            }
+            string releaseJson = FetchUrlString("https://api.github.com/repos/Nyxo-17/wiremarket_v1/releases/latest", 8);
 
             if (string.IsNullOrWhiteSpace(remoteJson) || !remoteJson.TrimStart().StartsWith("{"))
             {
@@ -685,7 +689,7 @@ namespace WireMarketLauncher
 
         private static void ServeUpdateApply(string rootDir, string query, HttpListenerResponse outResp)
         {
-            string zipUrl = "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip";
+            string zipUrl = "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireMarket.zip";
             if (!string.IsNullOrEmpty(query) && query.Contains("zipUrl="))
             {
                 try
@@ -693,7 +697,7 @@ namespace WireMarketLauncher
                     int idx = query.IndexOf("zipUrl=") + 7;
                     string rawParam = query.Substring(idx).Split('&')[0];
                     string decoded = Uri.UnescapeDataString(rawParam);
-                    if (decoded.StartsWith("https://github.com/Nyxo-17/") || decoded.StartsWith("https://raw.githubusercontent.com/Nyxo-17/") || decoded.StartsWith("https://objects.githubusercontent.com/"))
+                    if (decoded.StartsWith("https://gitlab.com/nyxo_17/") || decoded.StartsWith("https://github.com/Nyxo-17/") || decoded.StartsWith("https://raw.githubusercontent.com/Nyxo-17/") || decoded.StartsWith("https://objects.githubusercontent.com/"))
                     {
                         zipUrl = decoded;
                     }

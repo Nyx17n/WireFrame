@@ -140,7 +140,9 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
             except Exception:
                 pass
 
-        remote_data = self.fetch_json_safe(f"https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/version.json?t={int(time.time())}")
+        remote_data = self.fetch_json_safe(f"https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/version.json?t={int(time.time())}")
+        if not remote_data:
+            remote_data = self.fetch_json_safe(f"https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/version.json?t={int(time.time())}")
         release_data = self.fetch_json_safe("https://api.github.com/repos/Nyxo-17/wiremarket_v1/releases/latest")
 
         payload = json.dumps({
@@ -153,10 +155,10 @@ class WireMarketHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_update_apply(self, query_str):
         params = urllib.parse.parse_qs(query_str or "")
-        zip_url = "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
+        zip_url = "https://gitlab.com/nyxo_17/wiremarket_v1/-/raw/main/WireMarket.zip"
         if "zipUrl" in params and params["zipUrl"]:
             cand = params["zipUrl"][0]
-            if cand.startswith(("https://github.com/Nyxo-17/", "https://raw.githubusercontent.com/Nyxo-17/", "https://objects.githubusercontent.com/")):
+            if cand.startswith(("https://gitlab.com/nyxo_17/", "https://github.com/Nyxo-17/", "https://raw.githubusercontent.com/Nyxo-17/", "https://objects.githubusercontent.com/")):
                 zip_url = cand
 
         temp_dir = tempfile.mkdtemp(prefix="WireMarket_Update_")
