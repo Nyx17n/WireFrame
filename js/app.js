@@ -90,7 +90,7 @@ const State = {
         id: "hub",
         isPermanentHub: true,
         url: "https://warframe.market/worldstate",
-        title: "WireMarket Hub — Rotations Warframe & Baro Ki'Teer",
+        title: "WireFrame Info — Rotations Warframe & Baro Ki'Teer",
         icon: DEFAULT_FAVICON,
         loading: false,
         history: ["https://warframe.market/worldstate"],
@@ -365,7 +365,7 @@ function showWorldAlertToast(ruleId, badgeText, title, subtitle, targetHubSec = 
             </div>
         </div>
         <div class="toast-actions">
-            <button class="btn-primary btn-sm" data-world-toast-go="${escapeHtml(targetHubSec)}">Ouvrir dans WireMarket Hub →</button>
+            <button class="btn-primary btn-sm" data-world-toast-go="${escapeHtml(targetHubSec)}">Ouvrir dans WireFrame Info →</button>
         </div>
     `;
 
@@ -1184,35 +1184,31 @@ function recordHistory(title, url, icon = DEFAULT_FAVICON) {
 /* ==================== ÉCRAN DE CHARGEMENT INITIAL & CATALOGUE (3893 ITEMS) ==================== */
 
 let splashFinished = false;
+const splashStartTimestamp = performance.now();
+const SPLASH_DURATION_MS = 2180;
 
-function setSplashProgress(pct, statusText) {
-    if (splashFinished) return;
-    const clamped = Math.max(0, Math.min(100, Math.round(pct)));
-    const fillEl = document.getElementById("wm-splash-bar-fill");
-    const pctEl = document.getElementById("wm-splash-pct");
-    const statusEl = document.getElementById("wm-splash-status");
-    if (fillEl) fillEl.style.width = `${clamped}%`;
-    if (pctEl) pctEl.textContent = `${clamped}%`;
-    if (statusEl && statusText) statusEl.textContent = statusText;
+function setSplashProgress(_pct, _statusText) {
+    // Conservé pour compatibilité : l'animation de 4s est pilotée par les keyframes CSS et finishSplashScreen()
 }
 
 function finishSplashScreen() {
     if (splashFinished) return;
+    const elapsed = performance.now() - splashStartTimestamp;
+    const remaining = Math.max(0, SPLASH_DURATION_MS - elapsed);
+
+    if (remaining > 20) {
+        setTimeout(() => finishSplashScreen(), remaining);
+        return;
+    }
+
     splashFinished = true;
     const splashEl = document.getElementById("wm-splash-loader");
-    const fillEl = document.getElementById("wm-splash-bar-fill");
-    const pctEl = document.getElementById("wm-splash-pct");
-    const statusEl = document.getElementById("wm-splash-status");
-    if (fillEl) fillEl.style.width = "100%";
-    if (pctEl) pctEl.textContent = "100%";
-    if (statusEl) statusEl.textContent = "Prêt !";
     if (splashEl) {
+        splashEl.classList.add("wire-centered");
+        splashEl.classList.add("fade-out");
         setTimeout(() => {
-            splashEl.classList.add("fade-out");
-            setTimeout(() => {
-                splashEl.classList.add("hidden");
-            }, 320);
-        }, 180);
+            splashEl.classList.add("hidden");
+        }, 400);
     }
 }
 
@@ -1884,6 +1880,18 @@ function syncBrowserChromeToActiveTab() {
         document.querySelectorAll("[data-hub-sec]").forEach(btn => {
             btn.classList.toggle("active", btn.dataset.hubSec === currentSec);
         });
+        const hubTitleEl = document.getElementById("wm-hub-dynamic-title-main");
+        if (hubTitleEl) {
+            const hubTitles = {
+                planets: `WARFRAME <span class="accent">PLANÈTES &amp; CYCLES</span>`,
+                fissures: `WARFRAME <span class="accent">FISSURES &amp; MISSIONS</span>`,
+                invasions: `WARFRAME <span class="accent">INVASIONS &amp; ACIER</span>`,
+                duviri: `WARFRAME <span class="accent">ROTATIONS DUVIRI</span>`,
+                baro: `WARFRAME <span class="accent">BARO KI'TEER</span>`,
+                news: `WARFRAME <span class="accent">ACTUALITÉS</span>`
+            };
+            hubTitleEl.innerHTML = hubTitles[currentSec] || `WIREFRAME <span class="accent">INFO</span>`;
+        }
     }
 
     const addrInput = document.getElementById("address-input");
@@ -1899,9 +1907,35 @@ function syncBrowserChromeToActiveTab() {
     document.getElementById("btn-bookmark-toggle").classList.toggle("bookmarked", isBookmarked);
 
     // Surligner le lien actif dans la bannière interne Warframe Market
+    const parsedForBanner = parseWfmUrl(tab.url);
     document.querySelectorAll(".wfm-nav-link:not(.hub-nav-link)").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.nav === tab.url);
+        const navTarget = btn.dataset.nav || "";
+        const isCodexBtn = navTarget.endsWith("/codex") && (parsedForBanner.route === "codex" || parsedForBanner.route === "codex-item");
+        const isCatalogBtn = navTarget.endsWith("/items") && parsedForBanner.route === "catalog";
+        const isHomeBtn = navTarget === "https://warframe.market/" && (parsedForBanner.route === "home" || parsedForBanner.route === "item" || parsedForBanner.route === "profile");
+        btn.classList.toggle("active", navTarget === tab.url || isCodexBtn || isCatalogBtn || isHomeBtn);
     });
+
+    // Mettre à jour dynamiquement le titre en haut à gauche selon la section active
+    const dynamicTitleEl = document.getElementById("wfm-dynamic-title-main");
+    if (dynamicTitleEl) {
+        const routeTitles = {
+            welcome: `WIREFRAME <span class="accent">BIENVENUE</span>`,
+            home: `WARFRAME <span class="accent">MARKET</span>`,
+            item: `WARFRAME <span class="accent">MARKET</span>`,
+            profile: `WARFRAME <span class="accent">MARKET</span>`,
+            favorites: `WARFRAME MARKET <span class="accent">FAVORIS</span>`,
+            cart: `WARFRAME MARKET <span class="accent">PANIER</span>`,
+            contracts: `WARFRAME MARKET <span class="accent">CONTRATS</span>`,
+            recent: `WARFRAME MARKET <span class="accent">ORDRES RÉCENTS</span>`,
+            catalog: `WARFRAME MARKET <span class="accent">CATALOGUE</span>`,
+            codex: `WARFRAME <span class="accent">CODEX &amp; FARM</span>`,
+            "codex-item": `WARFRAME <span class="accent">CODEX &amp; FARM</span>`,
+            ducats: `WARFRAME <span class="accent">DUCANATOR</span>`,
+            alerts: `WARFRAME <span class="accent">ALERTES</span>`
+        };
+        dynamicTitleEl.innerHTML = routeTitles[parsedForBanner.route] || `WARFRAME <span class="accent">MARKET</span>`;
+    }
 }
 
 /* ==================== ROUTEUR D'URL WARFRAME.MARKET ==================== */
@@ -1943,6 +1977,9 @@ function parseWfmUrl(url) {
     const [pathname, queryString] = clean.split("?");
     const params = new URLSearchParams(queryString || "");
 
+    if (pathname === "/welcome" || pathname === "/bienvenue") {
+        return { route: "welcome", params };
+    }
     if (pathname === "/" || pathname === "") {
         return { route: "home", params };
     }
@@ -1976,6 +2013,23 @@ function parseWfmUrl(url) {
     }
     if (pathname === "/items" || pathname === "/items/") {
         return { route: "catalog", params };
+    }
+    if (pathname === "/codex" || pathname === "/codex/" || pathname === "/farm" || pathname === "/wiki") {
+        return { route: "codex", params };
+    }
+    const codexItemMatch = pathname.match(/^\/codex\/(resources|warframes|weapons|mods|relics)\/([a-z0-9_-]+)\/?$/i);
+    if (codexItemMatch) {
+        return {
+            route: "codex-item",
+            category: codexItemMatch[1].toLowerCase(),
+            itemId: codexItemMatch[2].toLowerCase(),
+            params
+        };
+    }
+    const codexCatMatch = pathname.match(/^\/codex\/(resources|warframes|weapons|mods|relics)\/?$/i);
+    if (codexCatMatch) {
+        params.set("cat", codexCatMatch[1].toLowerCase());
+        return { route: "codex", params };
     }
 
     const itemStatsMatch = pathname.match(/^\/items\/([a-z0-9_]+)\/statistics\/?$/i);
@@ -2066,7 +2120,7 @@ async function loadTabRouteData(tab, parsed, forceRefresh = false) {
         }
 
         if (parsed.route === "worldstate") {
-            tab.title = "WireMarket Hub — Rotations Warframe & Baro Ki'Teer";
+            tab.title = "WireFrame Info — Rotations Warframe & Baro Ki'Teer";
             tab.icon = DEFAULT_FAVICON;
             const ws = await fetchWorldstateData(forceRefresh);
             tab.cachedData.worldstate = ws;
@@ -2220,6 +2274,56 @@ async function loadTabRouteData(tab, parsed, forceRefresh = false) {
                 tab.title = `${tab.cachedData.profileUser.ingameName} - Profil Warframe Market`;
             }
             recordHistory(tab.title, tab.url, tab.icon);
+        } else if (parsed.route === "welcome") {
+            tab.title = "Bienvenue sur WireFrame — Guide des Onglets";
+            tab.icon = DEFAULT_FAVICON;
+            recordHistory(tab.title, tab.url, tab.icon);
+        } else if (parsed.route === "codex") {
+            const catParam = parsed.params?.get("cat");
+            if (catParam && ["resources", "warframes", "weapons", "mods", "relics"].includes(catParam)) {
+                tab.viewState.codexCategory = catParam;
+            }
+            if (parsed.params?.get("q") !== null && parsed.params?.get("q") !== undefined) {
+                tab.viewState.codexQuery = parsed.params.get("q") || "";
+            }
+            const catLabels = {
+                resources: "Ressources Farmables",
+                warframes: "Warframes",
+                weapons: "Armes",
+                mods: "Mods",
+                relics: "Reliques"
+            };
+            const curCat = tab.viewState.codexCategory || "resources";
+            tab.title = `📚 Codex & Farm — ${catLabels[curCat] || "Encyclopédie"}`;
+            tab.icon = DEFAULT_FAVICON;
+            recordHistory(tab.title, tab.url, tab.icon);
+        } else if (parsed.route === "codex-item") {
+            const itemObj = findCodexItem(parsed.category, parsed.itemId);
+            const catLabels = {
+                resources: "Ressource",
+                warframes: "Warframe",
+                weapons: "Arme",
+                mods: "Mod",
+                relics: "Relique"
+            };
+            if (itemObj) {
+                tab.title = `${itemObj.name} (${catLabels[parsed.category] || "Codex"}) — Farm & Utilité`;
+                tab.icon = getCodexItemImgUrl(itemObj);
+                // Charger en arrière-plan les tables de drop officielles en direct pour compléter les % de drop
+                fetchLiveCodexDrops(itemObj.en).then(liveDrops => {
+                    tab.cachedData.codexLiveDrops = liveDrops;
+                    if (tab.id === State.activeTabId && parseWfmUrl(tab.url).route === "codex-item") {
+                        const liveSlot = document.getElementById("codex-live-drops-slot");
+                        if (liveSlot) {
+                            renderCodexLiveDropsIntoSlot(liveSlot, itemObj, liveDrops);
+                        }
+                    }
+                }).catch(() => {});
+            } else {
+                tab.title = `${parsed.itemId} — Codex & Farm`;
+                tab.icon = DEFAULT_FAVICON;
+            }
+            recordHistory(tab.title, tab.url, tab.icon);
         }
     } catch (err) {
         console.error("Erreur chargement onglet:", err);
@@ -2243,7 +2347,7 @@ function renderActiveTabPage() {
 
     const parsed = parseWfmUrl(tab.url);
 
-    if (tab.loading && !tab.cachedData.item && !tab.cachedData.recentOrders && !tab.cachedData.worldstate && parsed.route !== "catalog") {
+    if (tab.loading && !tab.cachedData.item && !tab.cachedData.recentOrders && !tab.cachedData.worldstate && parsed.route !== "welcome" && parsed.route !== "catalog" && parsed.route !== "codex" && parsed.route !== "codex-item") {
         container.innerHTML = `
             <div class="loading-state">
                 <div class="loading-spinner-lg"></div>
@@ -2255,6 +2359,8 @@ function renderActiveTabPage() {
 
     if (parsed.route === "worldstate") {
         renderWorldstateHubPage(container, tab);
+    } else if (parsed.route === "welcome") {
+        renderWelcomePage(container, tab);
     } else if (parsed.route === "home") {
         renderHomePage(container, tab);
     } else if (parsed.route === "recent") {
@@ -2267,6 +2373,10 @@ function renderActiveTabPage() {
         renderAlertsPage(container, tab);
     } else if (parsed.route === "catalog") {
         renderCatalogPage(container, tab);
+    } else if (parsed.route === "codex") {
+        renderCodexGridPage(container, tab, parsed);
+    } else if (parsed.route === "codex-item") {
+        renderCodexDetailPage(container, tab, parsed.category, parsed.itemId);
     } else if (parsed.route === "ducats") {
         renderDucanatorPage(container, tab);
     } else if (parsed.route === "contracts") {
@@ -4618,6 +4728,137 @@ function renderBaroShopDynamicArea(areaContainer, tab) {
     bindCommonPageEvents(areaContainer, tab);
 }
 
+/* ---------- 0B. PAGE DE BIENVENUE & GUIDE DES ONGLETS (https://warframe.market/welcome) ---------- */
+
+function renderWelcomePage(container, tab) {
+    const shopTabs = [
+        {
+            title: "Marché",
+            badge: "SHOP",
+            url: "https://warframe.market/",
+            icon: `<svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 21 8.5 17.5 21 6.5 21 3 8.5"/><polygon points="12 7 16.5 11.5 12 17 7.5 11.5"/></svg>`,
+            desc: "Accueil du marché : consultez les Sets Prime populaires, les offres en direct et copiez vos messages d'échange /w en un clic."
+        },
+        {
+            title: "Favoris",
+            badge: "SHOP",
+            url: "https://warframe.market/favorites",
+            icon: `<svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 14.8 9.2 22 12 14.8 14.8 12 22 9.2 14.8 2 12 9.2 9.2"/></svg>`,
+            desc: "Suivez vos items préférés et comparez instantanément leur meilleur prix d'achat et de revente en Platinum."
+        },
+        {
+            title: "Panier",
+            badge: "SHOP",
+            url: "https://warframe.market/cart",
+            icon: `<svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+            desc: "Liste de courses multi-achats : calcule votre budget Platinum, la taxe en Crédits et détecte les vendeurs possédant plusieurs de vos items."
+        },
+        {
+            title: "Contrats (Rivens)",
+            badge: "SHOP",
+            url: "https://warframe.market/contracts",
+            icon: `<svg class="wf-icon wf-icon-riven" viewBox="0 0 24 24"><polygon points="12 2 20 12 12 22 4 12"/><polygon points="12 7 15.5 12 12 17 8.5 12"/></svg>`,
+            desc: "Explorez les enchères et ventes directes de Mods Riven et de Liches Kuva / Sœurs de Parvos avec leurs statistiques détaillées."
+        },
+        {
+            title: "Ordres Récents",
+            badge: "SHOP",
+            url: "https://warframe.market/recent",
+            icon: `<svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polyline points="2 12 6 12 9 4 15 20 18 12 22 12"/></svg>`,
+            desc: "Flux en temps réel des toutes dernières offres d'achat et de vente publiées par les joueurs connectés en jeu."
+        },
+        {
+            title: "Catalogue",
+            badge: "SHOP",
+            url: "https://warframe.market/items",
+            icon: `<svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="3" y1="7" x2="21" y2="17"/></svg>`,
+            desc: "Parcourez et filtrez l'intégralité des 3 893+ objets échangeables (Sets Prime, Mods, Arcanes, Reliques, Armes) en FR et EN."
+        }
+    ];
+
+    const companionTabs = [
+        {
+            title: "Codex & Farm",
+            badge: "ENCYCLOPÉDIE",
+            url: "https://warframe.market/codex",
+            icon: `<svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+            desc: "Grille complète des Ressources farmables, Warframes, Armes, Mods et Reliques avec lieux de drop, % de chance et utilité de fabrication."
+        },
+        {
+            title: "Ducanator",
+            badge: "OUTIL BARO",
+            url: "https://warframe.market/tools/ducats",
+            icon: `<svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><polygon points="12 2 20 6.5 20 17.5 12 22 4 17.5 4 6.5"/><polygon points="12 6.5 16 12 12 17.5 8 12"/></svg>`,
+            desc: "Calcule en direct quelles pièces Prime acheter au plus bas prix en Platinum pour obtenir un maximum de Ducats chez Baro Ki'Teer."
+        },
+        {
+            title: "Alertes (Price Sniper)",
+            badge: "SNIPER",
+            url: "https://warframe.market/alerts",
+            icon: `<svg class="wf-icon wf-icon-cyan" viewBox="0 0 24 24"><polygon points="12 2 19 9 19 16 21 18 3 18 5 16 5 9"/><polyline points="9.5 18 12 22 14.5 18"/><circle cx="12" cy="10" r="2"/></svg>`,
+            desc: "Définissez un prix cible en Platinum : WireFrame scanne le marché en arrière-plan et déclenche une alerte sonore dès qu'une offre apparaît."
+        },
+        {
+            title: "WireFrame Info (Temps Réel)",
+            badge: "INFO LIVE",
+            url: "https://warframe.market/worldstate",
+            icon: `<svg class="wf-icon wf-icon-gold" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>`,
+            desc: "Accessible via le bouton WireFrame Info en haut à gauche : Cycles des Planètes, Fissures, Invasions, Route de l'Acier, Duviri, Baro Ki'Teer & News."
+        }
+    ];
+
+    const renderCard = (t) => `
+        <div class="welcome-tab-card" data-open-url="${escapeHtml(t.url)}">
+            <div class="welcome-card-top">
+                <div class="welcome-card-icon">${t.icon}</div>
+                <div class="welcome-card-titles">
+                    <span class="welcome-card-badge">${escapeHtml(t.badge)}</span>
+                    <h3 class="welcome-card-name">${escapeHtml(t.title)}</h3>
+                </div>
+            </div>
+            <p class="welcome-card-desc">${escapeHtml(t.desc)}</p>
+            <div class="welcome-card-footer">
+                <button class="btn-secondary btn-sm" data-open-url="${escapeHtml(t.url)}">Ouvrir ${escapeHtml(t.title)} →</button>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = `
+        <section class="home-hero welcome-hero">
+            <div class="hero-text">
+                <h1>Bienvenue sur <span>WireFrame</span></h1>
+                <p>Votre compagnon tout-en-un pour <strong>Warframe Market</strong>, le <strong>Codex &amp; Farm</strong> et le suivi du monde en temps réel. Voici un résumé rapide de chaque onglet pour vous repérer instantanément :</p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn-primary" data-open-url="https://warframe.market/">Accéder au Marché →</button>
+                <button class="btn-secondary" data-open-url="https://warframe.market/codex">Ouvrir Codex &amp; Farm</button>
+            </div>
+        </section>
+
+        <div class="welcome-section-block">
+            <div class="section-header">
+                <h2 class="section-title">${wfIcon("plat", "wf-icon-gold")} 1. Onglets Shop — Warframe Market (À gauche du séparateur)</h2>
+                <span style="font-size:12px;color:var(--text-muted)">Achat, vente, enchères et gestion de vos échanges en Platinum</span>
+            </div>
+            <div class="welcome-guide-grid">
+                ${shopTabs.map(renderCard).join("")}
+            </div>
+        </div>
+
+        <div class="welcome-section-block" style="margin-top:26px;">
+            <div class="section-header">
+                <h2 class="section-title">${wfIcon("void", "wf-icon-cyan")} 2. Encyclopédie, Outils &amp; Hub Live (À droite du séparateur)</h2>
+                <span style="font-size:12px;color:var(--text-muted)">Outils hors-shop : Farm, Calculateur de Ducats, Sniper de prix &amp; Rotations en direct</span>
+            </div>
+            <div class="welcome-guide-grid">
+                ${companionTabs.map(renderCard).join("")}
+            </div>
+        </div>
+    `;
+
+    bindCommonPageEvents(container, tab);
+}
+
 /* ---------- 1. PAGE D'ACCUEIL (https://warframe.market/) ---------- */
 
 function renderHomePage(container, tab) {
@@ -4630,7 +4871,7 @@ function renderHomePage(container, tab) {
     container.innerHTML = `
         <section class="home-hero">
             <div class="hero-text">
-                <h1>Bienvenue sur <span>Warframe Market</span> (WireMarket)</h1>
+                <h1>Bienvenue sur <span>Warframe Market</span> (WireFrame)</h1>
                 <p>Consultez les ordres d'achat et de vente en temps réel, ouvrez plusieurs items dans des onglets dédiés et copiez vos messages d'échange <code>/w</code> en un clic.</p>
                 <div class="quick-tags">
                     <button class="tag-chip" data-quick-cat="prime_set">${wfIcon("prime", "wf-icon-gold")} Sets Prime</button>
@@ -5884,7 +6125,7 @@ function renderAlertsPage(container, tab) {
             <div>
                 <h2 class="section-title" style="margin-bottom:4px;">${wfIcon("alert", "wf-icon-cyan")} Système d'Alertes de Prix — Price Sniper (${activeCount} actives / ${alerts.length})</h2>
                 <p style="font-size:12.5px;color:var(--text-secondary);">
-                    Définissez votre prix cible en Platinum sur n'importe quel item : WireMarket surveille le marché en arrière-plan (toutes les <strong>${State.alertRepeatInterval}s</strong>) et vous alerte avec une notification visuelle et sonore dès qu'un joueur vend à votre prix.
+                    Définissez votre prix cible en Platinum sur n'importe quel item : WireFrame surveille le marché en arrière-plan (toutes les <strong>${State.alertRepeatInterval}s</strong>) et vous alerte avec une notification visuelle et sonore dès qu'un joueur vend à votre prix.
                 </p>
             </div>
             <div class="fav-summary-metrics">
@@ -6185,6 +6426,957 @@ function renderCatalogPage(container, tab) {
                 el.setSelectionRange(el.value.length, el.value.length);
             }
         });
+    }
+}
+
+/* ---------- 4B. CODEX & FARM ENCYCLOPÉDIE (https://warframe.market/codex) ---------- */
+
+const codexLiveDropsCache = new Map();
+
+function getCodexDataset() {
+    return window.WM_CODEX_DATA || {
+        resources: [],
+        warframes: [],
+        weapons: [],
+        mods: [],
+        relics: []
+    };
+}
+
+function getCodexItemImgUrl(item) {
+    if (!item) return DEFAULT_FAVICON;
+    if (item.img) {
+        if (item.img === "helminth.jpg" || item.img.startsWith("http")) return item.img;
+        return `https://cdn.warframestat.us/img/${encodeURIComponent(item.img)}`;
+    }
+    return DEFAULT_FAVICON;
+}
+
+function findCodexItem(category, itemId) {
+    const ds = getCodexDataset();
+    const list = ds[category] || [];
+    const target = String(itemId || "").toLowerCase();
+    return list.find(x => x.id === target) || null;
+}
+
+function findCodexItemAcrossAll(nameOrSlug) {
+    const q = String(nameOrSlug || "").trim().toLowerCase();
+    if (!q) return null;
+    const slugQ = q.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const ds = getCodexDataset();
+    const order = ["warframes", "weapons", "resources", "mods", "relics"];
+    // Supprimer les suffixes de parties Prime (ex: "Volt Prime Systems Blueprint" -> "Volt Prime")
+    const baseClean = q
+        .replace(/\s+(?:blueprint|chassis|neuroptics|systems|barrel|receiver|stock|blade|hilt|handle|link|string|grip|lower limb|upper limb|gauntlet|pouch|stars|carapace|cerebrum|harness|wings)(?:\s+blueprint)?$/i, "")
+        .trim();
+    const baseSlug = baseClean.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+    for (const cat of order) {
+        const list = ds[cat] || [];
+        const exact = list.find(x => x.id === slugQ || (x.en || "").toLowerCase() === q || (x.name || "").toLowerCase() === q);
+        if (exact) return { category: cat, item: exact };
+    }
+    if (baseSlug && baseSlug !== slugQ) {
+        for (const cat of ["warframes", "weapons"]) {
+            const list = ds[cat] || [];
+            const match = list.find(x => x.id === baseSlug || (x.en || "").toLowerCase() === baseClean);
+            if (match) return { category: cat, item: match };
+        }
+    }
+    return null;
+}
+
+function matchCodexItemToWfmSlug(item, category) {
+    if (!item || !State.itemsBySlug) return null;
+    const baseSlug = String(item.en || "")
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_|_$/g, "");
+    if (!baseSlug) return null;
+
+    const candidates = [baseSlug];
+    if (category === "warframes" || category === "weapons") {
+        candidates.unshift(`${baseSlug}_set`);
+        candidates.push(`${baseSlug}_blueprint`);
+    } else if (category === "relics") {
+        candidates.unshift(`${baseSlug}_intact`);
+        candidates.push(`${baseSlug}_relic`);
+    }
+    for (const c of candidates) {
+        if (State.itemsBySlug.has(c)) return c;
+    }
+    return null;
+}
+
+async function fetchLiveCodexDrops(enName) {
+    const clean = String(enName || "").trim();
+    if (!clean || clean.length < 3) return [];
+    if (codexLiveDropsCache.has(clean)) {
+        return codexLiveDropsCache.get(clean);
+    }
+    try {
+        const url = `https://api.warframestat.us/drops/search/${encodeURIComponent(clean)}/`;
+        const resp = await fetch(url);
+        if (!resp.ok) return [];
+        const raw = await resp.json();
+        if (!Array.isArray(raw)) return [];
+        const targetLow = clean.toLowerCase();
+        // Filtrer les résultats pertinents pour cet objet
+        const filtered = raw
+            .filter(d => {
+                const it = String(d.item || "").toLowerCase();
+                return it === targetLow || it.startsWith(targetLow + " ") || it.includes(targetLow);
+            })
+            .map(d => ({
+                part: d.item || clean,
+                loc: d.place ? String(d.place).replace(/<\/?b>/g, "") : "",
+                chance: Number(d.chance || 0),
+                rarity: d.rarity || ""
+            }))
+            .filter(d => d.loc && d.chance > 0);
+        filtered.sort((a, b) => b.chance - a.chance);
+        const top = filtered.slice(0, 60);
+        codexLiveDropsCache.set(clean, top);
+        return top;
+    } catch (e) {
+        return [];
+    }
+}
+
+function formatCodexRarityBadge(rarity) {
+    const r = String(rarity || "").toLowerCase();
+    if (r.includes("rare") || r.includes("or") || r.includes("legendary")) {
+        return `<span class="codex-rarity-pill rare">${escapeHtml(rarity)}</span>`;
+    }
+    if (r.includes("uncommon") || r.includes("inhabituel") || r.includes("argent")) {
+        return `<span class="codex-rarity-pill uncommon">${escapeHtml(rarity)}</span>`;
+    }
+    return `<span class="codex-rarity-pill common">${escapeHtml(rarity || "Standard")}</span>`;
+}
+
+function renderCodexDropsTableHtml(drops) {
+    if (!Array.isArray(drops) || drops.length === 0) {
+        return "";
+    }
+    return `
+        <div class="codex-drops-table-wrap">
+            <table class="codex-drops-table">
+                <thead>
+                    <tr>
+                        <th>Objet / Partie</th>
+                        <th>Lieu de Farm (Planète, Mission, Rotation, Boss ou Ennemi)</th>
+                        <th>Rareté</th>
+                        <th style="text-align:right;">% de Drop</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${drops.map(d => {
+                        const pct = Number(d.chance || 0);
+                        const barWidth = Math.max(4, Math.min(100, pct));
+                        const pctColor = pct >= 25 ? "var(--sell-color)" : (pct >= 10 ? "var(--accent-cyan)" : "var(--accent-gold)");
+                        return `
+                            <tr>
+                                <td class="codex-drop-part-cell"><strong>${escapeHtml(d.part || "Objet")}</strong></td>
+                                <td class="codex-drop-loc-cell">${escapeHtml(d.loc || "Mission Warframe")}</td>
+                                <td>${formatCodexRarityBadge(d.rarity)}</td>
+                                <td class="codex-drop-pct-cell">
+                                    <div class="codex-drop-pct-wrap">
+                                        <span class="codex-drop-pct-val" style="color:${pctColor};">${pct.toFixed(2).replace(/\.00$/, "")}%</span>
+                                        <div class="codex-drop-bar-bg">
+                                            <div class="codex-drop-bar-fill" style="width:${barWidth}%;background:${pctColor};"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join("")}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function renderCodexLiveDropsIntoSlot(slotEl, itemObj, liveDrops) {
+    if (!slotEl) return;
+    const existingLocs = new Set((itemObj.drops || []).map(d => String(d.loc || "").toLowerCase()));
+    const extra = (liveDrops || []).filter(d => !existingLocs.has(String(d.loc || "").toLowerCase()));
+    if (extra.length === 0) {
+        slotEl.innerHTML = "";
+        return;
+    }
+    slotEl.innerHTML = `
+        <div style="margin-top:16px;">
+            <div class="codex-sub-banner">
+                <span>📡 <strong>Tables de Drop Officielles en Direct (${extra.length} sources supplémentaires trouvées)</strong> — Missions, Caches, Ennemis & Rotations A/B/C</span>
+            </div>
+            ${renderCodexDropsTableHtml(extra.slice(0, 45))}
+        </div>
+    `;
+}
+
+function renderCodexGridPage(container, tab) {
+    const ds = getCodexDataset();
+    const vs = tab.viewState;
+    const cat = vs.codexCategory || "resources";
+    const subFilter = vs.codexSubFilter || "all";
+    const queryRaw = vs.codexQuery || "";
+    const q = normalizeSearch(queryRaw);
+    const limit = vs.codexLimit || 120;
+
+    const counts = {
+        resources: (ds.resources || []).length,
+        warframes: (ds.warframes || []).length,
+        weapons: (ds.weapons || []).length,
+        mods: (ds.mods || []).length,
+        relics: (ds.relics || []).length
+    };
+
+    const rawList = ds[cat] || [];
+    const filtered = rawList.filter(item => {
+        if (cat === "resources") {
+            if (subFilter === "planetary" && !item.planets && !item.utility) return false;
+            if (subFilter === "crafting" && !(item.totalUsedFor > 0 || (item.parents && item.parents.length > 0))) return false;
+        } else if (cat === "warframes") {
+            if (subFilter === "standard" && item.prime) return false;
+            if (subFilter === "prime" && !item.prime) return false;
+            if (subFilter === "active" && item.vaulted) return false;
+        } else if (cat === "weapons") {
+            if (subFilter === "primary" && item.slot !== "primary") return false;
+            if (subFilter === "secondary" && item.slot !== "secondary") return false;
+            if (subFilter === "melee" && item.slot !== "melee") return false;
+            if (subFilter === "prime" && !item.prime) return false;
+        } else if (cat === "mods") {
+            const cLow = String(item.compat || item.type || "").toLowerCase();
+            if (subFilter === "warframe" && !cLow.includes("warframe") && !cLow.includes("aura")) return false;
+            if (subFilter === "primary" && !cLow.includes("rifle") && !cLow.includes("shotgun") && !cLow.includes("primary") && !cLow.includes("bow") && !cLow.includes("sniper")) return false;
+            if (subFilter === "secondary" && !cLow.includes("pistol") && !cLow.includes("secondary")) return false;
+            if (subFilter === "melee" && !cLow.includes("melee") && !cLow.includes("stance")) return false;
+            if (subFilter === "rare" && !["rare", "legendary"].includes(String(item.rarity || "").toLowerCase())) return false;
+        } else if (cat === "relics") {
+            if (subFilter === "active" && item.vaulted) return false;
+            if (["lith", "meso", "neo", "axi", "requiem"].includes(subFilter) && String(item.era || "").toLowerCase() !== subFilter) return false;
+        }
+
+        if (q) {
+            const hay = normalizeSearch(`${item.name || ""} ${item.en || ""} ${item.planets || ""} ${item.compat || ""} ${item.type || ""} ${(item.rewards || []).map(r => `${r.name} ${r.en}`).join(" ")}`);
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+
+    const subFiltersByCat = {
+        resources: [
+            { id: "all", label: "Toutes les Ressources" },
+            { id: "planetary", label: "🪐 Ressources Planétaires & Clés" },
+            { id: "crafting", label: "🔨 Utilisées en Fonderie (Warframes / Armes)" }
+        ],
+        warframes: [
+            { id: "all", label: "Toutes les Warframes" },
+            { id: "standard", label: "🛡️ Warframes Standards" },
+            { id: "prime", label: "✨ Warframes Prime" },
+            { id: "active", label: "🔓 Non-Vaultées" }
+        ],
+        weapons: [
+            { id: "all", label: "Toutes les Armes" },
+            { id: "primary", label: "🔫 Principales" },
+            { id: "secondary", label: "Pistol Secondaires" },
+            { id: "melee", label: "⚔️ Mêlée" },
+            { id: "prime", label: "✨ Armes Prime" }
+        ],
+        mods: [
+            { id: "all", label: "Tous les Mods" },
+            { id: "warframe", label: "🛡️ Warframe & Aura" },
+            { id: "primary", label: "🔫 Fusil & Pompe" },
+            { id: "secondary", label: "🎯 Pistolet" },
+            { id: "melee", label: "⚔️ Mêlée & Postures" },
+            { id: "rare", label: "💎 Rares & Légendaires" }
+        ],
+        relics: [
+            { id: "all", label: "Toutes les Reliques" },
+            { id: "active", label: "🟢 Actives (Non-Vaultées)" },
+            { id: "lith", label: "Lith" },
+            { id: "meso", label: "Meso" },
+            { id: "neo", label: "Neo" },
+            { id: "axi", label: "Axi" },
+            { id: "requiem", label: "Requiem" }
+        ]
+    };
+
+    const currentSubFilters = subFiltersByCat[cat] || [];
+    const visibleItems = filtered.slice(0, limit);
+
+    container.innerHTML = `
+        <div class="codex-page-wrap">
+            <!-- En-tête Encyclopédie Codex & Farm -->
+            <div class="codex-hero-banner">
+                <div class="codex-hero-left">
+                    <div class="codex-hero-badge">📚 ENCYCLOPÉDIE & GUIDE DE FARM WARFRAME</div>
+                    <h1 class="codex-hero-title">Codex Complet : Ressources, Warframes, Armes, Mods & Reliques</h1>
+                    <p class="codex-hero-desc">
+                        Cliquez sur n'importe quelle case de la grille pour ouvrir sa fiche complète : <strong>où le farmer (planètes, missions, boss)</strong>, les <strong>% de drop exacts</strong> et <strong>à quoi il sert (fabrications de Fonderie, Helminth, stats & récompenses)</strong>.
+                    </p>
+                </div>
+                <div class="codex-hero-search-wrap">
+                    <input
+                        type="text"
+                        id="codex-search-input"
+                        class="codex-search-input"
+                        placeholder="Rechercher un nom (FR/EN), une planète, une récompense..."
+                        value="${escapeHtml(queryRaw)}"
+                        autocomplete="off"
+                    />
+                </div>
+            </div>
+
+            <!-- Onglets des 5 Grandes Catégories -->
+            <div class="codex-category-tabs">
+                <button class="codex-cat-tab ${cat === "resources" ? "active" : ""}" data-codex-cat="resources">
+                    <span class="codex-cat-icon">🧪</span>
+                    <div class="codex-cat-text">
+                        <span class="codex-cat-name">Ressources Farmables</span>
+                        <span class="codex-cat-count">${counts.resources} ressources</span>
+                    </div>
+                </button>
+                <button class="codex-cat-tab ${cat === "warframes" ? "active" : ""}" data-codex-cat="warframes">
+                    <span class="codex-cat-icon">🛡️</span>
+                    <div class="codex-cat-text">
+                        <span class="codex-cat-name">Warframes</span>
+                        <span class="codex-cat-count">${counts.warframes} Warframes</span>
+                    </div>
+                </button>
+                <button class="codex-cat-tab ${cat === "weapons" ? "active" : ""}" data-codex-cat="weapons">
+                    <span class="codex-cat-icon">⚔️</span>
+                    <div class="codex-cat-text">
+                        <span class="codex-cat-name">Armes</span>
+                        <span class="codex-cat-count">${counts.weapons} armes</span>
+                    </div>
+                </button>
+                <button class="codex-cat-tab ${cat === "mods" ? "active" : ""}" data-codex-cat="mods">
+                    <span class="codex-cat-icon">💠</span>
+                    <div class="codex-cat-text">
+                        <span class="codex-cat-name">Mods</span>
+                        <span class="codex-cat-count">${counts.mods} mods</span>
+                    </div>
+                </button>
+                <button class="codex-cat-tab ${cat === "relics" ? "active" : ""}" data-codex-cat="relics">
+                    <span class="codex-cat-icon">🔮</span>
+                    <div class="codex-cat-text">
+                        <span class="codex-cat-name">Reliques</span>
+                        <span class="codex-cat-count">${counts.relics} reliques</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Barre de sous-filtres -->
+            <div class="codex-subfilter-bar">
+                <div class="codex-subfilter-chips">
+                    ${currentSubFilters.map(sf => `
+                        <button class="tag-chip ${subFilter === sf.id ? "active" : ""}" data-codex-sub="${escapeHtml(sf.id)}">
+                            ${escapeHtml(sf.label)}
+                        </button>
+                    `).join("")}
+                </div>
+                <div class="codex-result-counter">
+                    Affichage de <strong>${visibleItems.length}</strong> sur <strong>${filtered.length}</strong> résultats
+                </div>
+            </div>
+
+            <!-- Grille visuelle d'objets (Image + Nom en dessous) -->
+            ${visibleItems.length === 0 ? `
+                <div class="orders-panel" style="padding:40px 24px;text-align:center;">
+                    <h3>Aucun résultat trouvé pour « ${escapeHtml(queryRaw)} » dans cette catégorie</h3>
+                    <p style="color:var(--text-secondary);margin-top:6px;">Essayez un autre mot-clé (en français ou en anglais) ou changez d'onglet ci-dessus.</p>
+                </div>
+            ` : `
+                <div class="codex-square-grid">
+                    ${visibleItems.map(item => {
+                        const imgUrl = getCodexItemImgUrl(item);
+                        const detailUrl = `https://warframe.market/codex/${cat}/${item.id}`;
+                        let topBadge = "";
+                        let subLine = "";
+
+                        if (cat === "resources") {
+                            if (item.totalUsedFor > 0) {
+                                topBadge = `<span class="codex-card-badge craft">🔨 ${item.totalUsedFor} crafts</span>`;
+                            } else if (item.planets) {
+                                topBadge = `<span class="codex-card-badge planet">🪐 Ressource</span>`;
+                            }
+                            subLine = item.planets ? item.planets.split(",")[0] : (item.en !== item.name ? item.en : "Ressource");
+                        } else if (cat === "warframes") {
+                            topBadge = item.prime
+                                ? `<span class="codex-card-badge prime">★ PRIME</span>`
+                                : `<span class="codex-card-badge std">MR ${item.mr || 0}</span>`;
+                            subLine = item.vaulted ? "Vaultée" : "Disponible";
+                        } else if (cat === "weapons") {
+                            topBadge = item.prime
+                                ? `<span class="codex-card-badge prime">★ PRIME</span>`
+                                : `<span class="codex-card-badge std">${escapeHtml(item.slotLabel || "Arme")}</span>`;
+                            subLine = `MR ${item.mr || 0} · Crit ${item.cc || 0}%`;
+                        } else if (cat === "mods") {
+                            topBadge = `<span class="codex-card-badge mod">${escapeHtml(item.rarity || "Mod")}</span>`;
+                            subLine = item.compat || item.type || "Mod";
+                        } else if (cat === "relics") {
+                            topBadge = item.vaulted
+                                ? `<span class="codex-card-badge vaulted">Vaultée</span>`
+                                : `<span class="codex-card-badge active-rel">Active</span>`;
+                            subLine = item.rewards && item.rewards.length > 0
+                                ? `Or : ${item.rewards[item.rewards.length - 1].name}`
+                                : item.era;
+                        }
+
+                        return `
+                            <div class="codex-grid-card" data-open-url="${escapeHtml(detailUrl)}" title="Cliquer pour voir le lieu de farm, les % de drop et l'utilité de ${escapeHtml(item.name)}">
+                                <div class="codex-grid-card-top">
+                                    ${topBadge}
+                                </div>
+                                <div class="codex-grid-img-box">
+                                    <img class="codex-grid-img" src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                </div>
+                                <div class="codex-grid-card-bottom">
+                                    <div class="codex-grid-name">${escapeHtml(item.name)}</div>
+                                    <div class="codex-grid-sub">${escapeHtml(subLine)}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+
+                ${filtered.length > visibleItems.length ? `
+                    <div style="text-align:center;margin-top:22px;">
+                        <button class="btn-primary" id="btn-codex-load-more">
+                            Afficher plus (${filtered.length - visibleItems.length} restants) ↓
+                        </button>
+                    </div>
+                ` : ""}
+            `}
+        </div>
+    `;
+
+    bindCommonPageEvents(container, tab);
+
+    container.querySelectorAll("[data-codex-cat]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            tab.viewState.codexCategory = btn.dataset.codexCat;
+            tab.viewState.codexSubFilter = "all";
+            tab.viewState.codexLimit = 120;
+            tab.url = `https://warframe.market/codex?cat=${encodeURIComponent(btn.dataset.codexCat)}`;
+            syncBrowserChromeToActiveTab();
+            renderActiveTabPage();
+        });
+    });
+
+    container.querySelectorAll("[data-codex-sub]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            tab.viewState.codexSubFilter = btn.dataset.codexSub;
+            tab.viewState.codexLimit = 120;
+            renderActiveTabPage();
+        });
+    });
+
+    container.querySelector("#btn-codex-load-more")?.addEventListener("click", () => {
+        tab.viewState.codexLimit = (tab.viewState.codexLimit || 120) + 120;
+        renderActiveTabPage();
+    });
+
+    const searchIn = container.querySelector("#codex-search-input");
+    if (searchIn) {
+        searchIn.addEventListener("input", () => {
+            tab.viewState.codexQuery = searchIn.value;
+            tab.viewState.codexLimit = 120;
+            renderActiveTabPage();
+            const el = document.getElementById("codex-search-input");
+            if (el) {
+                el.focus();
+                el.setSelectionRange(el.value.length, el.value.length);
+            }
+        });
+    }
+}
+
+function renderCodexDetailPage(container, tab, category, itemId) {
+    const item = findCodexItem(category, itemId);
+    const catLabels = {
+        resources: "Ressource Farmable",
+        warframes: "Warframe",
+        weapons: "Arme",
+        mods: "Mod",
+        relics: "Relique du Néant"
+    };
+    const catLabel = catLabels[category] || "Codex";
+
+    if (!item) {
+        container.innerHTML = `
+            <div class="orders-panel" style="padding:40px 24px;text-align:center;">
+                <h2>Objet introuvable dans le Codex (${escapeHtml(itemId)})</h2>
+                <p style="color:var(--text-secondary);margin:10px 0 18px;">Retournez à la grille du Codex pour parcourir toutes les ressources, Warframes, armes, mods et reliques.</p>
+                <button class="btn-primary" data-open-url="https://warframe.market/codex?cat=${escapeHtml(category)}">← Retour au Codex</button>
+            </div>
+        `;
+        bindCommonPageEvents(container, tab);
+        return;
+    }
+
+    const imgUrl = getCodexItemImgUrl(item);
+    const wfmSlug = matchCodexItemToWfmSlug(item, category);
+
+    // 1. Construction du bloc Stats & Caractéristiques selon la catégorie
+    let statsGridHtml = "";
+    if (category === "resources") {
+        statsGridHtml = `
+            <div class="codex-stats-grid">
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Catégorie</span>
+                    <span class="codex-stat-val">${escapeHtml(item.type || "Ressource")}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Planètes / Zones</span>
+                    <span class="codex-stat-val" style="color:var(--accent-cyan);">${escapeHtml(item.planets || "Missions & Mondes Ouverts")}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Fabrications (Fonderie)</span>
+                    <span class="codex-stat-val" style="color:var(--accent-gold);">${item.totalUsedFor || (item.usedFor ? item.usedFor.length : 0)} équipements</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Échangeable entre joueurs</span>
+                    <span class="codex-stat-val">${item.tradable ? "Oui" : "Non (Farm uniquement)"}</span>
+                </div>
+            </div>
+        `;
+    } else if (category === "warframes") {
+        statsGridHtml = `
+            <div class="codex-stats-grid">
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Santé (Base)</span>
+                    <span class="codex-stat-val" style="color:#ff7675;">${item.hp || 100}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Bouclier (Base)</span>
+                    <span class="codex-stat-val" style="color:#74b9ff;">${item.sh || 100}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Armure</span>
+                    <span class="codex-stat-val" style="color:var(--accent-gold);">${item.ar || 100}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Énergie (Base)</span>
+                    <span class="codex-stat-val" style="color:var(--accent-cyan);">${item.enMax || 100}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Vitesse de Course</span>
+                    <span class="codex-stat-val">${item.spd || 1.0}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Maîtrise Requise</span>
+                    <span class="codex-stat-val">MR ${item.mr || 0}</span>
+                </div>
+            </div>
+        `;
+    } else if (category === "weapons") {
+        statsGridHtml = `
+            <div class="codex-stats-grid">
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Emplacement & Type</span>
+                    <span class="codex-stat-val">${escapeHtml(item.slotLabel || "Arme")} (${escapeHtml(item.type || "")})</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Chance Critique</span>
+                    <span class="codex-stat-val" style="color:var(--accent-gold);">${item.cc || 0}%</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Multiplicateur Crit.</span>
+                    <span class="codex-stat-val" style="color:var(--accent-gold);">${item.cd || 1.5}x</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Chance de Statut</span>
+                    <span class="codex-stat-val" style="color:var(--accent-cyan);">${item.sc || 0}%</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Dégâts Totaux (Base)</span>
+                    <span class="codex-stat-val" style="color:#ff7675;">${item.dmg || 0}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Cadence / Vitesse</span>
+                    <span class="codex-stat-val">${item.fr || 1}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Maîtrise Requise</span>
+                    <span class="codex-stat-val">MR ${item.mr || 0}</span>
+                </div>
+            </div>
+        `;
+    } else if (category === "mods") {
+        const maxDrain = (item.drain || 0) + (item.maxRank || 0);
+        statsGridHtml = `
+            <div class="codex-stats-grid">
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Compatible avec</span>
+                    <span class="codex-stat-val" style="color:var(--accent-cyan);">${escapeHtml(item.compat || item.type || "Équipement")}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Rareté</span>
+                    <span class="codex-stat-val" style="color:var(--accent-gold);">${escapeHtml(item.rarity || "Commun")}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Polarité</span>
+                    <span class="codex-stat-val">${escapeHtml((item.pol || "Aucune").toUpperCase())}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Drain de Capacité</span>
+                    <span class="codex-stat-val">${item.drain || 0} → <strong>${maxDrain}</strong> (Rang ${item.maxRank || 0})</span>
+                </div>
+            </div>
+        `;
+    } else if (category === "relics") {
+        statsGridHtml = `
+            <div class="codex-stats-grid">
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Ère de la Relique</span>
+                    <span class="codex-stat-val" style="color:var(--accent-gold);">${escapeHtml(item.era || "Relique")}</span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Statut de Drop</span>
+                    <span class="codex-stat-val" style="color:${item.vaulted ? "#ff7675" : "var(--sell-color)"};">
+                        ${item.vaulted ? "🔒 Vaultée (Résurgence Prime / Varzia ou Échange)" : "🟢 Active en Mission"}
+                    </span>
+                </div>
+                <div class="codex-stat-box">
+                    <span class="codex-stat-label">Raffinage Éclatante</span>
+                    <span class="codex-stat-val">100 Vestiges du Néant (Rare passe de 2% à 10%)</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // 2. Section "Où farmer cet objet / cette ressource + les % de drop"
+    const embeddedDrops = item.drops || [];
+    let dropsSectionBodyHtml = "";
+
+    if (item.planets) {
+        dropsSectionBodyHtml += `
+            <div class="codex-planets-highlight">
+                <span class="codex-planets-icon">🪐</span>
+                <div>
+                    <div class="codex-planets-title">Planètes & Lieux principaux où récupérer « ${escapeHtml(item.name)} » :</div>
+                    <div class="codex-planets-list">${escapeHtml(item.planets)}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    if (embeddedDrops.length > 0) {
+        dropsSectionBodyHtml += renderCodexDropsTableHtml(embeddedDrops);
+    } else if (category === "relics" && item.vaulted) {
+        dropsSectionBodyHtml += `
+            <div class="codex-info-callout">
+                🔒 Cette relique (<strong>${escapeHtml(item.name)}</strong>) est actuellement dans la <strong>Prime Vault (Soute Prime)</strong>. Elle ne tombe plus dans les missions standards mais peut être obtenue auprès de <strong>Varzia contre de l'Aya</strong> lors de sa rotation de <strong>Résurgence Prime</strong>, ou achetée en Platinum à d'autres joueurs.
+            </div>
+        `;
+    } else {
+        dropsSectionBodyHtml += `
+            <div class="codex-info-callout">
+                ℹ️ Cet objet s'obtient via le <strong>Laboratoire de Clan (Dojo)</strong>, le <strong>Marché en jeu (Crédits)</strong>, les <strong>Offrandes de Syndicats</strong>, <strong>Baro Ki'Teer</strong> ou les tables de missions en direct ci-dessous.
+            </div>
+        `;
+    }
+
+    // 3. Section "Il est utile pour faire quoi ?" (Utilité, Fonderie, Compétences, Récompenses)
+    let utilitySectionHtml = "";
+
+    if (category === "resources") {
+        const usedForList = item.usedFor || [];
+        const extraParents = item.parents || [];
+        utilitySectionHtml = `
+            <div class="codex-utility-summary">
+                <p>
+                    ${escapeHtml(item.utility || `La ressource « ${item.name} » est un matériau de fabrication récolté en mission et utilisé dans la Fonderie de votre Orbiteur pour construire des Warframes, des Armes, des Consommables ou alimenter les Sécrétions du Helminth.`)}
+                </p>
+            </div>
+
+            ${usedForList.length > 0 ? `
+                <h3 class="codex-sub-heading">🔨 Équipements (Warframes & Armes) fabriqués avec « ${escapeHtml(item.name)} » (${item.totalUsedFor || usedForList.length}) :</h3>
+                <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px;">
+                    Cliquez sur n'importe quelle Warframe ou Arme ci-dessous pour voir sa fiche complète et où farmer ses schémas :
+                </p>
+                <div class="codex-square-grid compact-grid">
+                    ${usedForList.map(u => {
+                        const uImg = getCodexItemImgUrl(u);
+                        const uUrl = `https://warframe.market/codex/${u.cat}/${u.id}`;
+                        return `
+                            <div class="codex-grid-card" data-open-url="${escapeHtml(uUrl)}">
+                                <div class="codex-grid-card-top">
+                                    <span class="codex-card-badge craft">×${u.count || 1} requis</span>
+                                </div>
+                                <div class="codex-grid-img-box">
+                                    <img class="codex-grid-img" src="${escapeHtml(uImg)}" alt="${escapeHtml(u.name)}" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                </div>
+                                <div class="codex-grid-card-bottom">
+                                    <div class="codex-grid-name">${escapeHtml(u.name)}</div>
+                                    <div class="codex-grid-sub">${u.cat === "warframes" ? "Warframe" : "Arme"}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            ` : ""}
+
+            ${extraParents.length > 0 ? `
+                <h4 class="codex-sub-heading" style="margin-top:16px;">Autres schémas et composants utilisant cette ressource :</h4>
+                <div class="rot-weapons-chips" style="margin-top:8px;">
+                    ${extraParents.map(p => `<span class="rot-item-chip">${escapeHtml(p)}</span>`).join("")}
+                </div>
+            ` : ""}
+        `;
+    } else if (category === "warframes") {
+        const abilities = item.abilities || [];
+        const comps = item.components || [];
+        utilitySectionHtml = `
+            <div class="codex-utility-summary">
+                <ul class="codex-utility-bullets">
+                    <li>🛡️ <strong>Armure de Combat (Arsenal)</strong> : ${escapeHtml(item.desc || "Warframe jouable dotée de 4 compétences uniques et d'un passif.")}</li>
+                    <li>⭐ <strong>Affinité de Maîtrise</strong> : Rapporte <strong>+6 000 XP de Rang de Maîtrise</strong> la première fois que vous la montez au Rang 30 (200 XP par niveau).</li>
+                    ${!item.prime
+                        ? `<li>🧬 <strong>Subsomption Helminth</strong> : Peut être sacrifiée au Helminth de l'Orbiteur pour débloquer l'une de ses compétences sur toutes vos autres Warframes.</li>`
+                        : `<li>💎 <strong>Version Prime améliorée</strong> : Possède des statistiques de base et des polarités supérieures à la version standard. Ses schémas non construits sont échangeables en Platinum.</li>`}
+                </ul>
+            </div>
+
+            ${!item.prime && item.id !== "helminth" ? `
+                <div class="codex-helminth-banner" data-open-url="https://warframe.market/codex/warframes/helminth" title="Cliquer pour ouvrir la fiche complète du Helminth et ses 13 compétences">
+                    <img class="codex-helminth-img" src="helminth.jpg" alt="Helminth"/>
+                    <div class="codex-helminth-info">
+                        <div class="codex-helminth-title">🧬 Infirmerie Helminth — Subsomption & Compétences</div>
+                        <div class="codex-helminth-desc">
+                            <strong>${escapeHtml(item.name)}</strong> peut être assimilée par le <strong>Helminth</strong> de votre Orbiteur. Cliquez ici pour voir la fiche complète du Helminth et ses 13 compétences exclusives →
+                        </div>
+                    </div>
+                </div>
+            ` : ""}
+
+            ${item.passive ? `
+                <div class="codex-passive-box">
+                    <strong>✨ Compétence Passive :</strong> ${escapeHtml(item.passive)}
+                </div>
+            ` : ""}
+
+            ${abilities.length > 0 ? `
+                <h3 class="codex-sub-heading">⚡ Les ${abilities.length} Compétences de ${escapeHtml(item.name)} :</h3>
+                <div class="codex-abilities-grid">
+                    ${abilities.map((ab, idx) => {
+                        const abImg = ab.img ? `https://cdn.warframestat.us/img/${encodeURIComponent(ab.img)}` : "";
+                        return `
+                            <div class="codex-ability-card">
+                                ${abImg
+                                    ? `<img class="codex-ability-icon" src="${escapeHtml(abImg)}" alt="" onerror="this.style.display='none'"/>`
+                                    : `<div class="codex-ability-num">${idx + 1}</div>`}
+                                <div class="codex-ability-body">
+                                    <div class="codex-ability-name">${idx + 1}. ${escapeHtml(ab.name)}</div>
+                                    <div class="codex-ability-desc">${escapeHtml(ab.desc)}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            ` : ""}
+
+            ${comps.length > 0 ? `
+                <h3 class="codex-sub-heading" style="margin-top:20px;">🔩 Composants & Ressources requis pour fabriquer ${escapeHtml(item.name)} :</h3>
+                <div class="codex-square-grid compact-grid">
+                    ${comps.map(c => {
+                        const cImg = getCodexItemImgUrl(c);
+                        const linkedRes = c.resSlug ? findCodexItem("resources", c.resSlug) : null;
+                        const clickAttr = linkedRes ? `data-open-url="https://warframe.market/codex/resources/${escapeHtml(linkedRes.id)}"` : "";
+                        return `
+                            <div class="codex-grid-card ${linkedRes ? "" : "non-clickable"}" ${clickAttr}>
+                                <div class="codex-grid-card-top">
+                                    <span class="codex-card-badge craft">×${c.count || 1}</span>
+                                </div>
+                                <div class="codex-grid-img-box">
+                                    <img class="codex-grid-img" src="${escapeHtml(cImg)}" alt="${escapeHtml(c.name)}" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                </div>
+                                <div class="codex-grid-card-bottom">
+                                    <div class="codex-grid-name">${escapeHtml(c.name)}</div>
+                                    <div class="codex-grid-sub">${linkedRes ? "Cliquer pour farmer →" : "Pièce de Warframe"}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            ` : ""}
+        `;
+    } else if (category === "weapons") {
+        const comps = item.components || [];
+        utilitySectionHtml = `
+            <div class="codex-utility-summary">
+                <ul class="codex-utility-bullets">
+                    <li>⚔️ <strong>Arme ${escapeHtml(item.slotLabel || "")} (${escapeHtml(item.type || "")})</strong> : ${escapeHtml(item.desc || "S'équipe dans l'Arsenal pour vos missions.")}</li>
+                    <li>⭐ <strong>Affinité de Maîtrise</strong> : Rapporte <strong>+3 000 XP de Rang de Maîtrise</strong> au Rang 30 (ou +4 000 XP au Rang 40 pour les armes Kuva / Tenet / Coda).</li>
+                    <li>🎯 <strong>Profil offensif</strong> : ${item.cc >= 25 ? "Excellente arme orientée <strong>Critique</strong>" : (item.sc >= 25 ? "Excellente arme orientée <strong>Statut</strong>" : "Arme polyvalente hybride")} (${item.cc}% Crit · ${item.cd}x Multi · ${item.sc}% Statut).</li>
+                </ul>
+            </div>
+
+            ${comps.length > 0 ? `
+                <h3 class="codex-sub-heading" style="margin-top:18px;">🔩 Pièces & Ressources nécessaires pour fabriquer ${escapeHtml(item.name)} :</h3>
+                <div class="codex-square-grid compact-grid">
+                    ${comps.map(c => {
+                        const cImg = getCodexItemImgUrl(c);
+                        const linkedRes = c.resSlug ? findCodexItem("resources", c.resSlug) : null;
+                        const linkedWp = !linkedRes && c.resSlug ? findCodexItem("weapons", c.resSlug) : null;
+                        const targetUrl = linkedRes
+                            ? `https://warframe.market/codex/resources/${linkedRes.id}`
+                            : (linkedWp ? `https://warframe.market/codex/weapons/${linkedWp.id}` : "");
+                        return `
+                            <div class="codex-grid-card ${targetUrl ? "" : "non-clickable"}" ${targetUrl ? `data-open-url="${escapeHtml(targetUrl)}"` : ""}>
+                                <div class="codex-grid-card-top">
+                                    <span class="codex-card-badge craft">×${c.count || 1}</span>
+                                </div>
+                                <div class="codex-grid-img-box">
+                                    <img class="codex-grid-img" src="${escapeHtml(cImg)}" alt="${escapeHtml(c.name)}" loading="lazy" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                                </div>
+                                <div class="codex-grid-card-bottom">
+                                    <div class="codex-grid-name">${escapeHtml(c.name)}</div>
+                                    <div class="codex-grid-sub">${targetUrl ? "Cliquer pour farmer →" : "Pièce d'arme"}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            ` : ""}
+        `;
+    } else if (category === "mods") {
+        const rLow = String(item.rarity || "").toLowerCase();
+        const baseEndo = rLow.includes("legend") ? 40 : (rLow.includes("rare") ? 30 : (rLow.includes("uncommon") ? 20 : 10));
+        const maxRank = item.maxRank || 5;
+        const totalEndo = baseEndo * (Math.pow(2, maxRank) - 1);
+        const totalCredits = Math.round(totalEndo * 48.3);
+
+        utilitySectionHtml = `
+            <div class="codex-utility-summary">
+                <ul class="codex-utility-bullets">
+                    <li>💠 <strong>Équipement compatible</strong> : S'installe sur <strong>${escapeHtml(item.compat || item.type || "Équipement")}</strong> (Polarité <strong>${escapeHtml((item.pol || "Aucune").toUpperCase())}</strong>).</li>
+                    <li>📈 <strong>Effet au Rang Maximum (Rang ${maxRank})</strong> :
+                        <div class="codex-mod-stats-highlight">
+                            ${(item.stats && item.stats.length > 0)
+                                ? item.stats.map(s => `<div>• <strong>${escapeHtml(s)}</strong></div>`).join("")
+                                : "Améliore les statistiques de votre équipement."}
+                        </div>
+                    </li>
+                    <li>💧 <strong>Coût total d'amélioration au Rang ${maxRank}</strong> : <strong>${totalEndo.toLocaleString("fr-FR")} Endo</strong> + <strong>${totalCredits.toLocaleString("fr-FR")} Crédits</strong>.</li>
+                </ul>
+            </div>
+        `;
+    } else if (category === "relics") {
+        const rewards = item.rewards || [];
+        utilitySectionHtml = `
+            <div class="codex-utility-summary">
+                <p>
+                    Cette relique s'ouvre dans une mission de <strong>Fissure du Néant (${escapeHtml(item.era)})</strong> en ramassant <strong>10 Réactifs</strong>. Elle permet d'obtenir l'un des <strong>6 objets Prime / Schémas</strong> ci-dessous (cliquez sur un objet pour ouvrir sa fiche) :
+                </p>
+            </div>
+
+            <h3 class="codex-sub-heading">🎁 Les 6 Récompenses contenues dans ${escapeHtml(item.name)} :</h3>
+            <div class="codex-relic-rewards-grid">
+                ${rewards.map(rw => {
+                    const matched = findCodexItemAcrossAll(rw.en);
+                    const targetUrl = matched ? `https://warframe.market/codex/${matched.category}/${matched.item.id}` : "";
+                    const rewardImg = matched ? getCodexItemImgUrl(matched.item) : DEFAULT_FAVICON;
+                    const tierClass = rw.chance >= 20 ? "bronze" : (rw.chance >= 10 ? "silver" : "gold");
+                    return `
+                        <div class="codex-relic-reward-card ${tierClass} ${targetUrl ? "clickable" : ""}" ${targetUrl ? `data-open-url="${escapeHtml(targetUrl)}"` : ""}>
+                            <img class="codex-relic-reward-img" src="${escapeHtml(rewardImg)}" alt="" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                            <div class="codex-relic-reward-info">
+                                <div class="codex-relic-reward-name">${escapeHtml(rw.name)}</div>
+                                <div class="codex-relic-reward-tier">${escapeHtml(rw.tier)}</div>
+                                <div class="codex-relic-reward-chances">
+                                    <span>Intacte : <strong>${rw.chance}%</strong></span>
+                                    <span>•</span>
+                                    <span style="color:var(--accent-cyan);">Éclatante : <strong>${rw.radChance}%</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join("")}
+            </div>
+        `;
+    }
+
+    container.innerHTML = `
+        <div class="codex-detail-page">
+            <!-- Barre de retour -->
+            <div class="codex-detail-nav">
+                <button class="btn-secondary btn-sm" data-open-url="https://warframe.market/codex?cat=${escapeHtml(category)}">
+                    ← Retour à la grille (${escapeHtml(catLabel)}s)
+                </button>
+                <div class="codex-breadcrumb">
+                    <span class="link-muted" data-open-url="https://warframe.market/codex">Codex & Farm</span>
+                    <span>›</span>
+                    <span class="link-muted" data-open-url="https://warframe.market/codex?cat=${escapeHtml(category)}">${escapeHtml(catLabel)}s</span>
+                    <span>›</span>
+                    <strong>${escapeHtml(item.name)}</strong>
+                </div>
+            </div>
+
+            <!-- Carte d'identité principale de l'objet / ressource -->
+            <div class="codex-detail-hero">
+                <div class="codex-detail-img-card">
+                    <img class="codex-detail-main-img" src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.name)}" onerror="this.src='${DEFAULT_FAVICON}'"/>
+                </div>
+                <div class="codex-detail-main-info">
+                    <div class="codex-detail-badges">
+                        <span class="codex-cat-pill">${escapeHtml(catLabel)}</span>
+                        ${item.prime ? `<span class="codex-card-badge prime">★ VERSION PRIME</span>` : ""}
+                        ${item.vaulted ? `<span class="codex-card-badge vaulted">🔒 VAULTÉ</span>` : ""}
+                        ${wfmSlug ? `<span class="codex-card-badge active-rel">💎 ÉCHANGEABLE SUR LE MARKET</span>` : ""}
+                    </div>
+                    <h1 class="codex-detail-title">
+                        ${escapeHtml(item.name)}
+                        ${item.en && item.en !== item.name ? `<span class="codex-detail-en">(${escapeHtml(item.en)})</span>` : ""}
+                    </h1>
+                    ${item.desc ? `<p class="codex-detail-desc">${escapeHtml(item.desc)}</p>` : ""}
+
+                    ${statsGridHtml}
+
+                    ${wfmSlug ? `
+                        <div class="codex-detail-market-cta">
+                            <button class="btn-primary" data-open-url="https://warframe.market/items/${escapeHtml(wfmSlug)}">
+                                💎 Voir le Prix en Platinum & les Vendeurs sur Warframe Market →
+                            </button>
+                        </div>
+                    ` : ""}
+                </div>
+            </div>
+
+            <!-- SECTION 1 : LIEU DE FARM + % DE DROP -->
+            <div class="codex-section-panel">
+                <div class="codex-section-header">
+                    <h2 class="codex-section-title">📍 1. Où Farmer « ${escapeHtml(item.name)} » + Les % de Drop</h2>
+                </div>
+                <div class="codex-section-body">
+                    ${dropsSectionBodyHtml}
+                    <div id="codex-live-drops-slot"></div>
+                </div>
+            </div>
+
+            <!-- SECTION 2 : IL EST UTILE POUR FAIRE QUOI ? -->
+            <div class="codex-section-panel">
+                <div class="codex-section-header">
+                    <h2 class="codex-section-title">🔨 2. Il est utile pour faire quoi ? (Utilité, Fonderie & Récompenses)</h2>
+                </div>
+                <div class="codex-section-body">
+                    ${utilitySectionHtml}
+                </div>
+            </div>
+        </div>
+    `;
+
+    bindCommonPageEvents(container, tab);
+    document.getElementById("browser-viewport")?.scrollTo({ top: 0 });
+    container.scrollTo?.({ top: 0 });
+
+    // Si des drops live ont déjà été récupérés en cache pour cet item, les injecter immédiatement
+    const liveSlot = container.querySelector("#codex-live-drops-slot");
+    if (liveSlot && codexLiveDropsCache.has(item.en)) {
+        renderCodexLiveDropsIntoSlot(liveSlot, item, codexLiveDropsCache.get(item.en));
     }
 }
 
@@ -7031,9 +8223,13 @@ function initBrowserEvents() {
         });
     });
 
-    // Liens de la barre dédiée au Hub WireMarket (Planètes / Warframes & Armes / Marchand Baro)
+    // Liens de la barre dédiée au Hub WireMarket (Planètes / Warframes & Armes / Marchand Baro / Codex)
     document.querySelectorAll("[data-hub-sec]").forEach(btn => {
         btn.addEventListener("click", () => {
+            if (btn.dataset.hubSec === "codex") {
+                navigateTab(State.activeTabId, "https://warframe.market/codex");
+                return;
+            }
             switchHubSection(btn.dataset.hubSec);
         });
     });
@@ -7420,6 +8616,27 @@ function initBrowserEvents() {
         document.getElementById("whisper-bar").classList.add("hidden");
     });
 
+    // ==================== BOUTON FLOTTANT À DROITE : REMONTER TOUT EN HAUT ====================
+    const scrollTopBtn = document.getElementById("btn-scroll-top");
+    const browserViewport = document.getElementById("browser-viewport");
+    const tabPageContent = document.getElementById("tab-page-content");
+
+    function updateScrollTopBtnVisibility() {
+        if (!scrollTopBtn) return;
+        const scY = (browserViewport ? browserViewport.scrollTop : 0) || (tabPageContent ? tabPageContent.scrollTop : 0) || window.scrollY || 0;
+        scrollTopBtn.classList.toggle("hidden", scY < 220);
+    }
+
+    browserViewport?.addEventListener("scroll", updateScrollTopBtnVisibility, { passive: true });
+    tabPageContent?.addEventListener("scroll", updateScrollTopBtnVisibility, { passive: true });
+    window.addEventListener("scroll", updateScrollTopBtnVisibility, { passive: true });
+
+    scrollTopBtn?.addEventListener("click", () => {
+        browserViewport?.scrollTo({ top: 0, behavior: "smooth" });
+        tabPageContent?.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
     // ==================== GESTIONNAIRE & RÉORGANISATION DES PAGES OUVERTES ====================
     const tabsOrgPopover = document.getElementById("tabs-organizer-popover");
     const tabsOrgBtn = document.getElementById("btn-tabs-organizer");
@@ -7586,14 +8803,14 @@ function initBrowserEvents() {
 /* ==================== SYSTÈME DE MISE À JOUR (.ZIP GITHUB) & NOTES DE PATCH (CHANGELOG) ==================== */
 
 const DEFAULT_VERSION_MANIFEST = {
-    version: "1.6.3",
+    version: "1.6.1",
     date: "2026-11-10",
     title: "Hub Complet (Fissures, Invasions, Route de l'Acier, Nightwave), Panier Multi-Achats & Auto-Updater",
     repo: "Nyxo-17/wiremarket_v1",
     zipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip",
     changelog: [
         {
-            version: "1.6.3",
+            version: "1.6.1",
             date: "08/11/2026",
             title: "Invasions, Route de l'Acier (Teshin), Arbitrage, Nightwave & Système de Mise à Jour",
             badge: "NOUVEAU",
@@ -7626,7 +8843,7 @@ const UpdaterState = {
     remoteManifest: null,
     githubRelease: null,
     updateAvailable: false,
-    remoteVersion: "1.6.3",
+    remoteVersion: "1.6.1",
     downloadZipUrl: "https://raw.githubusercontent.com/Nyxo-17/wiremarket_v1/main/WireMarket.zip"
 };
 
@@ -7680,7 +8897,7 @@ function renderChangelogModalContent() {
     const bannerStatus = document.getElementById("changelog-banner-status");
     if (bannerStatus) {
         bannerStatus.innerHTML = hasUpdate
-            ? `<span style="color:var(--sell-color);font-weight:700;">Une nouvelle version (v${escapeHtml(remoteVer)}) est prête sur GitHub !</span> Cliquez sur « Installer la dernière version (.zip) » pour mettre à jour WireMarket.`
+            ? `<span style="color:var(--sell-color);font-weight:700;">Une nouvelle version (v${escapeHtml(remoteVer)}) est prête sur GitHub !</span> Cliquez sur « Installer la dernière version (.zip) » pour mettre à jour WireFrame.`
             : `Connecté au dépôt GitHub <strong>Nyxo-17/wiremarket_v1</strong> — Protection Rollback Antivirus active.`;
     }
 
@@ -7968,9 +9185,12 @@ async function initUpdaterAndChangelog() {
 
 // Démarrage de l'application WireMarket
 document.addEventListener("DOMContentLoaded", async () => {
-    setSplashProgress(25, "Initialisation de l'interface...");
-    // Sécurité : masquer l'écran de chargement au bout de 3.2s maximum même si la connexion est lente
-    setTimeout(() => finishSplashScreen(), 3200);
+    // À 1.82s (dès que COMPANION glisse vers le bas), centrer immédiatement "WIRE" sans aucun temps mort
+    setTimeout(() => {
+        document.getElementById("wm-splash-loader")?.classList.add("wire-centered");
+    }, 1820);
+    // À 2.18s, fermer l'écran de chargement en fondu
+    setTimeout(() => finishSplashScreen(), 2180);
 
     updateFavCountBadge();
     updateCartCountBadge();
@@ -7979,7 +9199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initBrowserEvents();
     startPriceSniperScheduler();
     setInterval(updateLiveWorldstateTimers, 1000);
-    createTab("https://warframe.market/", true);
+    createTab("https://warframe.market/welcome", true);
     initUpdaterAndChangelog();
     // Précharger les rotations Warframe & Baro Ki'Teer en arrière-plan pour un affichage instantané au clic sur WireMarket
     fetchWorldstateData(false).then(ws => {

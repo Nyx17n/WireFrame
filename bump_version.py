@@ -109,7 +109,7 @@ def sync_version_in_files(new_ver: str, iso_date: str, fr_date: str):
             html,
         )
         html = re.sub(
-            r'(src="js/app\.js\?v=)[0-9]+\.[0-9]+\.[0-9]+(")',
+            r'(src="js/(?:app|codex-data)\.js\?v=)[0-9]+\.[0-9]+\.[0-9]+(")',
             rf"\g<1>{new_ver}\g<2>",
             html,
         )
@@ -220,6 +220,7 @@ def rebuild_zip():
         "notification-bell.wav",
         "logo.ico",
         "logo.png",
+        "helminth.jpg",
         "server.py",
         "LISEZ-MOI.txt",
         "README.md",

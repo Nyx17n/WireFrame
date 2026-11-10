@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 setlocal EnableDelayedExpansion
-title WireMarket - Launcher ^& Proxy Warframe Market
+title WireFrame - Launcher ^& Proxy Warframe Market
 cd /d "%~dp0"
 
 set "PORT=8484"
@@ -10,13 +10,13 @@ set "APP_URL=http://127.0.0.1:%PORT%"
 cls
 color 0B
 echo ============================================================================
-echo   _       ___           __  ___           __        __ 
-echo  ^| ^|     / (_)_______  /  ^|/  /___ ______/ /_____  / /_
-echo  ^| ^| /^| / / / ___/ _ \/ /^|_/ / __ `/ ___/ //_/ _ \/ __/
-echo  ^| ^|/ ^|/ / / /  /  __/ /  / / /_/ / /  / ,^< /  __/ /_  
-echo  ^|__/^|__/_/_/   \___/_/  /_/\__,_/_/  /_/^|_^\___/\__/  
+echo   _       ___           ______                        
+echo  ^| ^|     / (_)_______  / ____/________ _____ ___  ___ 
+echo  ^| ^| /^| / / / ___/ _ \/ /_  / ___/ __ `/ __ `__ \/ _ \
+echo  ^| ^|/ ^|/ / / /  /  __/ __/ / /  / /_/ / / / / / /  __/
+echo  ^|__/^|__/_/_/   \___/_/   /_/   \__,_/_/ /_/ /_/\___/ 
 echo.
-echo   Navigateur Warframe Market (https://warframe.market)
+echo   WireFrame — Warframe Companion ^& Market (https://warframe.market)
 echo   Cree par Nyxo_17
 echo ============================================================================
 echo.
@@ -24,7 +24,7 @@ echo.
 :: Verification si le serveur tourne deja sur le port %PORT%
 powershell -NoProfile -Command "try { $r = Invoke-WebRequest -Uri '%APP_URL%/__health' -UseBasicParsing -TimeoutSec 1; exit 0 } catch { exit 1 }" >nul 2>&1
 if %errorlevel% equ 0 (
-    echo [INFO] Le serveur local WireMarket est deja actif sur %APP_URL%
+    echo [INFO] Le serveur local WireFrame est deja actif sur %APP_URL%
 ) else (
     echo [1/2] Demarrage du serveur local ^& Proxy API Warframe Market sur le port %PORT%...
     if not exist "%~dp0WireMarket.exe" (
@@ -34,9 +34,9 @@ if %errorlevel% equ 0 (
         )
     )
     if exist "%~dp0WireMarket.exe" (
-        start "WireMarket Server" /min "%~dp0WireMarket.exe" --server "%~dp0"
+        start "WireFrame Server" /min "%~dp0WireMarket.exe" --server "%~dp0"
     ) else (
-        start "WireMarket Server" /min cmd /c "python "%~dp0server.py" %PORT%"
+        start "WireFrame Server" /min cmd /c "python "%~dp0server.py" %PORT%"
     )
     
     :: Attente que le serveur reponde
@@ -53,17 +53,17 @@ if %errorlevel% equ 0 (
     echo [OK] Serveur connecte a https://api.warframe.market
 )
 
-echo [2/2] Ouverture de l'application WireMarket en mode fenetre dediee...
+echo [2/2] Ouverture de l'application WireFrame en mode fenetre dediee...
 call :launch_app_window
 
 :menu
 echo.
 echo ============================================================================
-echo   WireMarket est en cours d'execution sur %APP_URL%
+echo   WireFrame est en cours d'execution sur %APP_URL%
 echo ----------------------------------------------------------------------------
-echo   [1] Ouvrir une nouvelle fenetre d'application WireMarket
-echo   [2] Ouvrir WireMarket dans le navigateur par defaut
-echo   [Q] Fermer le serveur local et quitter WireMarket
+echo   [1] Ouvrir une nouvelle fenetre d'application WireFrame
+echo   [2] Ouvrir WireFrame dans le navigateur par defaut
+echo   [Q] Fermer le serveur local et quitter WireFrame
 echo ============================================================================
 choice /c 12Q /n /m "Votre choix (1, 2, Q) : "
 

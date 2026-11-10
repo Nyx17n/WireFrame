@@ -9,10 +9,10 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-[assembly: AssemblyTitle("WireMarket")]
-[assembly: AssemblyDescription("Navigateur Warframe Market - Fait par Nyxo_17")]
+[assembly: AssemblyTitle("WireFrame")]
+[assembly: AssemblyDescription("Navigateur Warframe Market & Companion - Fait par Nyxo_17")]
 [assembly: AssemblyCompany("Nyxo_17")]
-[assembly: AssemblyProduct("WireMarket (Fait par Nyxo_17)")]
+[assembly: AssemblyProduct("WireFrame (Fait par Nyxo_17)")]
 [assembly: AssemblyCopyright("Copyright © Nyxo_17")]
 [assembly: AssemblyVersion("1.2.0.0")]
 [assembly: AssemblyFileVersion("1.2.0.0")]
@@ -97,7 +97,7 @@ namespace WireMarketLauncher
                 if (GetWindowText(hWnd, sb, 256) > 0)
                 {
                     string title = sb.ToString();
-                    if (title.IndexOf("WireMarket", StringComparison.OrdinalIgnoreCase) >= 0)
+                    if (title.IndexOf("WireFrame", StringComparison.OrdinalIgnoreCase) >= 0 || title.IndexOf("WireMarket", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         matched++;
                         if (hasTopmost)
@@ -179,8 +179,8 @@ namespace WireMarketLauncher
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Erreur lors du lancement de WireMarket :\n" + ex.Message,
-                    "WireMarket",
+                    "Erreur lors du lancement de WireFrame :\n" + ex.Message,
+                    "WireFrame",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
                 );
