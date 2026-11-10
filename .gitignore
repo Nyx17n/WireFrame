@@ -1,27 +1,90 @@
-# ==========================================================================
-# WireFrame — Fichier .gitignore
-# Empêche l'envoi des fichiers temporaires, caches et exécutables compilés (.exe)
-# sur GitHub / GitLab afin d'éviter tout faux positif des filtres anti-malware.
-# ==========================================================================
+# ============================================================================
+# WireFrame v2 — Fichier .gitignore strict (Electron + React + TypeScript)
+# RÈGLE ABSOLUE : Aucun binaire, exécutable, archive ou artefact de build
+# ne doit jamais être commité dans Git.
+# ============================================================================
 
-# Exécutables Windows compilés & sauvegardes Rollback (générés localement depuis Launcher.cs)
+# Dépendances Node.js
+node_modules/
+.pnp
+.pnp.js
+.npm/
+.pnpm-store/
+
+# Dossiers de build, bundles & livrables Electron (electron-vite / electron-builder)
+dist/
+dist-electron/
+out/
+build/
+release/
+releases/
+
+# Exécutables, bibliothèques compilées, installateurs & archives (INTERDITS DANS GIT)
 *.exe
 *.exe.bak
 *.dll
-*.pdb
-*.obj
-bin/
-obj/
+*.so
+*.dylib
+*.msi
+*.msix
+*.appx
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.AppImage
+*.snap
+*.nupkg
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.blockmap
 
-# Caches Python & environnements virtuels
+# Fichiers de compilation C# / Python hérités (sécurité anti-régression)
 __pycache__/
 *.py[cod]
-*$py.class
 .venv/
 venv/
-env/
+bin/
+obj/
+*.pdb
 
-# Fichiers système Windows / macOS / Linux
+# Cache d'outils, TypeScript & tests
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+.vite/
+.cache/
+coverage/
+*.lcov
+playwright-report/
+test-results/
+
+# Variables d'environnement & secrets locaux
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
+*.key
+
+# Journaux, sauvegardes & fichiers temporaires
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.bak
+*.tmp
+*.temp
+~*
+
+# Système d'exploitation (Windows / macOS / Linux)
 .DS_Store
 Thumbs.db
 ehthumbs.db
@@ -29,8 +92,10 @@ Desktop.ini
 desktop.ini
 $RECYCLE.BIN/
 
-# Éditeurs & IDE (VS Code, Visual Studio, JetBrains)
-.vscode/
+# Éditeurs & IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 *.suo
 *.user
@@ -39,9 +104,3 @@ $RECYCLE.BIN/
 *.swp
 *.swo
 
-# Fichiers temporaires & journaux (logs)
-*.log
-*.tmp
-*.temp
-*.bak
-~*
