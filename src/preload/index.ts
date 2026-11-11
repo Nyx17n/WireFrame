@@ -79,6 +79,14 @@ const wireframeApi: WireframeBridgeApi = Object.freeze({
         ipcRenderer.removeListener(IPC_CHANNELS.ALERTS_ON_TRIGGERED, wrapped)
       }
     }
+  }),
+  worldstate: Object.freeze({
+    getCurrent: (forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WORLDSTATE_GET_CURRENT, { forceRefresh }),
+    getBaroWithPrices: (forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WORLDSTATE_GET_BARO_PRICES, { forceRefresh }),
+    getVitusWithPrices: (forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WORLDSTATE_GET_VITUS_PRICES, { forceRefresh })
   })
 })
 

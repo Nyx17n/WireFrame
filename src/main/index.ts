@@ -5,6 +5,7 @@ import { RateLimitedHttpClient } from './infrastructure/http/RateLimitedHttpClie
 import { registerIpcHandlers } from './ipc/registerIpcHandlers'
 import { registerMarketHandlers } from './ipc/registerMarketHandlers'
 import { registerToolsAndAlertsHandlers } from './ipc/registerToolsAndAlertsHandlers'
+import { registerWorldstateHandlers } from './ipc/registerWorldstateHandlers'
 import { AlertSchedulerService } from './services/AlertSchedulerService'
 import { CacheService } from './services/CacheService'
 import { CartBundlerService } from './services/CartBundlerService'
@@ -13,6 +14,7 @@ import { SetCalculatorService } from './services/SetCalculatorService'
 import { StorageService } from './services/StorageService'
 import { TradingToolsService } from './services/TradingToolsService'
 import { WindowOverlayService } from './services/WindowOverlayService'
+import { WorldstateService } from './services/WorldstateService'
 
 // Register `wf-asset://` as a read-only privileged image scheme before app ready
 protocol.registerSchemesAsPrivileged([
@@ -58,14 +60,23 @@ async function bootstrap(): Promise<void> {
   const setCalculator = new SetCalculatorService(marketApi)
   const cartBundler = new CartBundlerService(marketApi, storageService)
   const tradingTools = new TradingToolsService(httpClient, cacheService, storageService, marketApi)
-  const alertScheduler = new AlertSchedulerService(marketApi, storageService, windowService)
+  const worldstateService = new WorldstateService(httpClient, cacheService, marketApi)
+  const alertScheduler = new AlertSchedulerService(
+    marketApi,
+    storageService,
+    windowService,
+    worldstateService
+  )
 
-  // Serve cached Warframe Market static icons safely via wf-asset://icons/<subpath>
+  // Serve cached Warframe Market & WarframeStat static icons safely via wf-asset://<host>/<subpath>
   protocol.handle('wf-asset', async (request) => {
     try {
       const parsed = new URL(request.url)
       const assetPath = parsed.pathname.replace(/^\/+/, '')
-      const resolved = await cacheService.resolveWfmAsset(assetPath)
+      const resolved =
+        parsed.hostname === 'wfstat'
+          ? await cacheService.resolveWfStatAsset(assetPath)
+          : await cacheService.resolveWfmAsset(assetPath)
       return new Response(resolved.bytes, {
         status: 200,
         headers: {
@@ -129,6 +140,10 @@ async function bootstrap(): Promise<void> {
     tradingTools,
     alertScheduler,
     windowService
+  })
+  registerWorldstateHandlers({
+    windowService,
+    worldstateService
   })
 
   const iconPath = resolveAppIconPath()

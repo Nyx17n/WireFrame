@@ -57,13 +57,31 @@ export class CacheService {
   public async resolveWfmAsset(
     rawAssetPath: string
   ): Promise<{ bytes: Uint8Array; contentType: string }> {
+    return this.resolveCachedRemoteAsset(
+      'wfm',
+      'https://warframe.market/static/assets',
+      rawAssetPath
+    )
+  }
+
+  public async resolveWfStatAsset(
+    rawAssetPath: string
+  ): Promise<{ bytes: Uint8Array; contentType: string }> {
+    return this.resolveCachedRemoteAsset('wfstat', 'https://cdn.warframestat.us', rawAssetPath)
+  }
+
+  private async resolveCachedRemoteAsset(
+    namespace: 'wfm' | 'wfstat',
+    baseUrl: string,
+    rawAssetPath: string
+  ): Promise<{ bytes: Uint8Array; contentType: string }> {
     const cleanPath = (rawAssetPath.split('?')[0] ?? '').replace(/^\/+/, '')
     if (!cleanPath || cleanPath.includes('..') || cleanPath.includes('\\')) {
       throw new Error('Invalid asset path')
     }
 
     await fs.mkdir(this.assetCacheDir, { recursive: true })
-    const hash = createHash('sha256').update(cleanPath).digest('hex')
+    const hash = createHash('sha256').update(`${namespace}:${cleanPath}`).digest('hex')
     const binPath = join(this.assetCacheDir, `${hash}.bin`)
     const metaPath = join(this.assetCacheDir, `${hash}.json`)
 
@@ -84,7 +102,7 @@ export class CacheService {
       // Cache miss -> fetch remotely
     }
 
-    const remoteUrl = `https://warframe.market/static/assets/${cleanPath}`
+    const remoteUrl = `${baseUrl}/${cleanPath}`
     const fetched = await this.httpClient.getBytes(remoteUrl, { bypassRateLimit: true })
 
     await Promise.all([

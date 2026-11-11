@@ -35,6 +35,14 @@ import {
   type RivenWeaponSummary
 } from '@shared/schemas/tools.schema'
 import { WindowStateSchema, type WindowState } from '@shared/schemas/window.schema'
+import {
+  VitusModPriceEntrySchema,
+  VoidTraderSnapshotSchema,
+  WorldstateHubPayloadSchema,
+  type VitusModPriceEntry,
+  type VoidTraderSnapshot,
+  type WorldstateHubPayload
+} from '@shared/schemas/worldstate.schema'
 import type { WireframeBridgeApi } from '@shared/ipc-channels'
 
 function getBridge(): WireframeBridgeApi {
@@ -166,6 +174,33 @@ export const ipcClient = {
         const parsed = TriggeredAlertEventSchema.safeParse(rawAlert)
         if (parsed.success) listener(parsed.data)
       })
+    }
+  },
+  worldstate: {
+    async getCurrent(forceRefresh?: boolean): Promise<WorldstateHubPayload> {
+      const bridge = getBridge()
+      if (!bridge.worldstate) {
+        throw new Error('Relance npm.cmd run dev pour activer le Hub Worldstate.')
+      }
+      return WorldstateHubPayloadSchema.parse(await bridge.worldstate.getCurrent(forceRefresh))
+    },
+    async getBaroWithPrices(forceRefresh?: boolean): Promise<VoidTraderSnapshot> {
+      const bridge = getBridge()
+      if (!bridge.worldstate) {
+        throw new Error('Relance npm.cmd run dev pour activer le Hub Worldstate.')
+      }
+      return VoidTraderSnapshotSchema.parse(
+        await bridge.worldstate.getBaroWithPrices(forceRefresh)
+      )
+    },
+    async getVitusWithPrices(forceRefresh?: boolean): Promise<VitusModPriceEntry[]> {
+      const bridge = getBridge()
+      if (!bridge.worldstate) {
+        throw new Error('Relance npm.cmd run dev pour activer le Hub Worldstate.')
+      }
+      return z
+        .array(VitusModPriceEntrySchema)
+        .parse(await bridge.worldstate.getVitusWithPrices(forceRefresh))
     }
   }
 } as const

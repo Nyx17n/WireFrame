@@ -17,6 +17,11 @@ import type {
   RivenWeaponSummary
 } from './schemas/tools.schema'
 import type { WindowState } from './schemas/window.schema'
+import type {
+  VoidTraderSnapshot,
+  VitusModPriceEntry,
+  WorldstateHubPayload
+} from './schemas/worldstate.schema'
 
 export const IPC_CHANNELS = {
   SYSTEM_GET_STATUS: 'system:getStatus',
@@ -48,7 +53,10 @@ export const IPC_CHANNELS = {
   TOOLS_GET_RIVEN_WEAPONS: 'tools:getRivenWeapons',
   TOOLS_SEARCH_RIVENS: 'tools:searchRivens',
   ALERTS_SCAN_NOW: 'alerts:scanNow',
-  ALERTS_ON_TRIGGERED: 'alerts:onTriggered'
+  ALERTS_ON_TRIGGERED: 'alerts:onTriggered',
+  WORLDSTATE_GET_CURRENT: 'worldstate:getCurrent',
+  WORLDSTATE_GET_BARO_PRICES: 'worldstate:getBaroWithPrices',
+  WORLDSTATE_GET_VITUS_PRICES: 'worldstate:getVitusWithPrices'
 } as const
 
 export interface WireframeBridgeApi {
@@ -95,6 +103,11 @@ export interface WireframeBridgeApi {
   readonly alerts: {
     scanNow: () => Promise<TriggeredAlertEvent[]>
     onTriggered: (listener: (alert: TriggeredAlertEvent) => void) => () => void
+  }
+  readonly worldstate: {
+    getCurrent: (forceRefresh?: boolean) => Promise<WorldstateHubPayload>
+    getBaroWithPrices: (forceRefresh?: boolean) => Promise<VoidTraderSnapshot>
+    getVitusWithPrices: (forceRefresh?: boolean) => Promise<VitusModPriceEntry[]>
   }
 }
 

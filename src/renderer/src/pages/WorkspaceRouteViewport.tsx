@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertsCenterView } from '@/components/alerts/AlertsCenterView'
+import { HubRootView } from '@/components/hub/HubRootView'
 import { MarketCatalogView } from '@/components/market/MarketCatalogView'
 import { MarketFavoritesView } from '@/components/market/MarketFavoritesView'
 import { MarketHomeView } from '@/components/market/MarketHomeView'
@@ -64,6 +65,8 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
       : { kind: 'market-home' }
 
   switch (route.kind) {
+    case 'hub':
+      return <HubRootView />
     case 'market-home':
       return <MarketHomeView />
     case 'market-catalog':

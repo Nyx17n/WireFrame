@@ -4,6 +4,7 @@ const ALLOWED_EXTERNAL_HOSTS = new Set([
   'warframe.market',
   'www.warframe.com',
   'warframe.com',
+  'forums.warframe.com',
   'wiki.warframe.com'
 ])
 

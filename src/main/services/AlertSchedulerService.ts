@@ -4,6 +4,8 @@ import type { PriceSniperRule, TriggeredAlertEvent } from '@shared/schemas/alert
 import type { MarketApiService } from './MarketApiService'
 import type { StorageService } from './StorageService'
 import type { WindowOverlayService } from './WindowOverlayService'
+import type { WorldstateService } from './WorldstateService'
+import { evaluateWorldstateAlerts } from './worldstate-alerts-evaluator'
 
 /**
  * Orchestrateur d'arrière-plan (Main Process) du Price Sniper & des Notifications OS.
@@ -13,11 +15,13 @@ export class AlertSchedulerService {
   private timer: NodeJS.Timeout | null = null
   private scanning = false
   private readonly notifiedOrderIds = new Set<string>()
+  private readonly notifiedWorldKeys = new Set<string>()
 
   constructor(
     private readonly marketApi: MarketApiService,
     private readonly storage: StorageService,
-    private readonly windowService: WindowOverlayService
+    private readonly windowService: WindowOverlayService,
+    private readonly worldstateService: WorldstateService
   ) {}
 
   public async startOrRestart(): Promise<void> {
@@ -43,8 +47,27 @@ export class AlertSchedulerService {
     const triggered: TriggeredAlertEvent[] = []
     try {
       const settings = await this.storage.getSettings()
+      const hasAnyWorldAlert = Object.values(settings.worldAlerts).some(Boolean)
+
+      if (hasAnyWorldAlert) {
+        try {
+          const ws = await this.worldstateService.getCurrent(false)
+          const wsEvents = evaluateWorldstateAlerts(
+            ws,
+            settings.worldAlerts,
+            this.notifiedWorldKeys
+          )
+          for (const ev of wsEvents) {
+            triggered.push(ev)
+            this.emitAlertEvent(ev, settings.audio.nativeOsNotifications)
+          }
+        } catch {
+          // Non-fatal if worldstate is temporarily unreachable
+        }
+      }
+
       const activeRules = settings.priceAlerts.filter((r) => r.enabled)
-      if (activeRules.length === 0) return []
+      if (activeRules.length === 0) return triggered
 
       let rulesMutated = false
       const updatedRules: PriceSniperRule[] = [...settings.priceAlerts]
