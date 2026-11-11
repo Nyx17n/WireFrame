@@ -8,14 +8,26 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_RELEASES: readonly ChangelogRelease[] = [
   {
+    version: '2.2.0',
+    date: 'Novembre 2026',
+    titleFr: 'Collection Complète des 20 Thèmes (OLED / Clair / Néon) & Patch Notes Auto',
+    badgeFr: 'Nouveauté v2.2',
+    highlightsFr: [
+      'Ajout de la collection intégrale des 20 thèmes d’interface : Sombre (Défaut), Clair, Full Black OLED (#000) et Full White (#FFF).',
+      '16 déclinaisons chromatiques sombres et claires : Bleu, Cyan, Vert, Jaune, Rouge, Orange, Violet et Rose avec rendu achromatique pur sur les modes OLED et Blanc.',
+      'Nouvelle grille visuelle 4×5 dans Paramètres → Apparence avec symboles géométriques, sous-titres thématiques Warframe et halo lumineux actif.',
+      'Ouverture automatique unique de la fenêtre « Notes de Patch » au premier démarrage suivant l’installation d’une nouvelle mise à jour.',
+      'Migration transparente des anciens profils de couleurs sans perte de favoris, d’onglets ni d’alertes.'
+    ]
+  },
+  {
     version: '2.1.0',
     date: 'Novembre 2026',
     titleFr: 'Animation Cinétique « Pulsation du Lotus » & Mises à jour GitHub Releases',
-    badgeFr: 'Nouveauté v2.1',
+    badgeFr: 'Mise à jour v2.1',
     highlightsFr: [
       'Animation d’ouverture cinétique au lancement : ondes du Lotus teintées selon ton thème actif et défilement fluide Wire Frame → Doc → Companion → Market → Index → Codex avec centrage final sur « Wire ».',
       'Option d’activation/désactivation et bouton « Rejouer » à la demande dans Paramètres → Apparence.',
-      'Collection complète des 20 thèmes d’interface (Sombre, Clair, Full Black OLED #000, Full White #FFF et 16 déclinaisons Bleu, Cyan, Vert, Jaune, Rouge, Orange, Violet et Rose).',
       'Migration officielle du canal de mise à jour automatique SHA-512 (electron-updater) vers GitHub Releases.'
     ]
   },
@@ -45,4 +57,3 @@ export const CHANGELOG_RELEASES: readonly ChangelogRelease[] = [
     ]
   }
 ] as const
-

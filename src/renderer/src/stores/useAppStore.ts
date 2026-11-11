@@ -87,6 +87,20 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
       ])
       applyThemeToDocument(settings.appearance)
       set({ settings, windowState, systemStatus, updaterStatus, isLoading: false })
+
+      try {
+        const seenKey = 'wf.lastSeenVersion'
+        const previousSeen = window.localStorage.getItem(seenKey)
+        if (systemStatus.appVersion && previousSeen !== systemStatus.appVersion) {
+          window.localStorage.setItem(seenKey, systemStatus.appVersion)
+          const delayMs = settings.appearance.startupAnimationEnabled ? 2700 : 350
+          window.setTimeout(() => {
+            set({ isChangelogOpen: true })
+          }, delayMs)
+        }
+      } catch {
+        // Ignore storage access errors in restricted contexts
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur d’initialisation IPC inconnue'
       applyThemeToDocument(DEFAULT_USER_SETTINGS.appearance)
