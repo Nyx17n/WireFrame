@@ -147,6 +147,7 @@ export interface WhisperDraft {
 
 export function toWfAssetUrl(rawSubPath?: string | null): string | null {
   if (!rawSubPath) return null
+  if (rawSubPath.startsWith('wf-asset://')) return rawSubPath
   const withoutQuery = rawSubPath.split('?')[0]?.replace(/^\/+/, '') ?? ''
   if (!withoutQuery || withoutQuery.includes('..')) return null
   return `wf-asset://wfm/${withoutQuery}`

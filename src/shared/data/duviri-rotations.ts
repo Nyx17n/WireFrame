@@ -137,3 +137,32 @@ export const ARBITRATION_VITUS_ITEMS: readonly ArbitrationVitusItemDef[] = [
   }
 ] as const
 
+export interface BaroClassicStockDef {
+  readonly item: string
+  readonly ducats: number
+  readonly credits: number
+}
+
+export const BARO_CLASSIC_STOCK: readonly BaroClassicStockDef[] = [
+  { item: 'Primed Continuity', ducats: 350, credits: 100_000 },
+  { item: 'Primed Flow', ducats: 350, credits: 110_000 },
+  { item: 'Primed Heated Charge', ducats: 350, credits: 175_000 },
+  { item: 'Primed Target Cracker', ducats: 400, credits: 150_000 },
+  { item: 'Primed Pistol Gambit', ducats: 400, credits: 220_000 },
+  { item: 'Primed Reach', ducats: 300, credits: 220_000 },
+  { item: 'Primed Point Blank', ducats: 300, credits: 110_000 },
+  { item: 'Primed Pressure Point', ducats: 385, credits: 300_000 },
+  { item: 'Primed Ravage', ducats: 280, credits: 100_000 },
+  { item: 'Primed Animal Instinct', ducats: 300, credits: 200_000 },
+  { item: 'Primed Rubedo-Lined Barrel', ducats: 350, credits: 175_000 },
+  { item: 'Primed Weapon Faction Damage Murmurs', ducats: 350, credits: 200_000 },
+  { item: 'Grn Orokin Rifle Weapon', ducats: 675, credits: 625_000 },
+  { item: 'Vastilok', ducats: 550, credits: 325_000 },
+  { item: 'Prisma Skana', ducats: 510, credits: 175_000 },
+  { item: 'Supra Vandal', ducats: 500, credits: 275_000 },
+  { item: 'Jolt', ducats: 300, credits: 150_000 },
+  { item: 'High Voltage', ducats: 300, credits: 150_000 },
+  { item: 'Voltaic Strike', ducats: 300, credits: 150_000 },
+  { item: 'Shell Shock', ducats: 300, credits: 150_000 }
+] as const
+

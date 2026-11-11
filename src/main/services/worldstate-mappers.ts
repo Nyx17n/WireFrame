@@ -2,9 +2,10 @@ import {
   DUVIRI_INCARNON_ROTATIONS,
   DUVIRI_WARFRAME_ROTATIONS
 } from '@shared/data/duviri-rotations'
-import type { MarketCatalogItem } from '@shared/schemas/market.schema'
+import { toWfAssetUrl, type MarketCatalogItem } from '@shared/schemas/market.schema'
 import {
   toWfStatAssetUrl,
+  toWikiFileAssetUrl,
   type ArbitrationSnapshot,
   type CycleCardData,
   type DuviriCircuitSnapshot,
@@ -105,6 +106,33 @@ export function findCatalogItemByLabel(
   return bySlug.get(slug) ?? bySlug.get(`${slug}_blueprint`) ?? null
 }
 
+export function resolveRewardThumbnailUrl(
+  rewardLabel: string,
+  matchedWfmItem: MarketCatalogItem | null,
+  rawThumb?: string | null
+): string | null {
+  if (matchedWfmItem?.thumb) {
+    return toWfAssetUrl(matchedWfmItem.thumb)
+  }
+  const lower = rewardLabel.toLowerCase()
+  if (lower.includes('umbra') && lower.includes('forma')) return toWikiFileAssetUrl('UmbraForma.png')
+  if (lower.includes('forma')) return toWikiFileAssetUrl('Forma.png')
+  if (lower.includes('fieldron')) return toWikiFileAssetUrl('Fieldron.png')
+  if (lower.includes('detonite') || lower.includes('détonite')) {
+    return toWikiFileAssetUrl('DetoniteInjector.png')
+  }
+  if (lower.includes('mutagen') || lower.includes('mutagène')) {
+    return toWikiFileAssetUrl('MutagenMass.png')
+  }
+  if (lower.includes('catalyst') || lower.includes('catalyseur')) {
+    return toWikiFileAssetUrl('OrokinCatalyst.png')
+  }
+  if (lower.includes('reactor') || lower.includes('réacteur')) {
+    return toWikiFileAssetUrl('OrokinReactor.png')
+  }
+  return toWfStatAssetUrl(rawThumb)
+}
+
 export function mapCycles(raw: RawWfStatResponse): CycleCardData[] {
   const cards: CycleCardData[] = []
 
@@ -114,6 +142,7 @@ export function mapCycles(raw: RawWfStatResponse): CycleCardData[] {
       key: 'cetus',
       zoneFr: 'Plaines d’Eidolon (Cetus)',
       planetFr: 'Terre',
+      planetImageUrl: toWikiFileAssetUrl('TheSteelPathEarth.png'),
       state: isDay ? 'day' : 'night',
       stateLabelFr: isDay ? 'Jour' : 'Nuit (Eidolons)',
       nextStateLabelFr: isDay ? 'Nuit dans' : 'Jour dans',
@@ -129,6 +158,7 @@ export function mapCycles(raw: RawWfStatResponse): CycleCardData[] {
       key: 'vallis',
       zoneFr: 'Vallée Orbis (Fortuna)',
       planetFr: 'Vénus',
+      planetImageUrl: toWikiFileAssetUrl('TheSteelPathVenus.png'),
       state: isWarm ? 'warm' : 'cold',
       stateLabelFr: isWarm ? 'Chaud' : 'Froid',
       nextStateLabelFr: isWarm ? 'Froid dans' : 'Chaud dans',
@@ -144,6 +174,7 @@ export function mapCycles(raw: RawWfStatResponse): CycleCardData[] {
       key: 'cambion',
       zoneFr: 'Puy de Cambion (Nécrallisk)',
       planetFr: 'Deimos',
+      planetImageUrl: toWikiFileAssetUrl('TheSteelPathDeimos.png'),
       state: isVome ? 'vome' : 'fass',
       stateLabelFr: isVome ? 'Vome (Ordre)' : 'Fass (Chaos)',
       nextStateLabelFr: isVome ? 'Fass dans' : 'Vome dans',
@@ -160,6 +191,7 @@ export function mapCycles(raw: RawWfStatResponse): CycleCardData[] {
       key: 'duviri',
       zoneFr: 'Royaume de Duviri',
       planetFr: 'Néant / Paradoxe',
+      planetImageUrl: toWikiFileAssetUrl('TheSteelPathDuviri.png'),
       state: st,
       stateLabelFr: spiral.current,
       nextStateLabelFr: spiral.next,
@@ -175,6 +207,7 @@ export function mapCycles(raw: RawWfStatResponse): CycleCardData[] {
       key: 'zariman',
       zoneFr: 'Zariman Ten Zero',
       planetFr: 'Chrysalithe',
+      planetImageUrl: toWikiFileAssetUrl('TheSteelPathZariman.png'),
       state: isCorpus ? 'corpus' : 'grineer',
       stateLabelFr: isCorpus ? 'Occupation Corpus' : 'Occupation Grineer',
       nextStateLabelFr: isCorpus ? 'Grineer dans' : 'Corpus dans',
@@ -190,6 +223,7 @@ export function mapCycles(raw: RawWfStatResponse): CycleCardData[] {
       key: 'earth',
       zoneFr: 'Forêts de la Terre',
       planetFr: 'Terre (Botanique)',
+      planetImageUrl: toWikiFileAssetUrl('TheSteelPathEarth.png'),
       state: isDay ? 'day' : 'night',
       stateLabelFr: isDay ? 'Jour' : 'Nuit',
       nextStateLabelFr: isDay ? 'Nuit dans' : 'Jour dans',
@@ -304,13 +338,13 @@ export function mapInvasions(
         attacker: {
           faction: inv.attacker?.faction ?? 'Attaquant',
           rewardLabel: atkLabel,
-          thumbnailUrl: toWfStatAssetUrl(inv.attacker?.reward?.thumbnail),
+          thumbnailUrl: resolveRewardThumbnailUrl(atkLabel, atkItem, inv.attacker?.reward?.thumbnail),
           marketSlug: atkItem?.slug ?? null
         },
         defender: {
           faction: inv.defender?.faction ?? 'Défenseur',
           rewardLabel: defLabel,
-          thumbnailUrl: toWfStatAssetUrl(inv.defender?.reward?.thumbnail),
+          thumbnailUrl: resolveRewardThumbnailUrl(defLabel, defItem, inv.defender?.reward?.thumbnail),
           marketSlug: defItem?.slug ?? null
         }
       }
@@ -394,12 +428,16 @@ export function mapPrimeResurgencePacks(
   return inv.map((entry) => {
     const cleanLabel = entry.item.replace(/^M\s*P\s*V\s+/i, '').trim()
     const words = cleanLabel.split(/[^a-zA-Z]+/).filter(Boolean)
-    const matched: Array<{ slug: string; nameFr: string }> = []
+    const matched: Array<{ slug: string; nameFr: string; thumb: string | null }> = []
     for (const w of words) {
       const candidateSlug = `${w.toLowerCase()}_prime_set`
       const item = bySlug.get(candidateSlug)
       if (item && !matched.some((m) => m.slug === item.slug)) {
-        matched.push({ slug: item.slug, nameFr: item.nameFr })
+        matched.push({
+          slug: item.slug,
+          nameFr: item.nameFr,
+          thumb: toWfAssetUrl(item.thumb)
+        })
       }
     }
     return {

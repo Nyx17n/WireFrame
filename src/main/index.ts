@@ -68,15 +68,12 @@ async function bootstrap(): Promise<void> {
     worldstateService
   )
 
-  // Serve cached Warframe Market & WarframeStat static icons safely via wf-asset://<host>/<subpath>
+  // Serve cached Warframe Market, Official Wiki & Warframe static assets safely via wf-asset://<host>/<subpath>
   protocol.handle('wf-asset', async (request) => {
     try {
       const parsed = new URL(request.url)
       const assetPath = parsed.pathname.replace(/^\/+/, '')
-      const resolved =
-        parsed.hostname === 'wfstat'
-          ? await cacheService.resolveWfStatAsset(assetPath)
-          : await cacheService.resolveWfmAsset(assetPath)
+      const resolved = await cacheService.resolveAssetByHost(parsed.hostname, assetPath)
       return new Response(resolved.bytes, {
         status: 200,
         headers: {

@@ -4,6 +4,7 @@ import { toWfAssetUrl, type MarketOrder, type MarketUserProfile } from '@shared/
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatusDot } from '@/components/market/StatusDot'
 import { ipcClient } from '@/services/ipc-client'
@@ -128,13 +129,16 @@ export function MarketUserProfileView({ userSlug }: { userSlug: string }): React
       <Card>
         <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="flex items-center gap-3">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="h-12 w-12 rounded-full border border-border object-cover" />
-            ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-                <User className="h-6 w-6 text-primary" />
-              </div>
-            )}
+            <SafeAssetImage
+              src={avatarUrl}
+              alt=""
+              className="h-12 w-12 rounded-full border border-border object-cover"
+              fallback={
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+                  <User className="h-6 w-6 text-primary" />
+                </div>
+              }
+            />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base font-bold">{profile.ingameName}</h1>

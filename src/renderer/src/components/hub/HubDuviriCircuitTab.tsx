@@ -4,9 +4,14 @@ import {
   DUVIRI_INCARNON_ROTATIONS,
   DUVIRI_WARFRAME_ROTATIONS
 } from '@shared/data/duviri-rotations'
-import type { DuviriCircuitSnapshot } from '@shared/schemas/worldstate.schema'
+import {
+  toWikiFileAssetUrl,
+  toWikiItemAssetUrl,
+  type DuviriCircuitSnapshot
+} from '@shared/schemas/worldstate.schema'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { useMarketStore } from '@/stores/useMarketStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 import { formatCountdown } from './hub-countdown'
@@ -58,56 +63,77 @@ export function HubDuviriCircuitTab({
   return (
     <div className="space-y-4">
       <Card className="border-primary/40 bg-primary/5">
-        <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4 text-xs">
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-sm font-bold">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span>{circuit.spiralLabelFr}</span>
-            </div>
-            <div className="text-[11px] text-muted-foreground">
-              Changement d’humeur Duviri dans{' '}
-              <span className="font-mono font-semibold text-primary">
-                {formatCountdown(circuit.spiralExpiry, nowMs)}
-              </span>
+        <CardContent className="space-y-3 p-4 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <SafeAssetImage
+                src={toWikiFileAssetUrl('TheSteelPathDuviri.png')}
+                alt="Duviri"
+                className="h-11 w-11 shrink-0 object-contain"
+              />
+              <div>
+                <div className="flex items-center gap-1.5 text-sm font-bold">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span>{circuit.spiralLabelFr}</span>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  Changement d’humeur Duviri dans{' '}
+                  <span className="font-mono font-semibold text-primary">
+                    {formatCountdown(circuit.spiralExpiry, nowMs)}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 gap-3 border-t border-border/60 pt-3 lg:grid-cols-2">
             {circuit.activeWarframes.length > 0 && (
-              <div className="space-y-1">
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-1.5">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Circuit Normal (Cette semaine)
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {circuit.activeWarframes.map((f) => (
-                    <Badge
+                    <button
                       key={f}
-                      variant="secondary"
-                      className="cursor-pointer hover:border-primary"
+                      type="button"
                       onClick={() => openWarframePrime(f)}
+                      className="inline-flex items-center gap-2 rounded-md border border-border bg-card/90 px-2.5 py-1.5 text-xs font-semibold transition-colors hover:border-primary"
                     >
-                      {f}
-                    </Badge>
+                      <SafeAssetImage
+                        src={toWikiItemAssetUrl(f)}
+                        alt={f}
+                        className="h-7 w-7 shrink-0 rounded bg-background/70 object-contain p-0.5"
+                      />
+                      <span>{f}</span>
+                      <ArrowUpRight className="h-3 w-3 text-primary" />
+                    </button>
                   ))}
                 </div>
               </div>
             )}
 
             {circuit.activeIncarnons.length > 0 && (
-              <div className="space-y-1">
-                <div className="text-[10px] uppercase tracking-wider text-primary">
+              <div className="space-y-1.5">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-primary">
                   Incarnon Route de l’Acier (Cette semaine)
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {circuit.activeIncarnons.map((w) => (
-                    <Badge
+                    <button
                       key={w}
-                      variant="default"
-                      className="cursor-pointer"
+                      type="button"
                       onClick={() => openWeaponIncarnon(w)}
+                      className="inline-flex items-center gap-2 rounded-md border border-primary/40 bg-card/90 px-2.5 py-1.5 text-xs font-semibold transition-colors hover:border-primary"
                     >
-                      {w}
-                    </Badge>
+                      <SafeAssetImage
+                        src={toWikiItemAssetUrl(w)}
+                        alt={w}
+                        className="h-7 w-7 shrink-0 rounded bg-background/70 object-contain p-0.5"
+                      />
+                      <span>{w}</span>
+                      <ArrowUpRight className="h-3 w-3 text-primary" />
+                    </button>
                   ))}
                 </div>
               </div>
@@ -124,13 +150,13 @@ export function HubDuviriCircuitTab({
               <span>Calendrier Incarnon Genesis — Route de l’Acier (8 Semaines)</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-1.5 text-xs">
+          <CardContent className="space-y-2 text-xs">
             {DUVIRI_INCARNON_ROTATIONS.map((rot) => {
               const isCurrent = circuit.activeIncarnonWeek === rot.week
               return (
                 <div
                   key={rot.week}
-                  className={`space-y-1.5 rounded-md border p-2.5 ${
+                  className={`space-y-2 rounded-md border p-2.5 ${
                     isCurrent
                       ? 'border-primary bg-primary/10'
                       : 'border-border/60 bg-background/50'
@@ -148,8 +174,13 @@ export function HubDuviriCircuitTab({
                         key={w}
                         type="button"
                         onClick={() => openWeaponIncarnon(w)}
-                        className="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-0.5 text-[11px] transition-colors hover:border-primary hover:text-primary"
+                        className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-[11px] transition-colors hover:border-primary hover:text-primary"
                       >
+                        <SafeAssetImage
+                          src={toWikiItemAssetUrl(w)}
+                          alt={w}
+                          className="h-5 w-5 shrink-0 object-contain"
+                        />
                         <span>{w}</span>
                         <ArrowUpRight className="h-2.5 w-2.5 opacity-70" />
                       </button>
@@ -168,19 +199,19 @@ export function HubDuviriCircuitTab({
               <span>Calendrier Warframes — Circuit Normal (11 Semaines)</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-1.5 text-xs">
+          <CardContent className="space-y-2 text-xs">
             {DUVIRI_WARFRAME_ROTATIONS.map((rot) => {
               const isCurrent = circuit.activeWarframeWeek === rot.week
               return (
                 <div
                   key={rot.week}
-                  className={`flex flex-wrap items-center justify-between gap-2 rounded-md border px-2.5 py-2 ${
+                  className={`space-y-1.5 rounded-md border p-2.5 ${
                     isCurrent
                       ? 'border-primary bg-primary/10'
                       : 'border-border/60 bg-background/50'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
                     <span className="font-bold">Semaine {rot.week}</span>
                     {isCurrent && <Badge variant="default">EN COURS</Badge>}
                   </div>
@@ -190,8 +221,13 @@ export function HubDuviriCircuitTab({
                         key={f}
                         type="button"
                         onClick={() => openWarframePrime(f)}
-                        className="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-0.5 text-[11px] transition-colors hover:border-primary hover:text-primary"
+                        className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-[11px] transition-colors hover:border-primary hover:text-primary"
                       >
+                        <SafeAssetImage
+                          src={toWikiItemAssetUrl(f)}
+                          alt={f}
+                          className="h-5 w-5 shrink-0 object-contain"
+                        />
                         <span>{f}</span>
                         <ArrowUpRight className="h-2.5 w-2.5 opacity-70" />
                       </button>
@@ -206,4 +242,3 @@ export function HubDuviriCircuitTab({
     </div>
   )
 }
-

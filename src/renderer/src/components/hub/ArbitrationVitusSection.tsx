@@ -9,8 +9,10 @@ import type {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { ARBITRATION_VITUS_ITEMS } from '@shared/data/duviri-rotations'
 import { ipcClient } from '@/services/ipc-client'
+import { useMarketStore } from '@/stores/useMarketStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 import { formatCountdown } from './hub-countdown'
 
@@ -24,9 +26,15 @@ export function ArbitrationVitusSection({
   nowMs: number
 }): React.JSX.Element {
   const openTab = useTabsStore((s) => s.openTab)
+  const catalog = useMarketStore((s) => s.catalog)
+  const ensureCatalogLoaded = useMarketStore((s) => s.ensureCatalogLoaded)
   const [vitusPrices, setVitusPrices] = React.useState<VitusModPriceEntry[] | null>(null)
   const [loadingVitus, setLoadingVitus] = React.useState(false)
   const [showEvergreens, setShowEvergreens] = React.useState(false)
+
+  React.useEffect(() => {
+    void ensureCatalogLoaded()
+  }, [ensureCatalogLoaded])
 
   const loadVitusPrices = async (force = false): Promise<void> => {
     setLoadingVitus(true)
@@ -155,21 +163,27 @@ export function ArbitrationVitusSection({
                 labelEn: d.labelEn,
                 category: d.category,
                 vitusCost: d.vitusCost,
-                thumb: null,
+                thumb: catalog.find((c) => c.slug === d.slug)?.thumb ?? null,
                 minPlatinum: null,
                 sellerName: null,
                 platPerVitus: null
               }))
             ).map((mod) => {
-              const thumb = toWfAssetUrl(mod.thumb)
+              const thumb = toWfAssetUrl(
+                mod.thumb ?? catalog.find((c) => c.slug === mod.slug)?.thumb ?? null
+              )
               return (
                 <div
                   key={mod.slug}
                   onClick={() => openTab({ kind: 'market-item', slug: mod.slug }, { title: mod.labelFr })}
                   className="flex cursor-pointer items-center justify-between rounded border border-border/60 bg-background/50 px-2.5 py-1.5 transition-colors hover:border-primary/60"
                 >
-                  <div className="flex min-w-0 items-center gap-2">
-                    {thumb && <img src={thumb} alt="" className="h-6 w-6 shrink-0 object-contain" />}
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <SafeAssetImage
+                      src={thumb}
+                      alt={mod.labelFr}
+                      className="h-7 w-7 shrink-0 rounded bg-background/70 object-contain p-0.5"
+                    />
                     <div className="min-w-0">
                       <div className="truncate text-[11px] font-semibold">{mod.labelFr}</div>
                       <div className="text-[10px] text-muted-foreground">

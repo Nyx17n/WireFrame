@@ -4,6 +4,7 @@ import type { CycleCardData, SyndicateBountyGroup } from '@shared/schemas/worlds
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { computeCycleProgress, formatCountdown } from './hub-countdown'
 
 function CycleIcon({ tone }: { tone: CycleCardData['tone'] }): React.JSX.Element {
@@ -53,11 +54,18 @@ export function HubPlanetsBountiesTab({
             <Card key={c.key} className="border-border/80 bg-card/85">
               <CardContent className="space-y-2.5 p-3.5">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                      {c.planetFr}
+                  <div className="flex items-center gap-2.5">
+                    <SafeAssetImage
+                      src={c.planetImageUrl}
+                      alt={c.planetFr}
+                      className="h-9 w-9 shrink-0 object-contain"
+                    />
+                    <div>
+                      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                        {c.planetFr}
+                      </div>
+                      <div className="text-xs font-bold">{c.zoneFr}</div>
                     </div>
-                    <div className="text-xs font-bold">{c.zoneFr}</div>
                   </div>
                   <div className="flex items-center gap-1.5 rounded-md border border-border/70 bg-background/70 px-2 py-1 text-xs font-semibold">
                     <CycleIcon tone={c.tone} />

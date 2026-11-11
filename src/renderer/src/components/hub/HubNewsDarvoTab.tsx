@@ -9,6 +9,7 @@ import type {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { ipcClient } from '@/services/ipc-client'
 import { useTabsStore } from '@/stores/useTabsStore'
 import { formatCountdown } from './hub-countdown'
@@ -78,7 +79,14 @@ export function HubNewsDarvoTab({
                 return (
                   <div key={deal.id} className="space-y-2 rounded-md border border-border/60 bg-background/60 p-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-bold">{deal.item}</span>
+                      <div className="flex items-center gap-2.5">
+                        <SafeAssetImage
+                          src={deal.imageUrl}
+                          alt={deal.item}
+                          className="h-9 w-9 shrink-0 rounded border border-border/60 bg-card object-contain p-0.5"
+                        />
+                        <span className="text-sm font-bold">{deal.item}</span>
+                      </div>
                       <Badge variant="default">-{deal.discount}%</Badge>
                     </div>
                     <div className="flex items-center justify-between text-[11px]">
@@ -142,11 +150,16 @@ export function HubNewsDarvoTab({
                         key={ms.slug}
                         size="sm"
                         variant="outline"
-                        className="h-6 px-2 text-[11px]"
+                        className="h-7 gap-1.5 px-2 text-[11px]"
                         onClick={() =>
                           openTab({ kind: 'market-item', slug: ms.slug }, { title: ms.nameFr })
                         }
                       >
+                        <SafeAssetImage
+                          src={ms.thumb}
+                          alt={ms.nameFr}
+                          className="h-4 w-4 shrink-0 object-contain"
+                        />
                         <span>{ms.nameFr}</span>
                         <ArrowUpRight className="h-3 w-3 text-primary" />
                       </Button>
@@ -191,13 +204,11 @@ export function HubNewsDarvoTab({
         <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-3">
           {filteredNews.map((n) => (
             <Card key={n.id} className="overflow-hidden border-border/75">
-              {n.imageUrl && (
-                <img
-                  src={n.imageUrl}
-                  alt=""
-                  className="h-28 w-full border-b border-border/60 bg-background/50 object-cover"
-                />
-              )}
+              <SafeAssetImage
+                src={n.imageUrl}
+                alt=""
+                className="h-28 w-full border-b border-border/60 bg-background/50 object-cover"
+              />
               <CardContent className="space-y-2 p-3 text-xs">
                 <div className="line-clamp-2 font-semibold">{n.title}</div>
                 <div className="flex items-center justify-between">

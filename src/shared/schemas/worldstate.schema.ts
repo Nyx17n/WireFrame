@@ -2,17 +2,42 @@ import { z } from 'zod'
 
 export function toWfStatAssetUrl(rawUrl: string | null | undefined): string | null {
   if (!rawUrl) return null
-  const prefix = 'https://cdn.warframestat.us/'
-  if (!rawUrl.startsWith(prefix)) return null
-  const subpath = rawUrl.slice(prefix.length).replace(/^\/+/, '')
-  if (!subpath || subpath.includes('..') || subpath.includes('\\')) return null
-  return `wf-asset://wfstat/${subpath}`
+  if (rawUrl.startsWith('wf-asset://')) return rawUrl
+
+  const wfStaticPrefix = 'https://www-static.warframe.com/'
+  if (rawUrl.startsWith(wfStaticPrefix)) {
+    const subpath = rawUrl.slice(wfStaticPrefix.length).replace(/^\/+/, '')
+    if (!subpath || subpath.includes('..') || subpath.includes('\\')) return null
+    return `wf-asset://wfstatic/${subpath}`
+  }
+
+  const wfStatPrefix = 'https://cdn.warframestat.us/'
+  if (rawUrl.startsWith(wfStatPrefix)) {
+    const subpath = rawUrl.slice(wfStatPrefix.length).replace(/^\/+/, '')
+    // Ignore dead `/img/*` paths on cdn.warframestat.us (404 upstream)
+    if (!subpath || subpath.startsWith('img/') || subpath.includes('..') || subpath.includes('\\')) {
+      return null
+    }
+    return `wf-asset://wfstat/${subpath}`
+  }
+
+  return null
+}
+
+export function toWikiFileAssetUrl(wikiFileName: string): string {
+  return `wf-asset://wiki/${wikiFileName.replace(/^\/+/, '')}`
+}
+
+export function toWikiItemAssetUrl(itemEnglishName: string): string {
+  const cleanFile = `${itemEnglishName.trim().replace(/&/g, '%26').replace(/\s+/g, '')}.png`
+  return `wf-asset://wiki/${cleanFile}`
 }
 
 export const CycleCardSchema = z.object({
   key: z.enum(['cetus', 'earth', 'vallis', 'cambion', 'duviri', 'zariman']),
   zoneFr: z.string(),
   planetFr: z.string(),
+  planetImageUrl: z.string(),
   state: z.string(),
   stateLabelFr: z.string(),
   nextStateLabelFr: z.string(),
@@ -201,6 +226,7 @@ export type BaroInventoryItem = z.infer<typeof BaroInventoryItemSchema>
 
 export const VoidTraderSnapshotSchema = z.object({
   active: z.boolean(),
+  isPreviewStock: z.boolean().default(false),
   character: z.string(),
   location: z.string(),
   activation: z.string(),
@@ -228,6 +254,7 @@ export type GlobalBooster = z.infer<typeof GlobalBoosterSchema>
 export const DarvoDealSchema = z.object({
   id: z.string(),
   item: z.string(),
+  imageUrl: z.string().nullable().default(null),
   originalPrice: z.number(),
   salePrice: z.number(),
   discount: z.number(),
@@ -244,7 +271,8 @@ export const PrimeResurgencePackSchema = z.object({
   matchedSetSlugs: z.array(
     z.object({
       slug: z.string(),
-      nameFr: z.string()
+      nameFr: z.string(),
+      thumb: z.string().nullable().default(null)
     })
   )
 })

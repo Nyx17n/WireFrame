@@ -11,6 +11,7 @@ import type {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { useTabsStore } from '@/stores/useTabsStore'
 import { ArbitrationVitusSection } from './ArbitrationVitusSection'
 import { formatCountdown } from './hub-countdown'
@@ -42,11 +43,12 @@ export function HubInvasionsSteelTab({
             <Card key={al.id} className="border-amber-500/40 bg-amber-500/5">
               <CardContent className="flex items-center justify-between gap-2 p-3 text-xs">
                 <div className="flex min-w-0 items-center gap-2.5">
-                  {al.thumbnailUrl ? (
-                    <img src={al.thumbnailUrl} alt="" className="h-8 w-8 shrink-0 object-contain" />
-                  ) : (
-                    <AlertCircle className="h-5 w-5 shrink-0 text-amber-400" />
-                  )}
+                  <SafeAssetImage
+                    src={al.thumbnailUrl}
+                    alt=""
+                    className="h-8 w-8 shrink-0 object-contain"
+                    fallback={<AlertCircle className="h-5 w-5 shrink-0 text-amber-400" />}
+                  />
                   <div className="min-w-0">
                     <div className="truncate font-bold">
                       Alerte du Lotus : {al.rewardLabel || `${al.credits.toLocaleString('fr-FR')} Cr`}
@@ -109,8 +111,13 @@ export function HubInvasionsSteelTab({
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-1.5 text-[11px]">
-                  <div className="flex flex-wrap items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <Badge variant="outline">{inv.attacker.faction}</Badge>
+                    <SafeAssetImage
+                      src={inv.attacker.thumbnailUrl}
+                      alt=""
+                      className="h-5 w-5 shrink-0 object-contain"
+                    />
                     {inv.attacker.rewardLabel && (
                       <span className="font-semibold text-foreground">
                         {inv.attacker.rewardLabel}
@@ -134,7 +141,12 @@ export function HubInvasionsSteelTab({
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <SafeAssetImage
+                      src={inv.defender.thumbnailUrl}
+                      alt=""
+                      className="h-5 w-5 shrink-0 object-contain"
+                    />
                     {inv.defender.rewardLabel && (
                       <span className="font-semibold text-foreground">
                         {inv.defender.rewardLabel}

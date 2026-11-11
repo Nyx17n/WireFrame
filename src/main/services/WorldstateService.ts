@@ -1,7 +1,15 @@
-import { ARBITRATION_VITUS_ITEMS } from '@shared/data/duviri-rotations'
-import type { MarketCatalogItem, MarketOrder } from '@shared/schemas/market.schema'
+import {
+  ARBITRATION_VITUS_ITEMS,
+  BARO_CLASSIC_STOCK
+} from '@shared/data/duviri-rotations'
+import {
+  toWfAssetUrl,
+  type MarketCatalogItem,
+  type MarketOrder
+} from '@shared/schemas/market.schema'
 import {
   toWfStatAssetUrl,
+  toWikiItemAssetUrl,
   type BaroInventoryItem,
   type NewsEntry,
   type VitusModPriceEntry,
@@ -22,6 +30,7 @@ import {
   mapInvasions,
   mapPrimeResurgencePacks,
   resolveArbitration,
+  resolveRewardThumbnailUrl,
   translateMissionType
 } from './worldstate-mappers'
 
@@ -92,7 +101,17 @@ export class WorldstateService {
       Boolean(vt?.active) ||
       (Number.isFinite(vtActMs) && Number.isFinite(vtExpMs) && now >= vtActMs && now < vtExpMs)
 
-    const baroItems: BaroInventoryItem[] = (vt?.inventory ?? []).map((entry) => {
+    const hasLiveBaroStock = Boolean(vt?.inventory && vt.inventory.length > 0)
+    const sourceBaroList = hasLiveBaroStock
+      ? vt!.inventory
+      : BARO_CLASSIC_STOCK.map((c, i) => ({
+          uniqueName: `classic-${i}`,
+          item: c.item,
+          ducats: c.ducats,
+          credits: c.credits
+        }))
+
+    const baroItems: BaroInventoryItem[] = sourceBaroList.map((entry) => {
       const matched = findCatalogItemByLabel(entry.item, lookup.bySlug, lookup.byLowerName)
       return {
         uniqueName: entry.uniqueName,
@@ -101,7 +120,7 @@ export class WorldstateService {
         ducats: entry.ducats ?? 0,
         credits: entry.credits ?? 0,
         marketSlug: matched?.slug ?? null,
-        thumb: matched?.thumb ?? null,
+        thumb: toWfAssetUrl(matched?.thumb) ?? toWikiItemAssetUrl(entry.item),
         minPlatinum: null,
         sellerName: null,
         platPer100Ducats: null
@@ -191,16 +210,26 @@ export class WorldstateService {
       arbitration: resolveArbitration(raw.arbitration),
       alerts: raw.alerts
         .filter((a) => Date.parse(a.expiry) > now)
-        .map((a) => ({
-          id: a.id,
-          node: a.mission?.node ?? '',
-          missionType: translateMissionType(a.mission?.type ?? ''),
-          faction: a.mission?.faction ?? '',
-          rewardLabel: extractRewardLabel(a.mission?.reward),
-          credits: a.mission?.reward?.credits ?? 0,
-          thumbnailUrl: toWfStatAssetUrl(a.mission?.reward?.thumbnail),
-          expiry: a.expiry
-        })),
+        .map((a) => {
+          const rewardLabel = extractRewardLabel(a.mission?.reward)
+          const matchedItem = rewardLabel
+            ? findCatalogItemByLabel(rewardLabel, lookup.bySlug, lookup.byLowerName)
+            : null
+          return {
+            id: a.id,
+            node: a.mission?.node ?? '',
+            missionType: translateMissionType(a.mission?.type ?? ''),
+            faction: a.mission?.faction ?? '',
+            rewardLabel,
+            credits: a.mission?.reward?.credits ?? 0,
+            thumbnailUrl: resolveRewardThumbnailUrl(
+              rewardLabel,
+              matchedItem,
+              a.mission?.reward?.thumbnail
+            ),
+            expiry: a.expiry
+          }
+        }),
       events: raw.events
         .filter((e) => Date.parse(e.expiry) > now)
         .map((e) => ({
@@ -224,6 +253,7 @@ export class WorldstateService {
       duviriCircuit: mapDuviriCircuit(raw),
       voidTrader: {
         active: baroActive,
+        isPreviewStock: !hasLiveBaroStock,
         character: vt?.character ?? "Baro Ki'Teer",
         location: vt?.location ?? 'Relais',
         activation: vt?.activation ?? new Date(now).toISOString(),
@@ -232,7 +262,13 @@ export class WorldstateService {
       },
       news,
       globalBoosters: raw.globalUpgrades.filter((g) => Date.parse(g.expiry) > now),
-      darvoDeals: raw.dailyDeals,
+      darvoDeals: raw.dailyDeals.map((deal) => {
+        const matched = findCatalogItemByLabel(deal.item, lookup.bySlug, lookup.byLowerName)
+        return {
+          ...deal,
+          imageUrl: toWfAssetUrl(matched?.thumb) ?? toWikiItemAssetUrl(deal.item)
+        }
+      }),
       primeResurgence: {
         location: raw.vaultTrader?.location ?? 'Bazar de Maroo (Mars)',
         expiry: raw.vaultTrader?.expiry ?? new Date(now).toISOString(),
@@ -253,7 +289,7 @@ export class WorldstateService {
 
     const ws = await this.getCurrent(forceRefresh)
     const vt = ws.voidTrader
-    if (!vt.active || vt.inventory.length === 0) {
+    if (vt.inventory.length === 0) {
       return vt
     }
 

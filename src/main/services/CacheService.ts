@@ -8,6 +8,13 @@ interface MemoryEntry<T> {
   value: T
 }
 
+const ASSET_ORIGIN_BY_HOST: Readonly<Record<string, string>> = {
+  wfm: 'https://warframe.market/static/assets',
+  wiki: 'https://wiki.warframe.com/images',
+  wfstatic: 'https://www-static.warframe.com',
+  wfstat: 'https://cdn.warframestat.us'
+}
+
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
 
 /**
@@ -54,24 +61,17 @@ export class CacheService {
     await fs.rm(this.assetCacheDir, { recursive: true, force: true })
   }
 
-  public async resolveWfmAsset(
+  public async resolveAssetByHost(
+    host: string,
     rawAssetPath: string
   ): Promise<{ bytes: Uint8Array; contentType: string }> {
-    return this.resolveCachedRemoteAsset(
-      'wfm',
-      'https://warframe.market/static/assets',
-      rawAssetPath
-    )
-  }
-
-  public async resolveWfStatAsset(
-    rawAssetPath: string
-  ): Promise<{ bytes: Uint8Array; contentType: string }> {
-    return this.resolveCachedRemoteAsset('wfstat', 'https://cdn.warframestat.us', rawAssetPath)
+    const normalizedHost = host in ASSET_ORIGIN_BY_HOST ? host : 'wfm'
+    const baseUrl = ASSET_ORIGIN_BY_HOST[normalizedHost] ?? ASSET_ORIGIN_BY_HOST['wfm']!
+    return this.resolveCachedRemoteAsset(normalizedHost, baseUrl, rawAssetPath)
   }
 
   private async resolveCachedRemoteAsset(
-    namespace: 'wfm' | 'wfstat',
+    namespace: string,
     baseUrl: string,
     rawAssetPath: string
   ): Promise<{ bytes: Uint8Array; contentType: string }> {
