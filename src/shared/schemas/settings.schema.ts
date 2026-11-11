@@ -1,5 +1,7 @@
 import { z } from 'zod'
+import { PriceSniperRuleSchema, WorldAlertTogglesSchema } from './alerts.schema'
 import { TabsSessionSchema } from './navigation.schema'
+import { CartItemEntrySchema } from './tools.schema'
 import { WindowBoundsSchema } from './window.schema'
 
 export const HexColorSchema = z
@@ -71,6 +73,9 @@ export const UserSettingsSchema = z.object({
     defaultSellerStatus: SellerStatusFilterSchema.default('ingame')
   }),
   favorites: z.array(z.string().min(1).max(160)).max(300).default([]),
+  cart: z.array(CartItemEntrySchema).max(50).default([]),
+  priceAlerts: z.array(PriceSniperRuleSchema).max(40).default([]),
+  worldAlerts: WorldAlertTogglesSchema.default({}),
   session: TabsSessionSchema.default({})
 })
 
@@ -85,6 +90,9 @@ export const DEFAULT_USER_SETTINGS: UserSettings = UserSettingsSchema.parse({
   window: {},
   market: {},
   favorites: [],
+  cart: [],
+  priceAlerts: [],
+  worldAlerts: {},
   session: {}
 })
 

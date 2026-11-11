@@ -1,5 +1,9 @@
 import { z } from 'zod'
 import {
+  TriggeredAlertEventSchema,
+  type TriggeredAlertEvent
+} from '@shared/schemas/alerts.schema'
+import {
   MarketCatalogItemSchema,
   MarketItemDetailSchema,
   MarketItemStatsSchema,
@@ -19,6 +23,17 @@ import {
   type UserSettingsPatch
 } from '@shared/schemas/settings.schema'
 import { SystemStatusSchema, type SystemStatus } from '@shared/schemas/system.schema'
+import {
+  CartBundleAnalysisSchema,
+  DucatItemEntrySchema,
+  RivenAuctionCardSchema,
+  RivenWeaponSummarySchema,
+  type CartBundleAnalysis,
+  type DucatItemEntry,
+  type RivenAuctionCard,
+  type RivenSearchParams,
+  type RivenWeaponSummary
+} from '@shared/schemas/tools.schema'
 import { WindowStateSchema, type WindowState } from '@shared/schemas/window.schema'
 import type { WireframeBridgeApi } from '@shared/ipc-channels'
 
@@ -27,14 +42,6 @@ function getBridge(): WireframeBridgeApi {
     throw new Error('Pont IPC preload indisponible (window.wireframeApi manquant).')
   }
   return window.wireframeApi
-}
-
-function assertMarketBridge(): WireframeBridgeApi['market'] {
-  const bridge = getBridge()
-  if (!bridge.market) {
-    throw new Error('Relance npm.cmd run dev une fois pour activer les canaux IPC Warframe Market.')
-  }
-  return bridge.market
 }
 
 export const ipcClient = {
@@ -103,32 +110,62 @@ export const ipcClient = {
   },
   market: {
     async getCatalog(forceRefresh?: boolean): Promise<MarketCatalogItem[]> {
-      const raw = await assertMarketBridge().getCatalog(forceRefresh)
-      return z.array(MarketCatalogItemSchema).parse(raw)
+      return z.array(MarketCatalogItemSchema).parse(await getBridge().market.getCatalog(forceRefresh))
     },
     async getItemDetail(slug: string): Promise<MarketItemDetail> {
-      const raw = await assertMarketBridge().getItemDetail(slug)
-      return MarketItemDetailSchema.parse(raw)
+      return MarketItemDetailSchema.parse(await getBridge().market.getItemDetail(slug))
     },
     async getItemOrders(slug: string, forceRefresh?: boolean): Promise<MarketOrder[]> {
-      const raw = await assertMarketBridge().getItemOrders(slug, forceRefresh)
-      return z.array(MarketOrderSchema).parse(raw)
+      return z.array(MarketOrderSchema).parse(await getBridge().market.getItemOrders(slug, forceRefresh))
     },
     async analyzeSetVsParts(slug: string, forceRefresh?: boolean): Promise<SetVsPartsAnalysis> {
-      const raw = await assertMarketBridge().analyzeSetVsParts(slug, forceRefresh)
-      return SetVsPartsAnalysisSchema.parse(raw)
+      return SetVsPartsAnalysisSchema.parse(await getBridge().market.analyzeSetVsParts(slug, forceRefresh))
     },
     async getItemStats(slug: string): Promise<MarketItemStats> {
-      const raw = await assertMarketBridge().getItemStats(slug)
-      return MarketItemStatsSchema.parse(raw)
+      return MarketItemStatsSchema.parse(await getBridge().market.getItemStats(slug))
     },
     async getRecentOrders(forceRefresh?: boolean): Promise<MarketOrder[]> {
-      const raw = await assertMarketBridge().getRecentOrders(forceRefresh)
-      return z.array(MarketOrderSchema).parse(raw)
+      return z.array(MarketOrderSchema).parse(await getBridge().market.getRecentOrders(forceRefresh))
     },
     async getUserProfile(userSlug: string): Promise<MarketUserProfile> {
-      const raw = await assertMarketBridge().getUserProfile(userSlug)
-      return MarketUserProfileSchema.parse(raw)
+      return MarketUserProfileSchema.parse(await getBridge().market.getUserProfile(userSlug))
+    }
+  },
+  tools: {
+    async analyzeCartBundles(forceRefresh?: boolean): Promise<CartBundleAnalysis> {
+      const bridge = getBridge()
+      if (!bridge.tools) throw new Error('Relance npm.cmd run dev pour activer le Trade Bundler.')
+      return CartBundleAnalysisSchema.parse(await bridge.tools.analyzeCartBundles(forceRefresh))
+    },
+    async getDucats(forceRefresh?: boolean): Promise<DucatItemEntry[]> {
+      const bridge = getBridge()
+      if (!bridge.tools) throw new Error('Relance npm.cmd run dev pour activer le Ducanator.')
+      return z.array(DucatItemEntrySchema).parse(await bridge.tools.getDucats(forceRefresh))
+    },
+    async getRivenWeapons(): Promise<RivenWeaponSummary[]> {
+      const bridge = getBridge()
+      if (!bridge.tools) throw new Error('Relance npm.cmd run dev pour activer les Rivens.')
+      return z.array(RivenWeaponSummarySchema).parse(await bridge.tools.getRivenWeapons())
+    },
+    async searchRivens(params: RivenSearchParams): Promise<RivenAuctionCard[]> {
+      const bridge = getBridge()
+      if (!bridge.tools) throw new Error('Relance npm.cmd run dev pour activer les Rivens.')
+      return z.array(RivenAuctionCardSchema).parse(await bridge.tools.searchRivens(params))
+    }
+  },
+  alerts: {
+    async scanNow(): Promise<TriggeredAlertEvent[]> {
+      const bridge = getBridge()
+      if (!bridge.alerts) throw new Error('Relance npm.cmd run dev pour activer le Price Sniper.')
+      return z.array(TriggeredAlertEventSchema).parse(await bridge.alerts.scanNow())
+    },
+    onTriggered(listener: (alert: TriggeredAlertEvent) => void): () => void {
+      const bridge = getBridge()
+      if (!bridge.alerts?.onTriggered) return () => undefined
+      return bridge.alerts.onTriggered((rawAlert) => {
+        const parsed = TriggeredAlertEventSchema.safeParse(rawAlert)
+        if (parsed.success) listener(parsed.data)
+      })
     }
   }
 } as const

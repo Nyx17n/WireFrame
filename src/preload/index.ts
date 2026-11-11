@@ -1,6 +1,8 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { IPC_CHANNELS, type WireframeBridgeApi } from '@shared/ipc-channels'
+import type { TriggeredAlertEvent } from '@shared/schemas/alerts.schema'
 import type { UserSettingsPatch } from '@shared/schemas/settings.schema'
+import type { RivenSearchParams } from '@shared/schemas/tools.schema'
 import type { WindowState } from '@shared/schemas/window.schema'
 
 const wireframeApi: WireframeBridgeApi = Object.freeze({
@@ -56,6 +58,27 @@ const wireframeApi: WireframeBridgeApi = Object.freeze({
       ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_RECENT_ORDERS, { forceRefresh }),
     getUserProfile: (userSlug: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_USER_PROFILE, { slug: userSlug })
+  }),
+  tools: Object.freeze({
+    analyzeCartBundles: (forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.TOOLS_ANALYZE_CART, { forceRefresh }),
+    getDucats: (forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.TOOLS_GET_DUCATS, { forceRefresh }),
+    getRivenWeapons: () => ipcRenderer.invoke(IPC_CHANNELS.TOOLS_GET_RIVEN_WEAPONS),
+    searchRivens: (params: RivenSearchParams) =>
+      ipcRenderer.invoke(IPC_CHANNELS.TOOLS_SEARCH_RIVENS, params)
+  }),
+  alerts: Object.freeze({
+    scanNow: () => ipcRenderer.invoke(IPC_CHANNELS.ALERTS_SCAN_NOW),
+    onTriggered: (listener: (alert: TriggeredAlertEvent) => void) => {
+      const wrapped = (_event: IpcRendererEvent, alert: TriggeredAlertEvent): void => {
+        listener(alert)
+      }
+      ipcRenderer.on(IPC_CHANNELS.ALERTS_ON_TRIGGERED, wrapped)
+      return () => {
+        ipcRenderer.removeListener(IPC_CHANNELS.ALERTS_ON_TRIGGERED, wrapped)
+      }
+    }
   })
 })
 

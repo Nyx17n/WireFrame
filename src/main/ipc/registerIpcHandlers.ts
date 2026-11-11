@@ -23,10 +23,18 @@ export interface MainServicesContainer {
   storageService: StorageService
   windowService: WindowOverlayService
   onShortcutsUpdated: () => Promise<void>
+  onAlertsConfigUpdated?: () => Promise<void>
 }
 
 export function registerIpcHandlers(services: MainServicesContainer): void {
-  const { httpClient, cacheService, storageService, windowService, onShortcutsUpdated } = services
+  const {
+    httpClient,
+    cacheService,
+    storageService,
+    windowService,
+    onShortcutsUpdated,
+    onAlertsConfigUpdated
+  } = services
 
   const buildSystemStatus = () => ({
     appVersion: app.getVersion(),
@@ -59,6 +67,9 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     const updated = await storageService.updateSettings(patch)
     if (patch.window?.globalShortcutsEnabled !== undefined || patch.window?.shortcuts !== undefined) {
       await onShortcutsUpdated()
+    }
+    if (patch.audio?.scanIntervalSec !== undefined || patch.priceAlerts !== undefined) {
+      await onAlertsConfigUpdated?.()
     }
     return updated
   })

@@ -68,6 +68,9 @@ export class StorageService {
       favorites: (patch.favorites ?? current.favorites).filter(
         (slug): slug is string => typeof slug === 'string' && slug.length > 0
       ),
+      cart: patch.cart ?? current.cart,
+      priceAlerts: patch.priceAlerts ?? current.priceAlerts,
+      worldAlerts: { ...current.worldAlerts, ...patch.worldAlerts },
       session: {
         ...current.session,
         ...patch.session,

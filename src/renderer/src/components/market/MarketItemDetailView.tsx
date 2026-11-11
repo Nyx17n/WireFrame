@@ -1,5 +1,14 @@
 import * as React from 'react'
-import { AlertTriangle, BarChart3, ExternalLink, ListOrdered, RefreshCw, Star } from 'lucide-react'
+import {
+  AlertTriangle,
+  BarChart3,
+  Crosshair,
+  ExternalLink,
+  ListOrdered,
+  RefreshCw,
+  ShoppingCart,
+  Star
+} from 'lucide-react'
 import {
   toWfAssetUrl,
   type MarketItemDetail,
@@ -23,6 +32,9 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
   const lang = useAppStore((s) => s.settings.market.language)
   const favorites = useAppStore((s) => s.settings.favorites)
   const toggleFavorite = useMarketStore((s) => s.toggleFavorite)
+  const addToCart = useMarketStore((s) => s.addToCart)
+  const addPriceAlert = useMarketStore((s) => s.addPriceAlert)
+  const navigateActive = useTabsStore((s) => s.navigateActive)
   const refreshRevision = useTabsStore((s) => s.refreshRevision)
 
   const [detail, setDetail] = React.useState<MarketItemDetail | null>(null)
@@ -132,12 +144,43 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
           <div className="flex shrink-0 flex-wrap items-center gap-1.5">
             <Button
               size="sm"
+              variant="secondary"
+              onClick={() => void addToCart({ slug: detail.slug, quantity: 1 })}
+            >
+              <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+              <span>+ Panier</span>
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const cheapest =
+                  orders
+                    .filter((o) => o.type === 'sell' && o.user?.status === 'ingame')
+                    .sort((a, b) => a.platinum - b.platinum)[0]?.platinum ?? 50
+                void addPriceAlert({
+                  slug: detail.slug,
+                  nameFr: detail.nameFr,
+                  nameEn: detail.nameEn,
+                  thumb: detail.thumb,
+                  maxPlatinum: Math.max(1, cheapest - 5)
+                }).then(() => navigateActive({ kind: 'alerts' }))
+              }}
+              title="Créer une surveillance Price Sniper sur cet item"
+            >
+              <Crosshair className="h-3.5 w-3.5 text-primary" />
+              <span>Sniper</span>
+            </Button>
+
+            <Button
+              size="sm"
               variant={isFav ? 'default' : 'outline'}
               onClick={() => void toggleFavorite(detail.slug)}
               title="Raccourci Ctrl+D"
             >
               <Star className={`h-3.5 w-3.5 ${isFav ? 'fill-current' : ''}`} />
-              <span>{isFav ? 'Favori' : 'Ajouter Favori'}</span>
+              <span>{isFav ? 'Favori' : 'Favori'}</span>
             </Button>
 
             {detail.wikiLink && detail.wikiLink.startsWith('https://wiki.warframe.com') && (

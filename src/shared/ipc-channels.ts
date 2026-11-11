@@ -1,3 +1,4 @@
+import type { TriggeredAlertEvent } from './schemas/alerts.schema'
 import type {
   MarketCatalogItem,
   MarketItemDetail,
@@ -8,6 +9,13 @@ import type {
 } from './schemas/market.schema'
 import type { UserSettings, UserSettingsPatch } from './schemas/settings.schema'
 import type { SystemStatus } from './schemas/system.schema'
+import type {
+  CartBundleAnalysis,
+  DucatItemEntry,
+  RivenAuctionCard,
+  RivenSearchParams,
+  RivenWeaponSummary
+} from './schemas/tools.schema'
 import type { WindowState } from './schemas/window.schema'
 
 export const IPC_CHANNELS = {
@@ -34,7 +42,13 @@ export const IPC_CHANNELS = {
   MARKET_ANALYZE_SET: 'market:analyzeSetVsParts',
   MARKET_GET_ITEM_STATS: 'market:getItemStats',
   MARKET_GET_RECENT_ORDERS: 'market:getRecentOrders',
-  MARKET_GET_USER_PROFILE: 'market:getUserProfile'
+  MARKET_GET_USER_PROFILE: 'market:getUserProfile',
+  TOOLS_ANALYZE_CART: 'tools:analyzeCartBundles',
+  TOOLS_GET_DUCATS: 'tools:getDucats',
+  TOOLS_GET_RIVEN_WEAPONS: 'tools:getRivenWeapons',
+  TOOLS_SEARCH_RIVENS: 'tools:searchRivens',
+  ALERTS_SCAN_NOW: 'alerts:scanNow',
+  ALERTS_ON_TRIGGERED: 'alerts:onTriggered'
 } as const
 
 export interface WireframeBridgeApi {
@@ -71,6 +85,16 @@ export interface WireframeBridgeApi {
     getItemStats: (slug: string) => Promise<MarketItemStats>
     getRecentOrders: (forceRefresh?: boolean) => Promise<MarketOrder[]>
     getUserProfile: (userSlug: string) => Promise<MarketUserProfile>
+  }
+  readonly tools: {
+    analyzeCartBundles: (forceRefresh?: boolean) => Promise<CartBundleAnalysis>
+    getDucats: (forceRefresh?: boolean) => Promise<DucatItemEntry[]>
+    getRivenWeapons: () => Promise<RivenWeaponSummary[]>
+    searchRivens: (params: RivenSearchParams) => Promise<RivenAuctionCard[]>
+  }
+  readonly alerts: {
+    scanNow: () => Promise<TriggeredAlertEvent[]>
+    onTriggered: (listener: (alert: TriggeredAlertEvent) => void) => () => void
   }
 }
 

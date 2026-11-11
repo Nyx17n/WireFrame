@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { AlertToastBanner } from '@/components/alerts/AlertToastBanner'
 import { WhisperBar } from '@/components/market/WhisperBar'
 import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
 import { CommandNavBar } from '@/components/shell/CommandNavBar'
@@ -7,25 +8,39 @@ import { StatusBar } from '@/components/shell/StatusBar'
 import { SettingsModal } from '@/components/settings/SettingsModal'
 import { useLocalShortcuts } from '@/hooks/useLocalShortcuts'
 import { WorkspaceRouteViewport } from '@/pages/WorkspaceRouteViewport'
+import { playAlertSoundPreview } from '@/services/audio-preview.service'
+import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
+import { useMarketStore } from '@/stores/useMarketStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 export function App(): React.JSX.Element {
   const initialize = useAppStore((s) => s.initialize)
   const hydrateFromSession = useTabsStore((s) => s.hydrateFromSession)
+  const setLatestAlertToast = useMarketStore((s) => s.setLatestAlertToast)
 
   useLocalShortcuts()
 
   React.useEffect(() => {
-    let cleanup: (() => void) | undefined
+    let cleanupWindow: (() => void) | undefined
     void initialize().then((unsubscribe) => {
-      cleanup = unsubscribe
+      cleanupWindow = unsubscribe
       hydrateFromSession(useAppStore.getState().settings.session)
     })
+
+    const cleanupAlerts = ipcClient.alerts.onTriggered((alertEvent) => {
+      setLatestAlertToast(alertEvent)
+      const { audio } = useAppStore.getState().settings
+      if (audio.soundEnabled) {
+        void playAlertSoundPreview(audio.soundChoice, audio.volumePercent)
+      }
+    })
+
     return () => {
-      cleanup?.()
+      cleanupWindow?.()
+      cleanupAlerts()
     }
-  }, [initialize, hydrateFromSession])
+  }, [initialize, hydrateFromSession, setLatestAlertToast])
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
@@ -36,6 +51,7 @@ export function App(): React.JSX.Element {
       </div>
       <WhisperBar />
       <StatusBar />
+      <AlertToastBanner />
       <OmniboxDialog />
       <SettingsModal />
     </div>

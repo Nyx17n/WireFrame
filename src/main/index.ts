@@ -4,10 +4,14 @@ import { join } from 'node:path'
 import { RateLimitedHttpClient } from './infrastructure/http/RateLimitedHttpClient'
 import { registerIpcHandlers } from './ipc/registerIpcHandlers'
 import { registerMarketHandlers } from './ipc/registerMarketHandlers'
+import { registerToolsAndAlertsHandlers } from './ipc/registerToolsAndAlertsHandlers'
+import { AlertSchedulerService } from './services/AlertSchedulerService'
 import { CacheService } from './services/CacheService'
+import { CartBundlerService } from './services/CartBundlerService'
 import { MarketApiService } from './services/MarketApiService'
 import { SetCalculatorService } from './services/SetCalculatorService'
 import { StorageService } from './services/StorageService'
+import { TradingToolsService } from './services/TradingToolsService'
 import { WindowOverlayService } from './services/WindowOverlayService'
 
 // Register `wf-asset://` as a read-only privileged image scheme before app ready
@@ -52,6 +56,9 @@ async function bootstrap(): Promise<void> {
   const windowService = new WindowOverlayService(storageService)
   const marketApi = new MarketApiService(httpClient, cacheService, storageService)
   const setCalculator = new SetCalculatorService(marketApi)
+  const cartBundler = new CartBundlerService(marketApi, storageService)
+  const tradingTools = new TradingToolsService(httpClient, cacheService, storageService, marketApi)
+  const alertScheduler = new AlertSchedulerService(marketApi, storageService, windowService)
 
   // Serve cached Warframe Market static icons safely via wf-asset://icons/<subpath>
   protocol.handle('wf-asset', async (request) => {
@@ -109,17 +116,25 @@ async function bootstrap(): Promise<void> {
     cacheService,
     storageService,
     windowService,
-    onShortcutsUpdated: syncGlobalShortcuts
+    onShortcutsUpdated: syncGlobalShortcuts,
+    onAlertsConfigUpdated: () => alertScheduler.startOrRestart()
   })
   registerMarketHandlers({
     marketApi,
     setCalculator,
     windowService
   })
+  registerToolsAndAlertsHandlers({
+    cartBundler,
+    tradingTools,
+    alertScheduler,
+    windowService
+  })
 
   const iconPath = resolveAppIconPath()
   await windowService.createMainWindow(iconPath)
   await syncGlobalShortcuts()
+  await alertScheduler.startOrRestart()
 
   // System Tray setup for background Price Sniper & Overlay control
   const trayIcon = nativeImage.createFromPath(iconPath)
@@ -161,6 +176,7 @@ async function bootstrap(): Promise<void> {
 
   app.on('before-quit', () => {
     windowService.markQuitting()
+    alertScheduler.stop()
     globalShortcut.unregisterAll()
   })
 }

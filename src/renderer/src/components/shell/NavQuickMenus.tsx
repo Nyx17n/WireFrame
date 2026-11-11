@@ -21,10 +21,15 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { QuickMarketPopover } from '@/components/shell/QuickMarketPopover'
+import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 export function NavQuickMenus({ isCompact }: { isCompact: boolean }): React.JSX.Element {
   const navigateActive = useTabsStore((s) => s.navigateActive)
+  const cartCount = useAppStore((s) => s.settings.cart.length)
+  const activeAlertsCount = useAppStore(
+    (s) => s.settings.priceAlerts.filter((a) => a.enabled).length
+  )
 
   if (isCompact) {
     return (
@@ -102,19 +107,23 @@ export function NavQuickMenus({ isCompact }: { isCompact: boolean }): React.JSX.
 
       <Button
         variant="ghost"
-        size="icon"
+        size="sm"
         title="Panier & Bundler"
         onClick={() => navigateActive({ kind: 'market-cart' })}
       >
-        <ShoppingCart className="h-3.5 w-3.5" />
+        <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+        {cartCount > 0 && <span className="font-mono text-[11px]">{cartCount}</span>}
       </Button>
       <Button
         variant="ghost"
-        size="icon"
+        size="sm"
         title="Alertes & Price Sniper"
         onClick={() => navigateActive({ kind: 'alerts' })}
       >
-        <Bell className="h-3.5 w-3.5" />
+        <Bell className="h-3.5 w-3.5 text-primary" />
+        {activeAlertsCount > 0 && (
+          <span className="font-mono text-[11px]">{activeAlertsCount}</span>
+        )}
       </Button>
       <QuickMarketPopover />
     </>

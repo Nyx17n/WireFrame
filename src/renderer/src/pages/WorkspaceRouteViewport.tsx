@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { AlertsCenterView } from '@/components/alerts/AlertsCenterView'
 import { MarketCatalogView } from '@/components/market/MarketCatalogView'
 import { MarketFavoritesView } from '@/components/market/MarketFavoritesView'
 import { MarketHomeView } from '@/components/market/MarketHomeView'
@@ -16,6 +17,9 @@ import { MarketItemDetailView } from '@/components/market/MarketItemDetailView'
 import { MarketRecentOrdersView } from '@/components/market/MarketRecentOrdersView'
 import { MarketUserProfileView } from '@/components/market/MarketUserProfileView'
 import { RouteIcon } from '@/components/shell/RouteIcon'
+import { MarketCartView } from '@/components/tools/MarketCartView'
+import { MarketDucatsView } from '@/components/tools/MarketDucatsView'
+import { MarketRivensView } from '@/components/tools/MarketRivensView'
 import { getTabCurrentRoute } from '@/lib/tab-helpers'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
@@ -66,12 +70,20 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
       return <MarketCatalogView initialQuery={route.query ?? ''} />
     case 'market-item':
       return <MarketItemDetailView slug={route.slug ?? 'glaive_prime_set'} />
+    case 'market-cart':
+      return <MarketCartView />
     case 'market-favorites':
       return <MarketFavoritesView />
+    case 'market-ducats':
+      return <MarketDucatsView />
+    case 'market-rivens':
+      return <MarketRivensView />
     case 'market-recent':
       return <MarketRecentOrdersView />
     case 'market-user':
       return <MarketUserProfileView userSlug={route.slug ?? 'nyxo_17'} />
+    case 'alerts':
+      return <AlertsCenterView />
     default:
       return (
         <main className="mx-auto max-w-4xl p-4">
@@ -81,14 +93,14 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
                 <Badge variant="default" className="font-mono">
                   {formatRouteUri(route)}
                 </Badge>
-                <Badge variant="secondary">Prévu aux Jalons 4 à 6</Badge>
+                <Badge variant="secondary">Prévu aux Jalons 5 & 6</Badge>
               </div>
               <CardTitle className="flex items-center gap-2 pt-1 text-base">
                 <RouteIcon kind={route.kind} className="h-4 w-4 text-primary" />
                 <span>{getDefaultRouteTitle(route)}</span>
               </CardTitle>
               <CardDescription>
-                Cette vue sera connectée aux données temps réel lors des prochains jalons (Jalon 4 : Panier Bundler, Ducanator, Rivens & Price Sniper · Jalon 5 : Hub Worldstate · Jalon 6 : Codex & Helminth).
+                Cette vue sera connectée lors des prochains jalons (Jalon 5 : Hub Worldstate Temps Réel · Jalon 6 : Codex, Farm % & Helminth).
               </CardDescription>
             </CardHeader>
           </Card>
