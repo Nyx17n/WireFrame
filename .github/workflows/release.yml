@@ -1,0 +1,44 @@
+name: Release WireFrame Windows (NSIS + SHA-512)
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies cleanly
+        run: npm ci
+
+      - name: Strict TypeScript Check & Production Bundle
+        run: npm run build
+
+      - name: Package Windows NSIS Installer & latest.yml (SHA-512)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish ${{ startsWith(github.ref, 'refs/tags/v') && 'always' || 'never' }}
+
+      - name: Upload Installer Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wireframe-windows-installer
+          path: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml
+

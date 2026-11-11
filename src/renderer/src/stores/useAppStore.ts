@@ -5,6 +5,7 @@ import {
   type UserSettingsPatch
 } from '@shared/schemas/settings.schema'
 import type { SystemStatus } from '@shared/schemas/system.schema'
+import type { UpdaterStatus } from '@shared/schemas/updater.schema'
 import type { WindowState } from '@shared/schemas/window.schema'
 import { ipcClient } from '@/services/ipc-client'
 import { applyThemeToDocument } from '@/lib/theme-engine'
@@ -15,18 +16,23 @@ interface AppStoreState {
   settings: UserSettings
   windowState: WindowState
   systemStatus: SystemStatus | null
+  updaterStatus: UpdaterStatus | null
   isLoading: boolean
   errorMessage: string | null
   isOmniboxOpen: boolean
   isSettingsOpen: boolean
+  isChangelogOpen: boolean
   activeSettingsTab: SettingsTabId
   setOmniboxOpen: (open: boolean) => void
   openSettingsModal: (tab?: SettingsTabId) => void
   setSettingsOpen: (open: boolean) => void
+  setChangelogOpen: (open: boolean) => void
   setActiveSettingsTab: (tab: SettingsTabId) => void
   initialize: () => Promise<() => void>
   refreshSystemStatus: () => Promise<void>
   clearSystemCache: () => Promise<void>
+  checkForUpdates: () => Promise<void>
+  installUpdate: () => Promise<void>
   updateSettings: (patch: UserSettingsPatch) => Promise<void>
   resetSettings: () => Promise<void>
   exportSettingsJson: () => Promise<boolean>
@@ -47,10 +53,12 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
   settings: DEFAULT_USER_SETTINGS,
   windowState: DEFAULT_WINDOW_STATE,
   systemStatus: null,
+  updaterStatus: null,
   isLoading: true,
   errorMessage: null,
   isOmniboxOpen: false,
   isSettingsOpen: false,
+  isChangelogOpen: false,
   activeSettingsTab: 'appearance',
 
   setOmniboxOpen: (open) => set({ isOmniboxOpen: open }),
@@ -60,28 +68,36 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
       activeSettingsTab: tab ?? s.activeSettingsTab
     })),
   setSettingsOpen: (open) => set({ isSettingsOpen: open }),
+  setChangelogOpen: (open) => set({ isChangelogOpen: open }),
   setActiveSettingsTab: (tab) => set({ activeSettingsTab: tab }),
 
   initialize: async () => {
     set({ isLoading: true, errorMessage: null })
     try {
-      const [settings, windowState, systemStatus] = await Promise.all([
+      const [settings, windowState, systemStatus, updaterStatus] = await Promise.all([
         ipcClient.settings.get(),
         ipcClient.window.getState(),
-        ipcClient.system.getStatus()
+        ipcClient.system.getStatus(),
+        ipcClient.updater.getStatus().catch(() => null)
       ])
       applyThemeToDocument(settings.appearance)
-      set({ settings, windowState, systemStatus, isLoading: false })
+      set({ settings, windowState, systemStatus, updaterStatus, isLoading: false })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur d’initialisation IPC inconnue'
       applyThemeToDocument(DEFAULT_USER_SETTINGS.appearance)
       set({ errorMessage: message, isLoading: false })
     }
 
-    const unsubscribe = ipcClient.window.onStateChanged((nextWindowState) => {
+    const unsubWindow = ipcClient.window.onStateChanged((nextWindowState) => {
       set({ windowState: nextWindowState })
     })
-    return unsubscribe
+    const unsubUpdater = ipcClient.updater.onStatus((nextStatus) => {
+      set({ updaterStatus: nextStatus })
+    })
+    return () => {
+      unsubWindow()
+      unsubUpdater()
+    }
   },
 
   refreshSystemStatus: async () => {
@@ -96,6 +112,16 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
   clearSystemCache: async () => {
     const systemStatus = await ipcClient.system.clearCache()
     set({ systemStatus })
+  },
+
+  checkForUpdates: async () => {
+    const updaterStatus = await ipcClient.updater.check()
+    set({ updaterStatus })
+  },
+
+  installUpdate: async () => {
+    const updaterStatus = await ipcClient.updater.downloadAndInstall()
+    set({ updaterStatus })
   },
 
   updateSettings: async (patch) => {
@@ -115,9 +141,7 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     set({ settings: defaults, windowState, errorMessage: null })
   },
 
-  exportSettingsJson: async () => {
-    return ipcClient.settings.exportJson()
-  },
+  exportSettingsJson: async () => ipcClient.settings.exportJson(),
 
   importSettingsJson: async () => {
     const imported = await ipcClient.settings.importJson()

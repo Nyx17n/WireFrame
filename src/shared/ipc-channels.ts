@@ -1,5 +1,13 @@
 import type { TriggeredAlertEvent } from './schemas/alerts.schema'
 import type {
+  CodexCategory,
+  CodexItemDetail,
+  CodexSearchParams,
+  CodexSearchResult,
+  CodexSummaryCard,
+  HelminthOverview
+} from './schemas/codex.schema'
+import type {
   MarketCatalogItem,
   MarketItemDetail,
   MarketItemStats,
@@ -16,6 +24,7 @@ import type {
   RivenSearchParams,
   RivenWeaponSummary
 } from './schemas/tools.schema'
+import type { UpdaterStatus } from './schemas/updater.schema'
 import type { WindowState } from './schemas/window.schema'
 import type {
   VoidTraderSnapshot,
@@ -56,7 +65,15 @@ export const IPC_CHANNELS = {
   ALERTS_ON_TRIGGERED: 'alerts:onTriggered',
   WORLDSTATE_GET_CURRENT: 'worldstate:getCurrent',
   WORLDSTATE_GET_BARO_PRICES: 'worldstate:getBaroWithPrices',
-  WORLDSTATE_GET_VITUS_PRICES: 'worldstate:getVitusWithPrices'
+  WORLDSTATE_GET_VITUS_PRICES: 'worldstate:getVitusWithPrices',
+  CODEX_SEARCH: 'codex:search',
+  CODEX_QUICK_SEARCH: 'codex:quickSearch',
+  CODEX_GET_ITEM_DETAIL: 'codex:getItemDetail',
+  CODEX_GET_HELMINTH: 'codex:getHelminth',
+  UPDATER_GET_STATUS: 'updater:getStatus',
+  UPDATER_CHECK: 'updater:check',
+  UPDATER_INSTALL: 'updater:downloadAndInstall',
+  UPDATER_ON_STATUS: 'updater:onStatus'
 } as const
 
 export interface WireframeBridgeApi {
@@ -109,5 +126,16 @@ export interface WireframeBridgeApi {
     getBaroWithPrices: (forceRefresh?: boolean) => Promise<VoidTraderSnapshot>
     getVitusWithPrices: (forceRefresh?: boolean) => Promise<VitusModPriceEntry[]>
   }
+  readonly codex: {
+    search: (params: Partial<CodexSearchParams> & { category: CodexCategory }) => Promise<CodexSearchResult>
+    quickSearch: (query: string, limit?: number) => Promise<CodexSummaryCard[]>
+    getItemDetail: (category: CodexCategory, id: string) => Promise<CodexItemDetail>
+    getHelminth: () => Promise<HelminthOverview>
+  }
+  readonly updater: {
+    getStatus: () => Promise<UpdaterStatus>
+    check: () => Promise<UpdaterStatus>
+    downloadAndInstall: () => Promise<UpdaterStatus>
+    onStatus: (listener: (status: UpdaterStatus) => void) => () => void
+  }
 }
-

@@ -1,8 +1,10 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { IPC_CHANNELS, type WireframeBridgeApi } from '@shared/ipc-channels'
 import type { TriggeredAlertEvent } from '@shared/schemas/alerts.schema'
+import type { CodexCategory, CodexSearchParams } from '@shared/schemas/codex.schema'
 import type { UserSettingsPatch } from '@shared/schemas/settings.schema'
 import type { RivenSearchParams } from '@shared/schemas/tools.schema'
+import type { UpdaterStatus } from '@shared/schemas/updater.schema'
 import type { WindowState } from '@shared/schemas/window.schema'
 
 const wireframeApi: WireframeBridgeApi = Object.freeze({
@@ -87,6 +89,29 @@ const wireframeApi: WireframeBridgeApi = Object.freeze({
       ipcRenderer.invoke(IPC_CHANNELS.WORLDSTATE_GET_BARO_PRICES, { forceRefresh }),
     getVitusWithPrices: (forceRefresh?: boolean) =>
       ipcRenderer.invoke(IPC_CHANNELS.WORLDSTATE_GET_VITUS_PRICES, { forceRefresh })
+  }),
+  codex: Object.freeze({
+    search: (params: Partial<CodexSearchParams> & { category: CodexCategory }) =>
+      ipcRenderer.invoke(IPC_CHANNELS.CODEX_SEARCH, params),
+    quickSearch: (query: string, limit?: number) =>
+      ipcRenderer.invoke(IPC_CHANNELS.CODEX_QUICK_SEARCH, { query, limit }),
+    getItemDetail: (category: CodexCategory, id: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.CODEX_GET_ITEM_DETAIL, { category, id }),
+    getHelminth: () => ipcRenderer.invoke(IPC_CHANNELS.CODEX_GET_HELMINTH)
+  }),
+  updater: Object.freeze({
+    getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATER_GET_STATUS),
+    check: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATER_CHECK),
+    downloadAndInstall: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATER_INSTALL),
+    onStatus: (listener: (status: UpdaterStatus) => void) => {
+      const wrapped = (_event: IpcRendererEvent, status: UpdaterStatus): void => {
+        listener(status)
+      }
+      ipcRenderer.on(IPC_CHANNELS.UPDATER_ON_STATUS, wrapped)
+      return () => {
+        ipcRenderer.removeListener(IPC_CHANNELS.UPDATER_ON_STATUS, wrapped)
+      }
+    }
   })
 })
 

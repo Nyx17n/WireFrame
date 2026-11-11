@@ -4,6 +4,18 @@ import {
   type TriggeredAlertEvent
 } from '@shared/schemas/alerts.schema'
 import {
+  CodexItemDetailSchema,
+  CodexSearchResultSchema,
+  CodexSummaryCardSchema,
+  HelminthOverviewSchema,
+  type CodexCategory,
+  type CodexItemDetail,
+  type CodexSearchParams,
+  type CodexSearchResult,
+  type CodexSummaryCard,
+  type HelminthOverview
+} from '@shared/schemas/codex.schema'
+import {
   MarketCatalogItemSchema,
   MarketItemDetailSchema,
   MarketItemStatsSchema,
@@ -35,6 +47,10 @@ import {
   type RivenWeaponSummary
 } from '@shared/schemas/tools.schema'
 import { WindowStateSchema, type WindowState } from '@shared/schemas/window.schema'
+import {
+  UpdaterStatusSchema,
+  type UpdaterStatus
+} from '@shared/schemas/updater.schema'
 import {
   VitusModPriceEntrySchema,
   VoidTraderSnapshotSchema,
@@ -201,6 +217,67 @@ export const ipcClient = {
       return z
         .array(VitusModPriceEntrySchema)
         .parse(await bridge.worldstate.getVitusWithPrices(forceRefresh))
+    }
+  },
+  codex: {
+    async search(
+      params: Partial<CodexSearchParams> & { category: CodexCategory }
+    ): Promise<CodexSearchResult> {
+      const bridge = getBridge()
+      if (!bridge.codex) {
+        throw new Error('Relance npm.cmd run dev pour activer le Codex & Helminth.')
+      }
+      return CodexSearchResultSchema.parse(await bridge.codex.search(params))
+    },
+    async quickSearch(query: string, limit?: number): Promise<CodexSummaryCard[]> {
+      const bridge = getBridge()
+      if (!bridge.codex) return []
+      return z.array(CodexSummaryCardSchema).parse(await bridge.codex.quickSearch(query, limit))
+    },
+    async getItemDetail(category: CodexCategory, id: string): Promise<CodexItemDetail> {
+      const bridge = getBridge()
+      if (!bridge.codex) {
+        throw new Error('Relance npm.cmd run dev pour activer le Codex & Helminth.')
+      }
+      return CodexItemDetailSchema.parse(await bridge.codex.getItemDetail(category, id))
+    },
+    async getHelminth(): Promise<HelminthOverview> {
+      const bridge = getBridge()
+      if (!bridge.codex) {
+        throw new Error('Relance npm.cmd run dev pour activer l’Infirmerie Helminth.')
+      }
+      return HelminthOverviewSchema.parse(await bridge.codex.getHelminth())
+    }
+  },
+  updater: {
+    async getStatus(): Promise<UpdaterStatus> {
+      const bridge = getBridge()
+      if (!bridge.updater) {
+        throw new Error('Relance npm.cmd run dev pour activer l’Auto-Updater.')
+      }
+      return UpdaterStatusSchema.parse(await bridge.updater.getStatus())
+    },
+    async check(): Promise<UpdaterStatus> {
+      const bridge = getBridge()
+      if (!bridge.updater) {
+        throw new Error('Relance npm.cmd run dev pour activer l’Auto-Updater.')
+      }
+      return UpdaterStatusSchema.parse(await bridge.updater.check())
+    },
+    async downloadAndInstall(): Promise<UpdaterStatus> {
+      const bridge = getBridge()
+      if (!bridge.updater) {
+        throw new Error('Relance npm.cmd run dev pour activer l’Auto-Updater.')
+      }
+      return UpdaterStatusSchema.parse(await bridge.updater.downloadAndInstall())
+    },
+    onStatus(listener: (status: UpdaterStatus) => void): () => void {
+      const bridge = getBridge()
+      if (!bridge.updater?.onStatus) return () => undefined
+      return bridge.updater.onStatus((raw) => {
+        const parsed = UpdaterStatusSchema.safeParse(raw)
+        if (parsed.success) listener(parsed.data)
+      })
     }
   }
 } as const

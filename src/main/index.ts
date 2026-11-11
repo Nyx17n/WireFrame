@@ -2,6 +2,7 @@ import { app, globalShortcut, Menu, nativeImage, protocol, session, Tray } from 
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { RateLimitedHttpClient } from './infrastructure/http/RateLimitedHttpClient'
+import { registerCodexAndUpdaterHandlers } from './ipc/registerCodexAndUpdaterHandlers'
 import { registerIpcHandlers } from './ipc/registerIpcHandlers'
 import { registerMarketHandlers } from './ipc/registerMarketHandlers'
 import { registerToolsAndAlertsHandlers } from './ipc/registerToolsAndAlertsHandlers'
@@ -9,10 +10,12 @@ import { registerWorldstateHandlers } from './ipc/registerWorldstateHandlers'
 import { AlertSchedulerService } from './services/AlertSchedulerService'
 import { CacheService } from './services/CacheService'
 import { CartBundlerService } from './services/CartBundlerService'
+import { CodexRepository } from './services/CodexRepository'
 import { MarketApiService } from './services/MarketApiService'
 import { SetCalculatorService } from './services/SetCalculatorService'
 import { StorageService } from './services/StorageService'
 import { TradingToolsService } from './services/TradingToolsService'
+import { UpdaterService } from './services/UpdaterService'
 import { WindowOverlayService } from './services/WindowOverlayService'
 import { WorldstateService } from './services/WorldstateService'
 
@@ -61,6 +64,8 @@ async function bootstrap(): Promise<void> {
   const cartBundler = new CartBundlerService(marketApi, storageService)
   const tradingTools = new TradingToolsService(httpClient, cacheService, storageService, marketApi)
   const worldstateService = new WorldstateService(httpClient, cacheService, marketApi)
+  const codexRepository = new CodexRepository(marketApi)
+  const updaterService = new UpdaterService(windowService)
   const alertScheduler = new AlertSchedulerService(
     marketApi,
     storageService,
@@ -142,11 +147,17 @@ async function bootstrap(): Promise<void> {
     windowService,
     worldstateService
   })
+  registerCodexAndUpdaterHandlers({
+    windowService,
+    codexRepository,
+    updaterService
+  })
 
   const iconPath = resolveAppIconPath()
   await windowService.createMainWindow(iconPath)
   await syncGlobalShortcuts()
   await alertScheduler.startOrRestart()
+  updaterService.startPeriodicChecks()
 
   // System Tray setup for background Price Sniper & Overlay control
   const trayIcon = nativeImage.createFromPath(iconPath)
@@ -189,6 +200,7 @@ async function bootstrap(): Promise<void> {
   app.on('before-quit', () => {
     windowService.markQuitting()
     alertScheduler.stop()
+    updaterService.stop()
     globalShortcut.unregisterAll()
   })
 }

@@ -1,15 +1,11 @@
 import * as React from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
-import {
-  formatRouteUri,
-  getDefaultRouteTitle,
-  type AppRoute
-} from '@shared/schemas/navigation.schema'
-import { Badge } from '@/components/ui/badge'
+import type { AppRoute } from '@shared/schemas/navigation.schema'
 import { Button } from '@/components/ui/button'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertsCenterView } from '@/components/alerts/AlertsCenterView'
+import { CodexDetailView } from '@/components/codex/CodexDetailView'
+import { CodexHomeView } from '@/components/codex/CodexHomeView'
 import { HubRootView } from '@/components/hub/HubRootView'
 import { MarketCatalogView } from '@/components/market/MarketCatalogView'
 import { MarketFavoritesView } from '@/components/market/MarketFavoritesView'
@@ -17,7 +13,6 @@ import { MarketHomeView } from '@/components/market/MarketHomeView'
 import { MarketItemDetailView } from '@/components/market/MarketItemDetailView'
 import { MarketRecentOrdersView } from '@/components/market/MarketRecentOrdersView'
 import { MarketUserProfileView } from '@/components/market/MarketUserProfileView'
-import { RouteIcon } from '@/components/shell/RouteIcon'
 import { MarketCartView } from '@/components/tools/MarketCartView'
 import { MarketDucatsView } from '@/components/tools/MarketDucatsView'
 import { MarketRivensView } from '@/components/tools/MarketRivensView'
@@ -87,27 +82,9 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
       return <MarketUserProfileView userSlug={route.slug ?? 'nyxo_17'} />
     case 'alerts':
       return <AlertsCenterView />
-    default:
-      return (
-        <main className="mx-auto max-w-4xl p-4">
-          <Card className="border-primary/30">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Badge variant="default" className="font-mono">
-                  {formatRouteUri(route)}
-                </Badge>
-                <Badge variant="secondary">Prévu aux Jalons 5 & 6</Badge>
-              </div>
-              <CardTitle className="flex items-center gap-2 pt-1 text-base">
-                <RouteIcon kind={route.kind} className="h-4 w-4 text-primary" />
-                <span>{getDefaultRouteTitle(route)}</span>
-              </CardTitle>
-              <CardDescription>
-                Cette vue sera connectée lors des prochains jalons (Jalon 5 : Hub Worldstate Temps Réel · Jalon 6 : Codex, Farm % & Helminth).
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </main>
-      )
+    case 'codex-home':
+      return <CodexHomeView initialCategory={route.category} initialQuery={route.query} />
+    case 'codex-detail':
+      return <CodexDetailView categoryRaw={route.category} id={route.slug ?? 'wisp'} />
   }
 }

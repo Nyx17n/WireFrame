@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { AlertToastBanner } from '@/components/alerts/AlertToastBanner'
 import { WhisperBar } from '@/components/market/WhisperBar'
+import { ChangelogModal } from '@/components/modals/ChangelogModal'
 import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
 import { CommandNavBar } from '@/components/shell/CommandNavBar'
 import { OmniboxDialog } from '@/components/shell/OmniboxDialog'
@@ -54,6 +55,7 @@ export function App(): React.JSX.Element {
       <AlertToastBanner />
       <OmniboxDialog />
       <SettingsModal />
+      <ChangelogModal />
     </div>
   )
 }

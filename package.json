@@ -1,6 +1,6 @@
 {
   "name": "wireframe",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "WireFrame v2 — Companion, Trading Browser & Codex for Warframe",
   "author": "Maxime (Nyxo_17)",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "build": "npm run typecheck && electron-vite build",
     "preview": "node scripts/run-electron-vite.mjs preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "dist:win": "npm run build && electron-builder --win"
+    "dist:win": "npm run build && electron-builder --win --publish never"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.6",
@@ -22,6 +22,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "electron-updater": "^6.3.9",
     "lucide-react": "^0.475.0",
     "tailwind-merge": "^3.0.1",
     "zod": "^3.24.2",
@@ -36,7 +37,6 @@
     "autoprefixer": "^10.4.20",
     "electron": "^35.0.0",
     "electron-builder": "^25.1.8",
-    "electron-updater": "^6.3.9",
     "electron-vite": "^3.0.0",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
@@ -47,4 +47,3 @@
     "vite": "^6.2.0"
   }
 }
-

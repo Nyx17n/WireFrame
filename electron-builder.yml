@@ -1,0 +1,40 @@
+appId: com.nyxo17.wireframe
+productName: WireFrame
+copyright: Copyright © 2026 Maxime (Nyxo_17)
+
+directories:
+  output: release
+  buildResources: resources
+
+files:
+  - out/**/*
+  - package.json
+
+extraResources:
+  - from: resources/icon.ico
+    to: icon.ico
+  - from: resources/codex-db.json
+    to: codex-db.json
+
+asar: true
+
+win:
+  icon: resources/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: WireFrame
+  artifactName: WireFrame-Setup-${version}.${ext}
+
+publish:
+  provider: github
+  releaseType: release
+

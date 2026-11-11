@@ -1,12 +1,26 @@
 import * as React from 'react'
-import { Download, RotateCcw, ShieldCheck, Trash2, Upload } from 'lucide-react'
+import {
+  Download,
+  FileText,
+  RefreshCw,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  Upload
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/stores/useAppStore'
 
 export function SystemDataSettingsTab(): React.JSX.Element {
   const systemStatus = useAppStore((s) => s.systemStatus)
+  const updaterStatus = useAppStore((s) => s.updaterStatus)
   const clearSystemCache = useAppStore((s) => s.clearSystemCache)
+  const checkForUpdates = useAppStore((s) => s.checkForUpdates)
+  const installUpdate = useAppStore((s) => s.installUpdate)
+  const setChangelogOpen = useAppStore((s) => s.setChangelogOpen)
+  const setSettingsOpen = useAppStore((s) => s.setSettingsOpen)
   const exportSettingsJson = useAppStore((s) => s.exportSettingsJson)
   const importSettingsJson = useAppStore((s) => s.importSettingsJson)
   const resetSettings = useAppStore((s) => s.resetSettings)
@@ -15,7 +29,7 @@ export function SystemDataSettingsTab(): React.JSX.Element {
 
   const notify = (msg: string): void => {
     setFeedback(msg)
-    window.setTimeout(() => setFeedback(null), 3000)
+    window.setTimeout(() => setFeedback(null), 3500)
   }
 
   return (
@@ -23,24 +37,68 @@ export function SystemDataSettingsTab(): React.JSX.Element {
       <div>
         <h3 className="text-sm font-semibold">Système, Mises à Jour SHA-512 & Données</h3>
         <p className="text-xs text-muted-foreground">
-          Gère le cache local, tes sauvegardes JSON et l’intégrité de l’application.
+          Gère les mises à jour signées, le cache local et tes sauvegardes JSON.
         </p>
       </div>
 
-      <div className="space-y-2 rounded-md border border-border bg-background/50 p-3 text-xs">
-        <div className="flex items-center justify-between">
-          <span className="font-medium">Version installée</span>
-          <Badge variant="default">v{systemStatus?.appVersion ?? '2.0.0-alpha.1'}</Badge>
+      <div className="space-y-2.5 rounded-md border border-border bg-background/50 p-3 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Version installée</span>
+            <Badge variant="default">v{systemStatus?.appVersion ?? '2.0.0'}</Badge>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setSettingsOpen(false)
+                setChangelogOpen(true)
+              }}
+            >
+              <FileText className="h-3.5 w-3.5 text-primary" />
+              <span>Notes de Patch</span>
+            </Button>
+            {updaterStatus?.state === 'downloaded' ? (
+              <Button size="sm" onClick={() => void installUpdate()}>
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Installer v{updaterStatus.availableVersion} & Redémarrer</span>
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={updaterStatus?.state === 'checking'}
+                onClick={() =>
+                  void checkForUpdates().catch((e: unknown) =>
+                    notify(e instanceof Error ? e.message : 'Erreur vérification')
+                  )
+                }
+              >
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${updaterStatus?.state === 'checking' ? 'animate-spin' : ''}`}
+                />
+                <span>Vérifier MAJ</span>
+              </Button>
+            )}
+          </div>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Canal electron-updater (SHA-512)</span>
-          <span className="inline-flex items-center gap-1 text-emerald-400">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Prêt (activé en Release packagée Jalon 6)</span>
+
+        <div className="flex items-center justify-between gap-2 text-[11px]">
+          <span className="inline-flex items-center gap-1.5 text-emerald-400">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+            <span>
+              {updaterStatus?.message ?? 'Intégrité cryptographique SHA-512 activée (electron-updater)'}
+            </span>
           </span>
+          {updaterStatus?.progressPercent !== null &&
+            updaterStatus?.progressPercent !== undefined && (
+              <Badge variant="secondary">{updaterStatus.progressPercent}%</Badge>
+            )}
         </div>
+
         {systemStatus && (
-          <div className="pt-1 font-mono text-[10px] text-muted-foreground">
+          <div className="pt-0.5 font-mono text-[10px] text-muted-foreground">
             Dossier config : {systemStatus.userDataPath}
           </div>
         )}
@@ -113,4 +171,3 @@ export function SystemDataSettingsTab(): React.JSX.Element {
     </div>
   )
 }
-
