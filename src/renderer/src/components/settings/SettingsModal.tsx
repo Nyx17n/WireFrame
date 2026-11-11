@@ -39,11 +39,11 @@ export function SettingsModal(): React.JSX.Element {
     <Dialog open={isOpen} onOpenChange={setSettingsOpen}>
       <DialogContent
         className={cn(
-          'gap-0 overflow-hidden p-0',
-          isCompact ? 'h-[94vh] max-w-[95vw]' : 'h-[620px] max-w-4xl'
+          'flex flex-col gap-0 overflow-hidden p-0',
+          isCompact ? 'max-h-[92vh] max-w-[95vw]' : 'max-h-[86vh] max-w-4xl'
         )}
       >
-        <DialogHeader className="border-b border-border bg-background/70 px-4 py-3">
+        <DialogHeader className="shrink-0 border-b border-border bg-background/70 px-4 py-3 pr-10">
           <DialogTitle>Paramètres WireFrame v2</DialogTitle>
           <DialogDescription>
             Tous les changements sont validés par Zod et enregistrés automatiquement.
@@ -80,7 +80,7 @@ export function SettingsModal(): React.JSX.Element {
             })}
           </nav>
 
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
             {activeTab === 'appearance' && <AppearanceSettingsTab />}
             {activeTab === 'audio' && <AudioAlertsSettingsTab />}
             {activeTab === 'window' && <WindowShortcutsSettingsTab />}
