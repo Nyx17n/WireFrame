@@ -33,13 +33,13 @@ export const CodexSearchParamsSchema = z.object({
 export type CodexSearchParams = z.infer<typeof CodexSearchParamsSchema>
 
 export const CodexSummaryCardSchema = z.object({
-  id: z.string().min(1).max(160),
+  id: z.string().min(1).max(200),
   category: CodexCategorySchema,
-  nameFr: z.string().min(1).max(160),
-  nameEn: z.string().min(1).max(160),
+  nameFr: z.string().min(1).max(240),
+  nameEn: z.string().min(1).max(240),
   imageUrl: z.string().nullable(),
-  badgeText: z.string().max(60),
-  subtitle: z.string().max(180),
+  badgeText: z.string().max(120),
+  subtitle: z.string().max(500),
   isPrime: z.boolean(),
   isVaulted: z.boolean(),
   isTradable: z.boolean(),

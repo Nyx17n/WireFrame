@@ -55,7 +55,9 @@ export const RawWarframeSchema = z.object({
   ar: z.number().nonnegative().default(0),
   enMax: z.number().nonnegative().default(0),
   spd: z.number().nonnegative().default(1),
-  aura: z.string().default(''),
+  aura: z
+    .union([z.string(), z.array(z.string()).transform((arr) => arr.join(' + '))])
+    .default(''),
   pol: z.array(z.string()).default([]),
   passive: z.string().default(''),
   abilities: z

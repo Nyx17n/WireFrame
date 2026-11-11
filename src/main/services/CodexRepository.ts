@@ -106,7 +106,7 @@ export class CodexRepository {
         nameEn: r.en,
         imageUrl: toCodexImageUrl(r.img),
         badgeText: r.totalUsedFor > 0 ? `${r.totalUsedFor} crafts` : 'Ressource',
-        subtitle: r.planets || r.type,
+        subtitle: (r.planets || r.type).slice(0, 240),
         isPrime: false,
         isVaulted: false,
         isTradable: r.tradable
