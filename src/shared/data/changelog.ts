@@ -8,6 +8,17 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_RELEASES: readonly ChangelogRelease[] = [
   {
+    version: '2.1.0',
+    date: 'Novembre 2026',
+    titleFr: 'Animation Cinétique « Pulsation du Lotus » & Mises à jour GitHub Releases',
+    badgeFr: 'Nouveauté v2.1',
+    highlightsFr: [
+      'Animation d’ouverture cinétique au lancement : ondes du Lotus teintées selon ton thème actif et défilement fluide Wire Frame → Doc → Companion → Market → Index → Codex avec centrage final sur « Wire ».',
+      'Option d’activation/désactivation et bouton « Rejouer » à la demande dans Paramètres → Apparence.',
+      'Migration officielle du canal de mise à jour automatique SHA-512 (electron-updater) vers GitHub Releases.'
+    ]
+  },
+  {
     version: '2.0.0',
     date: 'Novembre 2026',
     titleFr: 'Refonte Architecture Pro — Navigateur Multi-Onglets, Hub Live & Codex',
