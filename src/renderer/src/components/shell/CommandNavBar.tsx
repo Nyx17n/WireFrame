@@ -4,7 +4,9 @@ import {
   ArrowRight,
   Maximize2,
   Minimize2,
+  Minus,
   Pin,
+  Plus,
   RefreshCw,
   Search,
   Settings
@@ -23,6 +25,7 @@ export function CommandNavBar(): React.JSX.Element {
   const refreshSystemStatus = useAppStore((s) => s.refreshSystemStatus)
   const toggleAlwaysOnTop = useAppStore((s) => s.toggleAlwaysOnTop)
   const toggleCompactMode = useAppStore((s) => s.toggleCompactMode)
+  const setWindowZoom = useAppStore((s) => s.setWindowZoom)
 
   const hubActive = useTabsStore((s) => s.hubActive)
   const tabs = useTabsStore((s) => s.tabs)
@@ -88,6 +91,40 @@ export function CommandNavBar(): React.JSX.Element {
 
       <div className="flex shrink-0 items-center gap-1">
         <NavQuickMenus isCompact={windowState.isCompactMode} />
+
+        {!windowState.isCompactMode && (
+          <div
+            className="inline-flex h-7 items-center rounded-md border border-input bg-background/60 text-[11px]"
+            title="Zoom de l'interface (clic sur le % pour remettre à 100%)"
+          >
+            <button
+              type="button"
+              onClick={() => void setWindowZoom(windowState.zoomPercent - 10)}
+              disabled={windowState.zoomPercent <= 50}
+              className="flex h-full w-6 items-center justify-center rounded-l-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-40"
+              aria-label="Zoom arrière"
+            >
+              <Minus className="h-3 w-3" />
+            </button>
+            <button
+              type="button"
+              onClick={() => void setWindowZoom(100)}
+              className="flex h-full min-w-[38px] items-center justify-center border-x border-border/60 px-1 font-mono text-[10px] font-semibold text-foreground/90 transition-colors hover:bg-secondary hover:text-primary"
+              aria-label="Réinitialiser le zoom à 100%"
+            >
+              {windowState.zoomPercent}%
+            </button>
+            <button
+              type="button"
+              onClick={() => void setWindowZoom(windowState.zoomPercent + 10)}
+              disabled={windowState.zoomPercent >= 200}
+              className="flex h-full w-6 items-center justify-center rounded-r-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-40"
+              aria-label="Zoom avant"
+            >
+              <Plus className="h-3 w-3" />
+            </button>
+          </div>
+        )}
 
         <Button
           variant={windowState.isAlwaysOnTop ? 'default' : 'outline'}

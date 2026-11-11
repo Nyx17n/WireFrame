@@ -11,7 +11,9 @@ const LANGUAGES: readonly AppLanguage[] = ['fr', 'en']
 
 export function QuickMarketPopover(): React.JSX.Element {
   const market = useAppStore((s) => s.settings.market)
+  const zoomPercent = useAppStore((s) => s.windowState.zoomPercent)
   const updateSettings = useAppStore((s) => s.updateSettings)
+  const setWindowZoom = useAppStore((s) => s.setWindowZoom)
 
   return (
     <Popover>
@@ -74,6 +76,33 @@ export function QuickMarketPopover(): React.JSX.Element {
                 {lang}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between border-t border-border/60 pt-2 text-xs">
+          <span>Zoom affichage</span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => void setWindowZoom(zoomPercent - 10)}
+              className="rounded border border-border px-2 py-0.5 font-mono text-[11px] hover:border-primary"
+            >
+              -
+            </button>
+            <button
+              type="button"
+              onClick={() => void setWindowZoom(100)}
+              className="min-w-[42px] rounded border border-border px-1.5 py-0.5 font-mono text-[11px] font-semibold hover:border-primary"
+            >
+              {zoomPercent}%
+            </button>
+            <button
+              type="button"
+              onClick={() => void setWindowZoom(zoomPercent + 10)}
+              className="rounded border border-border px-2 py-0.5 font-mono text-[11px] hover:border-primary"
+            >
+              +
+            </button>
           </div>
         </div>
       </PopoverContent>
