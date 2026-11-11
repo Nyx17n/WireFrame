@@ -42,38 +42,92 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
   const [detail, setDetail] = React.useState<MarketItemDetail | null>(null)
   const [orders, setOrders] = React.useState<MarketOrder[]>([])
   const [setAnalysis, setSetAnalysis] = React.useState<SetVsPartsAnalysis | null>(null)
+  const [isSetLoading, setIsSetLoading] = React.useState(false)
   const [stats, setStats] = React.useState<MarketItemStats | null>(null)
+  const [isStatsLoading, setIsStatsLoading] = React.useState(false)
   const [subTab, setSubTab] = React.useState<'orders' | 'stats'>('orders')
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const lastRefreshRef = React.useRef(refreshRevision)
+  const requestIdRef = React.useRef(0)
 
   const loadData = React.useCallback(
     async (force = false) => {
+      const reqId = ++requestIdRef.current
       setIsLoading(true)
+      setIsSetLoading(false)
       setError(null)
+      setSetAnalysis(null)
+      setStats(null)
       try {
-        const [d, ord, analysis, st] = await Promise.all([
+        // 1. Priorité absolue : fiche + ordres de l'item (2 requêtes -> immédiat sous la limite 3 req/s)
+        const [d, ord] = await Promise.all([
           ipcClient.market.getItemDetail(slug),
-          ipcClient.market.getItemOrders(slug, force),
-          ipcClient.market.analyzeSetVsParts(slug, force),
-          ipcClient.market.getItemStats(slug).catch(() => ({ hours48: [], days90: [] }))
+          ipcClient.market.getItemOrders(slug, force)
         ])
+        if (reqId !== requestIdRef.current) return
         setDetail(d)
         setOrders(ord)
-        setSetAnalysis(analysis)
-        setStats(st)
+        setIsLoading(false)
+
+        // 2. Arrière-plan non bloquant : comparateur Set vs Pièces uniquement si l'item appartient à un set
+        if (d.setItems.length > 1) {
+          setIsSetLoading(true)
+          void ipcClient.market
+            .analyzeSetVsParts(slug, force)
+            .then((analysis) => {
+              if (reqId === requestIdRef.current) setSetAnalysis(analysis)
+            })
+            .catch(() => {
+              if (reqId === requestIdRef.current) setSetAnalysis(null)
+            })
+            .finally(() => {
+              if (reqId === requestIdRef.current) setIsSetLoading(false)
+            })
+        }
       } catch (err) {
+        if (reqId !== requestIdRef.current) return
         setError(err instanceof Error ? err.message : 'Erreur lors du chargement de la fiche item')
-      } finally {
         setIsLoading(false)
       }
     },
     [slug]
   )
 
+  // Charge la fiche au changement de slug (avec cache rapide)
   React.useEffect(() => {
-    void loadData(refreshRevision > 0)
+    setSubTab('orders')
+    void loadData(false)
+  }, [loadData])
+
+  // Force le rafraîchissement uniquement sur action explicite Actualiser (Ctrl+R / F5)
+  React.useEffect(() => {
+    if (refreshRevision !== lastRefreshRef.current) {
+      lastRefreshRef.current = refreshRevision
+      void loadData(true)
+    }
   }, [loadData, refreshRevision])
+
+  // 3. Lazy-loading : charge les statistiques 48h/90j uniquement à l'ouverture de l'onglet Stats
+  React.useEffect(() => {
+    if (subTab !== 'stats' || stats !== null || isStatsLoading) return
+    let cancelled = false
+    setIsStatsLoading(true)
+    void ipcClient.market
+      .getItemStats(slug)
+      .then((st) => {
+        if (!cancelled) setStats(st)
+      })
+      .catch(() => {
+        if (!cancelled) setStats({ hours48: [], days90: [] })
+      })
+      .finally(() => {
+        if (!cancelled) setIsStatsLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [subTab, slug, stats, isStatsLoading])
 
   if (isLoading) {
     return (
@@ -205,6 +259,12 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
         </CardContent>
       </Card>
 
+      {isSetLoading && !setAnalysis && (
+        <div className="flex items-center gap-2 rounded-md border border-border/60 bg-card/50 px-3 py-2 text-xs text-muted-foreground">
+          <RefreshCw className="h-3.5 w-3.5 animate-spin text-primary" />
+          <span>Calcul comparatif Set Complet vs Pièces détachées en arrière-plan...</span>
+        </div>
+      )}
       {setAnalysis && <SetVsPartsBanner analysis={setAnalysis} />}
 
       <div className="flex items-center gap-1.5 border-b border-border pb-2">
@@ -228,8 +288,13 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
 
       {subTab === 'orders' ? (
         <ItemOrdersTable item={detail} orders={orders} />
+      ) : isStatsLoading || !stats ? (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
       ) : (
-        stats && <ItemStatsChart stats={stats} />
+        <ItemStatsChart stats={stats} />
       )}
     </div>
   )
