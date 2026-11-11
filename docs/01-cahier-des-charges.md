@@ -283,20 +283,21 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 
 ## 5. Plan des Maquettes Wireframes Excalidraw (`docs/02-wireframes/`)
 
-Avant tout développement, nous allons produire et valider ensemble **6 planches Excalidraw** dans `docs/02-wireframes/`, chacune présentant côte à côte la version **Desktop (`1440×900`)** et son adaptation **Compact Overlay (`460×660`)** :
+Avant tout développement, nous allons produire et valider ensemble **7 planches Excalidraw** dans `docs/02-wireframes/`, chacune présentant côte à côte la version **Desktop (`1440×900`)** et son adaptation **Compact Overlay (`460×660`)** :
 
 1. `01-app-shell-navigation.excalidraw` : Fenêtre *Frameless*, les 2 barres supérieures, Omnibox ouverte, Organisateur d'onglets, bandeau `/w`, et comparaison directe Desktop vs Compact `460×660`.
 2. `02-market-home-catalog-item.excalidraw` : Accueil Marché, Grille Catalogue, et **Fiche Item complète** (Ordres Vente/Achat, Comparateur *Set vs Pièces*, Statistiques 48h/90j + états *Skeleton/Erreur*).
 3. `03-cart-bundler-ducats-rivens.excalidraw` : **Panier Multi-Achats & Détecteur de Vendeurs Groupés**, Ducanator et Contrats Rivens.
 4. `04-hub-worldstate.excalidraw` : Le **Hub Temps Réel** et l'agencement de ses 6 sous-vues (Cycles & Mises à prix, Fissures & Archonte/Sortie, Invasions/Teshin/Arbitrage/Nightwave, Duviri, Baro Ki'Teer, News & Darvo).
 5. `05-codex-farm-helminth.excalidraw` : Explorateur Codex par catégories, Fiche Détail de Farm (tables de drop `%` + Fonderie) et vue **Infirmerie Helminth**.
-6. `06-alerts-settings-modals.excalidraw` : Centre d'Alertes (*Price Sniper* + Alertes Cycles), Modale **Paramètres & Thème Bicolore**, et Modale **Notes de Patch / Mise à jour**.
+6. `06-alerts-settings-modals.excalidraw` : Centre d'Alertes (*Price Sniper* + Alertes Cycles) et Modale **Notes de Patch / Mise à jour**.
+7. `07-settings-system-complete.excalidraw` : **Système complet des Paramètres** (Modale `shadcn Dialog` structurée avec barre latérale en 5 catégories : *1. Apparence & Thèmes Bicolores*, *2. Audio & Notifications*, *3. Fenêtre, System Tray & Raccourcis Globaux éditables*, *4. Marché & Échanges*, *5. Mises à jour SHA-512, Export/Import JSON & Cache* + adaptation en `Sheet` plein écran pour le Mode Compact `460×660`).
 
 ---
 
 ## 6. Découpage prévisionnel de l'Implémentation (Après validation CDC + Wireframes)
 
-Une fois le CDC et les 6 planches Excalidraw validés, le code sera construit sur des branches dédiées (`feat/...`) en **6 jalons propres** :
+Une fois le CDC et les 7 planches Excalidraw validés, le code sera construit sur des branches dédiées (`feat/...`) en **6 jalons propres** :
 - **Jalon 1 (`feat/core-foundation`)** : Initialisation `electron-vite` + React + TypeScript + `shadcn/ui`, `HttpClient` avec *Rate Limiter*, `StorageService`, `WindowOverlayService` et Contrats `zod` de base.
 - **Jalon 2 (`feat/app-shell-tabs`)** : App Shell *Frameless* à 2 barres, moteur d'onglets (drag & drop, épinglage, mode Compact `460×660`), Omnibox, System Tray, raccourcis globaux et Thèmes Bicolores.
 - **Jalon 3 (`feat/market-core`)** : Accueil Marché, Catalogue virtualisé, Fiche Item (Ordres, Comparateur Set vs Pièces, Stats), Favoris, Profil joueur et Bandeau `/w`.
