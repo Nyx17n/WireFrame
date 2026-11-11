@@ -147,7 +147,7 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
           <div className="flex shrink-0 flex-wrap items-center gap-1.5">
             <Button
               size="sm"
-              variant={inCart ? 'default' : 'secondary'}
+              variant={inCart ? 'default' : 'outline'}
               onClick={() => void toggleCartItem({ slug: detail.slug, quantity: 1 })}
               title={inCart ? 'Retirer du panier' : 'Ajouter au panier'}
             >
@@ -156,7 +156,7 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
               ) : (
                 <ShoppingCart className="h-3.5 w-3.5 text-primary" />
               )}
-              <span>{inCart ? 'Dans le panier' : '+ Panier'}</span>
+              <span>Panier</span>
             </Button>
 
             <Button
