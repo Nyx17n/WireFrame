@@ -2539,14 +2539,14 @@
       "updated": 1731320000000,
       "link": null,
       "locked": false,
-      "text": "Version installée : v2.0.0   ·   Source : Releases officielles CI/CD (GitLab / GitHub)\n────────────────────────────────────────────────────────────────────────\n⬆ Mise à jour v2.1.0 téléchargée et vérifiée (SHA-512 OK) !\n[████████████████████████████░░░░] 100%   [🚀 Redémarrer et installer]\n\n• v2.0.0 (Refonte Majeure Electron + React + TypeScript + shadcn/ui)\n  - Fenêtre Frameless 2 barres, Overlay Compact 460×660 & System Tray\n  - Rate-Limiter intelligent anti-ban API (max 3 req/s)",
+      "text": "Version installée : v2.0.0   ·   Source : Releases officielles CI/CD (GitHub Releases)\n────────────────────────────────────────────────────────────────────────\n⬆ Mise à jour v2.1.0 téléchargée et vérifiée (SHA-512 OK) !\n[████████████████████████████░░░░] 100%   [🚀 Redémarrer et installer]\n\n• v2.0.0 (Refonte Majeure Electron + React + TypeScript + shadcn/ui)\n  - Fenêtre Frameless 2 barres, Overlay Compact 460×660 & System Tray\n  - Rate-Limiter intelligent anti-ban API (max 3 req/s)",
       "fontSize": 13,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "baseline": 11,
       "containerId": null,
-      "originalText": "Version installée : v2.0.0   ·   Source : Releases officielles CI/CD (GitLab / GitHub)\n────────────────────────────────────────────────────────────────────────\n⬆ Mise à jour v2.1.0 téléchargée et vérifiée (SHA-512 OK) !\n[████████████████████████████░░░░] 100%   [🚀 Redémarrer et installer]\n\n• v2.0.0 (Refonte Majeure Electron + React + TypeScript + shadcn/ui)\n  - Fenêtre Frameless 2 barres, Overlay Compact 460×660 & System Tray\n  - Rate-Limiter intelligent anti-ban API (max 3 req/s)",
+      "originalText": "Version installée : v2.0.0   ·   Source : Releases officielles CI/CD (GitHub Releases)\n────────────────────────────────────────────────────────────────────────\n⬆ Mise à jour v2.1.0 téléchargée et vérifiée (SHA-512 OK) !\n[████████████████████████████░░░░] 100%   [🚀 Redémarrer et installer]\n\n• v2.0.0 (Refonte Majeure Electron + React + TypeScript + shadcn/ui)\n  - Fenêtre Frameless 2 barres, Overlay Compact 460×660 & System Tray\n  - Rate-Limiter intelligent anti-ban API (max 3 req/s)",
       "lineHeight": 1.25,
       "autoResize": true
     }
