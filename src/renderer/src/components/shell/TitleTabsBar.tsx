@@ -23,7 +23,7 @@ export function TitleTabsBar(): React.JSX.Element {
       className="app-drag-region flex h-9 shrink-0 select-none items-center justify-between border-b border-border bg-background/95 pl-2"
       aria-label="Barre d'onglets et contrôles fenêtre"
     >
-      <div className="app-no-drag flex min-w-0 flex-1 items-center gap-1 overflow-x-auto pr-2 [scrollbar-width:none]">
+      <div className="app-no-drag flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none]">
         <button
           type="button"
           onClick={activateHub}
@@ -73,6 +73,8 @@ export function TitleTabsBar(): React.JSX.Element {
 
         <TabOrganizerPopover />
       </div>
+
+      <div className="app-drag-region h-full min-w-[36px] flex-1" />
 
       <div className="app-no-drag flex h-full shrink-0 items-stretch">
         <button
