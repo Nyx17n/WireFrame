@@ -6,6 +6,37 @@ import { Card } from '@/components/ui/card'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { useTabsStore } from '@/stores/useTabsStore'
 
+function getChanceVisual(chance: number): { barClass: string; badgeClass: string } {
+  if (chance >= 50) {
+    return {
+      barClass: 'bg-emerald-500',
+      badgeClass: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+    }
+  }
+  if (chance >= 20) {
+    return {
+      barClass: 'bg-sky-500',
+      badgeClass: 'border-sky-500/40 bg-sky-500/10 text-sky-300'
+    }
+  }
+  if (chance >= 8) {
+    return {
+      barClass: 'bg-amber-500',
+      badgeClass: 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+    }
+  }
+  if (chance >= 2) {
+    return {
+      barClass: 'bg-orange-500',
+      badgeClass: 'border-orange-500/40 bg-orange-500/10 text-orange-300'
+    }
+  }
+  return {
+    barClass: 'bg-rose-500',
+    badgeClass: 'border-rose-500/40 bg-rose-500/10 text-rose-300'
+  }
+}
+
 export function CodexDropsAndCraftSection({
   detail
 }: {
@@ -25,15 +56,16 @@ export function CodexDropsAndCraftSection({
             {detail.relicInfo.rewards.map((rw, idx) => {
               const isRare = rw.tier.includes('Rare')
               const isUncommon = rw.tier.includes('Inhabituel')
+              const vis = getChanceVisual(rw.radiantChance)
               return (
-                <div key={idx} className="flex items-center justify-between gap-2 py-2">
-                  <div>
+                <div key={idx} className="flex flex-wrap items-center justify-between gap-3 py-2">
+                  <div className="min-w-0">
                     <div className="font-semibold text-foreground">{rw.nameFr}</div>
                     {rw.nameEn !== rw.nameFr && (
                       <div className="text-[10px] text-muted-foreground">{rw.nameEn}</div>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <Badge
                       variant="outline"
                       className={
@@ -46,6 +78,12 @@ export function CodexDropsAndCraftSection({
                     >
                       {rw.tier}
                     </Badge>
+                    <div className="hidden h-2 w-20 overflow-hidden rounded-full bg-secondary/80 sm:block">
+                      <div
+                        className={`h-full rounded-full transition-all ${vis.barClass}`}
+                        style={{ width: `${Math.max(6, Math.min(100, rw.radiantChance * 3))}%` }}
+                      />
+                    </div>
                     <span className="font-mono text-[11px] text-muted-foreground">
                       Intacte {rw.intactChance}% →{' '}
                       <strong className="text-primary">Rad {rw.radiantChance}%</strong>
@@ -162,25 +200,38 @@ export function CodexDropsAndCraftSection({
             Aucune table de drop directe (obtenu via Dojo, Syndicats, Baro Ki’Teer, Quête ou Marché).
           </p>
         ) : (
-          <div className="max-h-96 divide-y divide-border/60 overflow-y-auto pr-1 text-xs">
-            {detail.drops.slice(0, 60).map((drop, idx) => (
-              <div key={idx} className="flex items-center justify-between gap-3 py-2">
-                <div className="min-w-0">
-                  <div className="truncate font-medium text-foreground">{drop.location}</div>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    {drop.part && <span className="text-primary">{drop.part}</span>}
-                    {drop.rarity && <span>{drop.rarity}</span>}
+          <div className="max-h-96 divide-y divide-border/60 overflow-y-auto pr-2 text-xs">
+            {detail.drops.slice(0, 60).map((drop, idx) => {
+              const vis = getChanceVisual(drop.chance)
+              return (
+                <div key={idx} className="flex items-center justify-between gap-3 py-2">
+                  <div className="min-w-0">
+                    <div className="truncate font-medium text-foreground">{drop.location}</div>
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                      {drop.part && <span className="text-primary">{drop.part}</span>}
+                      {drop.rarity && <span>{drop.rarity}</span>}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2.5">
+                    <div className="h-2 w-24 overflow-hidden rounded-full bg-secondary/80 sm:w-28">
+                      <div
+                        className={`h-full rounded-full transition-all ${vis.barClass}`}
+                        style={{ width: `${Math.max(4, Math.min(100, drop.chance))}%` }}
+                      />
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`w-16 justify-center font-mono text-xs ${vis.badgeClass}`}
+                    >
+                      {drop.chance.toFixed(drop.chance % 1 === 0 ? 0 : 2)}%
+                    </Badge>
                   </div>
                 </div>
-                <Badge variant="secondary" className="shrink-0 font-mono text-xs text-primary">
-                  {drop.chance.toFixed(drop.chance % 1 === 0 ? 0 : 2)}%
-                </Badge>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </Card>
     </div>
   )
 }
-
