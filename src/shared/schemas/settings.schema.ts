@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { TabsSessionSchema } from './navigation.schema'
 import { WindowBoundsSchema } from './window.schema'
 
 export const HexColorSchema = z
@@ -68,7 +69,8 @@ export const UserSettingsSchema = z.object({
     language: AppLanguageSchema.default('fr'),
     whisperLanguage: AppLanguageSchema.default('en'),
     defaultSellerStatus: SellerStatusFilterSchema.default('ingame')
-  })
+  }),
+  session: TabsSessionSchema.default({})
 })
 
 export type UserSettings = z.infer<typeof UserSettingsSchema>
@@ -80,6 +82,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = UserSettingsSchema.parse({
   appearance: {},
   audio: {},
   window: {},
-  market: {}
+  market: {},
+  session: {}
 })
 

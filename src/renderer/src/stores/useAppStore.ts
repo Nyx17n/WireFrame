@@ -9,16 +9,28 @@ import type { WindowState } from '@shared/schemas/window.schema'
 import { ipcClient } from '@/services/ipc-client'
 import { applyThemeToDocument } from '@/lib/theme-engine'
 
+export type SettingsTabId = 'appearance' | 'audio' | 'window' | 'market' | 'system'
+
 interface AppStoreState {
   settings: UserSettings
   windowState: WindowState
   systemStatus: SystemStatus | null
   isLoading: boolean
   errorMessage: string | null
+  isOmniboxOpen: boolean
+  isSettingsOpen: boolean
+  activeSettingsTab: SettingsTabId
+  setOmniboxOpen: (open: boolean) => void
+  openSettingsModal: (tab?: SettingsTabId) => void
+  setSettingsOpen: (open: boolean) => void
+  setActiveSettingsTab: (tab: SettingsTabId) => void
   initialize: () => Promise<() => void>
   refreshSystemStatus: () => Promise<void>
+  clearSystemCache: () => Promise<void>
   updateSettings: (patch: UserSettingsPatch) => Promise<void>
   resetSettings: () => Promise<void>
+  exportSettingsJson: () => Promise<boolean>
+  importSettingsJson: () => Promise<boolean>
   toggleAlwaysOnTop: () => Promise<void>
   toggleCompactMode: () => Promise<void>
   setWindowZoom: (zoomPercent: number) => Promise<void>
@@ -37,6 +49,18 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
   systemStatus: null,
   isLoading: true,
   errorMessage: null,
+  isOmniboxOpen: false,
+  isSettingsOpen: false,
+  activeSettingsTab: 'appearance',
+
+  setOmniboxOpen: (open) => set({ isOmniboxOpen: open }),
+  openSettingsModal: (tab) =>
+    set((s) => ({
+      isSettingsOpen: true,
+      activeSettingsTab: tab ?? s.activeSettingsTab
+    })),
+  setSettingsOpen: (open) => set({ isSettingsOpen: open }),
+  setActiveSettingsTab: (tab) => set({ activeSettingsTab: tab }),
 
   initialize: async () => {
     set({ isLoading: true, errorMessage: null })
@@ -65,9 +89,13 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
       const systemStatus = await ipcClient.system.getStatus()
       set({ systemStatus })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Échec lecture statut système'
-      set({ errorMessage: message })
+      set({ errorMessage: err instanceof Error ? err.message : 'Échec lecture statut système' })
     }
+  },
+
+  clearSystemCache: async () => {
+    const systemStatus = await ipcClient.system.clearCache()
+    set({ systemStatus })
   },
 
   updateSettings: async (patch) => {
@@ -76,32 +104,37 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
       applyThemeToDocument(updated.appearance)
       set({ settings: updated, errorMessage: null })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Impossible de sauvegarder les réglages'
-      set({ errorMessage: message })
+      set({ errorMessage: err instanceof Error ? err.message : 'Échec sauvegarde réglages' })
     }
   },
 
   resetSettings: async () => {
-    try {
-      const defaults = await ipcClient.settings.reset()
-      applyThemeToDocument(defaults.appearance)
-      const windowState = await ipcClient.window.setZoom(defaults.appearance.zoomPercent)
-      set({ settings: defaults, windowState, errorMessage: null })
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Impossible de réinitialiser les réglages'
-      set({ errorMessage: message })
-    }
+    const defaults = await ipcClient.settings.reset()
+    applyThemeToDocument(defaults.appearance)
+    const windowState = await ipcClient.window.setZoom(defaults.appearance.zoomPercent)
+    set({ settings: defaults, windowState, errorMessage: null })
+  },
+
+  exportSettingsJson: async () => {
+    return ipcClient.settings.exportJson()
+  },
+
+  importSettingsJson: async () => {
+    const imported = await ipcClient.settings.importJson()
+    if (!imported) return false
+    applyThemeToDocument(imported.appearance)
+    const windowState = await ipcClient.window.setZoom(imported.appearance.zoomPercent)
+    set({ settings: imported, windowState })
+    return true
   },
 
   toggleAlwaysOnTop: async () => {
-    const next = !get().windowState.isAlwaysOnTop
-    const windowState = await ipcClient.window.setAlwaysOnTop(next)
+    const windowState = await ipcClient.window.setAlwaysOnTop(!get().windowState.isAlwaysOnTop)
     set({ windowState })
   },
 
   toggleCompactMode: async () => {
-    const next = !get().windowState.isCompactMode
-    const windowState = await ipcClient.window.setCompactMode(next)
+    const windowState = await ipcClient.window.setCompactMode(!get().windowState.isCompactMode)
     set({ windowState })
   },
 
@@ -114,4 +147,3 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     set({ windowState, settings })
   }
 }))
-

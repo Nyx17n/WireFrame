@@ -5,12 +5,15 @@ import type { WindowState } from '@shared/schemas/window.schema'
 
 const wireframeApi: WireframeBridgeApi = Object.freeze({
   system: Object.freeze({
-    getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM_GET_STATUS)
+    getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM_GET_STATUS),
+    clearCache: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM_CLEAR_CACHE)
   }),
   settings: Object.freeze({
     get: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET),
     update: (patch: UserSettingsPatch) => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_UPDATE, patch),
-    reset: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_RESET)
+    reset: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_RESET),
+    exportJson: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_EXPORT_JSON),
+    importJson: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_IMPORT_JSON)
   }),
   window: Object.freeze({
     getState: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_GET_STATE),

@@ -4,9 +4,12 @@ import type { WindowState } from './schemas/window.schema'
 
 export const IPC_CHANNELS = {
   SYSTEM_GET_STATUS: 'system:getStatus',
+  SYSTEM_CLEAR_CACHE: 'system:clearCache',
   SETTINGS_GET: 'settings:get',
   SETTINGS_UPDATE: 'settings:update',
   SETTINGS_RESET: 'settings:reset',
+  SETTINGS_EXPORT_JSON: 'settings:exportJson',
+  SETTINGS_IMPORT_JSON: 'settings:importJson',
   WINDOW_GET_STATE: 'window:getState',
   WINDOW_MINIMIZE: 'window:minimize',
   WINDOW_TOGGLE_MAXIMIZE: 'window:toggleMaximize',
@@ -22,11 +25,14 @@ export const IPC_CHANNELS = {
 export interface WireframeBridgeApi {
   readonly system: {
     getStatus: () => Promise<SystemStatus>
+    clearCache: () => Promise<SystemStatus>
   }
   readonly settings: {
     get: () => Promise<UserSettings>
     update: (patch: UserSettingsPatch) => Promise<UserSettings>
     reset: () => Promise<UserSettings>
+    exportJson: () => Promise<boolean>
+    importJson: () => Promise<UserSettings | null>
   }
   readonly window: {
     getState: () => Promise<WindowState>

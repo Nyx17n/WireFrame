@@ -64,10 +64,29 @@ export class StorageService {
         desktopBounds: { ...current.window.desktopBounds, ...patch.window?.desktopBounds },
         compactBounds: { ...current.window.compactBounds, ...patch.window?.compactBounds }
       },
-      market: { ...current.market, ...patch.market }
+      market: { ...current.market, ...patch.market },
+      session: {
+        ...current.session,
+        ...patch.session,
+        tabs: patch.session?.tabs ?? current.session.tabs
+      }
     }
 
     const validated = UserSettingsSchema.parse(merged)
+    this.cachedSettings = validated
+    await this.persistAtomic(validated)
+    return validated
+  }
+
+  public async exportToPath(targetPath: string): Promise<void> {
+    const current = await this.load()
+    await fs.writeFile(targetPath, JSON.stringify(current, null, 2), 'utf-8')
+  }
+
+  public async importFromPath(sourcePath: string): Promise<UserSettings> {
+    const raw = await fs.readFile(sourcePath, 'utf-8')
+    const parsedJson: unknown = JSON.parse(raw)
+    const validated = UserSettingsSchema.parse(parsedJson)
     this.cachedSettings = validated
     await this.persistAtomic(validated)
     return validated

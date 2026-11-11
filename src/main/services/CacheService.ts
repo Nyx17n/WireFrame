@@ -49,6 +49,11 @@ export class CacheService {
     this.memory.clear()
   }
 
+  public async clearAll(): Promise<void> {
+    this.memory.clear()
+    await fs.rm(this.assetCacheDir, { recursive: true, force: true })
+  }
+
   public async resolveWfmAsset(
     rawAssetPath: string
   ): Promise<{ bytes: Uint8Array; contentType: string }> {

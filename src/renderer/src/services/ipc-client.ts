@@ -23,6 +23,14 @@ export const ipcClient = {
     async getStatus(): Promise<SystemStatus> {
       const raw = await getBridge().system.getStatus()
       return SystemStatusSchema.parse(raw)
+    },
+    async clearCache(): Promise<SystemStatus> {
+      const bridge = getBridge()
+      if (typeof bridge.system.clearCache !== 'function') {
+        throw new Error('Relance npm.cmd run dev pour charger le canal IPC clearCache.')
+      }
+      const raw = await bridge.system.clearCache()
+      return SystemStatusSchema.parse(raw)
     }
   },
   settings: {
@@ -36,6 +44,22 @@ export const ipcClient = {
     },
     async reset(): Promise<UserSettings> {
       const raw = await getBridge().settings.reset()
+      return UserSettingsSchema.parse(raw)
+    },
+    async exportJson(): Promise<boolean> {
+      const bridge = getBridge()
+      if (typeof bridge.settings.exportJson !== 'function') {
+        throw new Error('Relance npm.cmd run dev pour charger le canal IPC exportJson.')
+      }
+      return bridge.settings.exportJson()
+    },
+    async importJson(): Promise<UserSettings | null> {
+      const bridge = getBridge()
+      if (typeof bridge.settings.importJson !== 'function') {
+        throw new Error('Relance npm.cmd run dev pour charger le canal IPC importJson.')
+      }
+      const raw = await bridge.settings.importJson()
+      if (!raw) return null
       return UserSettingsSchema.parse(raw)
     }
   },
@@ -84,4 +108,3 @@ export const ipcClient = {
     }
   }
 } as const
-

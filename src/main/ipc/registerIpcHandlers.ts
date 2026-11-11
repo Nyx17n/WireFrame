@@ -1,4 +1,4 @@
-import { app, clipboard, ipcMain } from 'electron'
+import { app, clipboard, dialog, ipcMain } from 'electron'
 import { z } from 'zod'
 import { IPC_CHANNELS } from '@shared/ipc-channels'
 import { UserSettingsPatchSchema } from '@shared/schemas/settings.schema'
@@ -28,16 +28,24 @@ export interface MainServicesContainer {
 export function registerIpcHandlers(services: MainServicesContainer): void {
   const { httpClient, cacheService, storageService, windowService, onShortcutsUpdated } = services
 
+  const buildSystemStatus = () => ({
+    appVersion: app.getVersion(),
+    apiConnected: httpClient.isHealthy(),
+    rateLimiterInWindow: httpClient.getActiveCountInWindow(),
+    rateLimiterMaxPerSec: httpClient.getMaxPerSecond(),
+    memoryCacheEntries: cacheService.getMemorySize(),
+    userDataPath: app.getPath('userData')
+  })
+
   ipcMain.handle(IPC_CHANNELS.SYSTEM_GET_STATUS, (event) => {
     assertTrustedSender(event, windowService.getMainWindow())
-    return {
-      appVersion: app.getVersion(),
-      apiConnected: httpClient.isHealthy(),
-      rateLimiterInWindow: httpClient.getActiveCountInWindow(),
-      rateLimiterMaxPerSec: httpClient.getMaxPerSecond(),
-      memoryCacheEntries: cacheService.getMemorySize(),
-      userDataPath: app.getPath('userData')
-    }
+    return buildSystemStatus()
+  })
+
+  ipcMain.handle(IPC_CHANNELS.SYSTEM_CLEAR_CACHE, async (event) => {
+    assertTrustedSender(event, windowService.getMainWindow())
+    await cacheService.clearAll()
+    return buildSystemStatus()
   })
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, async (event) => {
@@ -60,6 +68,36 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     const reset = await storageService.resetSettings()
     await onShortcutsUpdated()
     return reset
+  })
+
+  ipcMain.handle(IPC_CHANNELS.SETTINGS_EXPORT_JSON, async (event) => {
+    const win = windowService.getMainWindow()
+    assertTrustedSender(event, win)
+    if (!win) return false
+    const result = await dialog.showSaveDialog(win, {
+      title: 'Exporter la configuration WireFrame v2',
+      defaultPath: 'wireframe-config.json',
+      filters: [{ name: 'Fichier JSON', extensions: ['json'] }]
+    })
+    if (result.canceled || !result.filePath) return false
+    await storageService.exportToPath(result.filePath)
+    return true
+  })
+
+  ipcMain.handle(IPC_CHANNELS.SETTINGS_IMPORT_JSON, async (event) => {
+    const win = windowService.getMainWindow()
+    assertTrustedSender(event, win)
+    if (!win) return null
+    const result = await dialog.showOpenDialog(win, {
+      title: 'Importer une configuration WireFrame v2',
+      properties: ['openFile'],
+      filters: [{ name: 'Fichier JSON', extensions: ['json'] }]
+    })
+    const firstFile = result.filePaths[0]
+    if (result.canceled || !firstFile) return null
+    const imported = await storageService.importFromPath(firstFile)
+    await onShortcutsUpdated()
+    return imported
   })
 
   ipcMain.handle(IPC_CHANNELS.WINDOW_GET_STATE, async (event) => {

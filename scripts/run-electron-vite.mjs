@@ -57,3 +57,4 @@ main().catch((err) => {
   console.error('[WireFrame] Échec du lancement Electron :', err)
   process.exit(1)
 })
+
