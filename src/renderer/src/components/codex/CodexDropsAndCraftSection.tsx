@@ -122,9 +122,8 @@ export function CodexDropsAndCraftSection({
                       )
                     }
                   }}
-                  className={`flex items-center justify-between gap-2 rounded-md border border-border/70 bg-background/50 p-2.5 text-xs ${
-                    clickable ? 'cursor-pointer hover:border-primary/50 hover:bg-secondary/40' : ''
-                  }`}
+                  className={`flex items-center justify-between gap-2 rounded-md border border-border/70 bg-background/50 p-2.5 text-xs ${clickable ? 'cursor-pointer hover:border-primary/50 hover:bg-secondary/40' : ''
+                    }`}
                 >
                   <div className="flex min-w-0 items-center gap-2.5">
                     <SafeAssetImage
