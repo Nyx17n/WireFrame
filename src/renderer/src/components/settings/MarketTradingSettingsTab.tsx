@@ -119,3 +119,4 @@ export function MarketTradingSettingsTab(): React.JSX.Element {
     </div>
   )
 }
+

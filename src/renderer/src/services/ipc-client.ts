@@ -1,3 +1,18 @@
+import { z } from 'zod'
+import {
+  MarketCatalogItemSchema,
+  MarketItemDetailSchema,
+  MarketItemStatsSchema,
+  MarketOrderSchema,
+  MarketUserProfileSchema,
+  SetVsPartsAnalysisSchema,
+  type MarketCatalogItem,
+  type MarketItemDetail,
+  type MarketItemStats,
+  type MarketOrder,
+  type MarketUserProfile,
+  type SetVsPartsAnalysis
+} from '@shared/schemas/market.schema'
 import {
   UserSettingsSchema,
   type UserSettings,
@@ -14,81 +29,62 @@ function getBridge(): WireframeBridgeApi {
   return window.wireframeApi
 }
 
-/**
- * Client IPC typé côté Renderer.
- * Valide systématiquement les réponses via les schémas Zod partagés.
- */
+function assertMarketBridge(): WireframeBridgeApi['market'] {
+  const bridge = getBridge()
+  if (!bridge.market) {
+    throw new Error('Relance npm.cmd run dev une fois pour activer les canaux IPC Warframe Market.')
+  }
+  return bridge.market
+}
+
 export const ipcClient = {
   system: {
     async getStatus(): Promise<SystemStatus> {
-      const raw = await getBridge().system.getStatus()
-      return SystemStatusSchema.parse(raw)
+      return SystemStatusSchema.parse(await getBridge().system.getStatus())
     },
     async clearCache(): Promise<SystemStatus> {
-      const bridge = getBridge()
-      if (typeof bridge.system.clearCache !== 'function') {
-        throw new Error('Relance npm.cmd run dev pour charger le canal IPC clearCache.')
-      }
-      const raw = await bridge.system.clearCache()
-      return SystemStatusSchema.parse(raw)
+      return SystemStatusSchema.parse(await getBridge().system.clearCache())
     }
   },
   settings: {
     async get(): Promise<UserSettings> {
-      const raw = await getBridge().settings.get()
-      return UserSettingsSchema.parse(raw)
+      return UserSettingsSchema.parse(await getBridge().settings.get())
     },
     async update(patch: UserSettingsPatch): Promise<UserSettings> {
-      const raw = await getBridge().settings.update(patch)
-      return UserSettingsSchema.parse(raw)
+      return UserSettingsSchema.parse(await getBridge().settings.update(patch))
     },
     async reset(): Promise<UserSettings> {
-      const raw = await getBridge().settings.reset()
-      return UserSettingsSchema.parse(raw)
+      return UserSettingsSchema.parse(await getBridge().settings.reset())
     },
-    async exportJson(): Promise<boolean> {
-      const bridge = getBridge()
-      if (typeof bridge.settings.exportJson !== 'function') {
-        throw new Error('Relance npm.cmd run dev pour charger le canal IPC exportJson.')
-      }
-      return bridge.settings.exportJson()
+    exportJson(): Promise<boolean> {
+      return getBridge().settings.exportJson()
     },
     async importJson(): Promise<UserSettings | null> {
-      const bridge = getBridge()
-      if (typeof bridge.settings.importJson !== 'function') {
-        throw new Error('Relance npm.cmd run dev pour charger le canal IPC importJson.')
-      }
-      const raw = await bridge.settings.importJson()
-      if (!raw) return null
-      return UserSettingsSchema.parse(raw)
+      const raw = await getBridge().settings.importJson()
+      return raw ? UserSettingsSchema.parse(raw) : null
     }
   },
   window: {
     async getState(): Promise<WindowState> {
-      const raw = await getBridge().window.getState()
-      return WindowStateSchema.parse(raw)
+      return WindowStateSchema.parse(await getBridge().window.getState())
     },
     minimize(): Promise<void> {
       return getBridge().window.minimize()
     },
     async toggleMaximize(): Promise<WindowState> {
-      const raw = await getBridge().window.toggleMaximize()
-      return WindowStateSchema.parse(raw)
+      return WindowStateSchema.parse(await getBridge().window.toggleMaximize())
     },
     close(): Promise<void> {
       return getBridge().window.close()
     },
     async setAlwaysOnTop(enabled: boolean): Promise<WindowState> {
-      const raw = await getBridge().window.setAlwaysOnTop(enabled)
-      return WindowStateSchema.parse(raw)
+      return WindowStateSchema.parse(await getBridge().window.setAlwaysOnTop(enabled))
     },
     async setCompactMode(enabled: boolean): Promise<WindowState> {
-      const raw = await getBridge().window.setCompactMode(enabled)
-      return WindowStateSchema.parse(raw)
+      return WindowStateSchema.parse(await getBridge().window.setCompactMode(enabled))
     },
     async setZoom(zoomPercent: number): Promise<WindowState> {
-      const raw = await getBridge().window.setZoom(zoomPercent)
-      return WindowStateSchema.parse(raw)
+      return WindowStateSchema.parse(await getBridge().window.setZoom(zoomPercent))
     },
     openExternalUrl(url: string): Promise<boolean> {
       return getBridge().window.openExternalUrl(url)
@@ -96,15 +92,43 @@ export const ipcClient = {
     onStateChanged(listener: (state: WindowState) => void): () => void {
       return getBridge().window.onStateChanged((rawState) => {
         const parsed = WindowStateSchema.safeParse(rawState)
-        if (parsed.success) {
-          listener(parsed.data)
-        }
+        if (parsed.success) listener(parsed.data)
       })
     }
   },
   clipboard: {
     writeText(text: string): Promise<void> {
       return getBridge().clipboard.writeText(text)
+    }
+  },
+  market: {
+    async getCatalog(forceRefresh?: boolean): Promise<MarketCatalogItem[]> {
+      const raw = await assertMarketBridge().getCatalog(forceRefresh)
+      return z.array(MarketCatalogItemSchema).parse(raw)
+    },
+    async getItemDetail(slug: string): Promise<MarketItemDetail> {
+      const raw = await assertMarketBridge().getItemDetail(slug)
+      return MarketItemDetailSchema.parse(raw)
+    },
+    async getItemOrders(slug: string, forceRefresh?: boolean): Promise<MarketOrder[]> {
+      const raw = await assertMarketBridge().getItemOrders(slug, forceRefresh)
+      return z.array(MarketOrderSchema).parse(raw)
+    },
+    async analyzeSetVsParts(slug: string, forceRefresh?: boolean): Promise<SetVsPartsAnalysis> {
+      const raw = await assertMarketBridge().analyzeSetVsParts(slug, forceRefresh)
+      return SetVsPartsAnalysisSchema.parse(raw)
+    },
+    async getItemStats(slug: string): Promise<MarketItemStats> {
+      const raw = await assertMarketBridge().getItemStats(slug)
+      return MarketItemStatsSchema.parse(raw)
+    },
+    async getRecentOrders(forceRefresh?: boolean): Promise<MarketOrder[]> {
+      const raw = await assertMarketBridge().getRecentOrders(forceRefresh)
+      return z.array(MarketOrderSchema).parse(raw)
+    },
+    async getUserProfile(userSlug: string): Promise<MarketUserProfile> {
+      const raw = await assertMarketBridge().getUserProfile(userSlug)
+      return MarketUserProfileSchema.parse(raw)
     }
   }
 } as const

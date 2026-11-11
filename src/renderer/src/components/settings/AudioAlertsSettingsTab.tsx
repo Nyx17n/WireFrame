@@ -112,3 +112,4 @@ export function AudioAlertsSettingsTab(): React.JSX.Element {
     </div>
   )
 }
+

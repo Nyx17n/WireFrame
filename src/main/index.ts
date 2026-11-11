@@ -3,7 +3,10 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { RateLimitedHttpClient } from './infrastructure/http/RateLimitedHttpClient'
 import { registerIpcHandlers } from './ipc/registerIpcHandlers'
+import { registerMarketHandlers } from './ipc/registerMarketHandlers'
 import { CacheService } from './services/CacheService'
+import { MarketApiService } from './services/MarketApiService'
+import { SetCalculatorService } from './services/SetCalculatorService'
 import { StorageService } from './services/StorageService'
 import { WindowOverlayService } from './services/WindowOverlayService'
 
@@ -47,6 +50,8 @@ async function bootstrap(): Promise<void> {
   await storageService.load()
 
   const windowService = new WindowOverlayService(storageService)
+  const marketApi = new MarketApiService(httpClient, cacheService, storageService)
+  const setCalculator = new SetCalculatorService(marketApi)
 
   // Serve cached Warframe Market static icons safely via wf-asset://icons/<subpath>
   protocol.handle('wf-asset', async (request) => {
@@ -105,6 +110,11 @@ async function bootstrap(): Promise<void> {
     storageService,
     windowService,
     onShortcutsUpdated: syncGlobalShortcuts
+  })
+  registerMarketHandlers({
+    marketApi,
+    setCalculator,
+    windowService
   })
 
   const iconPath = resolveAppIconPath()

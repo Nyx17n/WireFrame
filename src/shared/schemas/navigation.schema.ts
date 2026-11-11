@@ -172,3 +172,4 @@ export function parseInputToRoute(rawInput: string): AppRoute {
 
   return { kind: 'market-catalog', query: trimmed.slice(0, 120) }
 }
+

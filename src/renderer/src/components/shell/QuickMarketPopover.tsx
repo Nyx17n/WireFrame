@@ -80,3 +80,4 @@ export function QuickMarketPopover(): React.JSX.Element {
     </Popover>
   )
 }
+

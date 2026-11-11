@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { WhisperBar } from '@/components/market/WhisperBar'
 import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
 import { CommandNavBar } from '@/components/shell/CommandNavBar'
 import { OmniboxDialog } from '@/components/shell/OmniboxDialog'
@@ -33,6 +34,7 @@ export function App(): React.JSX.Element {
       <div className="flex-1 overflow-y-auto">
         <WorkspaceRouteViewport />
       </div>
+      <WhisperBar />
       <StatusBar />
       <OmniboxDialog />
       <SettingsModal />

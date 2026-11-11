@@ -134,3 +134,4 @@ export function AppearanceSettingsTab(): React.JSX.Element {
     </div>
   )
 }
+

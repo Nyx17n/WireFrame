@@ -52,3 +52,4 @@ export function RouteIcon({
       return <Sparkles className={className} />
   }
 }
+

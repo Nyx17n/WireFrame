@@ -33,3 +33,4 @@ export function orderPinnedFirst(tabs: BrowserTab[]): BrowserTab[] {
   const regular = tabs.filter((t) => !t.pinned)
   return [...pinned, ...regular]
 }
+

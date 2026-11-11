@@ -57,7 +57,7 @@ export class CacheService {
   public async resolveWfmAsset(
     rawAssetPath: string
   ): Promise<{ bytes: Uint8Array; contentType: string }> {
-    const cleanPath = rawAssetPath.replace(/^\/+/, '')
+    const cleanPath = (rawAssetPath.split('?')[0] ?? '').replace(/^\/+/, '')
     if (!cleanPath || cleanPath.includes('..') || cleanPath.includes('\\')) {
       throw new Error('Invalid asset path')
     }

@@ -40,6 +40,22 @@ const wireframeApi: WireframeBridgeApi = Object.freeze({
   }),
   clipboard: Object.freeze({
     writeText: (text: string) => ipcRenderer.invoke(IPC_CHANNELS.CLIPBOARD_WRITE_TEXT, { text })
+  }),
+  market: Object.freeze({
+    getCatalog: (forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_CATALOG, { forceRefresh }),
+    getItemDetail: (slug: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_ITEM_DETAIL, { slug }),
+    getItemOrders: (slug: string, forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_ITEM_ORDERS, { slug, forceRefresh }),
+    analyzeSetVsParts: (slug: string, forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_ANALYZE_SET, { slug, forceRefresh }),
+    getItemStats: (slug: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_ITEM_STATS, { slug }),
+    getRecentOrders: (forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_RECENT_ORDERS, { forceRefresh }),
+    getUserProfile: (userSlug: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_USER_PROFILE, { slug: userSlug })
   })
 })
 

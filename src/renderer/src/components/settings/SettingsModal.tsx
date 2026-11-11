@@ -92,3 +92,4 @@ export function SettingsModal(): React.JSX.Element {
     </Dialog>
   )
 }
+

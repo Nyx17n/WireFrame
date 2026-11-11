@@ -65,6 +65,9 @@ export class StorageService {
         compactBounds: { ...current.window.compactBounds, ...patch.window?.compactBounds }
       },
       market: { ...current.market, ...patch.market },
+      favorites: (patch.favorites ?? current.favorites).filter(
+        (slug): slug is string => typeof slug === 'string' && slug.length > 0
+      ),
       session: {
         ...current.session,
         ...patch.session,

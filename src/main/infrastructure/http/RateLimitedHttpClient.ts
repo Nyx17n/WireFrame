@@ -38,7 +38,7 @@ export class RateLimitedHttpClient {
 
   public async getJson<T>(
     url: string,
-    schema: z.ZodType<T>,
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
     options: HttpRequestOptions = {}
   ): Promise<T> {
     const dedupeKey = `${url}|${JSON.stringify(options.headers ?? {})}`
@@ -73,7 +73,7 @@ export class RateLimitedHttpClient {
 
   private async executeJsonRequest<T>(
     url: string,
-    schema: z.ZodType<T>,
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
     options: HttpRequestOptions
   ): Promise<T> {
     if (!options.bypassRateLimit) {

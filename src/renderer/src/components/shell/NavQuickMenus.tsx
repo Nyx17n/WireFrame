@@ -120,3 +120,4 @@ export function NavQuickMenus({ isCompact }: { isCompact: boolean }): React.JSX.
     </>
   )
 }
+

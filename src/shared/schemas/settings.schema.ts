@@ -70,6 +70,7 @@ export const UserSettingsSchema = z.object({
     whisperLanguage: AppLanguageSchema.default('en'),
     defaultSellerStatus: SellerStatusFilterSchema.default('ingame')
   }),
+  favorites: z.array(z.string().min(1).max(160)).max(300).default([]),
   session: TabsSessionSchema.default({})
 })
 
@@ -83,6 +84,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = UserSettingsSchema.parse({
   audio: {},
   window: {},
   market: {},
+  favorites: [],
   session: {}
 })
 

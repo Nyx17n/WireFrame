@@ -1,3 +1,11 @@
+import type {
+  MarketCatalogItem,
+  MarketItemDetail,
+  MarketItemStats,
+  MarketOrder,
+  MarketUserProfile,
+  SetVsPartsAnalysis
+} from './schemas/market.schema'
 import type { UserSettings, UserSettingsPatch } from './schemas/settings.schema'
 import type { SystemStatus } from './schemas/system.schema'
 import type { WindowState } from './schemas/window.schema'
@@ -19,7 +27,14 @@ export const IPC_CHANNELS = {
   WINDOW_SET_ZOOM: 'window:setZoom',
   WINDOW_OPEN_EXTERNAL: 'window:openExternalUrl',
   WINDOW_ON_STATE_CHANGED: 'window:onStateChanged',
-  CLIPBOARD_WRITE_TEXT: 'clipboard:writeText'
+  CLIPBOARD_WRITE_TEXT: 'clipboard:writeText',
+  MARKET_GET_CATALOG: 'market:getCatalog',
+  MARKET_GET_ITEM_DETAIL: 'market:getItemDetail',
+  MARKET_GET_ITEM_ORDERS: 'market:getItemOrders',
+  MARKET_ANALYZE_SET: 'market:analyzeSetVsParts',
+  MARKET_GET_ITEM_STATS: 'market:getItemStats',
+  MARKET_GET_RECENT_ORDERS: 'market:getRecentOrders',
+  MARKET_GET_USER_PROFILE: 'market:getUserProfile'
 } as const
 
 export interface WireframeBridgeApi {
@@ -47,6 +62,15 @@ export interface WireframeBridgeApi {
   }
   readonly clipboard: {
     writeText: (text: string) => Promise<void>
+  }
+  readonly market: {
+    getCatalog: (forceRefresh?: boolean) => Promise<MarketCatalogItem[]>
+    getItemDetail: (slug: string) => Promise<MarketItemDetail>
+    getItemOrders: (slug: string, forceRefresh?: boolean) => Promise<MarketOrder[]>
+    analyzeSetVsParts: (slug: string, forceRefresh?: boolean) => Promise<SetVsPartsAnalysis>
+    getItemStats: (slug: string) => Promise<MarketItemStats>
+    getRecentOrders: (forceRefresh?: boolean) => Promise<MarketOrder[]>
+    getUserProfile: (userSlug: string) => Promise<MarketUserProfile>
   }
 }
 
