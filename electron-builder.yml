@@ -35,5 +35,7 @@ nsis:
   artifactName: WireFrame-Setup-${version}.${ext}
 
 publish:
-  provider: generic
-  url: https://gitlab.com/api/v4/projects/nyxo_17%2Fwiremarket_v1/packages/generic/wireframe-releases/latest
+  provider: github
+  owner: bloxfruitthekingdom-create
+  repo: WireFrame
+  releaseType: release

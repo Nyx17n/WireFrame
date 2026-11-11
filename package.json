@@ -4,6 +4,11 @@
   "description": "WireFrame v2 — Companion, Trading Browser & Codex for Warframe",
   "author": "Maxime (Nyxo_17)",
   "license": "MIT",
+  "homepage": "https://github.com/bloxfruitthekingdom-create/WireFrame",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bloxfruitthekingdom-create/WireFrame.git"
+  },
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "node scripts/run-electron-vite.mjs dev",
