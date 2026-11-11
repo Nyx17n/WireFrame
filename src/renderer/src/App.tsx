@@ -5,6 +5,7 @@ import { ChangelogModal } from '@/components/modals/ChangelogModal'
 import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
 import { CommandNavBar } from '@/components/shell/CommandNavBar'
 import { OmniboxDialog } from '@/components/shell/OmniboxDialog'
+import { StartupSplashOverlay } from '@/components/shell/StartupSplashOverlay'
 import { StatusBar } from '@/components/shell/StatusBar'
 import { UpdateBanner } from '@/components/shell/UpdateBanner'
 import { SettingsModal } from '@/components/settings/SettingsModal'
@@ -58,6 +59,7 @@ export function App(): React.JSX.Element {
       <OmniboxDialog />
       <SettingsModal />
       <ChangelogModal />
+      <StartupSplashOverlay />
     </div>
   )
 }

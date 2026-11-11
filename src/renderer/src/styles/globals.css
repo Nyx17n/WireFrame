@@ -74,3 +74,27 @@ body.glow-enabled .wf-glow-surface {
   background: transparent;
 }
 
+/* Proposition 3 — Concentric Lotus Energy Ripples */
+@keyframes wf-lotus-ripple {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(2.15);
+    opacity: 0;
+  }
+}
+
+.wf-lotus-ring-1 {
+  animation: wf-lotus-ripple 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.wf-lotus-ring-2 {
+  animation: wf-lotus-ripple 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s infinite;
+}
+
+.wf-lotus-ring-3 {
+  animation: wf-lotus-ripple 2.4s cubic-bezier(0.16, 1, 0.3, 1) 1.6s infinite;
+}
+

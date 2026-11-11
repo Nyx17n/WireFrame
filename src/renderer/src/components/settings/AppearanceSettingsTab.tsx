@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Sparkles, ZoomIn, ZoomOut } from 'lucide-react'
+import { Play, Sparkles, ZoomIn, ZoomOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { THEME_PRESETS } from '@/lib/theme-engine'
@@ -10,6 +10,7 @@ export function AppearanceSettingsTab(): React.JSX.Element {
   const windowState = useAppStore((s) => s.windowState)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const setWindowZoom = useAppStore((s) => s.setWindowZoom)
+  const replayStartupAnimation = useAppStore((s) => s.replayStartupAnimation)
 
   return (
     <div className="space-y-4">
@@ -107,6 +108,25 @@ export function AppearanceSettingsTab(): React.JSX.Element {
             }
           />
         </label>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span className="flex items-center gap-2">
+            <Play className="h-3.5 w-3.5 text-primary" />
+            <span>Animation d’ouverture « Wire » au lancement</span>
+          </span>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={replayStartupAnimation}>
+              <Play className="h-3 w-3 text-primary" />
+              <span>Rejouer</span>
+            </Button>
+            <Switch
+              checked={appearance.startupAnimationEnabled}
+              onCheckedChange={(checked) =>
+                void updateSettings({ appearance: { startupAnimationEnabled: checked } })
+              }
+            />
+          </div>
+        </div>
 
         <div className="flex items-center justify-between text-xs">
           <span>Zoom d’interface natif ({windowState.zoomPercent} %)</span>

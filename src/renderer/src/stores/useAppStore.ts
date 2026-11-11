@@ -22,11 +22,13 @@ interface AppStoreState {
   isOmniboxOpen: boolean
   isSettingsOpen: boolean
   isChangelogOpen: boolean
+  splashRunId: number
   activeSettingsTab: SettingsTabId
   setOmniboxOpen: (open: boolean) => void
   openSettingsModal: (tab?: SettingsTabId) => void
   setSettingsOpen: (open: boolean) => void
   setChangelogOpen: (open: boolean) => void
+  replayStartupAnimation: () => void
   setActiveSettingsTab: (tab: SettingsTabId) => void
   initialize: () => Promise<() => void>
   refreshSystemStatus: () => Promise<void>
@@ -59,6 +61,7 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
   isOmniboxOpen: false,
   isSettingsOpen: false,
   isChangelogOpen: false,
+  splashRunId: 1,
   activeSettingsTab: 'appearance',
 
   setOmniboxOpen: (open) => set({ isOmniboxOpen: open }),
@@ -69,6 +72,8 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     })),
   setSettingsOpen: (open) => set({ isSettingsOpen: open }),
   setChangelogOpen: (open) => set({ isChangelogOpen: open }),
+  replayStartupAnimation: () =>
+    set((s) => ({ isSettingsOpen: false, splashRunId: s.splashRunId + 1 })),
   setActiveSettingsTab: (tab) => set({ activeSettingsTab: tab }),
 
   initialize: async () => {

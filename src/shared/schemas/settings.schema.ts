@@ -43,6 +43,7 @@ export const UserSettingsSchema = z.object({
     primaryColor: HexColorSchema.default('#0f161d'),
     secondaryColor: HexColorSchema.default('#0ea5e9'),
     glowEnabled: z.boolean().default(true),
+    startupAnimationEnabled: z.boolean().default(true),
     zoomPercent: z.number().int().min(50).max(200).default(100)
   }),
   audio: z.object({
