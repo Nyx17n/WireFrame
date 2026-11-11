@@ -31,6 +31,7 @@ interface MarketStoreState {
   setLatestAlertToast: (alert: TriggeredAlertEvent | null) => void
   toggleFavorite: (slug: string) => Promise<void>
   addToCart: (entry: CartItemEntry) => Promise<void>
+  toggleCartItem: (entry: CartItemEntry) => Promise<void>
   updateCartItem: (slug: string, patch: Partial<CartItemEntry>) => Promise<void>
   removeFromCart: (slug: string) => Promise<void>
   clearCart: () => Promise<void>
@@ -108,6 +109,20 @@ export const useMarketStore = create<MarketStoreState>((set, get) => ({
       current.push(entry)
     }
     await useAppStore.getState().updateSettings({ cart: current })
+  },
+
+  toggleCartItem: async (entry) => {
+    const current = useAppStore.getState().settings.cart
+    const exists = current.some((c) => c.slug === entry.slug)
+    if (exists) {
+      await useAppStore.getState().updateSettings({
+        cart: current.filter((c) => c.slug !== entry.slug)
+      })
+    } else if (current.length < 50) {
+      await useAppStore.getState().updateSettings({
+        cart: [...current, entry]
+      })
+    }
   },
 
   updateCartItem: async (slug, patch) => {

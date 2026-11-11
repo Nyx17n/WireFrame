@@ -21,11 +21,30 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { QuickMarketPopover } from '@/components/shell/QuickMarketPopover'
+import { getTabCurrentRoute } from '@/lib/tab-helpers'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 export function NavQuickMenus({ isCompact }: { isCompact: boolean }): React.JSX.Element {
   const navigateActive = useTabsStore((s) => s.navigateActive)
+  const goBack = useTabsStore((s) => s.goBack)
+  const hubActive = useTabsStore((s) => s.hubActive)
+  const activeTab = useTabsStore((s) => s.tabs.find((t) => t.id === s.activeTabId))
+  const isCartOpen =
+    !hubActive && activeTab !== undefined && getTabCurrentRoute(activeTab).kind === 'market-cart'
+
+  const handleToggleCartView = (): void => {
+    if (isCartOpen) {
+      if (activeTab && activeTab.historyIndex > 0) {
+        goBack()
+      } else {
+        navigateActive({ kind: 'market-home' })
+      }
+      return
+    }
+    navigateActive({ kind: 'market-cart' })
+  }
+
   const cartCount = useAppStore((s) => s.settings.cart.length)
   const activeAlertsCount = useAppStore(
     (s) => s.settings.priceAlerts.filter((a) => a.enabled).length
@@ -48,9 +67,9 @@ export function NavQuickMenus({ isCompact }: { isCompact: boolean }): React.JSX.
             <BookOpen className="h-3.5 w-3.5 text-primary" />
             <span>Codex & Helminth</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigateActive({ kind: 'market-cart' })}>
+          <DropdownMenuItem onClick={handleToggleCartView}>
             <ShoppingCart className="h-3.5 w-3.5 text-primary" />
-            <span>Panier & Bundler</span>
+            <span>{isCartOpen ? 'Fermer le Panier' : 'Panier & Bundler'}</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigateActive({ kind: 'market-ducats' })}>
             <Coins className="h-3.5 w-3.5 text-primary" />
@@ -106,10 +125,10 @@ export function NavQuickMenus({ isCompact }: { isCompact: boolean }): React.JSX.
       </DropdownMenu>
 
       <Button
-        variant="ghost"
+        variant={isCartOpen ? 'secondary' : 'ghost'}
         size="sm"
-        title="Panier & Bundler"
-        onClick={() => navigateActive({ kind: 'market-cart' })}
+        title={isCartOpen ? 'Fermer le Panier' : 'Panier & Bundler'}
+        onClick={handleToggleCartView}
       >
         <ShoppingCart className="h-3.5 w-3.5 text-primary" />
         {cartCount > 0 && <span className="font-mono text-[11px]">{cartCount}</span>}

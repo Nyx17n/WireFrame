@@ -2,6 +2,7 @@ import * as React from 'react'
 import {
   AlertTriangle,
   BarChart3,
+  Check,
   Crosshair,
   ExternalLink,
   ListOrdered,
@@ -31,8 +32,9 @@ import { useTabsStore } from '@/stores/useTabsStore'
 export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Element {
   const lang = useAppStore((s) => s.settings.market.language)
   const favorites = useAppStore((s) => s.settings.favorites)
+  const cart = useAppStore((s) => s.settings.cart)
   const toggleFavorite = useMarketStore((s) => s.toggleFavorite)
-  const addToCart = useMarketStore((s) => s.addToCart)
+  const toggleCartItem = useMarketStore((s) => s.toggleCartItem)
   const addPriceAlert = useMarketStore((s) => s.addPriceAlert)
   const navigateActive = useTabsStore((s) => s.navigateActive)
   const refreshRevision = useTabsStore((s) => s.refreshRevision)
@@ -104,6 +106,7 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
   const desc = lang === 'fr' ? detail.descriptionFr : detail.descriptionEn
   const iconUrl = toWfAssetUrl(detail.icon ?? detail.thumb)
   const isFav = favorites.includes(detail.slug)
+  const inCart = cart.some((c) => c.slug === detail.slug)
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 p-4">
@@ -144,11 +147,16 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
           <div className="flex shrink-0 flex-wrap items-center gap-1.5">
             <Button
               size="sm"
-              variant="secondary"
-              onClick={() => void addToCart({ slug: detail.slug, quantity: 1 })}
+              variant={inCart ? 'default' : 'secondary'}
+              onClick={() => void toggleCartItem({ slug: detail.slug, quantity: 1 })}
+              title={inCart ? 'Retirer du panier' : 'Ajouter au panier'}
             >
-              <ShoppingCart className="h-3.5 w-3.5 text-primary" />
-              <span>+ Panier</span>
+              {inCart ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+              )}
+              <span>{inCart ? 'Dans le panier' : '+ Panier'}</span>
             </Button>
 
             <Button
