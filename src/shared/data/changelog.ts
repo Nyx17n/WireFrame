@@ -8,6 +8,17 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_RELEASES: readonly ChangelogRelease[] = [
   {
+    version: '2.3.0',
+    date: 'Novembre 2026',
+    titleFr: 'Chargement Progressif « Afficher plus » Sans Changement de Page',
+    badgeFr: 'Nouveauté v2.3',
+    highlightsFr: [
+      'Codex principal : remplacement des boutons Précédent / Suivant par un bouton « Afficher plus » qui ajoute la suite directement en bas de la grille sans rechargement ni perte du défilement.',
+      'Tables de Drop du Codex : ajout du bouton « Afficher plus » pour consulter toutes les sources au-delà des 60 premières.',
+      'Harmonisation complète du chargement progressif « Afficher plus » sur le Catalogue Warframe Market, les tableaux d’offres Vendeurs / Acheteurs et le Ducanator.'
+    ]
+  },
+  {
     version: '2.2.0',
     date: 'Novembre 2026',
     titleFr: 'Collection Complète des 20 Thèmes (OLED / Clair / Néon) & Patch Notes Auto',
