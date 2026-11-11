@@ -35,3 +35,4 @@ jobs:
 
       - name: Strict TypeScript Check & Production Bundle
         run: npm run build
+

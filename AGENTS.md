@@ -29,7 +29,7 @@ Ces règles s'appliquent **inconditionnellement** à toutes les sessions de trav
 2. **Zéro binaire ou artefact généré dans Git** :
    - **Interdiction absolue** de versionner des exécutables, bibliothèques compilées, archives ou dossiers de build (`.exe`, `.dll`, `.zip`, `.msi`, `.nupkg`, `.bak`, `node_modules/`, `dist/`, `out/`, `release/`).
    - Maintiens en permanence un fichier `.gitignore` strict et complet à la racine du dépôt.
-   - Les installateurs et mises à jour sont produits exclusivement par la pipeline CI/CD (GitLab CI / GitHub Actions) lors de Releases taguées SemVer.
+   - Les installateurs et mises à jour sont produits exclusivement par la pipeline CI/CD (GitHub Actions / GitHub Releases) lors de Releases taguées SemVer.
 3. **Zéro hook Git auto-mutant** :
    - Interdiction de créer des hooks `pre-commit` qui modifient silencieusement le code source à coups de regex ou génèrent des archives binaires pendant un commit. Un hook `pre-commit` ne peut servir qu'à de la vérification pure (lint, typecheck, tests, détection de secrets/binaires).
 
