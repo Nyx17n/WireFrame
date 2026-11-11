@@ -20,6 +20,7 @@ import { useTabsStore } from '@/stores/useTabsStore'
 
 export function CommandNavBar(): React.JSX.Element {
   const windowState = useAppStore((s) => s.windowState)
+  const updaterStatus = useAppStore((s) => s.updaterStatus)
   const setOmniboxOpen = useAppStore((s) => s.setOmniboxOpen)
   const openSettingsModal = useAppStore((s) => s.openSettingsModal)
   const refreshSystemStatus = useAppStore((s) => s.refreshSystemStatus)
@@ -151,10 +152,20 @@ export function CommandNavBar(): React.JSX.Element {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => openSettingsModal()}
-          title="Paramètres WireFrame (Ctrl+,)"
+          className="relative"
+          onClick={() =>
+            openSettingsModal(updaterStatus?.state === 'downloaded' ? 'system' : undefined)
+          }
+          title={
+            updaterStatus?.state === 'downloaded'
+              ? `Mise à jour v${updaterStatus.availableVersion} prête à installer`
+              : 'Paramètres WireFrame (Ctrl+,)'
+          }
         >
           <Settings className="h-3.5 w-3.5" />
+          {(updaterStatus?.state === 'downloaded' || updaterStatus?.state === 'available') && (
+            <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border border-background bg-emerald-400" />
+          )}
         </Button>
       </div>
     </div>
