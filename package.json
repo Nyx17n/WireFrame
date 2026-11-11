@@ -6,9 +6,9 @@
   "license": "MIT",
   "main": "./out/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
+    "dev": "node scripts/run-electron-vite.mjs dev",
     "build": "npm run typecheck && electron-vite build",
-    "preview": "electron-vite preview",
+    "preview": "node scripts/run-electron-vite.mjs preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "dist:win": "npm run build && electron-builder --win"
   },
