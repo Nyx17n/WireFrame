@@ -35,6 +35,5 @@ nsis:
   artifactName: WireFrame-Setup-${version}.${ext}
 
 publish:
-  provider: github
-  releaseType: release
-
+  provider: generic
+  url: https://gitlab.com/api/v4/projects/nyxo_17%2Fwiremarket_v1/packages/generic/wireframe-releases/latest

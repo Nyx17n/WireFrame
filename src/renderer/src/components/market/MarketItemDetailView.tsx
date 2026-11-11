@@ -2,6 +2,7 @@ import * as React from 'react'
 import {
   AlertTriangle,
   BarChart3,
+  BookOpen,
   Check,
   Crosshair,
   ExternalLink,
@@ -10,6 +11,7 @@ import {
   ShoppingCart,
   Star
 } from 'lucide-react'
+import type { CodexSummaryCard } from '@shared/schemas/codex.schema'
 import {
   toWfAssetUrl,
   type MarketItemDetail,
@@ -45,6 +47,7 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
   const [isSetLoading, setIsSetLoading] = React.useState(false)
   const [stats, setStats] = React.useState<MarketItemStats | null>(null)
   const [isStatsLoading, setIsStatsLoading] = React.useState(false)
+  const [codexMatch, setCodexMatch] = React.useState<CodexSummaryCard | null>(null)
   const [subTab, setSubTab] = React.useState<'orders' | 'stats'>('orders')
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -59,6 +62,7 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
       setError(null)
       setSetAnalysis(null)
       setStats(null)
+      setCodexMatch(null)
       try {
         // 1. Priorité absolue : fiche + ordres de l'item (2 requêtes -> immédiat sous la limite 3 req/s)
         const [d, ord] = await Promise.all([
@@ -69,6 +73,20 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
         setDetail(d)
         setOrders(ord)
         setIsLoading(false)
+
+        // Recherche non bloquante d'une fiche Codex correspondante (Set Prime, Relique, Mod...)
+        const cleanedEn = d.nameEn
+          .replace(/\s+(?:Set|Blueprint|Relic|Intact|Radiant)$/i, '')
+          .trim()
+        void ipcClient.codex
+          .quickSearch(cleanedEn, 6)
+          .then((hits) => {
+            if (reqId !== requestIdRef.current) return
+            const exact =
+              hits.find((h) => h.nameEn.toLowerCase() === cleanedEn.toLowerCase()) ?? hits[0] ?? null
+            setCodexMatch(exact)
+          })
+          .catch(() => undefined)
 
         // 2. Arrière-plan non bloquant : comparateur Set vs Pièces uniquement si l'item appartient à un set
         if (d.setItems.length > 1) {
@@ -242,8 +260,29 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
               title="Raccourci Ctrl+D"
             >
               <Star className={`h-3.5 w-3.5 ${isFav ? 'fill-current' : ''}`} />
-              <span>{isFav ? 'Favori' : 'Favori'}</span>
+              <span>Favori</span>
             </Button>
+
+            {codexMatch && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  navigateActive(
+                    {
+                      kind: 'codex-detail',
+                      category: codexMatch.category,
+                      slug: codexMatch.id
+                    },
+                    `Codex : ${codexMatch.nameFr}`
+                  )
+                }
+                title={`Voir les tables de drop % dans le Codex (${codexMatch.nameFr})`}
+              >
+                <BookOpen className="h-3.5 w-3.5 text-primary" />
+                <span>Codex</span>
+              </Button>
+            )}
 
             {detail.wikiLink && detail.wikiLink.startsWith('https://wiki.warframe.com') && (
               <Button
