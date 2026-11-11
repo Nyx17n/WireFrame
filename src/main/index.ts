@@ -1,4 +1,5 @@
 import { app, globalShortcut, Menu, nativeImage, protocol, session, Tray } from 'electron'
+import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { RateLimitedHttpClient } from './infrastructure/http/RateLimitedHttpClient'
 import { registerIpcHandlers } from './ipc/registerIpcHandlers'
@@ -27,9 +28,14 @@ if (!gotSingleInstanceLock) {
 let systemTray: Tray | null = null
 
 function resolveAppIconPath(): string {
-  return app.isPackaged
-    ? join(process.resourcesPath, 'icon.ico')
-    : join(app.getAppPath(), 'resources', 'icon.ico')
+  if (app.isPackaged) {
+    return join(process.resourcesPath, 'icon.ico')
+  }
+  const fromOutDir = join(__dirname, '../../resources/icon.ico')
+  if (existsSync(fromOutDir)) {
+    return fromOutDir
+  }
+  return join(app.getAppPath(), 'resources', 'icon.ico')
 }
 
 async function bootstrap(): Promise<void> {
@@ -107,28 +113,32 @@ async function bootstrap(): Promise<void> {
 
   // System Tray setup for background Price Sniper & Overlay control
   const trayIcon = nativeImage.createFromPath(iconPath)
-  systemTray = new Tray(trayIcon)
-  systemTray.setToolTip('WireFrame v2 — Warframe Companion')
-  systemTray.on('click', () => windowService.toggleVisibility())
-  systemTray.setContextMenu(
-    Menu.buildFromTemplate([
-      { label: 'Afficher / Masquer WireFrame', click: () => windowService.toggleVisibility() },
-      {
-        label: 'Basculer Mode Compact (460×660)',
-        click: () => {
-          void windowService.getState().then((st) => windowService.setCompactMode(!st.isCompactMode))
+  if (!trayIcon.isEmpty()) {
+    systemTray = new Tray(trayIcon)
+    systemTray.setToolTip('WireFrame v2 — Warframe Companion')
+    systemTray.on('click', () => windowService.toggleVisibility())
+    systemTray.setContextMenu(
+      Menu.buildFromTemplate([
+        { label: 'Afficher / Masquer WireFrame', click: () => windowService.toggleVisibility() },
+        {
+          label: 'Basculer Mode Compact (460×660)',
+          click: () => {
+            void windowService
+              .getState()
+              .then((st) => windowService.setCompactMode(!st.isCompactMode))
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Quitter complètement WireFrame',
+          click: () => {
+            windowService.markQuitting()
+            app.quit()
+          }
         }
-      },
-      { type: 'separator' },
-      {
-        label: 'Quitter complètement WireFrame',
-        click: () => {
-          windowService.markQuitting()
-          app.quit()
-        }
-      }
-    ])
-  )
+      ])
+    )
+  }
 
   app.on('second-instance', () => {
     const win = windowService.getMainWindow()
@@ -145,5 +155,10 @@ async function bootstrap(): Promise<void> {
   })
 }
 
-void bootstrap()
+if (gotSingleInstanceLock) {
+  bootstrap().catch((err) => {
+    console.error('[WireFrame Main] Erreur fatale au démarrage :', err)
+    app.quit()
+  })
+}
 

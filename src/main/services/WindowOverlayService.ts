@@ -67,6 +67,12 @@ export class WindowOverlayService {
       await win.loadFile(join(__dirname, '../renderer/index.html'))
     }
 
+    if (!win.isDestroyed() && !win.isVisible()) {
+      win.show()
+      win.focus()
+      this.emitStateChanged()
+    }
+
     return win
   }
 
