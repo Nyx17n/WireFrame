@@ -5,6 +5,21 @@ import { resolve } from 'node:path'
 
 const require = createRequire(import.meta.url)
 
+function stopStaleWorkspaceElectron() {
+  if (process.platform !== 'win32') return
+  const localExe = resolve('node_modules/electron/dist/electron.exe').toLowerCase()
+  try {
+    const psScript = `
+      Get-Process electron -ErrorAction SilentlyContinue |
+        Where-Object { $_.Path -and $_.Path.ToLower() -eq '${localExe.replace(/'/g, "''")}' } |
+        Stop-Process -Force -ErrorAction SilentlyContinue
+    `
+    execFileSync('powershell.exe', ['-NoProfile', '-Command', psScript], { stdio: 'ignore' })
+  } catch {
+    // Aucun processus local à nettoyer
+  }
+}
+
 async function ensureElectronBinary() {
   const electronDir = resolve('node_modules/electron')
   const distDir = resolve(electronDir, 'dist')
@@ -34,6 +49,8 @@ async function ensureElectronBinary() {
 
 async function main() {
   await ensureElectronBinary()
+  // Ferme proprement toute ancienne instance dev restée réduite dans la zone de notification Windows
+  stopStaleWorkspaceElectron()
 
   const mode = process.argv[2] ?? 'dev'
   const cliPath = resolve('node_modules/electron-vite/bin/electron-vite.js')
@@ -57,4 +74,3 @@ main().catch((err) => {
   console.error('[WireFrame] Échec du lancement Electron :', err)
   process.exit(1)
 })
-

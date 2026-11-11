@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { join } from 'node:path'
 import { IPC_CHANNELS } from '@shared/ipc-channels'
 import type { WindowState } from '@shared/schemas/window.schema'
@@ -213,7 +213,9 @@ export class WindowOverlayService {
     win.on('unmaximize', () => this.emitStateChanged())
     win.on('close', (event) => {
       const settings = this.storageService.getSettingsSync()
-      if (settings.window.closeToTray && !this.isQuitting) {
+      // En mode packagé, Alt+F4 replie dans le System Tray si closeToTray est actif.
+      // En mode dev, on laisse electron-vite fermer et relancer proprement le Main Process.
+      if (app.isPackaged && settings.window.closeToTray && !this.isQuitting) {
         event.preventDefault()
         win.hide()
       }

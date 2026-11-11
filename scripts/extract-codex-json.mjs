@@ -21,6 +21,23 @@ if (startIdx === -1) {
 const cleanJsonText = rawJs.slice(startIdx).trim().replace(/;$/, '')
 const parsed = JSON.parse(cleanJsonText)
 
+// Normalise les cas particuliers Warframe (ex: Jade qui possède 2 Auras sous forme de tableau)
+if (Array.isArray(parsed.warframes)) {
+  for (const wf of parsed.warframes) {
+    if (Array.isArray(wf.aura)) {
+      wf.aura = wf.aura.join(' + ')
+    }
+  }
+}
+
+if (Array.isArray(parsed.resources)) {
+  for (const res of parsed.resources) {
+    if (typeof res.planets === 'string' && res.planets.length > 175) {
+      res.planets = `${res.planets.slice(0, 172).trimEnd()}…`
+    }
+  }
+}
+
 mkdirSync(dirname(outPath), { recursive: true })
 writeFileSync(outPath, JSON.stringify(parsed), 'utf8')
 
@@ -32,4 +49,3 @@ console.log(
     `${parsed.mods?.length ?? 0} mods, ` +
     `${parsed.relics?.length ?? 0} reliques.`
 )
-
