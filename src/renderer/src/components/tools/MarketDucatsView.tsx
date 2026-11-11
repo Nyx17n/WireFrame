@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { AlertTriangle, Coins, Plus, RefreshCw, Search } from 'lucide-react'
+import { AlertTriangle, ChevronDown, Coins, Plus, RefreshCw, Search } from 'lucide-react'
 import { toWfAssetUrl } from '@shared/schemas/market.schema'
 import type { DucatItemEntry } from '@shared/schemas/tools.schema'
 import { Badge } from '@/components/ui/badge'
@@ -22,8 +22,13 @@ export function MarketDucatsView(): React.JSX.Element {
   const [mode, setMode] = React.useState<'buy-ducats' | 'sell-plat'>('buy-ducats')
   const [minVolume, setMinVolume] = React.useState<number>(10)
   const [query, setQuery] = React.useState('')
+  const [visibleLimit, setVisibleLimit] = React.useState(60)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    setVisibleLimit(60)
+  }, [mode, minVolume, query])
 
   const loadDucats = React.useCallback(async (force = false) => {
     setLoading(true)
@@ -55,7 +60,6 @@ export function MarketDucatsView(): React.JSX.Element {
           ? b.ducatsPerPlat - a.ducatsPerPlat
           : b.platPer100Ducats - a.platPer100Ducats
       )
-      .slice(0, 80)
   }, [entries, mode, minVolume, query])
 
   return (
@@ -127,51 +131,70 @@ export function MarketDucatsView(): React.JSX.Element {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-          {sorted.map((item) => {
-            const label = lang === 'fr' ? item.nameFr : item.nameEn
-            const thumb = toWfAssetUrl(item.thumb)
-            return (
-              <Card
-                key={item.itemId}
-                onClick={() => navigateActive({ kind: 'market-item', slug: item.slug }, label)}
-                className="cursor-pointer transition-colors hover:border-primary/60"
-              >
-                <CardContent className="flex items-center justify-between gap-2 p-2.5 text-xs">
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    {thumb && <img src={thumb} alt="" className="h-9 w-9 shrink-0 object-contain" />}
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold">{label}</div>
-                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                        <span>{item.ducats} Ducats</span>
-                        <span>· Moy: {item.waPricePlat}p</span>
-                        <span>· Vol: {item.volume}</span>
+        <>
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            {sorted.slice(0, visibleLimit).map((item) => {
+              const label = lang === 'fr' ? item.nameFr : item.nameEn
+              const thumb = toWfAssetUrl(item.thumb)
+              return (
+                <Card
+                  key={item.itemId}
+                  onClick={() => navigateActive({ kind: 'market-item', slug: item.slug }, label)}
+                  className="cursor-pointer transition-colors hover:border-primary/60"
+                >
+                  <CardContent className="flex items-center justify-between gap-2 p-2.5 text-xs">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      {thumb && <img src={thumb} alt="" className="h-9 w-9 shrink-0 object-contain" />}
+                      <div className="min-w-0">
+                        <div className="truncate font-semibold">{label}</div>
+                        <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                          <span>{item.ducats} Ducats</span>
+                          <span>· Moy: {item.waPricePlat}p</span>
+                          <span>· Vol: {item.volume}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    {mode === 'buy-ducats' ? (
-                      <Badge variant="success">{item.ducatsPerPlat} Duc/p</Badge>
-                    ) : (
-                      <Badge variant="default">{item.platPer100Ducats} p / 100 Duc</Badge>
-                    )}
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openTab({ kind: 'market-item', slug: item.slug }, { title: label })
-                      }}
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      {mode === 'buy-ducats' ? (
+                        <Badge variant="success">{item.ducatsPerPlat} Duc/p</Badge>
+                      ) : (
+                        <Badge variant="default">{item.platPer100Ducats} p / 100 Duc</Badge>
+                      )}
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openTab({ kind: 'market-item', slug: item.slug }, { title: label })
+                        }}
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+          {sorted.length > 0 && (
+            <div className="flex flex-col items-center gap-2 pt-2 text-xs text-muted-foreground">
+              <span>
+                {Math.min(visibleLimit, sorted.length)} sur {sorted.length} pièces affichées
+              </span>
+              {sorted.length > visibleLimit && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setVisibleLimit((prev) => prev + 60)}
+                >
+                  <ChevronDown className="h-3.5 w-3.5 text-primary" />
+                  <span>Afficher plus ({sorted.length - visibleLimit} restantes)</span>
+                </Button>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

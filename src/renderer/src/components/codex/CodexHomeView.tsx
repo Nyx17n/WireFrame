@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { BookOpen, Dna, Package, Plus, Search, Sparkles } from 'lucide-react'
+import { BookOpen, ChevronDown, Dna, Loader2, Package, Plus, Search, Sparkles } from 'lucide-react'
 import type {
   CodexCategory,
   CodexSearchResult,
@@ -16,6 +16,8 @@ import { ipcClient } from '@/services/ipc-client'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 type CodexTabMode = CodexCategory | 'helminth'
+
+const PAGE_SIZE = 36
 
 const CATEGORY_TABS: ReadonlyArray<{ id: CodexCategory; label: string }> = [
   { id: 'resources', label: 'Ressources' },
@@ -54,16 +56,21 @@ export function CodexHomeView({
   const [variantFilter, setVariantFilter] = React.useState<CodexVariantFilter>('all')
   const [eraFilter, setEraFilter] = React.useState<string>('all')
   const [slotFilter, setSlotFilter] = React.useState<string>('all')
-  const [page, setPage] = React.useState(1)
+  const [loadedPage, setLoadedPage] = React.useState(1)
   const [result, setResult] = React.useState<CodexSearchResult | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
+  const [isLoadingMore, setIsLoadingMore] = React.useState(false)
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
+  const requestSeqRef = React.useRef(0)
 
   React.useEffect(() => {
     if (activeTab === 'helminth') return
-    let cancelled = false
+    const seq = ++requestSeqRef.current
     setIsLoading(true)
+    setIsLoadingMore(false)
     setErrorMsg(null)
+    setLoadedPage(1)
+
     void ipcClient.codex
       .search({
         category: activeTab,
@@ -71,35 +78,70 @@ export function CodexHomeView({
         variantFilter,
         eraFilter,
         slotFilter,
-        page,
-        pageSize: 36
+        page: 1,
+        pageSize: PAGE_SIZE
       })
       .then((res) => {
-        if (!cancelled) {
+        if (seq === requestSeqRef.current) {
           setResult(res)
           setIsLoading(false)
         }
       })
       .catch((err: unknown) => {
-        if (!cancelled) {
+        if (seq === requestSeqRef.current) {
           setErrorMsg(err instanceof Error ? err.message : 'Erreur chargement Codex')
           setIsLoading(false)
         }
       })
-    return () => {
-      cancelled = true
-    }
-  }, [activeTab, query, variantFilter, eraFilter, slotFilter, page])
+  }, [activeTab, query, variantFilter, eraFilter, slotFilter])
+
+  const handleLoadMore = (): void => {
+    if (activeTab === 'helminth' || isLoadingMore || !result) return
+    if (result.items.length >= result.total) return
+
+    const seq = requestSeqRef.current
+    const nextPage = loadedPage + 1
+    setIsLoadingMore(true)
+
+    void ipcClient.codex
+      .search({
+        category: activeTab,
+        query,
+        variantFilter,
+        eraFilter,
+        slotFilter,
+        page: nextPage,
+        pageSize: PAGE_SIZE
+      })
+      .then((res) => {
+        if (seq !== requestSeqRef.current) return
+        setLoadedPage(nextPage)
+        setResult((prev) => {
+          if (!prev) return res
+          const existingIds = new Set(prev.items.map((it) => it.id))
+          const appended = res.items.filter((it) => !existingIds.has(it.id))
+          return {
+            ...res,
+            items: [...prev.items, ...appended]
+          }
+        })
+        setIsLoadingMore(false)
+      })
+      .catch((err: unknown) => {
+        if (seq !== requestSeqRef.current) return
+        setErrorMsg(err instanceof Error ? err.message : 'Erreur chargement de la suite du Codex')
+        setIsLoadingMore(false)
+      })
+  }
 
   const selectCategory = (next: CodexTabMode): void => {
     setActiveTab(next)
     setVariantFilter('all')
     setEraFilter('all')
     setSlotFilter('all')
-    setPage(1)
   }
 
-  const totalPages = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1
+  const remainingCount = result ? Math.max(0, result.total - result.items.length) : 0
 
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-4">
@@ -151,10 +193,7 @@ export function CodexHomeView({
               <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value)
-                  setPage(1)
-                }}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder="Filtrer FR / EN (ex: Cellule Orokin, Wisp, Acceltra, Lith A13...)"
                 className="h-8 pl-8 text-xs"
               />
@@ -167,10 +206,7 @@ export function CodexHomeView({
                   size="sm"
                   variant={variantFilter === vf ? 'secondary' : 'ghost'}
                   className="h-7 px-2 text-[11px]"
-                  onClick={() => {
-                    setVariantFilter(vf)
-                    setPage(1)
-                  }}
+                  onClick={() => setVariantFilter(vf)}
                 >
                   {vf === 'all'
                     ? 'Tous'
@@ -193,10 +229,7 @@ export function CodexHomeView({
                     size="sm"
                     variant={slotFilter === slot.id ? 'default' : 'ghost'}
                     className="h-7 px-2 text-[11px]"
-                    onClick={() => {
-                      setSlotFilter(slot.id)
-                      setPage(1)
-                    }}
+                    onClick={() => setSlotFilter(slot.id)}
                   >
                     {slot.label}
                   </Button>
@@ -212,10 +245,7 @@ export function CodexHomeView({
                     size="sm"
                     variant={eraFilter === era ? 'default' : 'ghost'}
                     className="h-7 px-2 text-[11px]"
-                    onClick={() => {
-                      setEraFilter(era)
-                      setPage(1)
-                    }}
+                    onClick={() => setEraFilter(era)}
                   >
                     {era === 'all' ? 'Toutes ères' : era}
                   </Button>
@@ -310,29 +340,28 @@ export function CodexHomeView({
             </div>
           )}
 
-          {result && totalPages > 1 && (
-            <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
+          {result && result.items.length > 0 && (
+            <div className="flex flex-col items-center gap-2 pt-3 text-xs text-muted-foreground">
               <span>
-                {result.total} entrées · Page {result.page} / {totalPages}
+                {result.items.length} sur {result.total} entrées affichées
               </span>
-              <div className="flex items-center gap-1.5">
+              {remainingCount > 0 && (
                 <Button
                   size="sm"
                   variant="outline"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={isLoadingMore}
+                  onClick={handleLoadMore}
                 >
-                  Précédent
+                  {isLoadingMore ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-primary" />
+                  )}
+                  <span>
+                    Afficher plus ({remainingCount} restant{remainingCount > 1 ? 's' : ''})
+                  </span>
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  Suivant
-                </Button>
-              </div>
+              )}
             </div>
           )}
         </>
@@ -340,4 +369,3 @@ export function CodexHomeView({
     </main>
   )
 }
-
