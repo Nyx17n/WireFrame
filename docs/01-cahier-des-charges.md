@@ -3,7 +3,7 @@
 - **Projet** : WireFrame v2 — Companion, Trading Browser & Codex pour Warframe
 - **Auteur** : Maxime (`Nyxo_17`)
 - **Stack Cible** : Electron · Node.js · React · `shadcn/ui` (Tailwind CSS + Radix UI) · TypeScript (`strict: true`) · Validation `zod`
-- **Statut du document** : `VALIDÉ — Phase Wireframes Excalidraw en cours`
+- **Statut du document** : `VALIDÉ DÉFINITIF (CDC + 7 Planches Wireframes Excalidraw approuvés)`
 
 ---
 

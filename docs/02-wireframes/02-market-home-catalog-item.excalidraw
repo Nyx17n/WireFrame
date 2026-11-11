@@ -1,7 +1,7 @@
 {
   "type": "excalidraw",
   "version": 2,
-  "source": "https://excalidraw.com",
+  "source": "https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor",
   "elements": [
     {
       "id": "b2-ban",
@@ -24,13 +24,14 @@
         "type": 3
       },
       "seed": 1007,
-      "version": 1,
-      "versionNonce": 1014,
+      "version": 2,
+      "versionNonce": 1824638148,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a0"
     },
     {
       "id": "b2-title",
@@ -51,11 +52,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1021,
-      "version": 1,
-      "versionNonce": 1028,
+      "version": 2,
+      "versionNonce": 213703036,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "PLANCHE 02 / 06 — MARCHÉ : FICHE ITEM (ORDRES, SET VS PIÈCES, STATS), ACCUEIL & CATALOGUE",
@@ -67,7 +68,8 @@
       "containerId": null,
       "originalText": "PLANCHE 02 / 06 — MARCHÉ : FICHE ITEM (ORDRES, SET VS PIÈCES, STATS), ACCUEIL & CATALOGUE",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "a1"
     },
     {
       "id": "b2-sub",
@@ -88,11 +90,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1035,
-      "version": 1,
-      "versionNonce": 1042,
+      "version": 2,
+      "versionNonce": 1295289412,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Vues : wf://market/item/:slug  ·  wf://market  ·  wf://market/catalog  ·  wf://market/favorites  ·  wf://market/user/:slug",
@@ -104,7 +106,8 @@
       "containerId": null,
       "originalText": "Vues : wf://market/item/:slug  ·  wf://market  ·  wf://market/catalog  ·  wf://market/favorites  ·  wf://market/user/:slug",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "a2"
     },
     {
       "id": "b2-lbl1",
@@ -125,11 +128,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1049,
-      "version": 1,
-      "versionNonce": 1056,
+      "version": 2,
+      "versionNonce": 928795132,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "A. VUE FICHE ITEM COMPLÈTE — 1440 × 900 px (wf://market/item/wisp_prime_set)",
@@ -141,7 +144,8 @@
       "containerId": null,
       "originalText": "A. VUE FICHE ITEM COMPLÈTE — 1440 × 900 px (wf://market/item/wisp_prime_set)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "a3"
     },
     {
       "id": "mitem-win",
@@ -164,13 +168,14 @@
         "type": 3
       },
       "seed": 1063,
-      "version": 1,
-      "versionNonce": 1070,
+      "version": 2,
+      "versionNonce": 853697476,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a4"
     },
     {
       "id": "mitem-b1",
@@ -191,13 +196,14 @@
       "frameId": null,
       "roundness": null,
       "seed": 1077,
-      "version": 1,
-      "versionNonce": 1084,
+      "version": 2,
+      "versionNonce": 767142524,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a5"
     },
     {
       "id": "mitem-hub-box",
@@ -220,13 +226,14 @@
         "type": 3
       },
       "seed": 1091,
-      "version": 1,
-      "versionNonce": 1098,
+      "version": 2,
+      "versionNonce": 1676233540,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a6"
     },
     {
       "id": "mitem-hub-txt",
@@ -247,11 +254,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1105,
-      "version": 1,
-      "versionNonce": 1112,
+      "version": 2,
+      "versionNonce": 580319996,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🪐 WireFrame Hub",
@@ -263,7 +270,8 @@
       "containerId": null,
       "originalText": "🪐 WireFrame Hub",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "a7"
     },
     {
       "id": "mitem-act-box",
@@ -286,13 +294,14 @@
         "type": 3
       },
       "seed": 1119,
-      "version": 1,
-      "versionNonce": 1126,
+      "version": 2,
+      "versionNonce": 849822404,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a8"
     },
     {
       "id": "mitem-act-txt",
@@ -313,11 +322,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1133,
-      "version": 1,
-      "versionNonce": 1140,
+      "version": 2,
+      "versionNonce": 544619388,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "⚡ Wisp Prime Set   ✕",
@@ -329,7 +338,8 @@
       "containerId": null,
       "originalText": "⚡ Wisp Prime Set   ✕",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "a9"
     },
     {
       "id": "mitem-plus-box",
@@ -352,13 +362,14 @@
         "type": 3
       },
       "seed": 1147,
-      "version": 1,
-      "versionNonce": 1154,
+      "version": 2,
+      "versionNonce": 1975142980,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aA"
     },
     {
       "id": "mitem-plus-txt",
@@ -379,11 +390,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1161,
-      "version": 1,
-      "versionNonce": 1168,
+      "version": 2,
+      "versionNonce": 295267324,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "+",
@@ -395,7 +406,8 @@
       "containerId": null,
       "originalText": "+",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aB"
     },
     {
       "id": "mitem-drag",
@@ -416,11 +428,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1175,
-      "version": 1,
-      "versionNonce": 1182,
+      "version": 2,
+      "versionNonce": 25028,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "⋮⋮ Zone Drag Electron Frameless",
@@ -432,7 +444,8 @@
       "containerId": null,
       "originalText": "⋮⋮ Zone Drag Electron Frameless",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aC"
     },
     {
       "id": "mitem-wctrl",
@@ -453,11 +466,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1189,
-      "version": 1,
-      "versionNonce": 1196,
+      "version": 2,
+      "versionNonce": 1208126588,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "—    □    ✕",
@@ -469,7 +482,8 @@
       "containerId": null,
       "originalText": "—    □    ✕",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aD"
     },
     {
       "id": "mitem-b2",
@@ -490,13 +504,14 @@
       "frameId": null,
       "roundness": null,
       "seed": 1203,
-      "version": 1,
-      "versionNonce": 1210,
+      "version": 2,
+      "versionNonce": 412584260,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aE"
     },
     {
       "id": "mitem-nav-box",
@@ -519,13 +534,14 @@
         "type": 3
       },
       "seed": 1217,
-      "version": 1,
-      "versionNonce": 1224,
+      "version": 2,
+      "versionNonce": 91462908,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aF"
     },
     {
       "id": "mitem-nav-txt",
@@ -546,11 +562,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1231,
-      "version": 1,
-      "versionNonce": 1238,
+      "version": 2,
+      "versionNonce": 1927135428,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "←  →  ↻",
@@ -562,7 +578,8 @@
       "containerId": null,
       "originalText": "←  →  ↻",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aG"
     },
     {
       "id": "mitem-omni",
@@ -585,13 +602,14 @@
         "type": 3
       },
       "seed": 1245,
-      "version": 1,
-      "versionNonce": 1252,
+      "version": 2,
+      "versionNonce": 57580924,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aH"
     },
     {
       "id": "mitem-omni-t",
@@ -612,11 +630,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1259,
-      "version": 1,
-      "versionNonce": 1266,
+      "version": 2,
+      "versionNonce": 644941892,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🔍 wisp prime set                                          Ctrl+K  ★",
@@ -628,7 +646,8 @@
       "containerId": null,
       "originalText": "🔍 wisp prime set                                          Ctrl+K  ★",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aI"
     },
     {
       "id": "mitem-qm-box",
@@ -651,13 +670,14 @@
         "type": 3
       },
       "seed": 1273,
-      "version": 1,
-      "versionNonce": 1280,
+      "version": 2,
+      "versionNonce": 2067107324,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aJ"
     },
     {
       "id": "mitem-qm-txt",
@@ -678,11 +698,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1287,
-      "version": 1,
-      "versionNonce": 1294,
+      "version": 2,
+      "versionNonce": 657416132,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🏪 Marché",
@@ -694,7 +714,8 @@
       "containerId": null,
       "originalText": "🏪 Marché",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aK"
     },
     {
       "id": "mitem-qc-box",
@@ -717,13 +738,14 @@
         "type": 3
       },
       "seed": 1301,
-      "version": 1,
-      "versionNonce": 1308,
+      "version": 2,
+      "versionNonce": 768241276,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aL"
     },
     {
       "id": "mitem-qc-txt",
@@ -744,11 +766,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1315,
-      "version": 1,
-      "versionNonce": 1322,
+      "version": 2,
+      "versionNonce": 1027000132,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "📖 Codex",
@@ -760,7 +782,8 @@
       "containerId": null,
       "originalText": "📖 Codex",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aM"
     },
     {
       "id": "mitem-qt-box",
@@ -783,13 +806,14 @@
         "type": 3
       },
       "seed": 1329,
-      "version": 1,
-      "versionNonce": 1336,
+      "version": 2,
+      "versionNonce": 1810841340,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aN"
     },
     {
       "id": "mitem-qt-txt",
@@ -810,11 +834,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1343,
-      "version": 1,
-      "versionNonce": 1350,
+      "version": 2,
+      "versionNonce": 2095398596,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🧰 Outils ▾",
@@ -826,7 +850,8 @@
       "containerId": null,
       "originalText": "🧰 Outils ▾",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aO"
     },
     {
       "id": "mitem-qcart-box",
@@ -849,13 +874,14 @@
         "type": 3
       },
       "seed": 1357,
-      "version": 1,
-      "versionNonce": 1364,
+      "version": 2,
+      "versionNonce": 505806716,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aP"
     },
     {
       "id": "mitem-qcart-txt",
@@ -876,11 +902,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1371,
-      "version": 1,
-      "versionNonce": 1378,
+      "version": 2,
+      "versionNonce": 1054393924,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🛒 Panier (3)",
@@ -892,7 +918,8 @@
       "containerId": null,
       "originalText": "🛒 Panier (3)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aQ"
     },
     {
       "id": "mitem-qal-box",
@@ -915,13 +942,14 @@
         "type": 3
       },
       "seed": 1385,
-      "version": 1,
-      "versionNonce": 1392,
+      "version": 2,
+      "versionNonce": 1286647804,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aR"
     },
     {
       "id": "mitem-qal-txt",
@@ -942,11 +970,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1399,
-      "version": 1,
-      "versionNonce": 1406,
+      "version": 2,
+      "versionNonce": 401563076,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🔔 Alertes (2)",
@@ -958,7 +986,8 @@
       "containerId": null,
       "originalText": "🔔 Alertes (2)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aS"
     },
     {
       "id": "mitem-qpl-box",
@@ -981,13 +1010,14 @@
         "type": 3
       },
       "seed": 1413,
-      "version": 1,
-      "versionNonce": 1420,
+      "version": 2,
+      "versionNonce": 663834748,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aT"
     },
     {
       "id": "mitem-qpl-txt",
@@ -1008,11 +1038,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1427,
-      "version": 1,
-      "versionNonce": 1434,
+      "version": 2,
+      "versionNonce": 1363608900,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "PC · Cross · FR ▾",
@@ -1024,7 +1054,8 @@
       "containerId": null,
       "originalText": "PC · Cross · FR ▾",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aU"
     },
     {
       "id": "mitem-qov-box",
@@ -1047,13 +1078,14 @@
         "type": 3
       },
       "seed": 1441,
-      "version": 1,
-      "versionNonce": 1448,
+      "version": 2,
+      "versionNonce": 243917052,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aV"
     },
     {
       "id": "mitem-qov-txt",
@@ -1074,11 +1106,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1455,
-      "version": 1,
-      "versionNonce": 1462,
+      "version": 2,
+      "versionNonce": 1614658756,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "📌   🗗   ⚙",
@@ -1090,7 +1122,8 @@
       "containerId": null,
       "originalText": "📌   🗗   ⚙",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aW"
     },
     {
       "id": "mitem-sb",
@@ -1111,13 +1144,14 @@
       "frameId": null,
       "roundness": null,
       "seed": 1469,
-      "version": 1,
-      "versionNonce": 1476,
+      "version": 2,
+      "versionNonce": 421290364,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aX"
     },
     {
       "id": "mitem-sbt",
@@ -1138,11 +1172,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1483,
-      "version": 1,
-      "versionNonce": 1490,
+      "version": 2,
+      "versionNonce": 1584497732,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🟢 API connectée · Rate-Limiter 3 req/s max · États gérés : Skeleton / Empty / Nominal / Error",
@@ -1154,7 +1188,8 @@
       "containerId": null,
       "originalText": "🟢 API connectée · Rate-Limiter 3 req/s max · États gérés : Skeleton / Empty / Nominal / Error",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aY"
     },
     {
       "id": "ih-card",
@@ -1177,13 +1212,14 @@
         "type": 3
       },
       "seed": 1497,
-      "version": 1,
-      "versionNonce": 1504,
+      "version": 2,
+      "versionNonce": 512414204,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aZ"
     },
     {
       "id": "ih-thumb",
@@ -1206,13 +1242,14 @@
         "type": 3
       },
       "seed": 1511,
-      "version": 1,
-      "versionNonce": 1518,
+      "version": 2,
+      "versionNonce": 29383620,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aa"
     },
     {
       "id": "ih-thumb-t",
@@ -1233,11 +1270,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1525,
-      "version": 1,
-      "versionNonce": 1532,
+      "version": 2,
+      "versionNonce": 1037513340,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "ICON",
@@ -1249,7 +1286,8 @@
       "containerId": null,
       "originalText": "ICON",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "ab"
     },
     {
       "id": "ih-name",
@@ -1270,11 +1308,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1539,
-      "version": 1,
-      "versionNonce": 1546,
+      "version": 2,
+      "versionNonce": 340280132,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Wisp Prime — Set Complet   (EN : Wisp Prime Set)",
@@ -1286,7 +1324,8 @@
       "containerId": null,
       "originalText": "Wisp Prime — Set Complet   (EN : Wisp Prime Set)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "ac"
     },
     {
       "id": "ih-meta",
@@ -1307,11 +1346,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1553,
-      "version": 1,
-      "versionNonce": 1560,
+      "version": 2,
+      "versionNonce": 1707311868,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Tags : Warframe · Prime · Set   |   Taxe d'échange : 8 000 Crédits   |   Valeur Baro : 205 Ducats   |   MR : 0",
@@ -1323,7 +1362,8 @@
       "containerId": null,
       "originalText": "Tags : Warframe · Prime · Set   |   Taxe d'échange : 8 000 Crédits   |   Valeur Baro : 205 Ducats   |   MR : 0",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "ad"
     },
     {
       "id": "ih-codex-box",
@@ -1346,13 +1386,14 @@
         "type": 3
       },
       "seed": 1567,
-      "version": 1,
-      "versionNonce": 1574,
+      "version": 2,
+      "versionNonce": 1818704580,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "ae"
     },
     {
       "id": "ih-codex-txt",
@@ -1373,11 +1414,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1581,
-      "version": 1,
-      "versionNonce": 1588,
+      "version": 2,
+      "versionNonce": 1557250940,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "📖 Voir où farmer les reliques (Codex) →",
@@ -1389,7 +1430,8 @@
       "containerId": null,
       "originalText": "📖 Voir où farmer les reliques (Codex) →",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "af"
     },
     {
       "id": "ih-fav-box",
@@ -1412,13 +1454,14 @@
         "type": 3
       },
       "seed": 1595,
-      "version": 1,
-      "versionNonce": 1602,
+      "version": 2,
+      "versionNonce": 1689993796,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "ag"
     },
     {
       "id": "ih-fav-txt",
@@ -1439,11 +1482,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1609,
-      "version": 1,
-      "versionNonce": 1616,
+      "version": 2,
+      "versionNonce": 1229190140,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "★ Favori",
@@ -1455,7 +1498,8 @@
       "containerId": null,
       "originalText": "★ Favori",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "ah"
     },
     {
       "id": "ih-cart-box",
@@ -1478,13 +1522,14 @@
         "type": 3
       },
       "seed": 1623,
-      "version": 1,
-      "versionNonce": 1630,
+      "version": 2,
+      "versionNonce": 1411537348,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "ai"
     },
     {
       "id": "ih-cart-txt",
@@ -1505,11 +1550,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1637,
-      "version": 1,
-      "versionNonce": 1644,
+      "version": 2,
+      "versionNonce": 958141564,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🛒 + Au Panier",
@@ -1521,7 +1566,8 @@
       "containerId": null,
       "originalText": "🛒 + Au Panier",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aj"
     },
     {
       "id": "ih-snip-box",
@@ -1544,13 +1590,14 @@
         "type": 3
       },
       "seed": 1651,
-      "version": 1,
-      "versionNonce": 1658,
+      "version": 2,
+      "versionNonce": 96108868,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "ak"
     },
     {
       "id": "ih-snip-txt",
@@ -1571,11 +1618,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1665,
-      "version": 1,
-      "versionNonce": 1672,
+      "version": 2,
+      "versionNonce": 706487548,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🎯 Price Sniper",
@@ -1587,7 +1634,8 @@
       "containerId": null,
       "originalText": "🎯 Price Sniper",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "al"
     },
     {
       "id": "svp-box",
@@ -1610,13 +1658,14 @@
         "type": 3
       },
       "seed": 1679,
-      "version": 1,
-      "versionNonce": 1686,
+      "version": 2,
+      "versionNonce": 820099268,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "am"
     },
     {
       "id": "svp-title",
@@ -1637,11 +1686,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1693,
-      "version": 1,
-      "versionNonce": 1700,
+      "version": 2,
+      "versionNonce": 298198396,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "⚖ COMPARATEUR AUTOMATIQUE « SET COMPLET VS PIÈCES DÉTACHÉES » (Prix min En jeu)",
@@ -1653,7 +1702,8 @@
       "containerId": null,
       "originalText": "⚖ COMPARATEUR AUTOMATIQUE « SET COMPLET VS PIÈCES DÉTACHÉES » (Prix min En jeu)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "an"
     },
     {
       "id": "svp-detail",
@@ -1674,11 +1724,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1707,
-      "version": 1,
-      "versionNonce": 1714,
+      "version": 2,
+      "versionNonce": 1899364420,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Set Complet : 55p   vs   Somme des pièces : Schéma (15p) + Châssis (12p) + Neuroptiques (10p) + Systèmes (10p) = 47p",
@@ -1690,7 +1740,8 @@
       "containerId": null,
       "originalText": "Set Complet : 55p   vs   Somme des pièces : Schéma (15p) + Châssis (12p) + Neuroptiques (10p) + Systèmes (10p) = 47p",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "ao"
     },
     {
       "id": "svp-verdict-box",
@@ -1713,13 +1764,14 @@
         "type": 3
       },
       "seed": 1721,
-      "version": 1,
-      "versionNonce": 1728,
+      "version": 2,
+      "versionNonce": 1700533756,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "ap"
     },
     {
       "id": "svp-verdict-txt",
@@ -1740,11 +1792,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1735,
-      "version": 1,
-      "versionNonce": 1742,
+      "version": 2,
+      "versionNonce": 1049974724,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "✓ Économie de 8 Plat en achetant séparément !",
@@ -1756,7 +1808,8 @@
       "containerId": null,
       "originalText": "✓ Économie de 8 Plat en achetant séparément !",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aq"
     },
     {
       "id": "sub-ord-box",
@@ -1779,13 +1832,14 @@
         "type": 3
       },
       "seed": 1749,
-      "version": 1,
-      "versionNonce": 1756,
+      "version": 2,
+      "versionNonce": 568325756,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "ar"
     },
     {
       "id": "sub-ord-txt",
@@ -1806,11 +1860,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1763,
-      "version": 1,
-      "versionNonce": 1770,
+      "version": 2,
+      "versionNonce": 1696448324,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "📋 Ordres en Direct (38)",
@@ -1822,7 +1876,8 @@
       "containerId": null,
       "originalText": "📋 Ordres en Direct (38)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "as"
     },
     {
       "id": "sub-sta-box",
@@ -1845,13 +1900,14 @@
         "type": 3
       },
       "seed": 1777,
-      "version": 1,
-      "versionNonce": 1784,
+      "version": 2,
+      "versionNonce": 1410582268,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "at"
     },
     {
       "id": "sub-sta-txt",
@@ -1872,11 +1928,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1791,
-      "version": 1,
-      "versionNonce": 1798,
+      "version": 2,
+      "versionNonce": 2100115140,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "📈 Statistiques Prix (48h / 90j)",
@@ -1888,7 +1944,8 @@
       "containerId": null,
       "originalText": "📈 Statistiques Prix (48h / 90j)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "au"
     },
     {
       "id": "flt-st-box",
@@ -1911,13 +1968,14 @@
         "type": 3
       },
       "seed": 1805,
-      "version": 1,
-      "versionNonce": 1812,
+      "version": 2,
+      "versionNonce": 544835452,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "av"
     },
     {
       "id": "flt-st-txt",
@@ -1938,11 +1996,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1819,
-      "version": 1,
-      "versionNonce": 1826,
+      "version": 2,
+      "versionNonce": 1667350084,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Statut : 🟢 En jeu uniquement ▾",
@@ -1954,7 +2012,8 @@
       "containerId": null,
       "originalText": "Statut : 🟢 En jeu uniquement ▾",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "aw"
     },
     {
       "id": "flt-rk-box",
@@ -1977,13 +2036,14 @@
         "type": 3
       },
       "seed": 1833,
-      "version": 1,
-      "versionNonce": 1840,
+      "version": 2,
+      "versionNonce": 1263745020,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "ax"
     },
     {
       "id": "flt-rk-txt",
@@ -2004,11 +2064,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1847,
-      "version": 1,
-      "versionNonce": 1854,
+      "version": 2,
+      "versionNonce": 815355332,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Rang Mod : Tous / Max ▾",
@@ -2020,7 +2080,8 @@
       "containerId": null,
       "originalText": "Rang Mod : Tous / Max ▾",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "ay"
     },
     {
       "id": "flt-rp-box",
@@ -2043,13 +2104,14 @@
         "type": 3
       },
       "seed": 1861,
-      "version": 1,
-      "versionNonce": 1868,
+      "version": 2,
+      "versionNonce": 1084414076,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "az"
     },
     {
       "id": "flt-rp-txt",
@@ -2070,11 +2132,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1875,
-      "version": 1,
-      "versionNonce": 1882,
+      "version": 2,
+      "versionNonce": 837942596,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Réputation min : 0+ ▾",
@@ -2086,7 +2148,8 @@
       "containerId": null,
       "originalText": "Réputation min : 0+ ▾",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b00"
     },
     {
       "id": "col-sell",
@@ -2109,13 +2172,14 @@
         "type": 3
       },
       "seed": 1889,
-      "version": 1,
-      "versionNonce": 1896,
+      "version": 2,
+      "versionNonce": 472541436,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b01"
     },
     {
       "id": "col-sell-h",
@@ -2136,13 +2200,14 @@
       "frameId": null,
       "roundness": null,
       "seed": 1903,
-      "version": 1,
-      "versionNonce": 1910,
+      "version": 2,
+      "versionNonce": 1623831748,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b02"
     },
     {
       "id": "col-sell-t",
@@ -2163,11 +2228,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1917,
-      "version": 1,
-      "versionNonce": 1924,
+      "version": 2,
+      "versionNonce": 829155708,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🟢 OFFRES DE VENTE (ILS VENDENT — Prix croissant)",
@@ -2179,7 +2244,8 @@
       "containerId": null,
       "originalText": "🟢 OFFRES DE VENTE (ILS VENDENT — Prix croissant)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b03"
     },
     {
       "id": "sr-0",
@@ -2202,13 +2268,14 @@
         "type": 3
       },
       "seed": 1931,
-      "version": 1,
-      "versionNonce": 1938,
+      "version": 2,
+      "versionNonce": 1522433092,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b04"
     },
     {
       "id": "sr-t-0",
@@ -2229,11 +2296,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1945,
-      "version": 1,
-      "versionNonce": 1952,
+      "version": 2,
+      "versionNonce": 329865724,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "TennoPrime_42   ·   En jeu   ·   Rép +48   ·   Qté: 2",
@@ -2245,7 +2312,8 @@
       "containerId": null,
       "originalText": "TennoPrime_42   ·   En jeu   ·   Rép +48   ·   Qté: 2",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b05"
     },
     {
       "id": "sr-p-0",
@@ -2266,11 +2334,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1959,
-      "version": 1,
-      "versionNonce": 1966,
+      "version": 2,
+      "versionNonce": 1504596932,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "55 Plat",
@@ -2282,12 +2350,13 @@
       "containerId": null,
       "originalText": "55 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b06"
     },
     {
       "id": "sr-b-0-box",
       "type": "rectangle",
-      "x": 615,
+      "x": 597.8571428571428,
       "y": 520,
       "width": 120,
       "height": 30,
@@ -2305,18 +2374,19 @@
         "type": 3
       },
       "seed": 1973,
-      "version": 1,
-      "versionNonce": 1980,
+      "version": 18,
+      "versionNonce": 771054460,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b07"
     },
     {
       "id": "sr-b-0-txt",
       "type": "text",
-      "x": 625,
+      "x": 607.8571428571428,
       "y": 528,
       "width": 81,
       "height": 14,
@@ -2332,11 +2402,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 1987,
-      "version": 1,
-      "versionNonce": 1994,
+      "version": 18,
+      "versionNonce": 1647610876,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
       "locked": false,
       "text": "📋 Acheter /w",
@@ -2348,7 +2418,8 @@
       "containerId": null,
       "originalText": "📋 Acheter /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b08"
     },
     {
       "id": "sr-1",
@@ -2371,13 +2442,14 @@
         "type": 3
       },
       "seed": 2001,
-      "version": 1,
-      "versionNonce": 2008,
+      "version": 2,
+      "versionNonce": 2061503228,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b09"
     },
     {
       "id": "sr-t-1",
@@ -2398,11 +2470,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2015,
-      "version": 1,
-      "versionNonce": 2022,
+      "version": 2,
+      "versionNonce": 725037764,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "VoidTrader_FR   ·   En jeu   ·   Rép +112   ·   Qté: 1",
@@ -2414,7 +2486,8 @@
       "containerId": null,
       "originalText": "VoidTrader_FR   ·   En jeu   ·   Rép +112   ·   Qté: 1",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0A"
     },
     {
       "id": "sr-p-1",
@@ -2435,11 +2508,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2029,
-      "version": 1,
-      "versionNonce": 2036,
+      "version": 2,
+      "versionNonce": 756894588,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "56 Plat",
@@ -2451,12 +2524,13 @@
       "containerId": null,
       "originalText": "56 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0B"
     },
     {
       "id": "sr-b-1-box",
       "type": "rectangle",
-      "x": 615,
+      "x": 597.8571428571428,
       "y": 574,
       "width": 120,
       "height": 30,
@@ -2474,18 +2548,19 @@
         "type": 3
       },
       "seed": 2043,
-      "version": 1,
-      "versionNonce": 2050,
+      "version": 18,
+      "versionNonce": 406432892,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0C"
     },
     {
       "id": "sr-b-1-txt",
       "type": "text",
-      "x": 625,
+      "x": 607.8571428571428,
       "y": 582,
       "width": 81,
       "height": 14,
@@ -2501,11 +2576,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2057,
-      "version": 1,
-      "versionNonce": 2064,
+      "version": 18,
+      "versionNonce": 29801724,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
       "locked": false,
       "text": "📋 Acheter /w",
@@ -2517,7 +2592,8 @@
       "containerId": null,
       "originalText": "📋 Acheter /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0D"
     },
     {
       "id": "sr-2",
@@ -2540,13 +2616,14 @@
         "type": 3
       },
       "seed": 2071,
-      "version": 1,
-      "versionNonce": 2078,
+      "version": 2,
+      "versionNonce": 693391812,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0E"
     },
     {
       "id": "sr-t-2",
@@ -2567,11 +2644,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2085,
-      "version": 1,
-      "versionNonce": 2092,
+      "version": 2,
+      "versionNonce": 36019324,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "LotusKnight   ·   En jeu   ·   Rép +19   ·   Qté: 4",
@@ -2583,7 +2660,8 @@
       "containerId": null,
       "originalText": "LotusKnight   ·   En jeu   ·   Rép +19   ·   Qté: 4",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0F"
     },
     {
       "id": "sr-p-2",
@@ -2604,11 +2682,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2099,
-      "version": 1,
-      "versionNonce": 2106,
+      "version": 2,
+      "versionNonce": 1374517572,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "58 Plat",
@@ -2620,12 +2698,13 @@
       "containerId": null,
       "originalText": "58 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0G"
     },
     {
       "id": "sr-b-2-box",
       "type": "rectangle",
-      "x": 615,
+      "x": 597.8571428571428,
       "y": 628,
       "width": 120,
       "height": 30,
@@ -2643,18 +2722,19 @@
         "type": 3
       },
       "seed": 2113,
-      "version": 1,
-      "versionNonce": 2120,
+      "version": 18,
+      "versionNonce": 1214102908,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0H"
     },
     {
       "id": "sr-b-2-txt",
       "type": "text",
-      "x": 625,
+      "x": 607.8571428571428,
       "y": 636,
       "width": 81,
       "height": 14,
@@ -2670,11 +2750,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2127,
-      "version": 1,
-      "versionNonce": 2134,
+      "version": 18,
+      "versionNonce": 356560380,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
       "locked": false,
       "text": "📋 Acheter /w",
@@ -2686,7 +2766,8 @@
       "containerId": null,
       "originalText": "📋 Acheter /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0I"
     },
     {
       "id": "sr-3",
@@ -2709,13 +2790,14 @@
         "type": 3
       },
       "seed": 2141,
-      "version": 1,
-      "versionNonce": 2148,
+      "version": 2,
+      "versionNonce": 1007529340,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0J"
     },
     {
       "id": "sr-t-3",
@@ -2736,11 +2818,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2155,
-      "version": 1,
-      "versionNonce": 2162,
+      "version": 2,
+      "versionNonce": 386594884,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "OrokinVault   ·   En jeu   ·   Rép +85   ·   Qté: 1",
@@ -2752,7 +2834,8 @@
       "containerId": null,
       "originalText": "OrokinVault   ·   En jeu   ·   Rép +85   ·   Qté: 1",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0K"
     },
     {
       "id": "sr-p-3",
@@ -2773,11 +2856,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2169,
-      "version": 1,
-      "versionNonce": 2176,
+      "version": 2,
+      "versionNonce": 1836228092,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "58 Plat",
@@ -2789,12 +2872,13 @@
       "containerId": null,
       "originalText": "58 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0L"
     },
     {
       "id": "sr-b-3-box",
       "type": "rectangle",
-      "x": 615,
+      "x": 597.8571428571428,
       "y": 682,
       "width": 120,
       "height": 30,
@@ -2812,18 +2896,19 @@
         "type": 3
       },
       "seed": 2183,
-      "version": 1,
-      "versionNonce": 2190,
+      "version": 16,
+      "versionNonce": 426872444,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0M"
     },
     {
       "id": "sr-b-3-txt",
       "type": "text",
-      "x": 625,
+      "x": 607.8571428571428,
       "y": 690,
       "width": 81,
       "height": 14,
@@ -2839,11 +2924,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2197,
-      "version": 1,
-      "versionNonce": 2204,
+      "version": 18,
+      "versionNonce": 364011260,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
       "locked": false,
       "text": "📋 Acheter /w",
@@ -2855,7 +2940,8 @@
       "containerId": null,
       "originalText": "📋 Acheter /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0N"
     },
     {
       "id": "sr-4",
@@ -2878,13 +2964,14 @@
         "type": 3
       },
       "seed": 2211,
-      "version": 1,
-      "versionNonce": 2218,
+      "version": 2,
+      "versionNonce": 1679079236,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0O"
     },
     {
       "id": "sr-t-4",
@@ -2905,11 +2992,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2225,
-      "version": 1,
-      "versionNonce": 2232,
+      "version": 2,
+      "versionNonce": 505958140,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "ZarimanGhost   ·   En ligne   ·   Rép +12   ·   Qté: 1",
@@ -2921,7 +3008,8 @@
       "containerId": null,
       "originalText": "ZarimanGhost   ·   En ligne   ·   Rép +12   ·   Qté: 1",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0P"
     },
     {
       "id": "sr-p-4",
@@ -2942,11 +3030,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2239,
-      "version": 1,
-      "versionNonce": 2246,
+      "version": 2,
+      "versionNonce": 1921330884,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "59 Plat",
@@ -2958,12 +3046,13 @@
       "containerId": null,
       "originalText": "59 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0Q"
     },
     {
       "id": "sr-b-4-box",
       "type": "rectangle",
-      "x": 615,
+      "x": 597.8571428571428,
       "y": 736,
       "width": 120,
       "height": 30,
@@ -2981,18 +3070,19 @@
         "type": 3
       },
       "seed": 2253,
-      "version": 1,
-      "versionNonce": 2260,
+      "version": 16,
+      "versionNonce": 1652891516,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0R"
     },
     {
       "id": "sr-b-4-txt",
       "type": "text",
-      "x": 625,
+      "x": 606.4285714285713,
       "y": 744,
       "width": 81,
       "height": 14,
@@ -3008,11 +3098,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2267,
-      "version": 1,
-      "versionNonce": 2274,
+      "version": 15,
+      "versionNonce": 2016137212,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404665387,
       "link": null,
       "locked": false,
       "text": "📋 Acheter /w",
@@ -3024,7 +3114,8 @@
       "containerId": null,
       "originalText": "📋 Acheter /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0S"
     },
     {
       "id": "col-buy",
@@ -3047,13 +3138,14 @@
         "type": 3
       },
       "seed": 2281,
-      "version": 1,
-      "versionNonce": 2288,
+      "version": 2,
+      "versionNonce": 1877327868,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0T"
     },
     {
       "id": "col-buy-h",
@@ -3074,13 +3166,14 @@
       "frameId": null,
       "roundness": null,
       "seed": 2295,
-      "version": 1,
-      "versionNonce": 2302,
+      "version": 2,
+      "versionNonce": 978537924,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0U"
     },
     {
       "id": "col-buy-t",
@@ -3101,11 +3194,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2309,
-      "version": 1,
-      "versionNonce": 2316,
+      "version": 2,
+      "versionNonce": 1101291644,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🔵 OFFRES D'ACHAT (ILS ACHÈTENT — Prix décroissant)",
@@ -3117,7 +3210,8 @@
       "containerId": null,
       "originalText": "🔵 OFFRES D'ACHAT (ILS ACHÈTENT — Prix décroissant)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0V"
     },
     {
       "id": "br-0",
@@ -3140,13 +3234,14 @@
         "type": 3
       },
       "seed": 2323,
-      "version": 1,
-      "versionNonce": 2330,
+      "version": 2,
+      "versionNonce": 1638724932,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0W"
     },
     {
       "id": "br-t-0",
@@ -3167,11 +3262,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2337,
-      "version": 1,
-      "versionNonce": 2344,
+      "version": 2,
+      "versionNonce": 331018492,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "PrimeCollector   ·   En jeu   ·   Rép +210   ·   Qté: 5",
@@ -3183,7 +3278,8 @@
       "containerId": null,
       "originalText": "PrimeCollector   ·   En jeu   ·   Rép +210   ·   Qté: 5",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0X"
     },
     {
       "id": "br-p-0",
@@ -3204,11 +3300,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2351,
-      "version": 1,
-      "versionNonce": 2358,
+      "version": 2,
+      "versionNonce": 1315286212,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "46 Plat",
@@ -3220,13 +3316,14 @@
       "containerId": null,
       "originalText": "46 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0Y"
     },
     {
       "id": "br-b-0-box",
       "type": "rectangle",
-      "x": 1345,
-      "y": 520,
+      "x": 1319.5454545454545,
+      "y": 520.0000000000001,
       "width": 120,
       "height": 30,
       "angle": 0,
@@ -3243,19 +3340,20 @@
         "type": 3
       },
       "seed": 2365,
-      "version": 1,
-      "versionNonce": 2372,
+      "version": 30,
+      "versionNonce": 2104914628,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404632194,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0Z"
     },
     {
       "id": "br-b-0-txt",
       "type": "text",
-      "x": 1355,
-      "y": 528,
+      "x": 1329.5454545454545,
+      "y": 528.909090909091,
       "width": 75,
       "height": 14,
       "angle": 0,
@@ -3270,11 +3368,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2379,
-      "version": 1,
-      "versionNonce": 2386,
+      "version": 29,
+      "versionNonce": 2133031492,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404632194,
       "link": null,
       "locked": false,
       "text": "📋 Vendre /w",
@@ -3286,7 +3384,8 @@
       "containerId": null,
       "originalText": "📋 Vendre /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0a"
     },
     {
       "id": "br-1",
@@ -3309,13 +3408,14 @@
         "type": 3
       },
       "seed": 2393,
-      "version": 1,
-      "versionNonce": 2400,
+      "version": 2,
+      "versionNonce": 918020604,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0b"
     },
     {
       "id": "br-t-1",
@@ -3336,11 +3436,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2407,
-      "version": 1,
-      "versionNonce": 2414,
+      "version": 2,
+      "versionNonce": 447499204,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "MerchantKuva   ·   En jeu   ·   Rép +64   ·   Qté: 2",
@@ -3352,7 +3452,8 @@
       "containerId": null,
       "originalText": "MerchantKuva   ·   En jeu   ·   Rép +64   ·   Qté: 2",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0c"
     },
     {
       "id": "br-p-1",
@@ -3373,11 +3474,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2421,
-      "version": 1,
-      "versionNonce": 2428,
+      "version": 2,
+      "versionNonce": 1843544700,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "45 Plat",
@@ -3389,13 +3490,14 @@
       "containerId": null,
       "originalText": "45 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0d"
     },
     {
       "id": "br-b-1-box",
       "type": "rectangle",
-      "x": 1345,
-      "y": 574,
+      "x": 1319.5454545454545,
+      "y": 574.909090909091,
       "width": 120,
       "height": 30,
       "angle": 0,
@@ -3412,19 +3514,20 @@
         "type": 3
       },
       "seed": 2435,
-      "version": 1,
-      "versionNonce": 2442,
+      "version": 29,
+      "versionNonce": 1690538436,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404632194,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0e"
     },
     {
       "id": "br-b-1-txt",
       "type": "text",
-      "x": 1355,
-      "y": 582,
+      "x": 1329.5454545454545,
+      "y": 582.909090909091,
       "width": 75,
       "height": 14,
       "angle": 0,
@@ -3439,11 +3542,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2449,
-      "version": 1,
-      "versionNonce": 2456,
+      "version": 29,
+      "versionNonce": 1567930692,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404632194,
       "link": null,
       "locked": false,
       "text": "📋 Vendre /w",
@@ -3455,7 +3558,8 @@
       "containerId": null,
       "originalText": "📋 Vendre /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0f"
     },
     {
       "id": "br-2",
@@ -3478,13 +3582,14 @@
         "type": 3
       },
       "seed": 2463,
-      "version": 1,
-      "versionNonce": 2470,
+      "version": 2,
+      "versionNonce": 1326918340,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0g"
     },
     {
       "id": "br-t-2",
@@ -3505,11 +3610,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2477,
-      "version": 1,
-      "versionNonce": 2484,
+      "version": 2,
+      "versionNonce": 827904892,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "DuviriDrifter   ·   En jeu   ·   Rép +9   ·   Qté: 1",
@@ -3521,7 +3626,8 @@
       "containerId": null,
       "originalText": "DuviriDrifter   ·   En jeu   ·   Rép +9   ·   Qté: 1",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0h"
     },
     {
       "id": "br-p-2",
@@ -3542,11 +3648,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2491,
-      "version": 1,
-      "versionNonce": 2498,
+      "version": 2,
+      "versionNonce": 1273836100,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "44 Plat",
@@ -3558,13 +3664,14 @@
       "containerId": null,
       "originalText": "44 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0i"
     },
     {
       "id": "br-b-2-box",
       "type": "rectangle",
-      "x": 1345,
-      "y": 628,
+      "x": 1319.5454545454545,
+      "y": 628.909090909091,
       "width": 120,
       "height": 30,
       "angle": 0,
@@ -3581,19 +3688,20 @@
         "type": 3
       },
       "seed": 2505,
-      "version": 1,
-      "versionNonce": 2512,
+      "version": 29,
+      "versionNonce": 76869828,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404632194,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0j"
     },
     {
       "id": "br-b-2-txt",
       "type": "text",
-      "x": 1355,
-      "y": 636,
+      "x": 1329.5454545454545,
+      "y": 636.909090909091,
       "width": 75,
       "height": 14,
       "angle": 0,
@@ -3608,11 +3716,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2519,
-      "version": 1,
-      "versionNonce": 2526,
+      "version": 29,
+      "versionNonce": 1505900612,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404632194,
       "link": null,
       "locked": false,
       "text": "📋 Vendre /w",
@@ -3624,7 +3732,8 @@
       "containerId": null,
       "originalText": "📋 Vendre /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0k"
     },
     {
       "id": "br-3",
@@ -3647,13 +3756,14 @@
         "type": 3
       },
       "seed": 2533,
-      "version": 1,
-      "versionNonce": 2540,
+      "version": 2,
+      "versionNonce": 1126114428,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0l"
     },
     {
       "id": "br-t-3",
@@ -3674,11 +3784,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2547,
-      "version": 1,
-      "versionNonce": 2554,
+      "version": 2,
+      "versionNonce": 1563455812,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "BaroFanatic   ·   En jeu   ·   Rép +33   ·   Qté: 3",
@@ -3690,7 +3800,8 @@
       "containerId": null,
       "originalText": "BaroFanatic   ·   En jeu   ·   Rép +33   ·   Qté: 3",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0m"
     },
     {
       "id": "br-p-3",
@@ -3711,11 +3822,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2561,
-      "version": 1,
-      "versionNonce": 2568,
+      "version": 2,
+      "versionNonce": 557659388,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "42 Plat",
@@ -3727,13 +3838,14 @@
       "containerId": null,
       "originalText": "42 Plat",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0n"
     },
     {
       "id": "br-b-3-box",
       "type": "rectangle",
-      "x": 1345,
-      "y": 682,
+      "x": 1319.5454545454545,
+      "y": 682.909090909091,
       "width": 120,
       "height": 30,
       "angle": 0,
@@ -3750,19 +3862,20 @@
         "type": 3
       },
       "seed": 2575,
-      "version": 1,
-      "versionNonce": 2582,
+      "version": 29,
+      "versionNonce": 953847748,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404632194,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0o"
     },
     {
       "id": "br-b-3-txt",
       "type": "text",
-      "x": 1355,
-      "y": 690,
+      "x": 1329.5454545454545,
+      "y": 690.909090909091,
       "width": 75,
       "height": 14,
       "angle": 0,
@@ -3777,11 +3890,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2589,
-      "version": 1,
-      "versionNonce": 2596,
+      "version": 29,
+      "versionNonce": 1375467332,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404632194,
       "link": null,
       "locked": false,
       "text": "📋 Vendre /w",
@@ -3793,7 +3906,8 @@
       "containerId": null,
       "originalText": "📋 Vendre /w",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0p"
     },
     {
       "id": "stats-prev",
@@ -3816,13 +3930,14 @@
         "type": 3
       },
       "seed": 2603,
-      "version": 1,
-      "versionNonce": 2610,
+      "version": 2,
+      "versionNonce": 2012213316,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0q"
     },
     {
       "id": "stats-title",
@@ -3843,11 +3958,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2617,
-      "version": 1,
-      "versionNonce": 2624,
+      "version": 2,
+      "versionNonce": 863577596,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "APERÇU DU SOUS-ONGLET « 📈 STATISTIQUES DE PRIX (48H / 90 JOURS) »",
@@ -3859,7 +3974,8 @@
       "containerId": null,
       "originalText": "APERÇU DU SOUS-ONGLET « 📈 STATISTIQUES DE PRIX (48H / 90 JOURS) »",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0r"
     },
     {
       "id": "stats-body",
@@ -3880,11 +3996,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2631,
-      "version": 1,
-      "versionNonce": 2638,
+      "version": 2,
+      "versionNonce": 949045188,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "• Courbe interactive (Recharts / SVG léger) : Prix médian + Moyenne mobile + Fourchette Min/Max\n• Histogramme inférieur : Volume d'unités réellement échangées par heure (48h) ou par jour (90j)\n• Indicateurs clés en cartes KPI : Prix Médian (54p) · Volume 48h (312 ventes) · Tendance 7j (+4.2%)",
@@ -3896,7 +4012,8 @@
       "containerId": null,
       "originalText": "• Courbe interactive (Recharts / SVG léger) : Prix médian + Moyenne mobile + Fourchette Min/Max\n• Histogramme inférieur : Volume d'unités réellement échangées par heure (48h) ou par jour (90j)\n• Indicateurs clés en cartes KPI : Prix Médian (54p) · Volume 48h (312 ventes) · Tendance 7j (+4.2%)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0s"
     },
     {
       "id": "b2-lbl2",
@@ -3917,11 +4034,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2645,
-      "version": 1,
-      "versionNonce": 2652,
+      "version": 2,
+      "versionNonce": 1239090812,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "B. ACCUEIL MARCHÉ & CATALOGUE VIRTUALISÉ",
@@ -3933,7 +4050,8 @@
       "containerId": null,
       "originalText": "B. ACCUEIL MARCHÉ & CATALOGUE VIRTUALISÉ",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0t"
     },
     {
       "id": "cat-box",
@@ -3956,13 +4074,14 @@
         "type": 3
       },
       "seed": 2659,
-      "version": 1,
-      "versionNonce": 2666,
+      "version": 2,
+      "versionNonce": 438021956,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0u"
     },
     {
       "id": "cat-hero",
@@ -3985,13 +4104,14 @@
         "type": 3
       },
       "seed": 2673,
-      "version": 1,
-      "versionNonce": 2680,
+      "version": 2,
+      "versionNonce": 1781323516,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0v"
     },
     {
       "id": "cat-hero-t",
@@ -4012,11 +4132,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2687,
-      "version": 1,
-      "versionNonce": 2694,
+      "version": 2,
+      "versionNonce": 1022174916,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🏪 ACCUEIL MARCHÉ (wf://market)",
@@ -4028,7 +4148,8 @@
       "containerId": null,
       "originalText": "🏪 ACCUEIL MARCHÉ (wf://market)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0w"
     },
     {
       "id": "cat-hero-s",
@@ -4049,11 +4170,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2701,
-      "version": 1,
-      "versionNonce": 2708,
+      "version": 2,
+      "versionNonce": 821073788,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "• Grande barre de recherche centrale + Bandeau Boosters/Darvo\n• Grille « Items Populaires » (Sets Prime, Arcanes, Mods Galvanisés)",
@@ -4065,7 +4186,8 @@
       "containerId": null,
       "originalText": "• Grande barre de recherche centrale + Bandeau Boosters/Darvo\n• Grille « Items Populaires » (Sets Prime, Arcanes, Mods Galvanisés)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0x"
     },
     {
       "id": "cat-grid-t",
@@ -4086,11 +4208,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2715,
-      "version": 1,
-      "versionNonce": 2722,
+      "version": 2,
+      "versionNonce": 94613060,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "📚 CATALOGUE VIRTUALISÉ (wf://market/catalog — 3 893+ items)",
@@ -4102,7 +4224,8 @@
       "containerId": null,
       "originalText": "📚 CATALOGUE VIRTUALISÉ (wf://market/catalog — 3 893+ items)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b0y"
     },
     {
       "id": "cat-f1-box",
@@ -4125,13 +4248,14 @@
         "type": 3
       },
       "seed": 2729,
-      "version": 1,
-      "versionNonce": 2736,
+      "version": 2,
+      "versionNonce": 1516783612,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b0z"
     },
     {
       "id": "cat-f1-txt",
@@ -4152,11 +4276,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2743,
-      "version": 1,
-      "versionNonce": 2750,
+      "version": 2,
+      "versionNonce": 354239940,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Tous",
@@ -4168,7 +4292,8 @@
       "containerId": null,
       "originalText": "Tous",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b10"
     },
     {
       "id": "cat-f2-box",
@@ -4191,13 +4316,14 @@
         "type": 3
       },
       "seed": 2757,
-      "version": 1,
-      "versionNonce": 2764,
+      "version": 2,
+      "versionNonce": 1251338364,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b11"
     },
     {
       "id": "cat-f2-txt",
@@ -4218,11 +4344,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2771,
-      "version": 1,
-      "versionNonce": 2778,
+      "version": 2,
+      "versionNonce": 1081601348,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Sets Prime",
@@ -4234,7 +4360,8 @@
       "containerId": null,
       "originalText": "Sets Prime",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b12"
     },
     {
       "id": "cat-f3-box",
@@ -4257,13 +4384,14 @@
         "type": 3
       },
       "seed": 2785,
-      "version": 1,
-      "versionNonce": 2792,
+      "version": 2,
+      "versionNonce": 356219132,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b13"
     },
     {
       "id": "cat-f3-txt",
@@ -4284,11 +4412,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2799,
-      "version": 1,
-      "versionNonce": 2806,
+      "version": 2,
+      "versionNonce": 152151236,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Mods",
@@ -4300,7 +4428,8 @@
       "containerId": null,
       "originalText": "Mods",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b14"
     },
     {
       "id": "cat-f4-box",
@@ -4323,13 +4452,14 @@
         "type": 3
       },
       "seed": 2813,
-      "version": 1,
-      "versionNonce": 2820,
+      "version": 2,
+      "versionNonce": 98236796,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b15"
     },
     {
       "id": "cat-f4-txt",
@@ -4350,11 +4480,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2827,
-      "version": 1,
-      "versionNonce": 2834,
+      "version": 2,
+      "versionNonce": 344484932,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Arcanes",
@@ -4366,7 +4496,8 @@
       "containerId": null,
       "originalText": "Arcanes",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b16"
     },
     {
       "id": "cat-f5-box",
@@ -4389,13 +4520,14 @@
         "type": 3
       },
       "seed": 2841,
-      "version": 1,
-      "versionNonce": 2848,
+      "version": 2,
+      "versionNonce": 666266108,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b17"
     },
     {
       "id": "cat-f5-txt",
@@ -4416,11 +4548,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2855,
-      "version": 1,
-      "versionNonce": 2862,
+      "version": 2,
+      "versionNonce": 616186820,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Incarnon",
@@ -4432,7 +4564,8 @@
       "containerId": null,
       "originalText": "Incarnon",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b18"
     },
     {
       "id": "icard-0-0",
@@ -4455,13 +4588,14 @@
         "type": 3
       },
       "seed": 2869,
-      "version": 1,
-      "versionNonce": 2876,
+      "version": 2,
+      "versionNonce": 1305463420,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b19"
     },
     {
       "id": "icard-t-0-0",
@@ -4482,11 +4616,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2883,
-      "version": 1,
-      "versionNonce": 2890,
+      "version": 2,
+      "versionNonce": 264579908,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🖼 Nom de l'item",
@@ -4498,7 +4632,8 @@
       "containerId": null,
       "originalText": "🖼 Nom de l'item",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1A"
     },
     {
       "id": "icard-m-0-0",
@@ -4519,11 +4654,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2897,
-      "version": 1,
-      "versionNonce": 2904,
+      "version": 2,
+      "versionNonce": 451484412,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Set Prime · 205 Duc.",
@@ -4535,7 +4670,8 @@
       "containerId": null,
       "originalText": "Set Prime · 205 Duc.",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1B"
     },
     {
       "id": "icard-b-0-0-box",
@@ -4558,13 +4694,14 @@
         "type": 3
       },
       "seed": 2911,
-      "version": 1,
-      "versionNonce": 2918,
+      "version": 2,
+      "versionNonce": 939991748,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1C"
     },
     {
       "id": "icard-b-0-0-txt",
@@ -4585,11 +4722,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2925,
-      "version": 1,
-      "versionNonce": 2932,
+      "version": 2,
+      "versionNonce": 159669116,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Voir les ordres →",
@@ -4601,7 +4738,8 @@
       "containerId": null,
       "originalText": "Voir les ordres →",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1D"
     },
     {
       "id": "icard-0-1",
@@ -4624,13 +4762,14 @@
         "type": 3
       },
       "seed": 2939,
-      "version": 1,
-      "versionNonce": 2946,
+      "version": 2,
+      "versionNonce": 69085764,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1E"
     },
     {
       "id": "icard-t-0-1",
@@ -4651,11 +4790,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2953,
-      "version": 1,
-      "versionNonce": 2960,
+      "version": 2,
+      "versionNonce": 1944292348,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "🖼 Nom de l'item",
@@ -4667,7 +4806,8 @@
       "containerId": null,
       "originalText": "🖼 Nom de l'item",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1F"
     },
     {
       "id": "icard-m-0-1",
@@ -4688,11 +4828,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2967,
-      "version": 1,
-      "versionNonce": 2974,
+      "version": 2,
+      "versionNonce": 1458061764,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Set Prime · 205 Duc.",
@@ -4704,7 +4844,8 @@
       "containerId": null,
       "originalText": "Set Prime · 205 Duc.",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1G"
     },
     {
       "id": "icard-b-0-1-box",
@@ -4727,13 +4868,14 @@
         "type": 3
       },
       "seed": 2981,
-      "version": 1,
-      "versionNonce": 2988,
+      "version": 2,
+      "versionNonce": 470330492,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1H"
     },
     {
       "id": "icard-b-0-1-txt",
@@ -4754,11 +4896,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 2995,
-      "version": 1,
-      "versionNonce": 3002,
+      "version": 2,
+      "versionNonce": 126052676,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
       "locked": false,
       "text": "Voir les ordres →",
@@ -4770,7 +4912,8 @@
       "containerId": null,
       "originalText": "Voir les ordres →",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1I"
     },
     {
       "id": "icard-0-2",
@@ -4793,13 +4936,14 @@
         "type": 3
       },
       "seed": 3009,
-      "version": 1,
-      "versionNonce": 3016,
+      "version": 2,
+      "versionNonce": 867548412,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604181,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1J"
     },
     {
       "id": "icard-t-0-2",
@@ -4820,11 +4964,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3023,
-      "version": 1,
-      "versionNonce": 3030,
+      "version": 2,
+      "versionNonce": 1498259652,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "🖼 Nom de l'item",
@@ -4836,7 +4980,8 @@
       "containerId": null,
       "originalText": "🖼 Nom de l'item",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1K"
     },
     {
       "id": "icard-m-0-2",
@@ -4857,11 +5002,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3037,
-      "version": 1,
-      "versionNonce": 3044,
+      "version": 2,
+      "versionNonce": 1684847996,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "Set Prime · 205 Duc.",
@@ -4873,7 +5018,8 @@
       "containerId": null,
       "originalText": "Set Prime · 205 Duc.",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1L"
     },
     {
       "id": "icard-b-0-2-box",
@@ -4896,13 +5042,14 @@
         "type": 3
       },
       "seed": 3051,
-      "version": 1,
-      "versionNonce": 3058,
+      "version": 2,
+      "versionNonce": 1944381508,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1M"
     },
     {
       "id": "icard-b-0-2-txt",
@@ -4923,11 +5070,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3065,
-      "version": 1,
-      "versionNonce": 3072,
+      "version": 2,
+      "versionNonce": 1466936828,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "Voir les ordres →",
@@ -4939,7 +5086,8 @@
       "containerId": null,
       "originalText": "Voir les ordres →",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1N"
     },
     {
       "id": "icard-1-0",
@@ -4962,13 +5110,14 @@
         "type": 3
       },
       "seed": 3079,
-      "version": 1,
-      "versionNonce": 3086,
+      "version": 2,
+      "versionNonce": 1529298884,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1O"
     },
     {
       "id": "icard-t-1-0",
@@ -4989,11 +5138,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3093,
-      "version": 1,
-      "versionNonce": 3100,
+      "version": 2,
+      "versionNonce": 1036029564,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "🖼 Nom de l'item",
@@ -5005,7 +5154,8 @@
       "containerId": null,
       "originalText": "🖼 Nom de l'item",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1P"
     },
     {
       "id": "icard-m-1-0",
@@ -5026,11 +5176,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3107,
-      "version": 1,
-      "versionNonce": 3114,
+      "version": 2,
+      "versionNonce": 1731372868,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "Set Prime · 205 Duc.",
@@ -5042,7 +5192,8 @@
       "containerId": null,
       "originalText": "Set Prime · 205 Duc.",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1Q"
     },
     {
       "id": "icard-b-1-0-box",
@@ -5065,13 +5216,14 @@
         "type": 3
       },
       "seed": 3121,
-      "version": 1,
-      "versionNonce": 3128,
+      "version": 2,
+      "versionNonce": 1478582012,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1R"
     },
     {
       "id": "icard-b-1-0-txt",
@@ -5092,11 +5244,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3135,
-      "version": 1,
-      "versionNonce": 3142,
+      "version": 2,
+      "versionNonce": 1013259972,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "Voir les ordres →",
@@ -5108,7 +5260,8 @@
       "containerId": null,
       "originalText": "Voir les ordres →",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1S"
     },
     {
       "id": "icard-1-1",
@@ -5131,13 +5284,14 @@
         "type": 3
       },
       "seed": 3149,
-      "version": 1,
-      "versionNonce": 3156,
+      "version": 2,
+      "versionNonce": 2132025212,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1T"
     },
     {
       "id": "icard-t-1-1",
@@ -5158,11 +5312,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3163,
-      "version": 1,
-      "versionNonce": 3170,
+      "version": 2,
+      "versionNonce": 1130145348,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "🖼 Nom de l'item",
@@ -5174,7 +5328,8 @@
       "containerId": null,
       "originalText": "🖼 Nom de l'item",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1U"
     },
     {
       "id": "icard-m-1-1",
@@ -5195,11 +5350,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3177,
-      "version": 1,
-      "versionNonce": 3184,
+      "version": 2,
+      "versionNonce": 718983164,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "Set Prime · 205 Duc.",
@@ -5211,7 +5366,8 @@
       "containerId": null,
       "originalText": "Set Prime · 205 Duc.",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1V"
     },
     {
       "id": "icard-b-1-1-box",
@@ -5234,13 +5390,14 @@
         "type": 3
       },
       "seed": 3191,
-      "version": 1,
-      "versionNonce": 3198,
+      "version": 2,
+      "versionNonce": 553074116,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1W"
     },
     {
       "id": "icard-b-1-1-txt",
@@ -5261,11 +5418,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3205,
-      "version": 1,
-      "versionNonce": 3212,
+      "version": 2,
+      "versionNonce": 2071425148,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "Voir les ordres →",
@@ -5277,7 +5434,8 @@
       "containerId": null,
       "originalText": "Voir les ordres →",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1X"
     },
     {
       "id": "icard-1-2",
@@ -5300,13 +5458,14 @@
         "type": 3
       },
       "seed": 3219,
-      "version": 1,
-      "versionNonce": 3226,
+      "version": 2,
+      "versionNonce": 777184580,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1Y"
     },
     {
       "id": "icard-t-1-2",
@@ -5327,11 +5486,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3233,
-      "version": 1,
-      "versionNonce": 3240,
+      "version": 2,
+      "versionNonce": 1085014268,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "🖼 Nom de l'item",
@@ -5343,7 +5502,8 @@
       "containerId": null,
       "originalText": "🖼 Nom de l'item",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1Z"
     },
     {
       "id": "icard-m-1-2",
@@ -5364,11 +5524,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3247,
-      "version": 1,
-      "versionNonce": 3254,
+      "version": 2,
+      "versionNonce": 1892523204,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "Set Prime · 205 Duc.",
@@ -5380,7 +5540,8 @@
       "containerId": null,
       "originalText": "Set Prime · 205 Duc.",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1a"
     },
     {
       "id": "icard-b-1-2-box",
@@ -5403,13 +5564,14 @@
         "type": 3
       },
       "seed": 3261,
-      "version": 1,
-      "versionNonce": 3268,
+      "version": 2,
+      "versionNonce": 33194364,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1b"
     },
     {
       "id": "icard-b-1-2-txt",
@@ -5430,11 +5592,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3275,
-      "version": 1,
-      "versionNonce": 3282,
+      "version": 2,
+      "versionNonce": 302343236,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "Voir les ordres →",
@@ -5446,7 +5608,8 @@
       "containerId": null,
       "originalText": "Voir les ordres →",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1c"
     },
     {
       "id": "b2-lbl3",
@@ -5467,11 +5630,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3289,
-      "version": 1,
-      "versionNonce": 3296,
+      "version": 2,
+      "versionNonce": 111473148,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "C. FAVORIS, PROFIL JOUEUR & ADAPTATION COMPACT (460×660)",
@@ -5483,7 +5646,8 @@
       "containerId": null,
       "originalText": "C. FAVORIS, PROFIL JOUEUR & ADAPTATION COMPACT (460×660)",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1d"
     },
     {
       "id": "prof-box",
@@ -5506,13 +5670,14 @@
         "type": 3
       },
       "seed": 3303,
-      "version": 1,
-      "versionNonce": 3310,
+      "version": 2,
+      "versionNonce": 1473788868,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "b1e"
     },
     {
       "id": "prof-body",
@@ -5533,11 +5698,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 3317,
-      "version": 1,
-      "versionNonce": 3324,
+      "version": 2,
+      "versionNonce": 1571639932,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1731320000000,
+      "updated": 1794404604182,
       "link": null,
       "locked": false,
       "text": "1. Vue Favoris (wf://market/favorites) :\n   • Tableau de suivi rapide de tous les items ★\n   • Actualisation groupée (via Rate-Limiter) du meilleur prix En jeu\n   • Bouton /w direct + Ajout rapide au Panier\n\n2. Vue Profil Joueur (wf://market/user/:slug) :\n   • Avatar, Statut en direct (En jeu / En ligne / Hors-ligne), Réputation\n   • Onglets « Ses Ventes actives » & « Ses Achats actifs »\n\n3. Règle d'adaptation Mode Compact Overlay (460×660) :\n   • Les 2 colonnes Vendeurs / Acheteurs passent en Segmented Tabs\n     (Vendeurs affiché par défaut pour acheter en 1 clic en jeu)\n   • Le comparateur Set vs Pièces se condense sur une bannière 1 ligne\n   • Catalogue en liste compacte 1 colonne avec défilement virtuel",
@@ -5549,11 +5714,14 @@
       "containerId": null,
       "originalText": "1. Vue Favoris (wf://market/favorites) :\n   • Tableau de suivi rapide de tous les items ★\n   • Actualisation groupée (via Rate-Limiter) du meilleur prix En jeu\n   • Bouton /w direct + Ajout rapide au Panier\n\n2. Vue Profil Joueur (wf://market/user/:slug) :\n   • Avatar, Statut en direct (En jeu / En ligne / Hors-ligne), Réputation\n   • Onglets « Ses Ventes actives » & « Ses Achats actifs »\n\n3. Règle d'adaptation Mode Compact Overlay (460×660) :\n   • Les 2 colonnes Vendeurs / Acheteurs passent en Segmented Tabs\n     (Vendeurs affiché par défaut pour acheter en 1 clic en jeu)\n   • Le comparateur Set vs Pièces se condense sur une bannière 1 ligne\n   • Catalogue en liste compacte 1 colonne avec défilement virtuel",
       "lineHeight": 1.25,
-      "autoResize": true
+      "autoResize": true,
+      "index": "b1f"
     }
   ],
   "appState": {
     "gridSize": 20,
+    "gridStep": 5,
+    "gridModeEnabled": false,
     "viewBackgroundColor": "#f8fafc"
   },
   "files": {}
