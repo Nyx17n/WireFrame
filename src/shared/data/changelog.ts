@@ -8,6 +8,16 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_RELEASES: readonly ChangelogRelease[] = [
   {
+    version: '2.3.1',
+    date: 'Novembre 2026',
+    titleFr: 'Hotfix Interface Paramètres — Hauteur Adaptative & Suppression du Vide',
+    badgeFr: 'Correctif v2.3.1',
+    highlightsFr: [
+      'Correction de l’espacement vertical dans la fenêtre Paramètres (passage de CSS Grid rigide vers un conteneur Flex adaptatif sans espace vide sous l’en-tête).',
+      'Ajustement automatique de la hauteur du cadre des Paramètres selon l’onglet actif (Système, Audio, Fenêtre, Marché ou Apparence).'
+    ]
+  },
+  {
     version: '2.3.0',
     date: 'Novembre 2026',
     titleFr: 'Chargement Progressif « Afficher plus » Sans Changement de Page',

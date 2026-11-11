@@ -1,4 +1,4 @@
-# WireFrame v2.3.0 — Warframe Companion, Trading Browser & Codex
+# WireFrame v2.3.1 — Warframe Companion, Trading Browser & Codex
 
 > Conçu par **Maxime (`Nyxo_17`)** — Architecture **Electron · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
