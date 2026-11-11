@@ -1,3 +1,0 @@
-#!/bin/sh
-python "bump_version.py" --hook
-exit 0

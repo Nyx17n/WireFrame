@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 32% 9%;
+    --foreground: 210 40% 96%;
+    --card: 210 30% 12%;
+    --card-foreground: 210 40% 96%;
+    --popover: 210 32% 10%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 215 25% 18%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 215 25% 16%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 199 89% 48%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 25% 20%;
+    --input: 215 25% 20%;
+    --ring: 199 89% 48%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+}
+
+/* Electron Frameless Drag Regions */
+.app-drag-region {
+  -webkit-app-region: drag;
+}
+
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Optional Subtle Accent Glow (controlled by user settings) */
+body.glow-enabled .wf-glow-surface {
+  box-shadow: 0 0 18px -6px hsl(var(--primary) / 0.45);
+}
+
+/* Custom Theme-Aware Scrollbars (Chromium / Electron) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background) / 0.65);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.45);
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.7);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.8);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: hsl(var(--primary));
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
