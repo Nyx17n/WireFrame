@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { AlertTriangle, Compass, Plus, RefreshCw, Search, Star } from 'lucide-react'
+import { AlertTriangle, ChevronDown, Compass, Plus, RefreshCw, Search, Star } from 'lucide-react'
 import { toWfAssetUrl } from '@shared/schemas/market.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -198,13 +198,21 @@ export function MarketCatalogView({ initialQuery = '' }: { initialQuery?: string
             })}
           </div>
 
-          {filtered.length > visibleLimit && (
-            <div className="flex justify-center pt-2">
-              <Button variant="outline" onClick={() => setVisibleLimit((prev) => prev + 60)}>
-                Afficher 60 items supplémentaires ({filtered.length - visibleLimit} restants)
+          <div className="flex flex-col items-center gap-2 pt-3 text-xs text-muted-foreground">
+            <span>
+              {Math.min(visibleLimit, filtered.length)} sur {filtered.length} items affichés
+            </span>
+            {filtered.length > visibleLimit && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setVisibleLimit((prev) => prev + 60)}
+              >
+                <ChevronDown className="h-3.5 w-3.5 text-primary" />
+                <span>Afficher plus ({filtered.length - visibleLimit} restants)</span>
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
     </div>
