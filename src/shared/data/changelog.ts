@@ -15,6 +15,7 @@ export const CHANGELOG_RELEASES: readonly ChangelogRelease[] = [
     highlightsFr: [
       'Animation d’ouverture cinétique au lancement : ondes du Lotus teintées selon ton thème actif et défilement fluide Wire Frame → Doc → Companion → Market → Index → Codex avec centrage final sur « Wire ».',
       'Option d’activation/désactivation et bouton « Rejouer » à la demande dans Paramètres → Apparence.',
+      'Collection complète des 20 thèmes d’interface (Sombre, Clair, Full Black OLED #000, Full White #FFF et 16 déclinaisons Bleu, Cyan, Vert, Jaune, Rouge, Orange, Violet et Rose).',
       'Migration officielle du canal de mise à jour automatique SHA-512 (electron-updater) vers GitHub Releases.'
     ]
   },

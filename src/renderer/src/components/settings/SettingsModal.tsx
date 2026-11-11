@@ -40,7 +40,7 @@ export function SettingsModal(): React.JSX.Element {
       <DialogContent
         className={cn(
           'gap-0 overflow-hidden p-0',
-          isCompact ? 'h-[94vh] max-w-[95vw]' : 'h-[540px] max-w-3xl'
+          isCompact ? 'h-[94vh] max-w-[95vw]' : 'h-[620px] max-w-4xl'
         )}
       >
         <DialogHeader className="border-b border-border bg-background/70 px-4 py-3">

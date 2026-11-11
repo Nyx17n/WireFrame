@@ -2,18 +2,183 @@ import type { ThemePresetId, UserSettings } from '@shared/schemas/settings.schem
 
 export interface ThemePresetDefinition {
   id: Exclude<ThemePresetId, 'custom'>
+  glyph: string
   label: string
+  subtitle: string
   primaryHex: string
   secondaryHex: string
 }
 
 export const THEME_PRESETS: readonly ThemePresetDefinition[] = [
-  { id: 'orokin-dark', label: 'Orokin Dark', primaryHex: '#0f161d', secondaryHex: '#0ea5e9' },
-  { id: 'tenno-light', label: 'Tenno Light', primaryHex: '#f8fafc', secondaryHex: '#0284c7' },
-  { id: 'prime-gold', label: 'Prime Gold', primaryHex: '#181512', secondaryHex: '#eab308' },
-  { id: 'lotus-amethyst', label: 'Lotus Amethyst', primaryHex: '#171426', secondaryHex: '#a855f7' },
-  { id: 'kuva-crimson', label: 'Kuva Crimson', primaryHex: '#1c1113', secondaryHex: '#ef4444' },
-  { id: 'corpus-matrix', label: 'Corpus Matrix', primaryHex: '#0d1c18', secondaryHex: '#10b981' }
+  // Classiques & OLED
+  {
+    id: 'dark',
+    glyph: '◐',
+    label: 'Sombre',
+    subtitle: 'Sci-Fi Bleu Nuit (Défaut)',
+    primaryHex: '#0f161d',
+    secondaryHex: '#26b9d1'
+  },
+  {
+    id: 'light',
+    glyph: '☀',
+    label: 'Clair',
+    subtitle: 'Clair & Doux',
+    primaryHex: '#f1f5f9',
+    secondaryHex: '#0284c7'
+  },
+  {
+    id: 'full-black',
+    glyph: '◆',
+    label: 'Full Black',
+    subtitle: 'Noir Pur OLED (#000)',
+    primaryHex: '#000000',
+    secondaryHex: '#26b9d1'
+  },
+  {
+    id: 'full-white',
+    glyph: '◇',
+    label: 'Full White',
+    subtitle: 'Blanc Pur (#FFF)',
+    primaryHex: '#ffffff',
+    secondaryHex: '#0f172a'
+  },
+
+  // Bleu & Cyan
+  {
+    id: 'blue-dark',
+    glyph: '⬡',
+    label: 'Bleu Sombre',
+    subtitle: 'Corpus & Prisma',
+    primaryHex: '#0b132b',
+    secondaryHex: '#3b82f6'
+  },
+  {
+    id: 'blue-light',
+    glyph: '✦',
+    label: 'Bleu Clair',
+    subtitle: 'Glace de Fortuna & Azur',
+    primaryHex: '#eff6ff',
+    secondaryHex: '#2563eb'
+  },
+  {
+    id: 'cyan-dark',
+    glyph: '⬡',
+    label: 'Cyan Sombre',
+    subtitle: 'Céphalon & Cryotique',
+    primaryHex: '#081c24',
+    secondaryHex: '#06b6d4'
+  },
+  {
+    id: 'cyan-light',
+    glyph: '✦',
+    label: 'Cyan Clair',
+    subtitle: 'Lagon & Cristal Clair',
+    primaryHex: '#ecfeff',
+    secondaryHex: '#0891b2'
+  },
+
+  // Vert & Jaune
+  {
+    id: 'green-dark',
+    glyph: '◆',
+    label: 'Vert Sombre',
+    subtitle: 'Émeraude & Forêts',
+    primaryHex: '#091e16',
+    secondaryHex: '#10b981'
+  },
+  {
+    id: 'green-light',
+    glyph: '✦',
+    label: 'Vert Clair',
+    subtitle: 'Jade & Menthe Claire',
+    primaryHex: '#ecfdf5',
+    secondaryHex: '#059669'
+  },
+  {
+    id: 'yellow-dark',
+    glyph: '◆',
+    label: 'Jaune Sombre',
+    subtitle: 'Or Orokin & Prime',
+    primaryHex: '#1c190a',
+    secondaryHex: '#eab308'
+  },
+  {
+    id: 'yellow-light',
+    glyph: '☀',
+    label: 'Jaune Clair',
+    subtitle: 'Solaire & Ivoire Doré',
+    primaryHex: '#fefce8',
+    secondaryHex: '#ca8a04'
+  },
+
+  // Rouge & Orange
+  {
+    id: 'red-dark',
+    glyph: '◈',
+    label: 'Rouge Sombre',
+    subtitle: 'Kuva & Voile Rouge',
+    primaryHex: '#1f0b0e',
+    secondaryHex: '#ef4444'
+  },
+  {
+    id: 'red-light',
+    glyph: '✦',
+    label: 'Rouge Clair',
+    subtitle: 'Carmin Clair & Rose',
+    primaryHex: '#fef2f2',
+    secondaryHex: '#dc2626'
+  },
+  {
+    id: 'orange-dark',
+    glyph: '☀',
+    label: 'Orange Sombre',
+    subtitle: 'Ember & Fusion Solaire',
+    primaryHex: '#1f1209',
+    secondaryHex: '#f97316'
+  },
+  {
+    id: 'orange-light',
+    glyph: '◐',
+    label: 'Orange Clair',
+    subtitle: 'Ambre Clair & Cuivre',
+    primaryHex: '#fff7ed',
+    secondaryHex: '#ea580c'
+  },
+
+  // Violet & Rose
+  {
+    id: 'purple-dark',
+    glyph: '◇',
+    label: 'Violet Sombre',
+    subtitle: 'Lotus & Énergie du Néant',
+    primaryHex: '#160d29',
+    secondaryHex: '#a855f7'
+  },
+  {
+    id: 'purple-light',
+    glyph: '◆',
+    label: 'Violet Clair',
+    subtitle: 'Améthyste & Lavande',
+    primaryHex: '#faf5ff',
+    secondaryHex: '#9333ea'
+  },
+  {
+    id: 'pink-dark',
+    glyph: '◆',
+    label: 'Rose Sombre',
+    subtitle: 'Octavia & Néon Magenta',
+    primaryHex: '#210b18',
+    secondaryHex: '#ec4899'
+  },
+  {
+    id: 'pink-light',
+    glyph: '✦',
+    label: 'Rose Clair',
+    subtitle: 'Cerisier & Quartz Rose',
+    primaryHex: '#fdf2f8',
+    secondaryHex: '#db2777'
+  }
 ] as const
 
 interface HslTriplet {
@@ -60,7 +225,8 @@ function clamp(val: number, min: number, max: number): number {
 
 /**
  * Applies the user's dual-color theme (Primary surface + Secondary accent) onto
- * shadcn/ui root CSS variables while guaranteeing accessible text contrast.
+ * shadcn/ui root CSS variables while guaranteeing accessible text contrast,
+ * including pure OLED #000000 and pure #FFFFFF themes.
  */
 export function applyThemeToDocument(appearance: UserSettings['appearance']): void {
   const presetMatch = THEME_PRESETS.find((p) => p.id === appearance.preset)
@@ -70,16 +236,33 @@ export function applyThemeToDocument(appearance: UserSettings['appearance']): vo
   const bg = hexToHsl(surfaceHex)
   const ac = hexToHsl(accentHex)
   const isLightTheme = bg.l > 55
+  const isAchromatic = bg.s === 0
 
   const root = document.documentElement
   root.classList.toggle('dark', !isLightTheme)
   document.body.classList.toggle('glow-enabled', appearance.glowEnabled)
 
   const fg = isLightTheme ? '222 47% 11%' : '210 40% 96%'
-  const cardL = isLightTheme ? clamp(bg.l - 3, 88, 100) : clamp(bg.l + 4, 6, 30)
-  const mutedL = isLightTheme ? clamp(bg.l - 6, 82, 96) : clamp(bg.l + 8, 10, 35)
-  const borderL = isLightTheme ? clamp(bg.l - 13, 70, 90) : clamp(bg.l + 12, 14, 42)
-  const mutedFg = isLightTheme ? `${bg.h} 16% 40%` : `${bg.h} 18% 66%`
+  const cardL =
+    bg.l === 0
+      ? 3
+      : bg.l === 100
+        ? 100
+        : isLightTheme
+          ? clamp(bg.l - 2, 90, 100)
+          : clamp(bg.l + 4, 6, 30)
+  const mutedL = isLightTheme ? clamp(bg.l - 5, 84, 96) : clamp(bg.l + 8, 8, 35)
+  const borderL = isLightTheme ? clamp(bg.l - 12, 72, 90) : clamp(bg.l + 12, 13, 42)
+  const surfaceSat = isAchromatic ? 0 : clamp(bg.s, 8, 35)
+  const mutedSat = isAchromatic ? 0 : clamp(bg.s, 8, 30)
+  const borderSat = isAchromatic ? 0 : clamp(bg.s, 10, 35)
+  const mutedFg = isAchromatic
+    ? isLightTheme
+      ? '215 16% 42%'
+      : '215 15% 65%'
+    : isLightTheme
+      ? `${bg.h} 16% 40%`
+      : `${bg.h} 18% 66%`
   const accentFg = ac.l > 62 ? '222 47% 11%' : '210 40% 98%'
 
   root.style.setProperty('--background', `${bg.h} ${bg.s}% ${bg.l}%`)
@@ -88,12 +271,12 @@ export function applyThemeToDocument(appearance: UserSettings['appearance']): vo
   root.style.setProperty('--card-foreground', fg)
   root.style.setProperty('--popover', `${bg.h} ${bg.s}% ${cardL}%`)
   root.style.setProperty('--popover-foreground', fg)
-  root.style.setProperty('--secondary', `${bg.h} ${clamp(bg.s, 8, 35)}% ${mutedL}%`)
+  root.style.setProperty('--secondary', `${bg.h} ${surfaceSat}% ${mutedL}%`)
   root.style.setProperty('--secondary-foreground', fg)
-  root.style.setProperty('--muted', `${bg.h} ${clamp(bg.s, 8, 30)}% ${mutedL}%`)
+  root.style.setProperty('--muted', `${bg.h} ${mutedSat}% ${mutedL}%`)
   root.style.setProperty('--muted-foreground', mutedFg)
-  root.style.setProperty('--border', `${bg.h} ${clamp(bg.s, 10, 35)}% ${borderL}%`)
-  root.style.setProperty('--input', `${bg.h} ${clamp(bg.s, 10, 35)}% ${borderL}%`)
+  root.style.setProperty('--border', `${bg.h} ${borderSat}% ${borderL}%`)
+  root.style.setProperty('--input', `${bg.h} ${borderSat}% ${borderL}%`)
 
   root.style.setProperty('--primary', `${ac.h} ${ac.s}% ${ac.l}%`)
   root.style.setProperty('--primary-foreground', accentFg)
@@ -101,4 +284,3 @@ export function applyThemeToDocument(appearance: UserSettings['appearance']): vo
   root.style.setProperty('--accent-foreground', accentFg)
   root.style.setProperty('--ring', `${ac.h} ${ac.s}% ${ac.l}%`)
 }
-

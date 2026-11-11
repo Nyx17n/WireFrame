@@ -9,12 +9,26 @@ export const HexColorSchema = z
   .regex(/^#[0-9a-fA-F]{6}$/, 'Invalid 6-digit hex color')
 
 export const ThemePresetIdSchema = z.enum([
-  'orokin-dark',
-  'tenno-light',
-  'prime-gold',
-  'lotus-amethyst',
-  'kuva-crimson',
-  'corpus-matrix',
+  'dark',
+  'light',
+  'full-black',
+  'full-white',
+  'blue-dark',
+  'blue-light',
+  'cyan-dark',
+  'cyan-light',
+  'green-dark',
+  'green-light',
+  'yellow-dark',
+  'yellow-light',
+  'red-dark',
+  'red-light',
+  'orange-dark',
+  'orange-light',
+  'purple-dark',
+  'purple-light',
+  'pink-dark',
+  'pink-light',
   'custom'
 ])
 
@@ -39,9 +53,9 @@ export const GlobalShortcutsMapSchema = z.object({
 
 export const UserSettingsSchema = z.object({
   appearance: z.object({
-    preset: ThemePresetIdSchema.default('orokin-dark'),
+    preset: ThemePresetIdSchema.default('dark'),
     primaryColor: HexColorSchema.default('#0f161d'),
-    secondaryColor: HexColorSchema.default('#0ea5e9'),
+    secondaryColor: HexColorSchema.default('#26b9d1'),
     glowEnabled: z.boolean().default(true),
     startupAnimationEnabled: z.boolean().default(true),
     zoomPercent: z.number().int().min(50).max(200).default(100)

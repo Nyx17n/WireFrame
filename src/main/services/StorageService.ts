@@ -7,6 +7,32 @@ import {
   type UserSettingsPatch
 } from '@shared/schemas/settings.schema'
 
+const LEGACY_THEME_PRESET_MAP: Readonly<Record<string, string>> = {
+  'orokin-dark': 'dark',
+  'tenno-light': 'light',
+  'prime-gold': 'yellow-dark',
+  'lotus-amethyst': 'purple-dark',
+  'kuva-crimson': 'red-dark',
+  'corpus-matrix': 'green-dark'
+}
+
+function migrateLegacySettings(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null) return raw
+  const record = raw as Record<string, unknown>
+  const appearance = record['appearance']
+  if (typeof appearance === 'object' && appearance !== null) {
+    const appRec = appearance as Record<string, unknown>
+    const preset = appRec['preset']
+    if (typeof preset === 'string' && preset in LEGACY_THEME_PRESET_MAP) {
+      return {
+        ...record,
+        appearance: { ...appRec, preset: LEGACY_THEME_PRESET_MAP[preset] }
+      }
+    }
+  }
+  return raw
+}
+
 /**
  * Atomic, Zod-validated JSON storage in `%APPDATA%/WireFrame/config.json`.
  * Never writes partial files on crash (writes to `.tmp` then renames atomically).
@@ -27,7 +53,7 @@ export class StorageService {
 
     try {
       const raw = await fs.readFile(this.configPath, 'utf-8')
-      const parsedJson: unknown = JSON.parse(raw)
+      const parsedJson: unknown = migrateLegacySettings(JSON.parse(raw))
       const validated = UserSettingsSchema.safeParse(parsedJson)
       if (validated.success) {
         this.cachedSettings = validated.data
