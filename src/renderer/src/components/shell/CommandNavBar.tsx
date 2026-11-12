@@ -15,6 +15,7 @@ import { formatRouteUri } from '@shared/schemas/navigation.schema'
 import { Button } from '@/components/ui/button'
 import { NavQuickMenus } from '@/components/shell/NavQuickMenus'
 import { getTabCurrentRoute } from '@/lib/tab-helpers'
+import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
@@ -34,6 +35,7 @@ export function CommandNavBar(): React.JSX.Element {
   const goBack = useTabsStore((s) => s.goBack)
   const goForward = useTabsStore((s) => s.goForward)
   const reloadActive = useTabsStore((s) => s.reloadActive)
+  const isPageTransitioning = useTabsStore((s) => s.isPageTransitioning)
 
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0]
   const canGoBack = !hubActive && Boolean(activeTab && activeTab.historyIndex > 0)
@@ -67,14 +69,16 @@ export function CommandNavBar(): React.JSX.Element {
           }}
           title="Actualiser l'onglet actif (Ctrl+R)"
         >
-          <RefreshCw className="h-3.5 w-3.5" />
+          <RefreshCw
+            className={cn('h-3.5 w-3.5 transition-colors', isPageTransitioning && 'animate-spin text-primary')}
+          />
         </Button>
       </div>
 
       <button
         type="button"
         onClick={() => setOmniboxOpen(true)}
-        className="flex h-7 min-w-0 max-w-xl flex-1 items-center justify-between gap-2 rounded-md border border-input bg-background/80 px-2.5 text-left text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground"
+        className="flex h-7 min-w-0 flex-1 items-center justify-between gap-2 rounded-md border border-input bg-background/80 px-2.5 text-left text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground"
       >
         <span className="flex min-w-0 items-center gap-2">
           <Search className="h-3.5 w-3.5 shrink-0 text-primary" />

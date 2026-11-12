@@ -1,15 +1,17 @@
 import * as React from 'react'
-import { Compass, Flame, History, Plus, Search, Star, TrendingUp } from 'lucide-react'
-import { toWfAssetUrl, type MarketOrder } from '@shared/schemas/market.schema'
+import { ChevronDown, Clock, Compass, RefreshCw, Search, Star, TrendingUp } from 'lucide-react'
+import type { MarketOrder } from '@shared/schemas/market.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
-import { StatusDot } from '@/components/market/StatusDot'
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
+import { MarketCatalogItemsDisplay } from '@/components/market/MarketCatalogItemsDisplay'
+import { RecentOrdersDisplay } from '@/components/market/RecentOrdersDisplay'
+import { useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
-import { useMarketStore } from '@/stores/useMarketStore'
+import { normalizeSearchText, useMarketStore } from '@/stores/useMarketStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 const FEATURED_SLUGS = [
@@ -23,12 +25,17 @@ const FEATURED_SLUGS = [
   'revenant_prime_set'
 ] as const
 
+const RECENT_STEP = 36
+
 export function MarketHomeView(): React.JSX.Element {
   const lang = useAppStore((s) => s.settings.market.language)
   const favorites = useAppStore((s) => s.settings.favorites)
+  const { layoutMode, cardSize, setLayoutMode, setCardSize } = useCatalogDisplayPreferences()
+
   const catalog = useMarketStore((s) => s.catalog)
   const isCatalogLoading = useMarketStore((s) => s.isCatalogLoading)
   const ensureCatalogLoaded = useMarketStore((s) => s.ensureCatalogLoaded)
+  const toggleFavorite = useMarketStore((s) => s.toggleFavorite)
   const triggerWhisper = useMarketStore((s) => s.triggerWhisper)
 
   const navigateActive = useTabsStore((s) => s.navigateActive)
@@ -36,36 +43,49 @@ export function MarketHomeView(): React.JSX.Element {
   const refreshRevision = useTabsStore((s) => s.refreshRevision)
 
   const [searchText, setSearchText] = React.useState('')
+  const [recentFilterText, setRecentFilterText] = React.useState('')
+  const [recentType, setRecentType] = React.useState<'all' | 'sell' | 'buy'>('sell')
   const [recentOrders, setRecentOrders] = React.useState<MarketOrder[]>([])
+  const [visibleRecent, setVisibleRecent] = React.useState(RECENT_STEP)
   const [loadingRecent, setLoadingRecent] = React.useState(true)
 
   React.useEffect(() => {
     void ensureCatalogLoaded()
   }, [ensureCatalogLoaded])
 
-  React.useEffect(() => {
-    let cancelled = false
+  const loadRecentListings = React.useCallback(async (force = false) => {
     setLoadingRecent(true)
-    void ipcClient.market
-      .getRecentOrders(refreshRevision > 0)
-      .then((orders) => {
-        if (!cancelled) {
-          setRecentOrders(orders.filter((o) => o.type === 'sell' && o.itemSlug).slice(0, 8))
-          setLoadingRecent(false)
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setLoadingRecent(false)
-      })
-    return () => {
-      cancelled = true
+    try {
+      const orders = await ipcClient.market.getRecentOrders(force)
+      setRecentOrders(orders.filter((o) => Boolean(o.itemSlug)))
+    } catch {
+      // Keep previous list if transient network error
+    } finally {
+      setLoadingRecent(false)
     }
-  }, [refreshRevision])
+  }, [])
+
+  React.useEffect(() => {
+    void loadRecentListings(refreshRevision > 0)
+  }, [loadRecentListings, refreshRevision])
 
   const featuredItems = React.useMemo(() => {
     const bySlug = new Map(catalog.map((i) => [i.slug, i]))
     return FEATURED_SLUGS.map((slug) => bySlug.get(slug)).filter((x) => x !== undefined)
   }, [catalog])
+
+  const filteredRecent = React.useMemo(() => {
+    const q = normalizeSearchText(recentFilterText)
+    return recentOrders.filter((o) => {
+      if (recentType !== 'all' && o.type !== recentType) return false
+      if (!q) return true
+      return (
+        normalizeSearchText(o.itemNameFr ?? '').includes(q) ||
+        normalizeSearchText(o.itemNameEn ?? '').includes(q) ||
+        normalizeSearchText(o.user?.ingameName ?? '').includes(q)
+      )
+    })
+  }, [recentOrders, recentType, recentFilterText])
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 p-4">
@@ -75,18 +95,32 @@ export function MarketHomeView(): React.JSX.Element {
             <div>
               <h1 className="text-base font-bold">Warframe Market — Trading Multi-Onglets</h1>
               <p className="text-xs text-muted-foreground">
-                Compare plusieurs items en parallèle, vérifie l’écart Set vs Pièces et copie tes `/w` en 1 clic.
+                Compare les prix Min / Moy / Max, parcours les annonces en direct et copie tes `/w` en 1 clic.
               </p>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Button size="sm" variant="secondary" onClick={() => navigateActive({ kind: 'market-catalog' })}>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => navigateActive({ kind: 'market-catalog' })}
+              >
                 <Compass className="h-3.5 w-3.5 text-primary" />
                 <span>Catalogue ({catalog.length || '...'})</span>
               </Button>
-              <Button size="sm" variant="outline" onClick={() => navigateActive({ kind: 'market-favorites' })}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigateActive({ kind: 'market-favorites' })}
+              >
                 <Star className="h-3.5 w-3.5 text-primary" />
                 <span>Favoris ({favorites.length})</span>
               </Button>
+              <ViewModeToggle
+                value={layoutMode}
+                onChange={setLayoutMode}
+                size={cardSize}
+                onSizeChange={setCardSize}
+              />
             </div>
           </div>
 
@@ -113,119 +147,116 @@ export function MarketHomeView(): React.JSX.Element {
         </CardContent>
       </Card>
 
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 px-0.5">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-bold">Items Populaires & Sets Prime</h2>
+        </div>
+
+        <MarketCatalogItemsDisplay
+          items={featuredItems}
+          isLoading={isCatalogLoading && featuredItems.length === 0}
+          lang={lang}
+          favorites={favorites}
+          layoutMode={layoutMode}
+          cardSize={cardSize}
+          query=""
+          onSelectItem={(slug, title) => navigateActive({ kind: 'market-item', slug }, title)}
+          onOpenNewTab={(slug, title, background) =>
+            openTab({ kind: 'market-item', slug }, { title, background })
+          }
+          onToggleFavorite={(slug) => void toggleFavorite(slug)}
+        />
+      </div>
+
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            <span>Items Populaires & Sets Prime</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isCatalogLoading && featuredItems.length === 0 ? (
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, idx) => (
-                <Skeleton key={idx} className="h-14 w-full" />
+        <CardHeader className="space-y-2.5 pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Clock className="h-4 w-4 text-primary" />
+              <span>Toutes les Annonces les Plus Récentes</span>
+              <Badge variant="secondary" className="font-mono text-[11px]">
+                {filteredRecent.length}
+              </Badge>
+            </CardTitle>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              {(['sell', 'buy', 'all'] as const).map((t) => (
+                <Button
+                  key={t}
+                  size="sm"
+                  variant={recentType === t ? 'default' : 'outline'}
+                  onClick={() => {
+                    setRecentType(t)
+                    setVisibleRecent(RECENT_STEP)
+                  }}
+                >
+                  {t === 'sell' ? 'Ventes' : t === 'buy' ? 'Achats' : 'Toutes'}
+                </Button>
               ))}
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={loadingRecent}
+                onClick={() => void loadRecentListings(true)}
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${loadingRecent ? 'animate-spin' : ''}`} />
+                <span>Actualiser</span>
+              </Button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-              {featuredItems.map((item) => {
-                const name = lang === 'fr' ? item.nameFr : item.nameEn
-                const thumbUrl = toWfAssetUrl(item.thumb)
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => navigateActive({ kind: 'market-item', slug: item.slug }, name)}
-                    className="flex cursor-pointer items-center justify-between gap-2 rounded-md border border-border bg-background/60 p-2.5 text-xs transition-colors hover:border-primary/50 hover:bg-secondary/60"
-                  >
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      {thumbUrl ? (
-                        <img src={thumbUrl} alt="" className="h-8 w-8 shrink-0 object-contain" />
-                      ) : (
-                        <Flame className="h-5 w-5 shrink-0 text-primary" />
-                      )}
-                      <span className="truncate font-semibold">{name}</span>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      title="Ouvrir dans un nouvel onglet"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openTab({ kind: 'market-item', slug: item.slug }, { title: name })
-                      }}
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <History className="h-4 w-4 text-primary" />
-            <span>Dernières Offres de Vente en Direct</span>
-          </CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => navigateActive({ kind: 'market-recent' })}>
-            Tout voir →
-          </Button>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              value={recentFilterText}
+              onChange={(e) => {
+                setRecentFilterText(e.target.value)
+                setVisibleRecent(RECENT_STEP)
+              }}
+              placeholder="Filtrer les annonces récentes par item ou pseudo vendeur..."
+              className="h-8 pl-8 text-xs"
+            />
+          </div>
         </CardHeader>
-        <CardContent>
-          {loadingRecent ? (
-            <div className="space-y-2">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-              {recentOrders.map((o) => {
-                const itemName = lang === 'fr' ? (o.itemNameFr ?? o.itemSlug ?? 'Item') : (o.itemNameEn ?? o.itemSlug ?? 'Item')
-                const thumbUrl = toWfAssetUrl(o.itemThumb)
-                return (
-                  <div
-                    key={o.id}
-                    className="flex items-center justify-between gap-2 rounded-md border border-border bg-background/50 px-3 py-2 text-xs"
-                  >
-                    <div
-                      onClick={() =>
-                        o.itemSlug && navigateActive({ kind: 'market-item', slug: o.itemSlug }, itemName)
-                      }
-                      className="flex min-w-0 cursor-pointer items-center gap-2 hover:text-primary"
-                    >
-                      {thumbUrl && <img src={thumbUrl} alt="" className="h-7 w-7 shrink-0 object-contain" />}
-                      <div className="min-w-0">
-                        <div className="truncate font-semibold">{itemName}</div>
-                        {o.user && <StatusDot status={o.user.status} />}
-                      </div>
-                    </div>
 
-                    <div className="flex shrink-0 items-center gap-2">
-                      <Badge variant="default">{o.platinum} p</Badge>
-                      {o.user && o.itemNameEn && o.itemNameFr && (
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            void triggerWhisper({
-                              ingameName: o.user?.ingameName ?? '',
-                              itemNameEn: o.itemNameEn ?? itemName,
-                              itemNameFr: o.itemNameFr ?? itemName,
-                              platinum: o.platinum,
-                              rank: o.rank
-                            })
-                          }
-                        >
-                          /w
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
+        <CardContent className="space-y-3">
+          <RecentOrdersDisplay
+            orders={filteredRecent.slice(0, visibleRecent)}
+            isLoading={loadingRecent && recentOrders.length === 0}
+            lang={lang}
+            layoutMode={layoutMode}
+            cardSize={cardSize}
+            onSelectItem={(slug, title) => navigateActive({ kind: 'market-item', slug }, title)}
+            onOpenItemNewTab={(slug, title) =>
+              openTab({ kind: 'market-item', slug }, { title })
+            }
+            onOpenUser={(userSlug, ingameName) =>
+              openTab(
+                { kind: 'market-user', slug: userSlug },
+                { title: `Profil : ${ingameName}` }
+              )
+            }
+            onWhisper={(draft) => void triggerWhisper(draft)}
+          />
+
+          {filteredRecent.length > 0 && (
+            <div className="flex flex-col items-center gap-2 pt-2 text-xs text-muted-foreground">
+              <span>
+                {Math.min(visibleRecent, filteredRecent.length)} sur {filteredRecent.length} annonces récentes affichées
+              </span>
+              {filteredRecent.length > visibleRecent && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setVisibleRecent((prev) => prev + RECENT_STEP)}
+                >
+                  <ChevronDown className="h-3.5 w-3.5 text-primary" />
+                  <span>
+                    Afficher plus ({filteredRecent.length - visibleRecent} restantes)
+                  </span>
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
@@ -233,4 +264,3 @@ export function MarketHomeView(): React.JSX.Element {
     </div>
   )
 }
-

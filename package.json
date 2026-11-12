@@ -1,13 +1,13 @@
 {
   "name": "wireframe",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "WireFrame v2 — Companion, Trading Browser & Codex for Warframe",
-  "author": "Maxime (Nyxo_17)",
+  "author": "Maxime (Nyxo17)",
   "license": "MIT",
-  "homepage": "https://github.com/bloxfruitthekingdom-create/WireFrame",
+  "homepage": "https://github.com/Nyx17n/WireFrame",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bloxfruitthekingdom-create/WireFrame.git"
+    "url": "https://github.com/Nyx17n/WireFrame.git"
   },
   "main": "./out/main/index.js",
   "scripts": {

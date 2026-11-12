@@ -64,6 +64,26 @@ function mapComponents(components: readonly RawComponent[]): CodexComponentEntry
   }))
 }
 
+function mapCraftPreview(components: readonly RawComponent[]) {
+  const prioritized = [...components].sort((a, b) => {
+    const aBp = a.name.toLowerCase().includes('schéma') ? 1 : 0
+    const bBp = b.name.toLowerCase().includes('schéma') ? 1 : 0
+    return aBp - bBp
+  })
+  return prioritized.slice(0, 6).map((c) => ({
+    nameFr: c.name,
+    count: c.count,
+    imageUrl: toCodexImageUrl(c.img)
+  }))
+}
+
+function pickTopDropText(drops: readonly RawDrop[]): string | null {
+  if (drops.length === 0) return null
+  const best = [...drops].sort((a, b) => b.chance - a.chance)[0]
+  if (!best) return null
+  return `${best.loc} (${best.chance}%)`
+}
+
 function repairRelicRewardName(nameFr: string, nameEn: string): string {
   const trimmed = nameFr.trim()
   if (!trimmed.startsWith('-')) return trimmed
@@ -109,7 +129,9 @@ export class CodexRepository {
         subtitle: (r.planets || r.type).slice(0, 240),
         isPrime: false,
         isVaulted: false,
-        isTradable: r.tradable
+        isTradable: r.tradable,
+        craftComponents: [],
+        acquisitionText: pickTopDropText(r.drops) ?? (r.planets || null)
       })),
       warframes: db.warframes
         .filter((w) => w.id !== 'helminth')
@@ -128,7 +150,9 @@ export class CodexRepository {
             isPrime: w.prime,
             isVaulted: w.vaulted,
             isTradable: w.prime,
-            subsumedAbilityName: subAbility
+            subsumedAbilityName: subAbility,
+            craftComponents: mapCraftPreview(w.components),
+            acquisitionText: pickTopDropText(w.drops)
           }
         }),
       weapons: db.weapons.map((w) => ({
@@ -141,7 +165,9 @@ export class CodexRepository {
         subtitle: `MR ${w.mr} · Crit ${w.cc}% · Statut ${w.sc}%`,
         isPrime: w.prime,
         isVaulted: w.vaulted,
-        isTradable: w.tradable || w.prime
+        isTradable: w.tradable || w.prime,
+        craftComponents: mapCraftPreview(w.components),
+        acquisitionText: pickTopDropText(w.drops)
       })),
       mods: db.mods.map((m) => ({
         id: m.id,
@@ -153,7 +179,9 @@ export class CodexRepository {
         subtitle: `${m.compat || m.type} · Rang max ${m.maxRank}`,
         isPrime: m.en.startsWith('Primed '),
         isVaulted: false,
-        isTradable: m.tradable
+        isTradable: m.tradable,
+        craftComponents: [],
+        acquisitionText: pickTopDropText(m.drops)
       })),
       relics: db.relics.map((r) => {
         const rare = r.rewards.find((rw) => rw.tier.includes('Rare'))
@@ -167,7 +195,11 @@ export class CodexRepository {
           subtitle: rare ? `Or : ${repairRelicRewardName(rare.name, rare.en)}` : `Relique ${r.era}`,
           isPrime: false,
           isVaulted: r.vaulted,
-          isTradable: r.tradable
+          isTradable: r.tradable,
+          craftComponents: [],
+          acquisitionText: r.vaulted
+            ? 'Aya (Varzia — Résurgence Prime)'
+            : (pickTopDropText(r.drops) ?? 'Packs de Reliques / Missions')
         }
       })
     }

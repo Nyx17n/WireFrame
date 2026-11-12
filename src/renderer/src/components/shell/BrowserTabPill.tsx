@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CopyPlus, MoreHorizontal, Pin, Trash2, X } from 'lucide-react'
+import { CopyPlus, Loader2, MoreHorizontal, Pin, Trash2, X } from 'lucide-react'
 import type { BrowserTab } from '@shared/schemas/navigation.schema'
 import {
   DropdownMenu,
@@ -35,6 +35,7 @@ export function BrowserTabPill({
   const closeDuplicateTabs = useTabsStore((s) => s.closeDuplicateTabs)
   const closeOtherTabs = useTabsStore((s) => s.closeOtherTabs)
   const closeTabsToRight = useTabsStore((s) => s.closeTabsToRight)
+  const isPageTransitioning = useTabsStore((s) => s.isPageTransitioning)
 
   const currentRoute = getTabCurrentRoute(tab)
 
@@ -62,10 +63,14 @@ export function BrowserTabPill({
         tab.pinned ? 'px-2' : isCompact ? 'max-w-[130px]' : 'max-w-[195px]'
       )}
     >
-      <RouteIcon
-        kind={currentRoute.kind}
-        className={cn('h-3.5 w-3.5 shrink-0', isActive ? 'text-primary' : 'text-muted-foreground')}
-      />
+      {isActive && isPageTransitioning ? (
+        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-primary" />
+      ) : (
+        <RouteIcon
+          kind={currentRoute.kind}
+          className={cn('h-3.5 w-3.5 shrink-0', isActive ? 'text-primary' : 'text-muted-foreground')}
+        />
+      )}
 
       {!tab.pinned && <span className="truncate">{tab.title}</span>}
 

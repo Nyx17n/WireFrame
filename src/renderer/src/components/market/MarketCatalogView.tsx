@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { AlertTriangle, ChevronDown, Compass, Plus, RefreshCw, Search, Star } from 'lucide-react'
-import { toWfAssetUrl } from '@shared/schemas/market.schema'
+import { AlertTriangle, ChevronDown, Compass, RefreshCw, Search } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
+import { MarketCatalogItemsDisplay } from '@/components/market/MarketCatalogItemsDisplay'
+import { useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { useAppStore } from '@/stores/useAppStore'
 import { normalizeSearchText, useMarketStore } from '@/stores/useMarketStore'
 import { useTabsStore } from '@/stores/useTabsStore'
@@ -20,9 +20,15 @@ const CATEGORY_FILTERS = [
   { id: 'relic', label: 'Reliques' }
 ] as const
 
-export function MarketCatalogView({ initialQuery = '' }: { initialQuery?: string }): React.JSX.Element {
+export function MarketCatalogView({
+  initialQuery = ''
+}: {
+  initialQuery?: string
+}): React.JSX.Element {
   const lang = useAppStore((s) => s.settings.market.language)
   const favorites = useAppStore((s) => s.settings.favorites)
+  const { layoutMode, cardSize, setLayoutMode, setCardSize } = useCatalogDisplayPreferences()
+
   const catalog = useMarketStore((s) => s.catalog)
   const isLoading = useMarketStore((s) => s.isCatalogLoading)
   const error = useMarketStore((s) => s.catalogError)
@@ -80,16 +86,25 @@ export function MarketCatalogView({ initialQuery = '' }: { initialQuery?: string
           <Badge variant="secondary">{filtered.length} résultats</Badge>
         </div>
 
-        <div className="relative w-full sm:w-72">
-          <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value)
-              setVisibleLimit(60)
-            }}
-            placeholder="Filtrer par nom FR, EN ou slug..."
-            className="h-8 pl-8"
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative w-full sm:w-64">
+            <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value)
+                setVisibleLimit(60)
+              }}
+              placeholder="Filtrer par nom FR, EN ou slug..."
+              className="h-8 pl-8"
+            />
+          </div>
+
+          <ViewModeToggle
+            value={layoutMode}
+            onChange={setLayoutMode}
+            size={cardSize}
+            onSizeChange={setCardSize}
           />
         </div>
       </div>
@@ -110,112 +125,38 @@ export function MarketCatalogView({ initialQuery = '' }: { initialQuery?: string
         ))}
       </div>
 
-      {isLoading && catalog.length === 0 ? (
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full" />
-          ))}
+      <MarketCatalogItemsDisplay
+        items={filtered.slice(0, visibleLimit)}
+        isLoading={isLoading && catalog.length === 0}
+        lang={lang}
+        favorites={favorites}
+        layoutMode={layoutMode}
+        cardSize={cardSize}
+        query={query}
+        onSelectItem={(slug, title) => navigateActive({ kind: 'market-item', slug }, title)}
+        onOpenNewTab={(slug, title, background) =>
+          openTab({ kind: 'market-item', slug }, { title, background })
+        }
+        onToggleFavorite={(slug) => void toggleFavorite(slug)}
+      />
+
+      {filtered.length > 0 && (
+        <div className="flex flex-col items-center gap-2 pt-3 text-xs text-muted-foreground">
+          <span>
+            {Math.min(visibleLimit, filtered.length)} sur {filtered.length} items affichés
+          </span>
+          {filtered.length > visibleLimit && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setVisibleLimit((prev) => prev + 60)}
+            >
+              <ChevronDown className="h-3.5 w-3.5 text-primary" />
+              <span>Afficher plus ({filtered.length - visibleLimit} restants)</span>
+            </Button>
+          )}
         </div>
-      ) : filtered.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center text-xs text-muted-foreground">
-            Aucun item ne correspond à « {query} » dans cette catégorie.
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.slice(0, visibleLimit).map((item) => {
-              const primaryName = lang === 'fr' ? item.nameFr : item.nameEn
-              const subName = lang === 'fr' ? item.nameEn : item.nameFr
-              const thumbUrl = toWfAssetUrl(item.thumb)
-              const isFav = favorites.includes(item.slug)
-
-              return (
-                <Card
-                  key={item.id}
-                  onClick={() => navigateActive({ kind: 'market-item', slug: item.slug }, primaryName)}
-                  onAuxClick={(e) => {
-                    if (e.button === 1) {
-                      e.preventDefault()
-                      openTab({ kind: 'market-item', slug: item.slug }, { title: primaryName, background: true })
-                    }
-                  }}
-                  className="cursor-pointer transition-colors hover:border-primary/60"
-                >
-                  <CardContent className="flex items-center justify-between gap-2 p-2.5">
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      {thumbUrl && (
-                        <img src={thumbUrl} alt="" className="h-10 w-10 shrink-0 rounded bg-background/60 object-contain p-1" />
-                      )}
-                      <div className="min-w-0">
-                        <div className="truncate text-xs font-semibold">{primaryName}</div>
-                        {subName !== primaryName && (
-                          <div className="truncate text-[11px] text-muted-foreground">{subName}</div>
-                        )}
-                        <div className="mt-0.5 flex flex-wrap gap-1">
-                          {item.ducats !== undefined && item.ducats > 0 && (
-                            <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
-                              {item.ducats} Ducats
-                            </Badge>
-                          )}
-                          {item.maxRank !== undefined && (
-                            <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                              Rang Max {item.maxRank}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-0.5">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        title={isFav ? 'Retirer des Favoris' : 'Ajouter aux Favoris'}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          void toggleFavorite(item.slug)
-                        }}
-                      >
-                        <Star className={`h-3.5 w-3.5 ${isFav ? 'fill-primary text-primary' : ''}`} />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        title="Ouvrir dans un nouvel onglet"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          openTab({ kind: 'market-item', slug: item.slug }, { title: primaryName })
-                        }}
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-
-          <div className="flex flex-col items-center gap-2 pt-3 text-xs text-muted-foreground">
-            <span>
-              {Math.min(visibleLimit, filtered.length)} sur {filtered.length} items affichés
-            </span>
-            {filtered.length > visibleLimit && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setVisibleLimit((prev) => prev + 60)}
-              >
-                <ChevronDown className="h-3.5 w-3.5 text-primary" />
-                <span>Afficher plus ({filtered.length - visibleLimit} restants)</span>
-              </Button>
-            )}
-          </div>
-        </>
       )}
     </div>
   )
 }
-

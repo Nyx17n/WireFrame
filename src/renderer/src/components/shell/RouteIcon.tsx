@@ -2,6 +2,7 @@ import * as React from 'react'
 import {
   Bell,
   BookOpen,
+  Clock,
   Coins,
   Compass,
   Flame,
@@ -41,7 +42,7 @@ export function RouteIcon({
     case 'market-rivens':
       return <Flame className={className} />
     case 'market-recent':
-      return <History className={className} />
+      return <Clock className={className} />
     case 'market-user':
       return <User className={className} />
     case 'alerts':
@@ -50,6 +51,8 @@ export function RouteIcon({
       return <BookOpen className={className} />
     case 'codex-detail':
       return <Sparkles className={className} />
+    case 'browser-history':
+      return <History className={className} />
   }
 }
 

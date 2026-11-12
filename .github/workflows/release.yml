@@ -42,3 +42,12 @@ jobs:
             release/*.blockmap
             release/latest.yml
 
+      - name: Publish Patch Notes to Discord & GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_PING_ROLE_ID: ${{ secrets.DISCORD_PING_ROLE_ID || vars.DISCORD_PING_ROLE_ID }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/post-discord-release.mjs
+

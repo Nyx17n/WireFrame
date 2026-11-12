@@ -1,6 +1,6 @@
-# WireFrame v2.3.0 — Warframe Companion, Trading Browser & Codex
+# WireFrame v2.3.2 — Warframe Companion, Trading Browser & Codex
 
-> Conçu par **Maxime (`Nyxo_17`)** — Architecture **Electron · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
+> Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
 **WireFrame v2** est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
 

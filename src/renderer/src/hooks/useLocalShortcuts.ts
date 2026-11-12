@@ -38,6 +38,9 @@ export function useLocalShortcuts(): void {
       } else if (key === 'k' || key === 'l') {
         event.preventDefault()
         useAppStore.getState().setOmniboxOpen(true)
+      } else if (key === 'h') {
+        event.preventDefault()
+        useTabsStore.getState().navigateActive({ kind: 'browser-history' })
       } else if (key === 'd') {
         const tabsState = useTabsStore.getState()
         const active = tabsState.tabs.find((t) => t.id === tabsState.activeTabId)

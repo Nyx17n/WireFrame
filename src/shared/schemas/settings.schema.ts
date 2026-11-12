@@ -51,6 +51,12 @@ export const GlobalShortcutsMapSchema = z.object({
   toggleAlwaysOnTop: z.string().min(1).max(64).default('Alt+P')
 })
 
+export const CatalogLayoutModeSchema = z.enum(['square', 'rect', 'list'])
+export type CatalogLayoutMode = z.infer<typeof CatalogLayoutModeSchema>
+
+export const CatalogCardSizeSchema = z.enum(['sm', 'md', 'lg'])
+export type CatalogCardSize = z.infer<typeof CatalogCardSizeSchema>
+
 export const UserSettingsSchema = z.object({
   appearance: z.object({
     preset: ThemePresetIdSchema.default('dark'),
@@ -58,6 +64,8 @@ export const UserSettingsSchema = z.object({
     secondaryColor: HexColorSchema.default('#26b9d1'),
     glowEnabled: z.boolean().default(true),
     startupAnimationEnabled: z.boolean().default(true),
+    catalogLayoutMode: CatalogLayoutModeSchema.default('rect'),
+    catalogCardSize: CatalogCardSizeSchema.default('md'),
     zoomPercent: z.number().int().min(50).max(200).default(100)
   }),
   audio: z.object({

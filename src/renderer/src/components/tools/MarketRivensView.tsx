@@ -1,19 +1,23 @@
 import * as React from 'react'
-import { Flame, RefreshCw, Search } from 'lucide-react'
+import { ChevronDown, Flame, RefreshCw, Search } from 'lucide-react'
 import { toWfAssetUrl } from '@shared/schemas/market.schema'
 import type { RivenAuctionCard, RivenWeaponSummary } from '@shared/schemas/tools.schema'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { StatusDot } from '@/components/market/StatusDot'
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
+import { RivenAuctionsDisplay } from '@/components/tools/RivenAuctionsDisplay'
+import { getCatalogGridClass, useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
 import { normalizeSearchText, useMarketStore } from '@/stores/useMarketStore'
 
+const PAGE_STEP = 24
+
 export function MarketRivensView(): React.JSX.Element {
   const lang = useAppStore((s) => s.settings.market.language)
+  const { layoutMode, cardSize, setLayoutMode, setCardSize } = useCatalogDisplayPreferences()
   const triggerWhisper = useMarketStore((s) => s.triggerWhisper)
 
   const [weapons, setWeapons] = React.useState<RivenWeaponSummary[]>([])
@@ -21,6 +25,7 @@ export function MarketRivensView(): React.JSX.Element {
   const [selectedSlug, setSelectedSlug] = React.useState('torid')
   const [polarity, setPolarity] = React.useState<'all' | 'madurai' | 'vazarin' | 'naramon'>('all')
   const [auctions, setAuctions] = React.useState<RivenAuctionCard[]>([])
+  const [visibleLimit, setVisibleLimit] = React.useState(PAGE_STEP)
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
@@ -29,6 +34,7 @@ export function MarketRivensView(): React.JSX.Element {
 
   const runSearch = React.useCallback(async () => {
     setLoading(true)
+    setVisibleLimit(PAGE_STEP)
     try {
       const res = await ipcClient.tools.searchRivens({
         weaponSlug: selectedSlug,
@@ -47,6 +53,12 @@ export function MarketRivensView(): React.JSX.Element {
   React.useEffect(() => {
     void runSearch()
   }, [runSearch])
+
+  const selectedWeapon = React.useMemo(
+    () => weapons.find((w) => w.slug === selectedSlug) ?? null,
+    [weapons, selectedSlug]
+  )
+  const weaponThumbUrl = toWfAssetUrl(selectedWeapon?.thumb)
 
   const weaponSuggestions = React.useMemo(() => {
     const q = normalizeSearchText(weaponQuery)
@@ -67,10 +79,18 @@ export function MarketRivensView(): React.JSX.Element {
           <Flame className="h-4 w-4 text-primary" />
           <h1 className="text-sm font-bold">Contrats — Enchères de Mods Riven</h1>
         </div>
-        <Button size="sm" variant="outline" onClick={() => void runSearch()}>
-          <RefreshCw className="h-3.5 w-3.5" />
-          <span>Actualiser</span>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => void runSearch()}>
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>Actualiser</span>
+          </Button>
+          <ViewModeToggle
+            value={layoutMode}
+            onChange={setLayoutMode}
+            size={cardSize}
+            onSizeChange={setCardSize}
+          />
+        </div>
       </div>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -122,7 +142,7 @@ export function MarketRivensView(): React.JSX.Element {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className={getCatalogGridClass(layoutMode, cardSize)}>
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-36 w-full" />
           ))}
@@ -134,72 +154,29 @@ export function MarketRivensView(): React.JSX.Element {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {auctions.map((auc) => {
-            const wName = lang === 'fr' ? auc.weaponNameFr : auc.weaponNameEn
-            const fullRivenTitle = `${wName} ${auc.rivenName}`
-            const price = auc.buyoutPrice ?? auc.startingPrice
-            return (
-              <Card key={auc.id}>
-                <CardContent className="space-y-2.5 p-3.5 text-xs">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="font-bold capitalize text-foreground">{fullRivenTitle}</div>
-                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                        <span>MR {auc.masteryLevel}</span>
-                        <span>· Rang {auc.modRank}</span>
-                        <span>· {auc.reRolls} relances</span>
-                        <span className="capitalize">· {auc.polarity}</span>
-                      </div>
-                    </div>
-                    <Badge variant="default" className="font-mono text-xs">
-                      {price} p
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-1 rounded border border-border bg-background/60 p-2">
-                    {auc.attributes.map((attr) => (
-                      <div
-                        key={attr.slug}
-                        className={`flex items-center justify-between font-medium ${
-                          attr.positive ? 'text-emerald-400' : 'text-red-400'
-                        }`}
-                      >
-                        <span>{lang === 'fr' ? attr.labelFr : attr.labelEn}</span>
-                        <span className="font-mono">
-                          {attr.value > 0 ? `+${attr.value}` : attr.value}%
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{auc.owner.ingameName}</span>
-                      <StatusDot status={auc.owner.status} />
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() =>
-                        void triggerWhisper({
-                          ingameName: auc.owner.ingameName,
-                          itemNameEn: `${auc.weaponNameEn} ${auc.rivenName} (Riven)`,
-                          itemNameFr: `${auc.weaponNameFr} ${auc.rivenName} (Riven)`,
-                          platinum: price,
-                          rank: auc.modRank
-                        })
-                      }
-                    >
-                      /w ({price}p)
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+        <>
+          <RivenAuctionsDisplay
+            auctions={auctions.slice(0, visibleLimit)}
+            weaponThumbUrl={weaponThumbUrl}
+            lang={lang}
+            layoutMode={layoutMode}
+            cardSize={cardSize}
+            onWhisper={(draft) => void triggerWhisper(draft)}
+          />
+          {auctions.length > visibleLimit && (
+            <div className="flex justify-center pt-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setVisibleLimit((prev) => prev + PAGE_STEP)}
+              >
+                <ChevronDown className="h-3.5 w-3.5 text-primary" />
+                <span>Afficher plus ({auctions.length - visibleLimit} restants)</span>
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
 }
-

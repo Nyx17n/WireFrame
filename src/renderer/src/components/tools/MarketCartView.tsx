@@ -1,13 +1,14 @@
 import * as React from 'react'
-import { Minus, Plus, RefreshCw, Search, ShoppingCart, Trash2 } from 'lucide-react'
-import { toWfAssetUrl } from '@shared/schemas/market.schema'
+import { Plus, RefreshCw, Search, ShoppingCart, Trash2 } from 'lucide-react'
 import type { CartBundleAnalysis } from '@shared/schemas/tools.schema'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
 import { BundledSellersSection } from '@/components/tools/BundledSellersSection'
+import { CartLinesDisplay } from '@/components/tools/CartLinesDisplay'
+import { useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
 import { normalizeSearchText, useMarketStore } from '@/stores/useMarketStore'
@@ -16,6 +17,8 @@ import { useTabsStore } from '@/stores/useTabsStore'
 export function MarketCartView(): React.JSX.Element {
   const cart = useAppStore((s) => s.settings.cart)
   const lang = useAppStore((s) => s.settings.market.language)
+  const { layoutMode, cardSize, setLayoutMode, setCardSize } = useCatalogDisplayPreferences()
+
   const catalog = useMarketStore((s) => s.catalog)
   const ensureCatalogLoaded = useMarketStore((s) => s.ensureCatalogLoaded)
   const addToCart = useMarketStore((s) => s.addToCart)
@@ -63,14 +66,19 @@ export function MarketCartView(): React.JSX.Element {
   }, [catalog, quickQuery])
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 p-4">
+    <div className="mx-auto max-w-6xl space-y-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <ShoppingCart className="h-4 w-4 text-primary" />
           <h1 className="text-sm font-bold">Panier Multi-Achats & Trade Bundler ({cart.length})</h1>
         </div>
-        <div className="flex items-center gap-1.5">
-          <Button size="sm" variant="outline" disabled={loading || cart.length === 0} onClick={() => void runAnalysis(true)}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={loading || cart.length === 0}
+            onClick={() => void runAnalysis(true)}
+          >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Recalculer en direct</span>
           </Button>
@@ -80,6 +88,12 @@ export function MarketCartView(): React.JSX.Element {
               <span>Vider</span>
             </Button>
           )}
+          <ViewModeToggle
+            value={layoutMode}
+            onChange={setLayoutMode}
+            size={cardSize}
+            onSizeChange={setCardSize}
+          />
         </div>
       </div>
 
@@ -150,83 +164,19 @@ export function MarketCartView(): React.JSX.Element {
           <>
             <BundledSellersSection bundles={analysis.bundledSellers} />
 
-            <div className="space-y-2">
-              {analysis.lines.map((line) => {
-                const label = lang === 'fr' ? line.nameFr : line.nameEn
-                const thumb = toWfAssetUrl(line.thumb)
-                return (
-                  <Card key={line.slug}>
-                    <CardContent className="flex flex-wrap items-center justify-between gap-3 p-3 text-xs">
-                      <div
-                        onClick={() => navigateActive({ kind: 'market-item', slug: line.slug }, label)}
-                        className="flex min-w-0 cursor-pointer items-center gap-2.5"
-                      >
-                        {thumb && <img src={thumb} alt="" className="h-9 w-9 shrink-0 object-contain" />}
-                        <div className="min-w-0">
-                          <div className="truncate font-semibold hover:text-primary">{label}</div>
-                          <div className="text-[11px] text-muted-foreground">
-                            {line.bestSellerName
-                              ? `Meilleur : ${line.bestUnitPrice}p par ${line.bestSellerName}`
-                              : 'Aucun vendeur actif avec ce stock'}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 rounded border border-border px-1">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-6 w-6"
-                            onClick={() => void updateCartItem(line.slug, { quantity: line.quantity - 1 })}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="w-6 text-center font-mono">{line.quantity}</span>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-6 w-6"
-                            onClick={() => void updateCartItem(line.slug, { quantity: line.quantity + 1 })}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-
-                        <Badge variant="default">
-                          {line.lineTotalPlat !== null ? `${line.lineTotalPlat} p` : '—'}
-                        </Badge>
-
-                        {line.bestSellerName && line.bestUnitPrice !== null && (
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              void triggerWhisper({
-                                ingameName: line.bestSellerName ?? '',
-                                itemNameEn: line.nameEn,
-                                itemNameFr: line.nameFr,
-                                platinum: line.bestUnitPrice ?? 0,
-                                rank: line.desiredRank
-                              })
-                            }
-                          >
-                            /w
-                          </Button>
-                        )}
-
-                        <Button size="icon" variant="ghost" onClick={() => void removeFromCart(line.slug)}>
-                          <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
+            <CartLinesDisplay
+              lines={analysis.lines}
+              lang={lang}
+              layoutMode={layoutMode}
+              cardSize={cardSize}
+              onSelectItem={(slug, title) => navigateActive({ kind: 'market-item', slug }, title)}
+              onUpdateQty={(slug, nextQty) => void updateCartItem(slug, { quantity: nextQty })}
+              onRemove={(slug) => void removeFromCart(slug)}
+              onWhisper={(draft) => void triggerWhisper(draft)}
+            />
           </>
         )
       )}
     </div>
   )
 }
-

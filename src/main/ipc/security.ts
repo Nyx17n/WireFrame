@@ -5,7 +5,10 @@ const ALLOWED_EXTERNAL_HOSTS = new Set([
   'www.warframe.com',
   'warframe.com',
   'forums.warframe.com',
-  'wiki.warframe.com'
+  'wiki.warframe.com',
+  'discord.gg',
+  'discord.com',
+  'github.com'
 ])
 
 /**
