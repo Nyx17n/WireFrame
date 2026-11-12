@@ -84,7 +84,7 @@ const CENTER_SHORTCUTS: readonly BookmarkShortcut[] = [
   }
 ]
 
-export function BookmarksBar(): React.JSX.Element {
+export function BookmarksBar(): React.JSX.Element | null {
   const navigateActive = useTabsStore((s) => s.navigateActive)
   const openTab = useTabsStore((s) => s.openTab)
   const hubActive = useTabsStore((s) => s.hubActive)
@@ -93,8 +93,11 @@ export function BookmarksBar(): React.JSX.Element {
   const favoritesCount = useAppStore((s) => s.settings.favorites.length)
   const cartCount = useAppStore((s) => s.settings.cart.length)
 
-  const currentKind: RouteKind | null =
-    !hubActive && activeTab ? getTabCurrentRoute(activeTab).kind : null
+  if (hubActive) {
+    return null
+  }
+
+  const currentKind: RouteKind | null = activeTab ? getTabCurrentRoute(activeTab).kind : null
 
   const getBadgeCount = (kind: RouteKind): number => {
     if (kind === 'market-favorites') return favoritesCount
