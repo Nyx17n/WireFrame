@@ -149,15 +149,15 @@ export function BookmarksBar(): React.JSX.Element {
       role="navigation"
       aria-label="Barre de raccourcis et outils"
     >
-      <div className="flex shrink-0 items-center justify-self-start">
-        {renderShortcutButton(HISTORY_SHORTCUT)}
-      </div>
+      <div className="hidden lg:block" aria-hidden="true" />
 
       <div className="flex shrink-0 items-center justify-center gap-1 justify-self-center">
         {CENTER_SHORTCUTS.map(renderShortcutButton)}
       </div>
 
-      <div className="hidden lg:block" aria-hidden="true" />
+      <div className="ml-auto flex shrink-0 items-center justify-self-end lg:ml-0">
+        {renderShortcutButton(HISTORY_SHORTCUT)}
+      </div>
     </div>
   )
 }
