@@ -2,6 +2,8 @@ import * as React from 'react'
 import { Play, Sparkles, ZoomIn, ZoomOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
+import { ColorSwatchPicker } from '@/components/settings/ColorSwatchPicker'
+import { ACCENT_SWATCH_GROUPS, BACKGROUND_SWATCH_GROUPS } from '@/lib/color-swatches'
 import { THEME_PRESETS } from '@/lib/theme-engine'
 import { useAppStore } from '@/stores/useAppStore'
 
@@ -85,40 +87,29 @@ export function AppearanceSettingsTab(): React.JSX.Element {
         })}
       </div>
 
-      <div className="grid grid-cols-1 gap-3 rounded-md border border-border bg-background/50 p-3 sm:grid-cols-2">
-        <label className="flex items-center justify-between gap-2 text-xs">
-          <span>Couleur Principale (Fonds)</span>
-          <span className="flex items-center gap-1.5 font-mono">
-            <span>{appearance.primaryColor}</span>
-            <input
-              type="color"
-              value={appearance.primaryColor}
-              onChange={(e) =>
-                void updateSettings({
-                  appearance: { preset: 'custom', primaryColor: e.target.value }
-                })
-              }
-              className="h-6 w-8 cursor-pointer rounded border border-border bg-transparent"
-            />
-          </span>
-        </label>
+      <div className="space-y-1">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+          <span>✦</span>
+          <span>Couleurs personnalisées</span>
+        </h3>
+        <p className="text-xs text-muted-foreground">
+          Choisis une couleur prédéfinie (ou libre) pour le fond et pour les accents, indépendamment l’une de l’autre.
+        </p>
+      </div>
 
-        <label className="flex items-center justify-between gap-2 text-xs">
-          <span>Couleur Secondaire (Accents)</span>
-          <span className="flex items-center gap-1.5 font-mono">
-            <span>{appearance.secondaryColor}</span>
-            <input
-              type="color"
-              value={appearance.secondaryColor}
-              onChange={(e) =>
-                void updateSettings({
-                  appearance: { preset: 'custom', secondaryColor: e.target.value }
-                })
-              }
-              className="h-6 w-8 cursor-pointer rounded border border-border bg-transparent"
-            />
-          </span>
-        </label>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <ColorSwatchPicker
+          title="Couleur Principale (Fonds)"
+          value={appearance.primaryColor}
+          groups={BACKGROUND_SWATCH_GROUPS}
+          onChange={(hex) => void updateSettings({ appearance: { preset: 'custom', primaryColor: hex } })}
+        />
+        <ColorSwatchPicker
+          title="Couleur Secondaire (Accents)"
+          value={appearance.secondaryColor}
+          groups={ACCENT_SWATCH_GROUPS}
+          onChange={(hex) => void updateSettings({ appearance: { preset: 'custom', secondaryColor: hex } })}
+        />
       </div>
 
       <div className="space-y-3 rounded-md border border-border bg-background/50 p-3">
