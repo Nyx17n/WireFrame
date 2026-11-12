@@ -1,5 +1,16 @@
 [
   {
+    "version": "2.5.2",
+    "date": "Novembre 2026",
+    "titleFr": "Défilement Horizontal Fluide de la Barre d’Onglets (Molette & Flèches ‹ / ›)",
+    "badgeFr": "Correctif v2.5.2",
+    "highlightsFr": [
+      "Défilement horizontal complet de la barre d’onglets lorsqu’un grand nombre d’onglets est ouvert : prise en charge directe de la molette souris (gauche/droite) et apparition automatique des boutons ‹ / ›.",
+      "Épinglage fixe du bouton Hub à gauche et des boutons « + » (Nouvel onglet) et Organisateur d’onglets à droite pour qu’ils restent accessibles même avec 20+ onglets ouverts.",
+      "Centrage automatique sur l’onglet actif ou nouvellement ouvert (Ctrl+T) et masquage propre de la barre de défilement système dans l’en-tête."
+    ]
+  },
+  {
     "version": "2.5.1",
     "date": "Novembre 2026",
     "titleFr": "Correctif Netteté ClearType des Animations & Résilience Worldstate",

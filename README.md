@@ -7,7 +7,7 @@
 
 > Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron 35 · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
-**WireFrame v2** (`v2.5.1`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés) et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
+**WireFrame v2** (`v2.5.2`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés) et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
 
 ---
 

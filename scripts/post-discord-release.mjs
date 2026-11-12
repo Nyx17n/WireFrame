@@ -127,6 +127,17 @@ async function syncGitHubReleaseNotes(version, markdownBody) {
   console.log(`[GitHub Release] Notes de patch synchronisées sur la release v${version}.`)
 }
 
+async function purgeGitHubCamoBadges() {
+  const repoHtmlRes = await fetch(`https://github.com/${REPO_OWNER}/${REPO_NAME}`)
+  if (!repoHtmlRes.ok) return
+  const html = await repoHtmlRes.text()
+  const camoUrls = Array.from(
+    new Set(html.match(/https:\/\/camo\.githubusercontent\.com\/[a-f0-9]+\/[a-f0-9]+/g) ?? [])
+  )
+  await Promise.allSettled(camoUrls.map((url) => fetch(url, { method: 'PURGE' })))
+  console.log(`[GitHub Camo] ${camoUrls.length} badge(s) README rafraîchi(s).`)
+}
+
 async function postToDiscord(webhookUrl, payload, threadNameFallback) {
   const res = await fetch(webhookUrl, {
     method: 'POST',
@@ -206,6 +217,7 @@ async function main() {
   await syncGitHubReleaseNotes(version, markdownReleaseBody).catch((err) => {
     console.warn('[GitHub Release] Impossible de mettre à jour la description GitHub :', err.message)
   })
+  await purgeGitHubCamoBadges().catch(() => undefined)
 
   const rawWebhook = (process.env.DISCORD_WEBHOOK_URL || '').trim()
   if (!rawWebhook) {
