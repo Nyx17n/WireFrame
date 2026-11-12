@@ -1,5 +1,18 @@
 [
   {
+    "version": "2.5.0",
+    "date": "Novembre 2026",
+    "titleFr": "Alertes Worldstate sur Mesure, Minuteurs Compact, Centre de Notifications & Animations",
+    "badgeFr": "Nouveauté v2.5",
+    "highlightsFr": [
+      "Moteur de règles d’alertes Worldstate personnalisées sur 9 sources (Fissures, Invasions, Arbitrage, Cycles, Baro Ki’Teer, Sortie, Chasse à l’Archonte, Mises à prix, Ondes Nocturnes) avec aperçu en direct et historique de session.",
+      "Bandeau de Minuteurs épinglés (jusqu’à 6 : Cetus, Vallée Orbis, Puy de Cambion, Zariman, Duviri, Baro, Arbitrage, Sortie, Reset quotidien) en Mode Compact Overlay (et activable sur Desktop).",
+      "Système unifié de notifications in-app empilées (5 types visuels, pause au survol, fusion anti-spam ×2, bouton « Tester une notification ») couplé au nouveau Centre de notifications sous l’icône 🔔.",
+      "Animations fluides GPU sur l’ensemble de l’interface (changements de page/onglet, cascades de cartes, survols/clics, modales, raccourcis) avec réglage à 3 niveaux (Complètes / Réduites / Désactivées) et respect automatique de Windows.",
+      "76 couleurs prédéfinies indépendantes (28 nuances de fonds + 48 nuances d’accents) dans Paramètres → Apparence → Couleurs personnalisées."
+    ]
+  },
+  {
     "version": "2.4.0",
     "date": "Novembre 2026",
     "titleFr": "Grilles Personnalisables (S/M/L), Barre de Raccourcis, Prix Min/Moy/Max & Historique",

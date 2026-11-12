@@ -1,5 +1,6 @@
 import type { TriggeredAlertEvent, WorldAlertToggles } from '@shared/schemas/alerts.schema'
-import type { WorldstateHubPayload } from '@shared/schemas/worldstate.schema'
+import type { HubSectionId, WorldstateHubPayload } from '@shared/schemas/worldstate.schema'
+import { rememberOnce } from './world-rules/world-rule-text'
 
 export function evaluateWorldstateAlerts(
   ws: WorldstateHubPayload,
@@ -10,15 +11,21 @@ export function evaluateWorldstateAlerts(
   const now = Date.now()
   const nowIso = new Date(now).toISOString()
 
-  const emitOnce = (dedupeKey: string, title: string, subtitle: string, slug?: string): void => {
-    if (notifiedWorldKeys.has(dedupeKey)) return
-    notifiedWorldKeys.add(dedupeKey)
+  const emitOnce = (
+    dedupeKey: string,
+    title: string,
+    subtitle: string,
+    hubSection: HubSectionId,
+    slug?: string
+  ): void => {
+    if (!rememberOnce(notifiedWorldKeys, dedupeKey)) return
     events.push({
       id: `ws-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       kind: 'worldstate',
       title,
       subtitle,
       ...(slug ? { slug } : {}),
+      hubSection,
       triggeredAt: nowIso
     })
   }
@@ -29,7 +36,7 @@ export function evaluateWorldstateAlerts(
       emitOnce(
         `cetusNight:${cetus.expiry}`,
         'Nuit sur Cetus (Chasse Eidolon)',
-        'La nuit vient de tomber sur les Plaines d’Eidolon !'
+        'La nuit vient de tomber sur les Plaines d’Eidolon !', 'planets'
       )
     }
     const msLeft = Date.parse(cetus.expiry) - now
@@ -37,7 +44,7 @@ export function evaluateWorldstateAlerts(
       emitOnce(
         `cetusPreNight5m:${cetus.expiry}`,
         'Pré-alerte : Nuit Cetus dans < 5 min',
-        'Prépare ton escouade Eidolon avant le coucher du soleil.'
+        'Prépare ton escouade Eidolon avant le coucher du soleil.', 'planets'
       )
     }
   }
@@ -47,7 +54,7 @@ export function evaluateWorldstateAlerts(
     emitOnce(
       `vallisWarm:${vallis.expiry}`,
       'Vallée Orbis : Cycle Chaud actif',
-      'Fenêtre de pêche rare active sur Fortuna (Vénus).'
+      'Fenêtre de pêche rare active sur Fortuna (Vénus).', 'planets'
     )
   }
 
@@ -56,7 +63,7 @@ export function evaluateWorldstateAlerts(
     emitOnce(
       `cambionVome:${cambion.expiry}`,
       'Puy de Cambion : Cycle Vome actif',
-      'Vome domine actuellement Deimos.'
+      'Vome domine actuellement Deimos.', 'planets'
     )
   }
 
@@ -64,7 +71,7 @@ export function evaluateWorldstateAlerts(
     emitOnce(
       `baro:${ws.voidTrader.expiry}`,
       `Baro Ki'Teer est présent !`,
-      `Disponible à ${ws.voidTrader.location} (${ws.voidTrader.inventory.length} articles).`
+      `Disponible à ${ws.voidTrader.location} (${ws.voidTrader.inventory.length} articles).`, 'baro'
     )
   }
 
@@ -74,7 +81,7 @@ export function evaluateWorldstateAlerts(
       emitOnce(
         `fastFissure:${fast.id}`,
         `Fissure Rapide ${fast.tier} (${fast.missionType})`,
-        `${fast.node} — ${fast.enemy}${fast.isHard ? ' · Route de l’Acier' : ''}`
+        `${fast.node} — ${fast.enemy}${fast.isHard ? ' · Route de l’Acier' : ''}`, 'fissures'
       )
     }
   }
@@ -85,7 +92,7 @@ export function evaluateWorldstateAlerts(
       emitOnce(
         `omniaSp:${omniaSp.id}`,
         `Fissure Omnia Route de l’Acier`,
-        `${omniaSp.missionType} sur ${omniaSp.node} (${omniaSp.enemy})`
+        `${omniaSp.missionType} sur ${omniaSp.node} (${omniaSp.enemy})`, 'fissures'
       )
     }
   }
@@ -96,7 +103,7 @@ export function evaluateWorldstateAlerts(
       const rewards = [rareInv.attacker.rewardLabel, rareInv.defender.rewardLabel]
         .filter(Boolean)
         .join(' vs ')
-      emitOnce(`rareInv:${rareInv.id}`, `Invasion Rare sur ${rareInv.node}`, rewards)
+      emitOnce(`rareInv:${rareInv.id}`, `Invasion Rare sur ${rareInv.node}`, rewards, 'invasions')
     }
   }
 
@@ -107,7 +114,7 @@ export function evaluateWorldstateAlerts(
         .filter(Boolean)
         .join(' / ')
       const slug = weapInv.attacker.marketSlug ?? weapInv.defender.marketSlug ?? undefined
-      emitOnce(`weapInv:${weapInv.id}`, `Invasion Wraith / Vandal (${weapInv.node})`, rewards, slug)
+      emitOnce(`weapInv:${weapInv.id}`, `Invasion Wraith / Vandal (${weapInv.node})`, rewards, 'invasions', slug)
     }
   }
 
@@ -115,7 +122,7 @@ export function evaluateWorldstateAlerts(
     emitOnce(
       `teshinUmbra:${ws.steelPath.expiry}`,
       'Teshin : Semaine du Schéma Forma Umbra !',
-      'Disponible dans les Honneurs de la Route de l’Acier (150 Essences d’Acier).'
+      'Disponible dans les Honneurs de la Route de l’Acier (150 Essences d’Acier).', 'invasions'
     )
   }
 
@@ -123,7 +130,7 @@ export function evaluateWorldstateAlerts(
     emitOnce(
       `arbi:${ws.arbitration.expiry.slice(0, 13)}`,
       `Arbitrage S-Tier : ${ws.arbitration.type}`,
-      `${ws.arbitration.node} (${ws.arbitration.enemy}) · ${ws.arbitration.bonus}`
+      `${ws.arbitration.node} (${ws.arbitration.enemy}) · ${ws.arbitration.bonus}`, 'invasions'
     )
   }
 

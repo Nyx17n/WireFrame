@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
 import { useMarketStore } from '@/stores/useMarketStore'
+import { notify } from '@/stores/useNotificationStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 export function WhisperBar(): React.JSX.Element | null {
@@ -32,6 +33,7 @@ export function WhisperBar(): React.JSX.Element | null {
   const handleCopyAgain = async (): Promise<void> => {
     await ipcClient.clipboard.writeText(commandText)
     setJustCopied(true)
+    notify({ kind: 'info', title: 'Commande /w copiée', message: 'Colle en jeu avec Ctrl+V' })
   }
 
   const handleToggleLanguage = async (): Promise<void> => {
@@ -40,6 +42,11 @@ export function WhisperBar(): React.JSX.Element | null {
     const nextCmd = buildWhisperCommand(activeWhisper, nextLang)
     await ipcClient.clipboard.writeText(nextCmd)
     setJustCopied(true)
+    notify({
+      kind: 'info',
+      title: `Commande /w copiée (${nextLang.toUpperCase()})`,
+      message: 'Colle en jeu avec Ctrl+V'
+    })
   }
 
   return (

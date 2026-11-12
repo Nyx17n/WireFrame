@@ -56,13 +56,19 @@ export function BrowserTabPill({
       onAuxClick={handleAuxClick}
       title={`${tab.title}${tab.pinned ? ' (Épinglé)' : ' — Clic molette pour fermer'}`}
       className={cn(
-        'group flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border px-2 text-xs transition-colors',
+        'wf-tab-pill group relative flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border px-2 text-xs transition-colors',
         isActive
           ? 'border-primary/50 bg-primary/15 font-semibold text-foreground'
           : 'border-border/70 bg-secondary/40 text-muted-foreground hover:bg-secondary/80 hover:text-foreground',
         tab.pinned ? 'px-2' : isCompact ? 'max-w-[130px]' : 'max-w-[195px]'
       )}
     >
+      {isActive && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-2 bottom-0 h-[1.5px] rounded-full bg-primary"
+        />
+      )}
       {isActive && isPageTransitioning ? (
         <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-primary" />
       ) : (

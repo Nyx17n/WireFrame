@@ -128,8 +128,9 @@ export function BookmarksBar(): React.JSX.Element | null {
             openTab(item.route)
           }
         }}
+        data-active={isActive ? 'true' : 'false'}
         className={cn(
-          'inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors',
+          'wf-bookmark-link wf-interactive-btn inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors',
           isActive
             ? 'border-primary/50 bg-primary/15 text-foreground'
             : 'border-transparent text-muted-foreground hover:border-border/60 hover:bg-secondary/75 hover:text-foreground'

@@ -7,8 +7,14 @@ import {
 import type { SystemStatus } from '@shared/schemas/system.schema'
 import type { UpdaterStatus } from '@shared/schemas/updater.schema'
 import type { WindowState } from '@shared/schemas/window.schema'
-import { ipcClient } from '@/services/ipc-client'
+import {
+  clearModule8Cache,
+  mergeModule8Fallback,
+  rememberModule8Patch
+} from '@/lib/motion-prefs-cache'
 import { applyThemeToDocument } from '@/lib/theme-engine'
+import { ipcClient } from '@/services/ipc-client'
+import { notify, useNotificationStore } from '@/stores/useNotificationStore'
 
 export type SettingsTabId = 'appearance' | 'audio' | 'window' | 'market' | 'system'
 
@@ -51,6 +57,12 @@ const DEFAULT_WINDOW_STATE: WindowState = {
   zoomPercent: 100
 }
 
+function syncNotificationPrefs(settings: UserSettings): void {
+  useNotificationStore
+    .getState()
+    .setActionNotificationsEnabled(settings.audio.actionNotificationsEnabled !== false)
+}
+
 export const useAppStore = create<AppStoreState>((set, get) => ({
   settings: DEFAULT_USER_SETTINGS,
   windowState: DEFAULT_WINDOW_STATE,
@@ -79,13 +91,16 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
   initialize: async () => {
     set({ isLoading: true, errorMessage: null })
     try {
-      const [settings, windowState, systemStatus, updaterStatus] = await Promise.all([
+      const [rawSettings, windowState, systemStatus, updaterStatus] = await Promise.all([
         ipcClient.settings.get(),
         ipcClient.window.getState(),
         ipcClient.system.getStatus(),
         ipcClient.updater.getStatus().catch(() => null)
       ])
+      const settings = mergeModule8Fallback(rawSettings)
       applyThemeToDocument(settings.appearance)
+      syncNotificationPrefs(settings)
+      useNotificationStore.getState().setHydrated(true)
       set({ settings, windowState, systemStatus, updaterStatus, isLoading: false })
 
       try {
@@ -104,6 +119,8 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur d’initialisation IPC inconnue'
       applyThemeToDocument(DEFAULT_USER_SETTINGS.appearance)
+      useNotificationStore.getState().setHydrated(true)
+      notify({ kind: 'error', title: 'Erreur d’initialisation IPC', message })
       set({ errorMessage: message, isLoading: false })
     }
 
@@ -111,7 +128,30 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
       set({ windowState: nextWindowState })
     })
     const unsubUpdater = ipcClient.updater.onStatus((nextStatus) => {
+      const prevState = get().updaterStatus?.state
       set({ updaterStatus: nextStatus })
+      if (nextStatus.state !== prevState) {
+        if (nextStatus.state === 'available' && nextStatus.availableVersion) {
+          notify({
+            kind: 'info',
+            title: `Mise à jour v${nextStatus.availableVersion} disponible`,
+            message: 'Téléchargement différentiel en arrière-plan…'
+          })
+        } else if (nextStatus.state === 'downloaded' && nextStatus.availableVersion) {
+          notify({
+            kind: 'success',
+            title: `Mise à jour v${nextStatus.availableVersion} prête`,
+            message: 'Cliquez pour installer et redémarrer WireFrame.',
+            actions: [{ label: 'Installer', onClick: () => void get().installUpdate() }]
+          })
+        } else if (nextStatus.state === 'error' && nextStatus.message) {
+          notify({
+            kind: 'error',
+            title: 'Échec de mise à jour',
+            message: nextStatus.message
+          })
+        }
+      }
     })
     return () => {
       unsubWindow()
@@ -124,13 +164,20 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
       const systemStatus = await ipcClient.system.getStatus()
       set({ systemStatus })
     } catch (err) {
-      set({ errorMessage: err instanceof Error ? err.message : 'Échec lecture statut système' })
+      const message = err instanceof Error ? err.message : 'Échec lecture statut système'
+      notify({ kind: 'error', title: 'Erreur statut système', message })
+      set({ errorMessage: message })
     }
   },
 
   clearSystemCache: async () => {
     const systemStatus = await ipcClient.system.clearCache()
     set({ systemStatus })
+    notify({
+      kind: 'info',
+      title: 'Cache vidé',
+      message: 'Le cache mémoire et les miniatures disque ont été purgés.'
+    })
   },
 
   checkForUpdates: async () => {
@@ -144,30 +191,70 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
   },
 
   updateSettings: async (patch) => {
+    rememberModule8Patch(patch)
+    const optimistic = mergeModule8Fallback(
+      {
+        ...get().settings,
+        appearance: { ...get().settings.appearance, ...patch.appearance },
+        audio: { ...get().settings.audio, ...patch.audio }
+      },
+      patch
+    )
+    applyThemeToDocument(optimistic.appearance)
+    syncNotificationPrefs(optimistic)
+
     try {
-      const updated = await ipcClient.settings.update(patch)
+      const saved = await ipcClient.settings.update(patch)
+      const updated = mergeModule8Fallback(saved, patch)
       applyThemeToDocument(updated.appearance)
+      syncNotificationPrefs(updated)
       set({ settings: updated, errorMessage: null })
     } catch (err) {
-      set({ errorMessage: err instanceof Error ? err.message : 'Échec sauvegarde réglages' })
+      const message = err instanceof Error ? err.message : 'Échec sauvegarde réglages'
+      notify({ kind: 'error', title: 'Échec de sauvegarde des réglages', message })
+      set({ errorMessage: message })
     }
   },
 
   resetSettings: async () => {
+    clearModule8Cache()
     const defaults = await ipcClient.settings.reset()
     applyThemeToDocument(defaults.appearance)
+    syncNotificationPrefs(defaults)
     const windowState = await ipcClient.window.setZoom(defaults.appearance.zoomPercent)
     set({ settings: defaults, windowState, errorMessage: null })
+    notify({
+      kind: 'info',
+      title: 'Réglages réinitialisés',
+      message: 'Toutes les préférences ont été remises par défaut.'
+    })
   },
 
-  exportSettingsJson: async () => ipcClient.settings.exportJson(),
+  exportSettingsJson: async () => {
+    const ok = await ipcClient.settings.exportJson()
+    if (ok) {
+      notify({
+        kind: 'success',
+        title: 'Paramètres exportés',
+        message: 'Sauvegarde JSON enregistrée avec succès.'
+      })
+    }
+    return ok
+  },
 
   importSettingsJson: async () => {
     const imported = await ipcClient.settings.importJson()
     if (!imported) return false
+    clearModule8Cache()
     applyThemeToDocument(imported.appearance)
+    syncNotificationPrefs(imported)
     const windowState = await ipcClient.window.setZoom(imported.appearance.zoomPercent)
     set({ settings: imported, windowState })
+    notify({
+      kind: 'success',
+      title: 'Paramètres importés',
+      message: 'Configuration validée par Zod et appliquée.'
+    })
     return true
   },
 
@@ -183,10 +270,10 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
 
   setWindowZoom: async (zoomPercent) => {
     const clamped = Math.max(50, Math.min(200, Math.round(zoomPercent)))
-    const [windowState, settings] = await Promise.all([
+    const [windowState, saved] = await Promise.all([
       ipcClient.window.setZoom(clamped),
       ipcClient.settings.update({ appearance: { zoomPercent: clamped } })
     ])
-    set({ windowState, settings })
+    set({ windowState, settings: mergeModule8Fallback(saved) })
   }
 }))

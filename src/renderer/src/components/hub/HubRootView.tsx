@@ -9,11 +9,12 @@ import {
   Sparkles,
   Swords
 } from 'lucide-react'
-import type { WorldstateHubPayload } from '@shared/schemas/worldstate.schema'
+import type { HubSectionId, WorldstateHubPayload } from '@shared/schemas/worldstate.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ipcClient } from '@/services/ipc-client'
+import { useHubNavStore } from '@/stores/useHubNavStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 import { HubBaroTraderTab } from './HubBaroTraderTab'
 import { HubDuviriCircuitTab } from './HubDuviriCircuitTab'
@@ -23,14 +24,13 @@ import { HubNewsDarvoTab } from './HubNewsDarvoTab'
 import { HubPlanetsBountiesTab } from './HubPlanetsBountiesTab'
 import { useNowTick } from './hub-countdown'
 
-type HubSectionId = 'planets' | 'fissures' | 'invasions' | 'duviri' | 'baro' | 'news'
-
 export function HubRootView(): React.JSX.Element {
   const nowMs = useNowTick(1000)
   const refreshRevision = useTabsStore((s) => s.refreshRevision)
   const lastRefreshRef = React.useRef(refreshRevision)
 
-  const [section, setSection] = React.useState<HubSectionId>('planets')
+  const section = useHubNavStore((s) => s.section)
+  const setSection = useHubNavStore((s) => s.setSection)
   const [data, setData] = React.useState<WorldstateHubPayload | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [refreshing, setRefreshing] = React.useState(false)
@@ -168,39 +168,41 @@ export function HubRootView(): React.JSX.Element {
         </Button>
       </div>
 
-      {section === 'planets' && (
-        <HubPlanetsBountiesTab cycles={data.cycles} bounties={data.bounties} nowMs={nowMs} />
-      )}
-      {section === 'fissures' && (
-        <HubFissuresMissionsTab
-          fissures={data.fissures}
-          archonHunt={data.archonHunt}
-          sortie={data.sortie}
-          nowMs={nowMs}
-        />
-      )}
-      {section === 'invasions' && (
-        <HubInvasionsSteelTab
-          invasions={data.invasions}
-          steelPath={data.steelPath}
-          arbitration={data.arbitration}
-          alerts={data.alerts}
-          events={data.events}
-          nightwave={data.nightwave}
-          nowMs={nowMs}
-        />
-      )}
-      {section === 'duviri' && <HubDuviriCircuitTab circuit={data.duviriCircuit} nowMs={nowMs} />}
-      {section === 'baro' && <HubBaroTraderTab voidTrader={data.voidTrader} nowMs={nowMs} />}
-      {section === 'news' && (
-        <HubNewsDarvoTab
-          news={data.news}
-          globalBoosters={data.globalBoosters}
-          darvoDeals={data.darvoDeals}
-          primeResurgence={data.primeResurgence}
-          nowMs={nowMs}
-        />
-      )}
+      <div key={section} className="wf-view-enter">
+        {section === 'planets' && (
+          <HubPlanetsBountiesTab cycles={data.cycles} bounties={data.bounties} nowMs={nowMs} />
+        )}
+        {section === 'fissures' && (
+          <HubFissuresMissionsTab
+            fissures={data.fissures}
+            archonHunt={data.archonHunt}
+            sortie={data.sortie}
+            nowMs={nowMs}
+          />
+        )}
+        {section === 'invasions' && (
+          <HubInvasionsSteelTab
+            invasions={data.invasions}
+            steelPath={data.steelPath}
+            arbitration={data.arbitration}
+            alerts={data.alerts}
+            events={data.events}
+            nightwave={data.nightwave}
+            nowMs={nowMs}
+          />
+        )}
+        {section === 'duviri' && <HubDuviriCircuitTab circuit={data.duviriCircuit} nowMs={nowMs} />}
+        {section === 'baro' && <HubBaroTraderTab voidTrader={data.voidTrader} nowMs={nowMs} />}
+        {section === 'news' && (
+          <HubNewsDarvoTab
+            news={data.news}
+            globalBoosters={data.globalBoosters}
+            darvoDeals={data.darvoDeals}
+            primeResurgence={data.primeResurgence}
+            nowMs={nowMs}
+          />
+        )}
+      </div>
     </div>
   )
 }

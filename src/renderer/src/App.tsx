@@ -1,23 +1,27 @@
 import * as React from 'react'
-import { AlertToastBanner } from '@/components/alerts/AlertToastBanner'
 import { WhisperBar } from '@/components/market/WhisperBar'
 import { ChangelogModal } from '@/components/modals/ChangelogModal'
-import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
-import { CommandNavBar } from '@/components/shell/CommandNavBar'
+import { NotificationViewport } from '@/components/notifications/NotificationViewport'
+import { SettingsModal } from '@/components/settings/SettingsModal'
 import { BookmarksBar } from '@/components/shell/BookmarksBar'
+import { CommandNavBar } from '@/components/shell/CommandNavBar'
 import { DiscordCornerButton } from '@/components/shell/DiscordCornerButton'
-import { PageTransitionLoader } from '@/components/shell/PageTransitionLoader'
 import { OmniboxDialog } from '@/components/shell/OmniboxDialog'
+import { PageTransitionLoader } from '@/components/shell/PageTransitionLoader'
 import { StartupSplashOverlay } from '@/components/shell/StartupSplashOverlay'
 import { StatusBar } from '@/components/shell/StatusBar'
+import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
 import { UpdateBanner } from '@/components/shell/UpdateBanner'
-import { SettingsModal } from '@/components/settings/SettingsModal'
+import { CompactTimersBar } from '@/components/shell/timers/CompactTimersBar'
 import { useLocalShortcuts } from '@/hooks/useLocalShortcuts'
+import { openHubSection } from '@/lib/hub-navigation'
+import { applyThemeToDocument, subscribeOsReducedMotion } from '@/lib/theme-engine'
 import { WorkspaceRouteViewport } from '@/pages/WorkspaceRouteViewport'
 import { playAlertSoundPreview } from '@/services/audio-preview.service'
 import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
 import { useMarketStore } from '@/stores/useMarketStore'
+import { notify, type NotificationAction } from '@/stores/useNotificationStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 export function App(): React.JSX.Element {
@@ -37,6 +41,14 @@ export function App(): React.JSX.Element {
     }
   }, [transitionRevision])
 
+  React.useEffect(
+    () =>
+      subscribeOsReducedMotion(() => {
+        applyThemeToDocument(useAppStore.getState().settings.appearance)
+      }),
+    []
+  )
+
   React.useEffect(() => {
     let cleanupWindow: (() => void) | undefined
     void initialize().then((unsubscribe) => {
@@ -46,8 +58,55 @@ export function App(): React.JSX.Element {
 
     const cleanupAlerts = ipcClient.alerts.onTriggered((alertEvent) => {
       setLatestAlertToast(alertEvent)
+
+      const actions: NotificationAction[] = []
+      if (
+        alertEvent.kind === 'price-sniper' &&
+        alertEvent.sellerName &&
+        alertEvent.platinum !== undefined
+      ) {
+        const sellerName = alertEvent.sellerName
+        const platinum = alertEvent.platinum
+        actions.push({
+          label: `Copier /w (${platinum}p)`,
+          icon: 'whisper',
+          onClick: () =>
+            void useMarketStore.getState().triggerWhisper({
+              ingameName: sellerName,
+              itemNameEn: alertEvent.itemNameEn ?? alertEvent.title,
+              itemNameFr: alertEvent.itemNameFr ?? alertEvent.title,
+              platinum,
+              rank: alertEvent.rank
+            })
+        })
+      }
+      if (alertEvent.kind === 'worldstate' && alertEvent.hubSection) {
+        const targetSection = alertEvent.hubSection
+        actions.push({
+          label: 'Voir dans le Hub',
+          icon: 'hub',
+          onClick: () => openHubSection(targetSection)
+        })
+      }
+      if (alertEvent.kind === 'worldstate' && alertEvent.slug) {
+        const slug = alertEvent.slug
+        actions.push({
+          label: 'Prix Plat',
+          icon: 'external',
+          variant: 'outline',
+          onClick: () => useTabsStore.getState().openTab({ kind: 'market-item', slug })
+        })
+      }
+
+      notify({
+        kind: 'alert',
+        title: alertEvent.title,
+        message: alertEvent.subtitle,
+        actions
+      })
+
       const { audio } = useAppStore.getState().settings
-      if (audio.soundEnabled) {
+      if (audio.soundEnabled && !alertEvent.silent) {
         void playAlertSoundPreview(audio.soundChoice, audio.volumePercent)
       }
     })
@@ -75,8 +134,9 @@ export function App(): React.JSX.Element {
         <DiscordCornerButton />
       </div>
       <WhisperBar />
+      <CompactTimersBar />
       <StatusBar />
-      <AlertToastBanner />
+      <NotificationViewport />
       <OmniboxDialog />
       <SettingsModal />
       <ChangelogModal />

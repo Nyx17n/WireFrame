@@ -68,7 +68,11 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     if (patch.window?.globalShortcutsEnabled !== undefined || patch.window?.shortcuts !== undefined) {
       await onShortcutsUpdated()
     }
-    if (patch.audio?.scanIntervalSec !== undefined || patch.priceAlerts !== undefined) {
+    if (
+      patch.audio?.scanIntervalSec !== undefined ||
+      patch.priceAlerts !== undefined ||
+      patch.worldRules !== undefined
+    ) {
       await onAlertsConfigUpdated?.()
     }
     return updated

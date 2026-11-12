@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { HubSectionIdSchema } from './worldstate.schema'
 
 export const PriceSniperRuleSchema = z.object({
   id: z.string().min(1).max(64),
@@ -41,7 +42,15 @@ export const TriggeredAlertEventSchema = z.object({
   itemNameEn: z.string().optional(),
   itemNameFr: z.string().optional(),
   rank: z.number().int().optional(),
+  /** Règle personnalisée Worldstate à l'origine de l'alerte (absente pour les alertes rapides). */
+  ruleId: z.string().optional(),
+  /** Sous-vue du Hub ouverte par le bouton « Voir dans le Hub ». */
+  hubSection: HubSectionIdSchema.optional(),
+  /** true = la règle a désactivé le son pour cette alerte. */
+  silent: z.boolean().optional(),
   triggeredAt: z.string()
 })
 export type TriggeredAlertEvent = z.infer<typeof TriggeredAlertEventSchema>
+
+export const ALERT_HISTORY_MAX = 50
 

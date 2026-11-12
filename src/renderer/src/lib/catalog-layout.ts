@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import type { CodexSummaryCard } from '@shared/schemas/codex.schema'
 import type { MarketCatalogItem } from '@shared/schemas/market.schema'
 import type { CatalogCardSize, CatalogLayoutMode } from '@shared/schemas/settings.schema'
-import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
 import { normalizeSearchText } from '@/stores/useMarketStore'
 
@@ -53,30 +52,12 @@ export function useCatalogDisplayPreferences(): CatalogDisplayPreferences {
   const cardSize: CatalogCardSize = overrideSize ?? persistedSize ?? 'md'
 
   const setLayoutMode = (nextMode: CatalogLayoutMode): void => {
-    useAppStore.setState((s) => ({
-      settings: {
-        ...s.settings,
-        appearance: { ...s.settings.appearance, catalogLayoutMode: nextMode }
-      }
-    }))
-    void ipcClient.settings
-      .update({ appearance: { catalogLayoutMode: nextMode } })
-      .then((updated) => useAppStore.setState({ settings: updated }))
-      .catch(() => undefined)
+    void useAppStore.getState().updateSettings({ appearance: { catalogLayoutMode: nextMode } })
   }
 
   const setCardSize = (nextSize: CatalogCardSize): void => {
     setOverrideSize(nextSize)
-    useAppStore.setState((s) => ({
-      settings: {
-        ...s.settings,
-        appearance: { ...s.settings.appearance, catalogCardSize: nextSize }
-      }
-    }))
-    void ipcClient.settings
-      .update({ appearance: { catalogCardSize: nextSize } })
-      .then((updated) => useAppStore.setState({ settings: updated }))
-      .catch(() => undefined)
+    void useAppStore.getState().updateSettings({ appearance: { catalogCardSize: nextSize } })
   }
 
   return { layoutMode, cardSize, setLayoutMode, setCardSize }
@@ -84,29 +65,29 @@ export function useCatalogDisplayPreferences(): CatalogDisplayPreferences {
 
 export function getCatalogGridClass(mode: CatalogLayoutMode, size: CatalogCardSize): string {
   if (mode === 'list') {
-    if (size === 'sm') return 'flex flex-col gap-1.5'
-    if (size === 'lg') return 'flex flex-col gap-2.5'
-    return 'flex flex-col gap-2'
+    if (size === 'sm') return 'wf-stagger-grid flex flex-col gap-1.5'
+    if (size === 'lg') return 'wf-stagger-grid flex flex-col gap-2.5'
+    return 'wf-stagger-grid flex flex-col gap-2'
   }
 
   if (mode === 'square') {
     if (size === 'sm') {
-      return 'grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7'
+      return 'wf-stagger-grid grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7'
     }
     if (size === 'lg') {
-      return 'grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+      return 'wf-stagger-grid grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
     }
-    return 'grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+    return 'wf-stagger-grid grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
   }
 
   // 'rect'
   if (size === 'sm') {
-    return 'grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+    return 'wf-stagger-grid grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
   }
   if (size === 'lg') {
-    return 'grid grid-cols-1 gap-3 lg:grid-cols-2'
+    return 'wf-stagger-grid grid grid-cols-1 gap-3 lg:grid-cols-2'
   }
-  return 'grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3'
+  return 'wf-stagger-grid grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3'
 }
 
 export function getCardImageClass(mode: CatalogLayoutMode, size: CatalogCardSize): string {

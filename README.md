@@ -7,7 +7,7 @@
 
 > Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron 35 · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
-**WireFrame v2** (`v2.4.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
+**WireFrame v2** (`v2.5.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés) et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
 
 ---
 
@@ -32,8 +32,9 @@
    - **Comparateur automatique Set Complet vs Pièces Détachées** calculé en arrière-plan sans bloquer l’affichage.
    - **Panier & Trade Bundler** (détection des vendeurs possédant plusieurs pièces de ta liste), **Ducanator** (meilleurs ratios Ducats / Platinum), **Contrats Mod Riven**, **Favoris** et **Price Sniper** (surveillance sonore & notifications en arrière-plan dans le *System Tray*).
 
-3. **Hub Worldstate Temps Réel (6 Sous-Vues)**
-   - **Cycles Planétaires & Mises à prix** (Terre, Cetus, Vallée Orbis, Puy de Cambion, Zariman).
+3. **Hub Worldstate Temps Réel, Règles d’Alertes sur Mesure & Minuteurs**
+   - **Cycles Planétaires & Mises à prix** (Terre, Cetus, Vallée Orbis, Puy de Cambion, Zariman) + **Bandeau de Minuteurs épinglés** (jusqu’à 6 cycles/rotations visibles en permanence en Mode Compact ou Desktop).
+   - **Règles d’alertes Worldstate personnalisées (9 sources)** avec bouton de test sur le Worldstate actuel, anti-spam par occurrence et historique de session.
    - **Fissures du Néant** (Normales, Route de l’Acier, Tempêtes du Néant), **Sortie**, **Chasse à l’Archonte** & **Arbitrage** (enrichi des prix Platinum des Mods d’Essence Vitus).
    - **Invasions**, **Honneurs de la Route de l’Acier (Teshin)** & **Ondes Nocturnes**.
    - **Circuit de Duviri** (Warframes Normales + Adaptateurs Genesis Incarnon avec miniatures).
@@ -45,10 +46,11 @@
    - Aperçu direct des **ressources et composants de craft Fonderie** dans les cartes du Codex, tables de drop triées par **meilleure probabilité (`%`)** avec jauges visuelles colorées et passerelle bidirectionnelle **Codex ↔ Marché Platinum**.
    - **Infirmerie Helminth** : compétences subsumables par Warframe (filtre *★ Méta S-Tier*), **6 Sécrétions & Bile** et compétences natives.
 
-5. **Personnalisation Complète d’Affichage & 20 Thèmes**
+5. **Personnalisation Visuelle Avancée, Notifications & Animations**
    - **3 modes d’affichage** (*Grille Carrée*, *Grille Rectangulaire*, *Liste pleine largeur*) et **3 tailles de cartes (`S` / `M` / `L`)** avec images adaptatives sur l’ensemble des catalogues et outils, couplés au chargement progressif **« Afficher plus »** sans rechargement de page.
-   - **20 thèmes visuels intégrés** : *Sombre (Défaut)*, *Clair*, *Full Black OLED (`#000`)*, *Full White (`#FFF`)* et 16 déclinaisons chromatiques (*Bleu, Cyan, Vert, Jaune, Rouge, Orange, Violet, Rose*).
-   - Ouverture automatique de la fenêtre **« Notes de Patch »** au premier lancement suivant une mise à jour.
+   - **20 thèmes visuels intégrés** (*Sombre*, *Clair*, *Full Black OLED `#000`*, *Full White `#FFF`* + 16 déclinaisons chromatiques) **+ 76 couleurs prédéfinies indépendantes** (28 fonds & 48 accents) et sélecteur libre.
+   - **Notifications in-app empilées & Centre de notifications (`🔔`)** : 5 styles visuels, pause du minuteur au survol, fusion anti-spam et historique de session.
+   - **Animations fluides GPU désactivables** : sélecteur **Complètes / Réduites / Désactivées** dans les Paramètres + respect automatique du réglage Windows, et ouverture automatique des **« Notes de Patch »** après mise à jour.
 
 ---
 

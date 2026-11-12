@@ -28,10 +28,10 @@ export function WorldAlertsGrid(): React.JSX.Element {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm">
           <Globe className="h-4 w-4 text-primary" />
-          <span>Alertes Sonores d’Événements Warframe (11 Déclencheurs)</span>
+          <span>Alertes rapides (11 déclencheurs prédéfinis)</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <CardContent className="wf-stagger-grid grid grid-cols-1 gap-2 sm:grid-cols-2">
         {WORLD_ALERT_ITEMS.map((item) => (
           <label
             key={item.key}

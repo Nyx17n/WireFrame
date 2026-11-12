@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+/** Sous-vues du Hub Temps Réel (cible des boutons « Voir dans le Hub »). */
+export const HubSectionIdSchema = z.enum(['planets', 'fissures', 'invasions', 'duviri', 'baro', 'news'])
+export type HubSectionId = z.infer<typeof HubSectionIdSchema>
+
 export function toWfStatAssetUrl(rawUrl: string | null | undefined): string | null {
   if (!rawUrl) return null
   if (rawUrl.startsWith('wf-asset://')) return rawUrl

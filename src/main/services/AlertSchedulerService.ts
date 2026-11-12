@@ -1,11 +1,18 @@
 import { Notification } from 'electron'
 import { IPC_CHANNELS } from '@shared/ipc-channels'
 import type { PriceSniperRule, TriggeredAlertEvent } from '@shared/schemas/alerts.schema'
+import {
+  WORLD_RULE_PREVIEW_LIMIT,
+  type WorldAlertRule,
+  type WorldRulePreviewResult
+} from '@shared/schemas/world-rules.schema'
 import type { MarketApiService } from './MarketApiService'
 import type { StorageService } from './StorageService'
 import type { WindowOverlayService } from './WindowOverlayService'
 import type { WorldstateService } from './WorldstateService'
 import { evaluateWorldstateAlerts } from './worldstate-alerts-evaluator'
+import { AlertHistory } from './world-rules/alert-history'
+import { evaluateCustomWorldRules, matchWorldRule } from './world-rules/world-rule-engine'
 
 /**
  * Orchestrateur d'arrière-plan (Main Process) du Price Sniper & des Notifications OS.
@@ -16,6 +23,7 @@ export class AlertSchedulerService {
   private scanning = false
   private readonly notifiedOrderIds = new Set<string>()
   private readonly notifiedWorldKeys = new Set<string>()
+  private readonly history = new AlertHistory()
 
   constructor(
     private readonly marketApi: MarketApiService,
@@ -48,18 +56,22 @@ export class AlertSchedulerService {
     try {
       const settings = await this.storage.getSettings()
       const hasAnyWorldAlert = Object.values(settings.worldAlerts).some(Boolean)
+      const enabledRules = settings.worldRules.filter((r) => r.enabled)
 
-      if (hasAnyWorldAlert) {
+      if (hasAnyWorldAlert || enabledRules.length > 0) {
         try {
           const ws = await this.worldstateService.getCurrent(false)
-          const wsEvents = evaluateWorldstateAlerts(
-            ws,
-            settings.worldAlerts,
-            this.notifiedWorldKeys
-          )
-          for (const ev of wsEvents) {
-            triggered.push(ev)
-            this.emitAlertEvent(ev, settings.audio.nativeOsNotifications)
+          const osGlobal = settings.audio.nativeOsNotifications
+          if (hasAnyWorldAlert) {
+            for (const ev of evaluateWorldstateAlerts(ws, settings.worldAlerts, this.notifiedWorldKeys)) {
+              triggered.push(ev)
+              this.emitAlertEvent(ev, osGlobal)
+            }
+          }
+          const custom = evaluateCustomWorldRules(ws, enabledRules, this.notifiedWorldKeys, Date.now())
+          for (const { event, notifyOs } of custom) {
+            triggered.push(event)
+            this.emitAlertEvent(event, osGlobal && notifyOs)
           }
         } catch {
           // Non-fatal if worldstate is temporarily unreachable
@@ -138,7 +150,27 @@ export class AlertSchedulerService {
     return triggered
   }
 
+  public getHistory(): TriggeredAlertEvent[] {
+    return this.history.list()
+  }
+
+  public clearHistory(): void {
+    this.history.clear()
+  }
+
+  /** Dry-run of a rule against the cached Worldstate (no notification, no dedupe). */
+  public async previewWorldRule(rule: WorldAlertRule): Promise<WorldRulePreviewResult> {
+    try {
+      const ws = await this.worldstateService.getCurrent(false)
+      const matches = matchWorldRule(rule, ws, Date.now())
+      return { status: 'ok', total: matches.length, matches: matches.slice(0, WORLD_RULE_PREVIEW_LIMIT) }
+    } catch {
+      return { status: 'unavailable', message: 'Worldstate indisponible (API hors-ligne).' }
+    }
+  }
+
   public emitAlertEvent(eventPayload: TriggeredAlertEvent, sendOsNotification: boolean): void {
+    this.history.push(eventPayload)
     const win = this.windowService.getMainWindow()
     if (win && !win.isDestroyed()) {
       win.webContents.send(IPC_CHANNELS.ALERTS_ON_TRIGGERED, eventPayload)

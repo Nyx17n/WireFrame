@@ -1,8 +1,10 @@
 import { z } from 'zod'
+import { WORLD_RULES_MAX } from '../data/world-rule-options'
 import { PriceSniperRuleSchema, WorldAlertTogglesSchema } from './alerts.schema'
 import { TabsSessionSchema } from './navigation.schema'
 import { CartItemEntrySchema } from './tools.schema'
 import { WindowBoundsSchema } from './window.schema'
+import { WorldAlertRuleSchema } from './world-rules.schema'
 
 export const HexColorSchema = z
   .string()
@@ -57,6 +59,35 @@ export type CatalogLayoutMode = z.infer<typeof CatalogLayoutModeSchema>
 export const CatalogCardSizeSchema = z.enum(['sm', 'md', 'lg'])
 export type CatalogCardSize = z.infer<typeof CatalogCardSizeSchema>
 
+export const AnimationLevelSchema = z.enum(['full', 'reduced', 'off'])
+export type AnimationLevel = z.infer<typeof AnimationLevelSchema>
+
+export const CompactTimerKeySchema = z.enum([
+  'cetus',
+  'vallis',
+  'cambion',
+  'zariman',
+  'duviri',
+  'baro',
+  'arbitration',
+  'sortie',
+  'daily-reset'
+])
+export type CompactTimerKey = z.infer<typeof CompactTimerKeySchema>
+export const COMPACT_TIMERS_MAX_PINNED = 6
+
+export const CompactTimersSettingsSchema = z.object({
+  enabled: z.boolean().default(true),
+  showOnDesktop: z.boolean().default(false),
+  collapsed: z.boolean().default(false),
+  pinned: z
+    .array(CompactTimerKeySchema)
+    .max(COMPACT_TIMERS_MAX_PINNED)
+    .refine((keys) => new Set(keys).size === keys.length, 'Minuteur en double')
+    .default(['cetus', 'vallis', 'cambion', 'baro'])
+})
+export type CompactTimersSettings = z.infer<typeof CompactTimersSettingsSchema>
+
 export const UserSettingsSchema = z.object({
   appearance: z.object({
     preset: ThemePresetIdSchema.default('dark'),
@@ -64,8 +95,11 @@ export const UserSettingsSchema = z.object({
     secondaryColor: HexColorSchema.default('#26b9d1'),
     glowEnabled: z.boolean().default(true),
     startupAnimationEnabled: z.boolean().default(true),
+    animationLevel: AnimationLevelSchema.default('full'),
+    respectOsReducedMotion: z.boolean().default(true),
     catalogLayoutMode: CatalogLayoutModeSchema.default('rect'),
     catalogCardSize: CatalogCardSizeSchema.default('md'),
+    compactTimers: CompactTimersSettingsSchema.default({}),
     zoomPercent: z.number().int().min(50).max(200).default(100)
   }),
   audio: z.object({
@@ -74,7 +108,8 @@ export const UserSettingsSchema = z.object({
     volumePercent: z.number().int().min(0).max(100).default(80),
     repeatAlerts: z.boolean().default(true),
     scanIntervalSec: z.number().int().min(15).max(3600).default(30),
-    nativeOsNotifications: z.boolean().default(true)
+    nativeOsNotifications: z.boolean().default(true),
+    actionNotificationsEnabled: z.boolean().default(true)
   }),
   window: z.object({
     closeToTray: z.boolean().default(true),
@@ -99,6 +134,7 @@ export const UserSettingsSchema = z.object({
   cart: z.array(CartItemEntrySchema).max(50).default([]),
   priceAlerts: z.array(PriceSniperRuleSchema).max(40).default([]),
   worldAlerts: WorldAlertTogglesSchema.default({}),
+  worldRules: z.array(WorldAlertRuleSchema).max(WORLD_RULES_MAX, `${WORLD_RULES_MAX} règles maximum`).default([]),
   session: TabsSessionSchema.default({})
 })
 
@@ -116,6 +152,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = UserSettingsSchema.parse({
   cart: [],
   priceAlerts: [],
   worldAlerts: {},
+  worldRules: [],
   session: {}
 })
 
