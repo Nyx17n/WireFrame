@@ -38,11 +38,34 @@ export function BrowserTabPill({
   const isPageTransitioning = useTabsStore((s) => s.isPageTransitioning)
 
   const currentRoute = getTabCurrentRoute(tab)
+  const middlePressedRef = React.useRef(false)
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>): void => {
+    if (e.button === 1) {
+      // Bloque l'autoscroll natif Windows/Chromium sur les conteneurs overflow-x-auto
+      e.preventDefault()
+      e.stopPropagation()
+      middlePressedRef.current = true
+    }
+  }
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>): void => {
+    if (e.button === 1 && middlePressedRef.current) {
+      e.preventDefault()
+      e.stopPropagation()
+      middlePressedRef.current = false
+      closeTab(tab.id, true)
+    }
+  }
 
   const handleAuxClick = (e: React.MouseEvent<HTMLDivElement>): void => {
-    if (e.button === 1 && !tab.pinned) {
+    if (e.button === 1) {
       e.preventDefault()
-      closeTab(tab.id)
+      e.stopPropagation()
+      if (middlePressedRef.current) {
+        middlePressedRef.current = false
+        closeTab(tab.id, true)
+      }
     }
   }
 
@@ -54,8 +77,13 @@ export function BrowserTabPill({
       onDragOver={(e) => e.preventDefault()}
       onDrop={() => onDropOnTab(tab.id)}
       onClick={() => activateTab(tab.id)}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={() => {
+        middlePressedRef.current = false
+      }}
       onAuxClick={handleAuxClick}
-      title={`${tab.title}${tab.pinned ? ' (Épinglé)' : ' — Clic molette pour fermer'}`}
+      title={`${tab.title}${tab.pinned ? ' (Épinglé)' : ''} — Clic molette pour fermer`}
       className={cn(
         'wf-tab-pill group relative flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border px-2 text-xs transition-colors',
         isActive
