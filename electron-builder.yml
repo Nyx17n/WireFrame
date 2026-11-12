@@ -1,6 +1,6 @@
 appId: com.nyxo17.wireframe
 productName: WireFrame
-copyright: Copyright © 2026 Maxime (Nyxo_17)
+copyright: Copyright © 2026 Maxime (Nyxo17)
 
 directories:
   output: release
@@ -36,6 +36,6 @@ nsis:
 
 publish:
   provider: github
-  owner: bloxfruitthekingdom-create
+  owner: Nyx17n
   repo: WireFrame
   releaseType: release

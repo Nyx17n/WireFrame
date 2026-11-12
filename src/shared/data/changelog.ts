@@ -8,6 +8,16 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_RELEASES: readonly ChangelogRelease[] = [
   {
+    version: '2.3.2',
+    date: 'Novembre 2026',
+    titleFr: 'Alignement Identité Officielle GitHub Nyxo17 (Nyx17n)',
+    badgeFr: 'Maintenance v2.3.2',
+    highlightsFr: [
+      'Mise à jour du canal officiel auto-updater vers le dépôt GitHub définitif github.com/Nyx17n/WireFrame.',
+      'Uniformisation de la signature auteur Maxime (Nyxo17) dans les métadonnées et l’installateur NSIS.'
+    ]
+  },
+  {
     version: '2.3.1',
     date: 'Novembre 2026',
     titleFr: 'Hotfix Interface Paramètres — Hauteur Adaptative & Suppression du Vide',
@@ -73,7 +83,7 @@ export const CHANGELOG_RELEASES: readonly ChangelogRelease[] = [
     titleFr: 'Dernière édition Prototype Python / PyWebView de Maxime',
     badgeFr: 'Historique v1',
     highlightsFr: [
-      'Fondation fonctionnelle imaginée et conçue par Maxime (Nyxo_17) ayant servi de référence métier intégrale pour WireFrame v2.0.',
+      'Fondation fonctionnelle imaginée et conçue par Maxime (Nyxo17) ayant servi de référence métier intégrale pour WireFrame v2.0.',
       'Conservée intacte sur la branche protégée old-main.'
     ]
   }
