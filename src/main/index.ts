@@ -63,7 +63,12 @@ async function bootstrap(): Promise<void> {
   const setCalculator = new SetCalculatorService(marketApi)
   const cartBundler = new CartBundlerService(marketApi, storageService)
   const tradingTools = new TradingToolsService(httpClient, cacheService, storageService, marketApi)
-  const worldstateService = new WorldstateService(httpClient, cacheService, marketApi)
+  const worldstateService = new WorldstateService(
+    httpClient,
+    cacheService,
+    marketApi,
+    app.getPath('userData')
+  )
   const codexRepository = new CodexRepository(marketApi)
   const updaterService = new UpdaterService(windowService)
   const alertScheduler = new AlertSchedulerService(

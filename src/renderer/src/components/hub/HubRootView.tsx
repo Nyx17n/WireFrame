@@ -24,6 +24,13 @@ import { HubNewsDarvoTab } from './HubNewsDarvoTab'
 import { HubPlanetsBountiesTab } from './HubPlanetsBountiesTab'
 import { useNowTick } from './hub-countdown'
 
+function formatIpcErrorMessage(err: unknown): string {
+  if (!(err instanceof Error)) {
+    return 'Erreur de lecture du Worldstate Warframe.'
+  }
+  return err.message.replace(/^Error invoking remote method '[^']+':\s*(Error:\s*)?/i, '').trim()
+}
+
 export function HubRootView(): React.JSX.Element {
   const nowMs = useNowTick(1000)
   const refreshRevision = useTabsStore((s) => s.refreshRevision)
@@ -45,7 +52,7 @@ export function HubRootView(): React.JSX.Element {
       setData(payload)
     } catch (err) {
       if (!silent) {
-        setError(err instanceof Error ? err.message : 'Erreur de lecture du Worldstate Warframe')
+        setError(formatIpcErrorMessage(err))
       }
     } finally {
       setLoading(false)

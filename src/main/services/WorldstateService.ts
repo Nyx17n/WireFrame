@@ -19,7 +19,6 @@ import {
 import type { RateLimitedHttpClient } from '../infrastructure/http/RateLimitedHttpClient'
 import type { CacheService } from './CacheService'
 import type { MarketApiService } from './MarketApiService'
-import { RawWfStatResponseSchema } from './wfstat-raw.schemas'
 import {
   extractRewardLabel,
   findCatalogItemByLabel,
@@ -33,8 +32,7 @@ import {
   resolveRewardThumbnailUrl,
   translateMissionType
 } from './worldstate-mappers'
-
-const WFSTAT_URL = 'https://api.warframestat.us/pc/?language=fr'
+import { fetchResilientWfStatRaw, WorldstateSnapshotFallback } from './worldstate-upstream'
 
 function cheapestIngameSell(orders: MarketOrder[], maxRankZeroOnly = false): {
   platinum: number | null
@@ -56,11 +54,16 @@ function cheapestIngameSell(orders: MarketOrder[], maxRankZeroOnly = false): {
 }
 
 export class WorldstateService {
+  private readonly snapshotFallback: WorldstateSnapshotFallback
+
   constructor(
     private readonly http: RateLimitedHttpClient,
     private readonly cache: CacheService,
-    private readonly marketApi: MarketApiService
-  ) {}
+    private readonly marketApi: MarketApiService,
+    userDataPath?: string
+  ) {
+    this.snapshotFallback = new WorldstateSnapshotFallback(userDataPath)
+  }
 
   private async getCatalogLookup(): Promise<{
     bySlug: Map<string, MarketCatalogItem>
@@ -88,10 +91,21 @@ export class WorldstateService {
       if (cached) return cached
     }
 
-    const [raw, lookup] = await Promise.all([
-      this.http.getJson(WFSTAT_URL, RawWfStatResponseSchema, { bypassRateLimit: true }),
-      this.getCatalogLookup()
-    ])
+    let raw: Awaited<ReturnType<typeof fetchResilientWfStatRaw>>
+    let lookup: Awaited<ReturnType<typeof this.getCatalogLookup>>
+    try {
+      ;[raw, lookup] = await Promise.all([
+        fetchResilientWfStatRaw(this.http),
+        this.getCatalogLookup()
+      ])
+    } catch (upstreamError) {
+      const fallback = await this.snapshotFallback.loadLastGood()
+      if (fallback) {
+        this.cache.set(cacheKey, fallback, 20)
+        return fallback
+      }
+      throw upstreamError
+    }
 
     const now = Date.now()
     const vt = raw.voidTrader
@@ -277,6 +291,7 @@ export class WorldstateService {
     }
 
     this.cache.set(cacheKey, payload, 45)
+    this.snapshotFallback.recordSuccess(payload)
     return payload
   }
 
