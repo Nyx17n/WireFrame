@@ -8,7 +8,11 @@ const STEP_DELAYS_MS = [340, 290, 290, 290, 290, 320, 620] as const
 export function StartupSplashOverlay(): React.JSX.Element | null {
   const splashRunId = useAppStore((s) => s.splashRunId)
   const isBootLoading = useAppStore((s) => s.isLoading)
-  const startupEnabled = useAppStore((s) => s.settings.appearance.startupAnimationEnabled)
+  const startupEnabled = useAppStore(
+    (s) =>
+      s.settings.appearance.startupAnimationEnabled &&
+      s.settings.appearance.animationLevel !== 'off'
+  )
   const isCompactMode = useAppStore((s) => s.windowState.isCompactMode)
 
   const [visible, setVisible] = React.useState(true)

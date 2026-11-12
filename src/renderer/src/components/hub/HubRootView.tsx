@@ -168,39 +168,41 @@ export function HubRootView(): React.JSX.Element {
         </Button>
       </div>
 
-      {section === 'planets' && (
-        <HubPlanetsBountiesTab cycles={data.cycles} bounties={data.bounties} nowMs={nowMs} />
-      )}
-      {section === 'fissures' && (
-        <HubFissuresMissionsTab
-          fissures={data.fissures}
-          archonHunt={data.archonHunt}
-          sortie={data.sortie}
-          nowMs={nowMs}
-        />
-      )}
-      {section === 'invasions' && (
-        <HubInvasionsSteelTab
-          invasions={data.invasions}
-          steelPath={data.steelPath}
-          arbitration={data.arbitration}
-          alerts={data.alerts}
-          events={data.events}
-          nightwave={data.nightwave}
-          nowMs={nowMs}
-        />
-      )}
-      {section === 'duviri' && <HubDuviriCircuitTab circuit={data.duviriCircuit} nowMs={nowMs} />}
-      {section === 'baro' && <HubBaroTraderTab voidTrader={data.voidTrader} nowMs={nowMs} />}
-      {section === 'news' && (
-        <HubNewsDarvoTab
-          news={data.news}
-          globalBoosters={data.globalBoosters}
-          darvoDeals={data.darvoDeals}
-          primeResurgence={data.primeResurgence}
-          nowMs={nowMs}
-        />
-      )}
+      <div key={section} className="wf-view-enter">
+        {section === 'planets' && (
+          <HubPlanetsBountiesTab cycles={data.cycles} bounties={data.bounties} nowMs={nowMs} />
+        )}
+        {section === 'fissures' && (
+          <HubFissuresMissionsTab
+            fissures={data.fissures}
+            archonHunt={data.archonHunt}
+            sortie={data.sortie}
+            nowMs={nowMs}
+          />
+        )}
+        {section === 'invasions' && (
+          <HubInvasionsSteelTab
+            invasions={data.invasions}
+            steelPath={data.steelPath}
+            arbitration={data.arbitration}
+            alerts={data.alerts}
+            events={data.events}
+            nightwave={data.nightwave}
+            nowMs={nowMs}
+          />
+        )}
+        {section === 'duviri' && <HubDuviriCircuitTab circuit={data.duviriCircuit} nowMs={nowMs} />}
+        {section === 'baro' && <HubBaroTraderTab voidTrader={data.voidTrader} nowMs={nowMs} />}
+        {section === 'news' && (
+          <HubNewsDarvoTab
+            news={data.news}
+            globalBoosters={data.globalBoosters}
+            darvoDeals={data.darvoDeals}
+            primeResurgence={data.primeResurgence}
+            nowMs={nowMs}
+          />
+        )}
+      </div>
     </div>
   )
 }

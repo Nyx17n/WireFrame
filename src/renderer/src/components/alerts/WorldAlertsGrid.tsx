@@ -31,7 +31,7 @@ export function WorldAlertsGrid(): React.JSX.Element {
           <span>Alertes rapides (11 déclencheurs prédéfinis)</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <CardContent className="wf-stagger-grid grid grid-cols-1 gap-2 sm:grid-cols-2">
         {WORLD_ALERT_ITEMS.map((item) => (
           <label
             key={item.key}

@@ -90,7 +90,7 @@ export function HubFissuresMissionsTab({
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <div className="wf-stagger-grid grid grid-cols-1 gap-2 md:grid-cols-2">
             {filtered.map((f) => (
               <Card key={f.id} className="border-border/75">
                 <CardContent className="flex items-center justify-between gap-2 p-2.5 text-xs">

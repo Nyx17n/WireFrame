@@ -59,6 +59,9 @@ export type CatalogLayoutMode = z.infer<typeof CatalogLayoutModeSchema>
 export const CatalogCardSizeSchema = z.enum(['sm', 'md', 'lg'])
 export type CatalogCardSize = z.infer<typeof CatalogCardSizeSchema>
 
+export const AnimationLevelSchema = z.enum(['full', 'reduced', 'off'])
+export type AnimationLevel = z.infer<typeof AnimationLevelSchema>
+
 export const CompactTimerKeySchema = z.enum([
   'cetus',
   'vallis',
@@ -92,6 +95,8 @@ export const UserSettingsSchema = z.object({
     secondaryColor: HexColorSchema.default('#26b9d1'),
     glowEnabled: z.boolean().default(true),
     startupAnimationEnabled: z.boolean().default(true),
+    animationLevel: AnimationLevelSchema.default('full'),
+    respectOsReducedMotion: z.boolean().default(true),
     catalogLayoutMode: CatalogLayoutModeSchema.default('rect'),
     catalogCardSize: CatalogCardSizeSchema.default('md'),
     compactTimers: CompactTimersSettingsSchema.default({}),
@@ -103,7 +108,8 @@ export const UserSettingsSchema = z.object({
     volumePercent: z.number().int().min(0).max(100).default(80),
     repeatAlerts: z.boolean().default(true),
     scanIntervalSec: z.number().int().min(15).max(3600).default(30),
-    nativeOsNotifications: z.boolean().default(true)
+    nativeOsNotifications: z.boolean().default(true),
+    actionNotificationsEnabled: z.boolean().default(true)
   }),
   window: z.object({
     closeToTray: z.boolean().default(true),

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
-import type { AppRoute } from '@shared/schemas/navigation.schema'
+import { formatRouteUri, type AppRoute } from '@shared/schemas/navigation.schema'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertsCenterView } from '@/components/alerts/AlertsCenterView'
@@ -60,34 +60,46 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
       ? getTabCurrentRoute(activeTab)
       : { kind: 'market-home' }
 
-  switch (route.kind) {
-    case 'hub':
-      return <HubRootView />
-    case 'market-home':
-      return <MarketHomeView />
-    case 'market-catalog':
-      return <MarketCatalogView initialQuery={route.query ?? ''} />
-    case 'market-item':
-      return <MarketItemDetailView slug={route.slug ?? 'glaive_prime_set'} />
-    case 'market-cart':
-      return <MarketCartView />
-    case 'market-favorites':
-      return <MarketFavoritesView />
-    case 'market-ducats':
-      return <MarketDucatsView />
-    case 'market-rivens':
-      return <MarketRivensView />
-    case 'market-recent':
-      return <MarketRecentOrdersView />
-    case 'market-user':
-      return <MarketUserProfileView userSlug={route.slug ?? 'nyxo_17'} />
-    case 'alerts':
-      return <AlertsCenterView />
-    case 'codex-home':
-      return <CodexHomeView initialCategory={route.category} initialQuery={route.query} />
-    case 'codex-detail':
-      return <CodexDetailView categoryRaw={route.category} id={route.slug ?? 'wisp'} />
-    case 'browser-history':
-      return <BrowserHistoryView />
+  const viewKey = hubActive
+    ? 'hub'
+    : `${activeTab?.id ?? 'default'}:${formatRouteUri(route)}`
+
+  const renderRouteContent = (): React.JSX.Element => {
+    switch (route.kind) {
+      case 'hub':
+        return <HubRootView />
+      case 'market-home':
+        return <MarketHomeView />
+      case 'market-catalog':
+        return <MarketCatalogView initialQuery={route.query ?? ''} />
+      case 'market-item':
+        return <MarketItemDetailView slug={route.slug ?? 'glaive_prime_set'} />
+      case 'market-cart':
+        return <MarketCartView />
+      case 'market-favorites':
+        return <MarketFavoritesView />
+      case 'market-ducats':
+        return <MarketDucatsView />
+      case 'market-rivens':
+        return <MarketRivensView />
+      case 'market-recent':
+        return <MarketRecentOrdersView />
+      case 'market-user':
+        return <MarketUserProfileView userSlug={route.slug ?? 'nyxo_17'} />
+      case 'alerts':
+        return <AlertsCenterView />
+      case 'codex-home':
+        return <CodexHomeView initialCategory={route.category} initialQuery={route.query} />
+      case 'codex-detail':
+        return <CodexDetailView categoryRaw={route.category} id={route.slug ?? 'wisp'} />
+      case 'browser-history':
+        return <BrowserHistoryView />
+    }
   }
+
+  return (
+    <div key={viewKey} className="wf-view-enter">
+      {renderRouteContent()}
+    </div>
+  )
 }

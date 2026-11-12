@@ -1,18 +1,13 @@
 import * as React from 'react'
-import { Play, Sparkles, ZoomIn, ZoomOut } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
 import { ColorSwatchPicker } from '@/components/settings/ColorSwatchPicker'
+import { MotionSettingsSection } from '@/components/settings/MotionSettingsSection'
 import { ACCENT_SWATCH_GROUPS, BACKGROUND_SWATCH_GROUPS } from '@/lib/color-swatches'
 import { THEME_PRESETS } from '@/lib/theme-engine'
 import { useAppStore } from '@/stores/useAppStore'
 
 export function AppearanceSettingsTab(): React.JSX.Element {
   const appearance = useAppStore((s) => s.settings.appearance)
-  const windowState = useAppStore((s) => s.windowState)
   const updateSettings = useAppStore((s) => s.updateSettings)
-  const setWindowZoom = useAppStore((s) => s.setWindowZoom)
-  const replayStartupAnimation = useAppStore((s) => s.replayStartupAnimation)
 
   const activePreset = THEME_PRESETS.find((p) => p.id === appearance.preset)
 
@@ -38,7 +33,7 @@ export function AppearanceSettingsTab(): React.JSX.Element {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="wf-stagger-grid grid grid-cols-2 gap-2 sm:grid-cols-4">
         {THEME_PRESETS.map((preset) => {
           const active = appearance.preset === preset.id
           return (
@@ -61,7 +56,7 @@ export function AppearanceSettingsTab(): React.JSX.Element {
                     }
                   : undefined
               }
-              className={`group flex flex-col items-center justify-center gap-0.5 rounded-lg border px-2.5 py-2.5 text-center transition-all ${
+              className={`wf-card-lift group flex flex-col items-center justify-center gap-0.5 rounded-lg border px-2.5 py-2.5 text-center transition-all ${
                 active
                   ? 'border-primary bg-primary/10'
                   : 'border-border/80 bg-card/60 hover:border-primary/45 hover:bg-secondary/40'
@@ -93,7 +88,8 @@ export function AppearanceSettingsTab(): React.JSX.Element {
           <span>Couleurs personnalisées</span>
         </h3>
         <p className="text-xs text-muted-foreground">
-          Choisis une couleur prédéfinie (ou libre) pour le fond et pour les accents, indépendamment l’une de l’autre.
+          Choisis une couleur prédéfinie (ou libre) pour le fond et pour les accents,
+          indépendamment l’une de l’autre.
         </p>
       </div>
 
@@ -102,72 +98,21 @@ export function AppearanceSettingsTab(): React.JSX.Element {
           title="Couleur Principale (Fonds)"
           value={appearance.primaryColor}
           groups={BACKGROUND_SWATCH_GROUPS}
-          onChange={(hex) => void updateSettings({ appearance: { preset: 'custom', primaryColor: hex } })}
+          onChange={(hex) =>
+            void updateSettings({ appearance: { preset: 'custom', primaryColor: hex } })
+          }
         />
         <ColorSwatchPicker
           title="Couleur Secondaire (Accents)"
           value={appearance.secondaryColor}
           groups={ACCENT_SWATCH_GROUPS}
-          onChange={(hex) => void updateSettings({ appearance: { preset: 'custom', secondaryColor: hex } })}
+          onChange={(hex) =>
+            void updateSettings({ appearance: { preset: 'custom', secondaryColor: hex } })
+          }
         />
       </div>
 
-      <div className="space-y-3 rounded-md border border-border bg-background/50 p-3">
-        <label className="flex cursor-pointer items-center justify-between text-xs">
-          <span className="flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span>Effet de lueur subtile sur les cartes (Glow)</span>
-          </span>
-          <Switch
-            checked={appearance.glowEnabled}
-            onCheckedChange={(checked) =>
-              void updateSettings({ appearance: { glowEnabled: checked } })
-            }
-          />
-        </label>
-
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span className="flex items-center gap-2">
-            <Play className="h-3.5 w-3.5 text-primary" />
-            <span>Animation d’ouverture « Wire » au lancement</span>
-          </span>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={replayStartupAnimation}>
-              <Play className="h-3 w-3 text-primary" />
-              <span>Rejouer</span>
-            </Button>
-            <Switch
-              checked={appearance.startupAnimationEnabled}
-              onCheckedChange={(checked) =>
-                void updateSettings({ appearance: { startupAnimationEnabled: checked } })
-              }
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between text-xs">
-          <span>Zoom d’interface natif ({windowState.zoomPercent} %)</span>
-          <div className="flex items-center gap-1.5">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => void setWindowZoom(windowState.zoomPercent - 10)}
-            >
-              <ZoomOut className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => void setWindowZoom(100)}>
-              100 %
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => void setWindowZoom(windowState.zoomPercent + 10)}
-            >
-              <ZoomIn className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <MotionSettingsSection />
     </div>
   )
 }

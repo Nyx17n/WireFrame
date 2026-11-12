@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAppStore } from '@/stores/useAppStore'
+import { notify } from '@/stores/useNotificationStore'
 import { WorldRuleEditorDialog } from './WorldRuleEditorDialog'
 import { WorldRuleRow } from './WorldRuleRow'
 
@@ -26,11 +27,23 @@ export function WorldRulesPanel(): React.JSX.Element {
   const handleSave = async (rule: WorldAlertRule): Promise<void> => {
     const exists = rules.some((r) => r.id === rule.id)
     await persist(exists ? rules.map((r) => (r.id === rule.id ? rule : r)) : [...rules, rule])
+    notify({
+      kind: 'success',
+      title: exists ? 'Règle Worldstate modifiée' : 'Règle Worldstate créée',
+      message: rule.name
+    })
     setEditor(null)
   }
 
   const handleDuplicate = (rule: WorldAlertRule): void => {
-    if (isFull) return
+    if (isFull) {
+      notify({
+        kind: 'warning',
+        title: `Limite de ${WORLD_RULES_MAX} règles atteinte`,
+        message: 'Supprime une règle avant d’en dupliquer une autre.'
+      })
+      return
+    }
     const suffix = ' (copie)'
     const copy: WorldAlertRule = {
       ...rule,
@@ -38,6 +51,7 @@ export function WorldRulesPanel(): React.JSX.Element {
       name: `${rule.name.slice(0, WORLD_RULE_TEXT_MAX - suffix.length)}${suffix}`
     }
     void persist([...rules, copy])
+    notify({ kind: 'success', title: 'Règle dupliquée', message: copy.name })
   }
 
   return (
@@ -76,7 +90,10 @@ export function WorldRulesPanel(): React.JSX.Element {
               onToggle={(enabled) => void persist(rules.map((r) => (r.id === rule.id ? { ...r, enabled } : r)))}
               onEdit={() => setEditor({ key: Date.now(), rule })}
               onDuplicate={() => handleDuplicate(rule)}
-              onDelete={() => void persist(rules.filter((r) => r.id !== rule.id))}
+              onDelete={() => {
+                void persist(rules.filter((r) => r.id !== rule.id))
+                notify({ kind: 'info', title: 'Règle Worldstate supprimée', message: rule.name })
+              }}
             />
           ))
         )}

@@ -81,11 +81,13 @@ export function SettingsModal(): React.JSX.Element {
           </nav>
 
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
-            {activeTab === 'appearance' && <AppearanceSettingsTab />}
-            {activeTab === 'audio' && <AudioAlertsSettingsTab />}
-            {activeTab === 'window' && <WindowShortcutsSettingsTab />}
-            {activeTab === 'market' && <MarketTradingSettingsTab />}
-            {activeTab === 'system' && <SystemDataSettingsTab />}
+            <div key={activeTab} className="wf-view-enter">
+              {activeTab === 'appearance' && <AppearanceSettingsTab />}
+              {activeTab === 'audio' && <AudioAlertsSettingsTab />}
+              {activeTab === 'window' && <WindowShortcutsSettingsTab />}
+              {activeTab === 'market' && <MarketTradingSettingsTab />}
+              {activeTab === 'system' && <SystemDataSettingsTab />}
+            </div>
           </div>
         </div>
       </DialogContent>

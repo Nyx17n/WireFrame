@@ -193,7 +193,7 @@ export function OmniboxDialog(): React.JSX.Element {
           </div>
         )}
 
-        <div className="max-h-72 space-y-1 overflow-y-auto pr-1">
+        <div className="wf-stagger-grid max-h-72 space-y-1 overflow-y-auto pr-1">
           {matches.map((entry) => (
             <div
               key={`${entry.route.kind}-${entry.keywords}-${entry.label}`}

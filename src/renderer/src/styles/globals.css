@@ -140,4 +140,241 @@ body.glow-enabled .wf-glow-surface {
   animation: wf-page-loader-fade 300ms ease-out forwards;
 }
 
+/* ============================================================================
+   Module 8 — Système Global d'Animations GPU (Complètes / Réduites / Désactivées)
+   Piloté par <html data-motion="full | reduced | off">
+   ============================================================================ */
+
+@keyframes wf-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wf-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes wf-fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes wf-card-cascade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 7px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes wf-dialog-pop-in {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, -48%, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0) scale(1);
+  }
+}
+
+@keyframes wf-popover-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wf-toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translate3d(24px, 0, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes wf-toast-slide-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(28px, 0, 0) scale(0.98);
+  }
+}
+
+@keyframes wf-tab-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 1. Changement de page / d'onglet / sous-vue */
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-view-enter {
+  animation: wf-fade-slide-up 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+html[data-motion='reduced'] .wf-view-enter {
+  animation: wf-fade-in 120ms ease-out both;
+}
+
+/* 2. Apparition des cartes et listes en cascade (plafonnée aux 12 premiers éléments) */
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > * {
+  animation: wf-card-cascade 190ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(2) { animation-delay: 25ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(3) { animation-delay: 50ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(4) { animation-delay: 75ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(5) { animation-delay: 100ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(6) { animation-delay: 125ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(7) { animation-delay: 150ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(8) { animation-delay: 175ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(9) { animation-delay: 200ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(10) { animation-delay: 225ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(11) { animation-delay: 250ms; }
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-stagger-grid > *:nth-child(12) { animation-delay: 275ms; }
+
+html[data-motion='reduced'] .wf-stagger-grid {
+  animation: wf-fade-in 120ms ease-out both;
+}
+
+/* 3. Micro-interactions (boutons & cartes cliquables) */
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-interactive-btn {
+  transition:
+    transform 120ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-interactive-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-card-lift {
+  transition:
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-card-lift:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+/* 4. Fenêtres, menus & popovers */
+html:not([data-motion='off']) .wf-overlay-motion[data-state='open'] {
+  animation: wf-fade-in 150ms ease-out both;
+}
+
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-dialog-motion[data-state='open'] {
+  animation: wf-dialog-pop-in 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+html[data-motion='reduced'] .wf-dialog-motion[data-state='open'] {
+  animation: wf-fade-in 115ms ease-out both;
+}
+
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-popover-motion[data-state='open'] {
+  animation: wf-popover-pop-in 150ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+html[data-motion='reduced'] .wf-popover-motion[data-state='open'] {
+  animation: wf-fade-in 110ms ease-out both;
+}
+
+/* 5. Notifications (toasts entrée / sortie) */
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-toast-enter {
+  animation: wf-toast-slide-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-toast-exit {
+  animation: wf-toast-slide-out 170ms ease-in forwards;
+}
+
+html[data-motion='reduced'] .wf-toast-enter {
+  animation: wf-fade-in 120ms ease-out both;
+}
+
+html[data-motion='reduced'] .wf-toast-exit {
+  animation: wf-fade-out 110ms ease-in forwards;
+}
+
+/* 6. Barre d'onglets & barre de raccourcis */
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-tab-pill {
+  animation: wf-tab-appear 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wf-bookmark-link {
+  position: relative;
+}
+
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-bookmark-link::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 1px;
+  height: 1.5px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-bookmark-link:hover::after,
+html:not([data-motion='reduced']):not([data-motion='off']) .wf-bookmark-link[data-active='true']::after {
+  transform: scaleX(1);
+}
+
+/* Niveau Désactivées : coupe 100 % des animations et transitions SAUF les spinners de chargement */
+html[data-motion='off'] *,
+html[data-motion='off'] *::before,
+html[data-motion='off'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-motion='off'] .animate-spin {
+  animation: spin 1s linear infinite !important;
+}
+
 

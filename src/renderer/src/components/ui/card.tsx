@@ -7,6 +7,7 @@ export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
       ref={ref}
       className={cn(
         'wf-glow-surface rounded-lg border border-border bg-card text-card-foreground shadow-sm transition-shadow',
+        props.onClick && 'wf-card-lift',
         className
       )}
       {...props}

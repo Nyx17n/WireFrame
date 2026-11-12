@@ -1,4 +1,4 @@
-import type { ThemePresetId, UserSettings } from '@shared/schemas/settings.schema'
+import type { AnimationLevel, ThemePresetId, UserSettings } from '@shared/schemas/settings.schema'
 
 export interface ThemePresetDefinition {
   id: Exclude<ThemePresetId, 'custom'>
@@ -223,6 +223,34 @@ function clamp(val: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, val))
 }
 
+export function isOsReducedMotionPreferred(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+export function resolveEffectiveMotion(
+  appearance: Pick<UserSettings['appearance'], 'animationLevel' | 'respectOsReducedMotion'>
+): AnimationLevel {
+  const level: AnimationLevel = appearance.animationLevel ?? 'full'
+  if (level === 'off') return 'off'
+  if (level === 'reduced') return 'reduced'
+  if (appearance.respectOsReducedMotion !== false && isOsReducedMotionPreferred()) {
+    return 'reduced'
+  }
+  return 'full'
+}
+
+export function subscribeOsReducedMotion(onChange: () => void): () => void {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return () => undefined
+  }
+  const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
+  mql.addEventListener('change', onChange)
+  return () => mql.removeEventListener('change', onChange)
+}
+
 /**
  * Applies the user's dual-color theme (Primary surface + Secondary accent) onto
  * shadcn/ui root CSS variables while guaranteeing accessible text contrast,
@@ -240,6 +268,7 @@ export function applyThemeToDocument(appearance: UserSettings['appearance']): vo
 
   const root = document.documentElement
   root.classList.toggle('dark', !isLightTheme)
+  root.dataset.motion = resolveEffectiveMotion(appearance)
   document.body.classList.toggle('glow-enabled', appearance.glowEnabled)
 
   const fg = isLightTheme ? '222 47% 11%' : '210 40% 96%'

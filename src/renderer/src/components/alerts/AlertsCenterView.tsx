@@ -82,14 +82,16 @@ export function AlertsCenterView(): React.JSX.Element {
         })}
       </div>
 
-      {tab === 'sniper' && <PriceSniperPanel />}
-      {tab === 'worldstate' && (
-        <div className="space-y-4">
-          <WorldAlertsGrid />
-          <WorldRulesPanel />
-        </div>
-      )}
-      {tab === 'history' && <AlertHistoryPanel />}
+      <div key={tab} className="wf-view-enter">
+        {tab === 'sniper' && <PriceSniperPanel />}
+        {tab === 'worldstate' && (
+          <div className="space-y-4">
+            <WorldAlertsGrid />
+            <WorldRulesPanel />
+          </div>
+        )}
+        {tab === 'history' && <AlertHistoryPanel />}
+      </div>
     </div>
   )
 }
