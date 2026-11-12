@@ -1,18 +1,18 @@
 import * as React from 'react'
-import { BookOpen, ChevronDown, Dna, Loader2, Package, Plus, Search, Sparkles } from 'lucide-react'
+import { BookOpen, ChevronDown, Dna, Loader2, Search } from 'lucide-react'
 import type {
   CodexCategory,
   CodexSearchResult,
   CodexVariantFilter
 } from '@shared/schemas/codex.schema'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { SafeAssetImage } from '@/components/ui/safe-asset-image'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
+import { CodexItemsDisplay } from '@/components/codex/CodexItemsDisplay'
 import { HelminthInfirmarySection } from '@/components/codex/HelminthInfirmarySection'
 import { ipcClient } from '@/services/ipc-client'
+import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 type CodexTabMode = CodexCategory | 'helminth'
@@ -44,6 +44,8 @@ export function CodexHomeView({
 }): React.JSX.Element {
   const navigateActive = useTabsStore((s) => s.navigateActive)
   const openTab = useTabsStore((s) => s.openTab)
+  const layoutMode = useAppStore((s) => s.settings.appearance.catalogLayoutMode)
+  const updateSettings = useAppStore((s) => s.updateSettings)
 
   const [activeTab, setActiveTab] = React.useState<CodexTabMode>(() =>
     initialCategory === 'helminth'
@@ -120,10 +122,7 @@ export function CodexHomeView({
           if (!prev) return res
           const existingIds = new Set(prev.items.map((it) => it.id))
           const appended = res.items.filter((it) => !existingIds.has(it.id))
-          return {
-            ...res,
-            items: [...prev.items, ...appended]
-          }
+          return { ...res, items: [...prev.items, ...appended] }
         })
         setIsLoadingMore(false)
       })
@@ -252,93 +251,30 @@ export function CodexHomeView({
                 ))}
               </div>
             )}
+
+            <div className="ml-auto">
+              <ViewModeToggle
+                value={layoutMode}
+                onChange={(nextMode) =>
+                  void updateSettings({ appearance: { catalogLayoutMode: nextMode } })
+                }
+              />
+            </div>
           </div>
 
           {errorMsg && (
             <Card className="border-destructive/50 p-4 text-xs text-destructive">{errorMsg}</Card>
           )}
 
-          {isLoading ? (
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 12 }).map((_, idx) => (
-                <Skeleton key={idx} className="h-20 w-full rounded-lg" />
-              ))}
-            </div>
-          ) : result && result.items.length === 0 ? (
-            <Card className="p-8 text-center text-xs text-muted-foreground">
-              Aucune entrée trouvée dans cette catégorie pour ces filtres.
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-              {result?.items.map((card) => {
-                const route = {
-                  kind: 'codex-detail' as const,
-                  category: card.category,
-                  slug: card.id
-                }
-                return (
-                  <Card
-                    key={`${card.category}-${card.id}`}
-                    onClick={(e) =>
-                      e.ctrlKey || e.metaKey
-                        ? openTab(route, { title: `Codex : ${card.nameFr}` })
-                        : navigateActive(route, `Codex : ${card.nameFr}`)
-                    }
-                    className="group flex cursor-pointer items-center justify-between gap-3 p-2.5 transition-colors hover:border-primary/50 hover:bg-secondary/40"
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <SafeAssetImage
-                        src={card.imageUrl}
-                        alt={card.nameFr}
-                        className="h-12 w-12 shrink-0 rounded-md border border-border/60 bg-background/70 object-contain p-1"
-                        fallback={
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-border/60 bg-background/70">
-                            <Package className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                        }
-                      />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="truncate text-xs font-semibold text-foreground">
-                            {card.nameFr}
-                          </span>
-                          {card.isPrime && (
-                            <Sparkles className="h-3 w-3 shrink-0 text-amber-400" />
-                          )}
-                        </div>
-                        {card.nameEn !== card.nameFr && (
-                          <div className="truncate text-[10px] text-muted-foreground">
-                            {card.nameEn}
-                          </div>
-                        )}
-                        <div className="mt-0.5 truncate text-[11px] text-primary/90">
-                          {card.subtitle}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 flex-col items-end gap-1">
-                      <Badge variant="secondary" className="text-[10px]">
-                        {card.badgeText}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                        title="Ouvrir dans un nouvel onglet"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          openTab(route, { title: `Codex : ${card.nameFr}` })
-                        }}
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </Card>
-                )
-              })}
-            </div>
-          )}
+          <CodexItemsDisplay
+            items={result?.items ?? []}
+            isLoading={isLoading}
+            layoutMode={layoutMode}
+            onSelectCard={(route, title, inNewTab) =>
+              inNewTab ? openTab(route, { title }) : navigateActive(route, title)
+            }
+            onOpenNewTab={(route, title) => openTab(route, { title })}
+          />
 
           {result && result.items.length > 0 && (
             <div className="flex flex-col items-center gap-2 pt-3 text-xs text-muted-foreground">
