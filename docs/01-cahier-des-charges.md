@@ -358,6 +358,46 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 - Persistance sur disque de l'historique des notifications entre deux sessions.
 - Personnalisation individuelle des durées par type de toast ou positionnement libre aux 4 coins.
 
+### Module 9 — Dégradés de Fond d'Écran de l'Application (`Paramètres → Apparence & Thèmes`)
+
+**Objectif joueur** : permettre de personnaliser l'atmosphère visuelle globale de WireFrame avec des **dégradés de fond d'écran Sci-Fi élégants** (compatibles avec les 20 thèmes bicolores prédéfinis, le mode `Full Black` OLED, les thèmes clairs et les couleurs libres), tout en préservant une lisibilité irréprochable des prix Platinum, minuteries Worldstate et fiches Codex en Desktop (`1440×900`) comme en Mode Compact (`460×660`).
+
+#### 9.A — Galerie des 8 Styles de Dégradés (`BackgroundGradientStyle`)
+
+Accessible directement dans `Paramètres → Apparence & Thèmes` sous la section **« 🌈 Dégradé de Fond d'Écran »** :
+1. `none` — **Uni (Aucun dégradé)** : fond plat classique du thème actif.
+2. `aurora-top` — **Halo Boréal Supérieur** : lueur radiale diffuse tombant depuis le sommet de la fenêtre (effet verrière d'Orbiteur).
+3. `diagonal` — **Diagonale Dynamique** : dégradé linéaire incliné traversant l'application du coin supérieur gauche vers le coin inférieur droit (angle ajustable).
+4. `dual-corners` — **Double Énergie (Coins opposés)** : deux halos radiaux complémentaires placés en haut à gauche et en bas à droite.
+5. `radial-center` — **Noyau du Néant (Radial centré)** : lueur centrale douce derrière l'espace de travail avec vignettage naturel en périphérie.
+6. `horizon-bottom` — **Horizon Planétaire (Bas → Haut)** : halo montant depuis la barre d'état inférieure vers le centre de l'écran.
+7. `mesh-nebula` — **Nébuleuse Mesh (Multi-points)** : composition organique à 3 sources lumineuses asymétriques (esprit Empyréen / Railjack).
+8. `vertical-split` — **Zénith Linéaire** : transition linéaire douce sur l'axe vertical (ou selon l'angle choisi).
+
+#### 9.B — Personnalisation Fine (Couleur Auto vs Dédiée, Intensité & Angle)
+
+1. **Mode de couleur du dégradé (`colorMode: 'theme-accent' | 'custom'`)** :
+   - **`Auto (Accent du thème)`** *(défaut)* : utilise automatiquement la couleur secondaire d'accent du thème actif (`secondaryColor`, ex. Cyan `#26b9d1`, Or Orokin `#eab308`, Violet Lotus `#a855f7`). Changer de thème met instantanément le dégradé en harmonie.
+   - **`Couleur dédiée personnalisée`** : active deux sélecteurs `ColorSwatchPicker` (ou teinte principale + teinte secondaire de dégradé `customPrimaryHex` / `customSecondaryHex`) permettant par exemple d'avoir des boutons Cyan sur un fond en dégradé Violet/Bleu Nuit !
+2. **Curseur d'Intensité (`intensityPercent` : `5 %` à `65 %`, défaut `26 %`)** :
+   - Contrôle l'opacité du calque de dégradé arrière-plan en temps réel, plafonné à `65 %` pour garantir un contraste WCAG lisible sur les tableaux et textes en thème sombre comme en thème clair.
+3. **Curseur d'Angle (`angleDeg` : `0°` à `360°`, pas de `15°`, défaut `135°`)** :
+   - Actif pour les styles orientables (`diagonal`, `vertical-split`) avec boutons d'angles rapides (`45°`, `90°`, `135°`, `180°`, `225°`, `315°`).
+4. **Aperçu visuel en direct sur chaque vignette de style + Bouton `Réinitialiser le dégradé`**.
+
+#### 9.C — Architecture CSS, Contrats `zod` & Zéro Coût GPU
+
+- **Rendu CSS pur sans `canvas` ni boucle JS** :
+  - `applyThemeToDocument()` dans `src/renderer/src/lib/theme-engine.ts` calcule la valeur CSS sécurisée `--wf-app-gradient` à partir de chaînes HSL/RGB contrôlées (aucune concaténation arbitraire non validée) et l'applique sur un calque d'arrière-plan fixe `pointer-events-none` dans `App.tsx`, tandis que les surfaces `card` / barres conservent un léger voile translucide (`backdrop` / alpha contrôlé) laissant transparaître subtilement le dégradé.
+- **Contrat `zod` dans `src/shared/schemas/settings.schema.ts` (`appearance.backgroundGradient`)** :
+  - `style: BackgroundGradientStyleSchema.default('none')`
+  - `colorMode: z.enum(['theme-accent', 'custom']).default('theme-accent')`
+  - `customColorHex: HexColorSchema.default('#7c3aed')`
+  - `customSecondaryHex: HexColorSchema.default('#06b6d4')`
+  - `intensityPercent: z.number().int().min(5).max(65).default(26)`
+  - `angleDeg: z.number().int().min(0).max(360).default(135)`
+- **Aucun nouveau canal IPC requis** : persistance atomique via `settings:update` existant (`StorageService.updateSettings` fusionnant `appearance.backgroundGradient`).
+
 ---
 
 ## 4. Architecture Technique, Contrats IPC & Sécurité
@@ -454,6 +494,7 @@ Avant tout développement, nous allons produire et valider ensemble **7 planches
 7. `07-settings-system-complete.excalidraw` : **Système complet des Paramètres** (Modale `shadcn Dialog` structurée avec barre latérale en 5 catégories : *1. Apparence & Thèmes Bicolores*, *2. Audio & Notifications*, *3. Fenêtre, System Tray & Raccourcis Globaux éditables*, *4. Marché & Échanges*, *5. Mises à jour SHA-512, Export/Import JSON & Cache* + adaptation en `Sheet` plein écran pour le Mode Compact `460×660`).
 8. `09-hub-alerts-compact-timers.excalidraw` *(Module 7 — validé)* : liste des règles Worldstate + formulaire en 3 étapes avec aperçu en direct, historique des alertes, toast enrichi, et bandeau Minuteurs en Mode Compact avec ses 4 états UI.
 9. `10-notifications-animations.excalidraw` *(Module 8 — validé)* : pile de notifications en bas à droite au-dessus du bouton Discord (5 types, compteur « +N », pause au survol), Centre de notifications sous 🔔 (Desktop `1440×900` & Compact `460×660`, 4 états UI), réglages Apparence / Audio (3 niveaux d'animations + bouton « Tester une notification »), et storyboard des 6 catégories d'animations (*Complètes* vs *Réduites* vs *Désactivées*).
+10. `11-background-gradients.excalidraw` *(Module 9 — à valider)* : section « 🌈 Dégradé de Fond d'Écran » dans `Paramètres → Apparence & Thèmes` (galerie des 8 styles avec miniatures en direct, bascule `Auto (Accent du thème)` vs `Couleur dédiée`, curseurs d'Intensité `5–65 %` et d'Angle `0–360°`), rendu réel sur la fenêtre Desktop `1440×900` et le Mode Compact `460×660`, plus les 4 états UI obligatoires.
 
 ---
 

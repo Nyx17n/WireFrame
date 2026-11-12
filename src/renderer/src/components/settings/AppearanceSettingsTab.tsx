@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { BackgroundGradientSection } from '@/components/settings/BackgroundGradientSection'
 import { ColorSwatchPicker } from '@/components/settings/ColorSwatchPicker'
 import { MotionSettingsSection } from '@/components/settings/MotionSettingsSection'
 import { ACCENT_SWATCH_GROUPS, BACKGROUND_SWATCH_GROUPS } from '@/lib/color-swatches'
@@ -111,6 +112,8 @@ export function AppearanceSettingsTab(): React.JSX.Element {
           }
         />
       </div>
+
+      <BackgroundGradientSection />
 
       <MotionSettingsSection />
     </div>

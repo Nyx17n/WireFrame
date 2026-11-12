@@ -7,7 +7,7 @@
 
 > Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron 35 · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
-**WireFrame v2** (`v2.5.4`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés) et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
+**WireFrame v2** (`v2.6.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés) et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
 
 ---
 
@@ -48,7 +48,7 @@
 
 5. **Personnalisation Visuelle Avancée, Notifications & Animations**
    - **3 modes d’affichage** (*Grille Carrée*, *Grille Rectangulaire*, *Liste pleine largeur*) et **3 tailles de cartes (`S` / `M` / `L`)** avec images adaptatives sur l’ensemble des catalogues et outils, couplés au chargement progressif **« Afficher plus »** sans rechargement de page.
-   - **20 thèmes visuels intégrés** (*Sombre*, *Clair*, *Full Black OLED `#000`*, *Full White `#FFF`* + 16 déclinaisons chromatiques) **+ 76 couleurs prédéfinies indépendantes** (28 fonds & 48 accents) et sélecteur libre.
+   - **20 thèmes visuels intégrés** (*Sombre*, *Clair*, *Full Black OLED `#000`*, *Full White `#FFF`* + 16 déclinaisons chromatiques) **+ 8 styles de dégradés de fond d’écran Sci-Fi** (intensité, angle et teintes personnalisables) **+ 76 couleurs prédéfinies indépendantes** (28 fonds & 48 accents).
    - **Notifications in-app empilées & Centre de notifications (`🔔`)** : 5 styles visuels, pause du minuteur au survol, fusion anti-spam et historique de session.
    - **Animations fluides GPU désactivables** : sélecteur **Complètes / Réduites / Désactivées** dans les Paramètres + respect automatique du réglage Windows, et ouverture automatique des **« Notes de Patch »** après mise à jour.
 

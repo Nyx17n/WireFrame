@@ -63,6 +63,34 @@ export type CatalogCardSize = z.infer<typeof CatalogCardSizeSchema>
 export const AnimationLevelSchema = z.enum(['full', 'reduced', 'off'])
 export type AnimationLevel = z.infer<typeof AnimationLevelSchema>
 
+export const BackgroundGradientStyleSchema = z.enum([
+  'none',
+  'aurora-top',
+  'diagonal',
+  'dual-corners',
+  'radial-center',
+  'horizon-bottom',
+  'mesh-nebula',
+  'vertical-split'
+])
+export type BackgroundGradientStyle = z.infer<typeof BackgroundGradientStyleSchema>
+
+export const BackgroundGradientColorModeSchema = z.enum(['theme-accent', 'custom'])
+export type BackgroundGradientColorMode = z.infer<typeof BackgroundGradientColorModeSchema>
+
+export const BackgroundGradientSettingsSchema = z.object({
+  style: BackgroundGradientStyleSchema.default('none'),
+  colorMode: BackgroundGradientColorModeSchema.default('theme-accent'),
+  customColorHex: HexColorSchema.default('#7c3aed'),
+  customSecondaryHex: HexColorSchema.default('#06b6d4'),
+  intensityPercent: z.number().int().min(5).max(65).default(26),
+  angleDeg: z.number().int().min(0).max(360).default(135)
+})
+export type BackgroundGradientSettings = z.infer<typeof BackgroundGradientSettingsSchema>
+
+export const DEFAULT_BACKGROUND_GRADIENT: BackgroundGradientSettings =
+  BackgroundGradientSettingsSchema.parse({})
+
 export const CompactTimerKeySchema = z.enum([
   'cetus',
   'vallis',
@@ -100,6 +128,7 @@ export const UserSettingsSchema = z.object({
     respectOsReducedMotion: z.boolean().default(true),
     catalogLayoutMode: CatalogLayoutModeSchema.default('rect'),
     catalogCardSize: CatalogCardSizeSchema.default('md'),
+    backgroundGradient: BackgroundGradientSettingsSchema.default({}),
     compactTimers: CompactTimersSettingsSchema.default({}),
     zoomPercent: z.number().int().min(50).max(200).default(100)
   }),

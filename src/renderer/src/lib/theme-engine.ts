@@ -1,4 +1,5 @@
 import type { AnimationLevel, ThemePresetId, UserSettings } from '@shared/schemas/settings.schema'
+import { buildGradientCssImage, normalizeGradientSettings } from '@/lib/gradient-engine'
 
 export interface ThemePresetDefinition {
   id: Exclude<ThemePresetId, 'custom'>
@@ -312,4 +313,18 @@ export function applyThemeToDocument(appearance: UserSettings['appearance']): vo
   root.style.setProperty('--accent', `${ac.h} ${ac.s}% ${ac.l}%`)
   root.style.setProperty('--accent-foreground', accentFg)
   root.style.setProperty('--ring', `${ac.h} ${ac.s}% ${ac.l}%`)
+
+  const grad = normalizeGradientSettings(appearance.backgroundGradient)
+  const gradientCss = buildGradientCssImage({
+    style: grad.style,
+    colorMode: grad.colorMode,
+    themeAccentHex: accentHex,
+    customColorHex: grad.customColorHex,
+    customSecondaryHex: grad.customSecondaryHex,
+    intensityPercent: grad.intensityPercent,
+    angleDeg: grad.angleDeg,
+    isLightTheme
+  })
+  root.style.setProperty('--wf-app-gradient', gradientCss)
+  root.dataset.hasGradient = grad.style !== 'none' ? 'true' : 'false'
 }

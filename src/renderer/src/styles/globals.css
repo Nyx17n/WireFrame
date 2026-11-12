@@ -45,6 +45,14 @@ body.glow-enabled .wf-glow-surface {
   box-shadow: 0 0 18px -6px hsl(var(--primary) / 0.45);
 }
 
+/* Optional Sci-Fi App Background Gradient Layer (pure static GPU CSS, zero CPU cost) */
+.wf-app-gradient-layer {
+  background-image: var(--wf-app-gradient, none);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  transition: opacity 220ms ease;
+}
+
 /* Custom Theme-Aware Scrollbars (Chromium / Electron) */
 .wf-scroll-stable {
   scrollbar-gutter: stable;

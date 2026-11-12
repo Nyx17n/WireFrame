@@ -119,25 +119,31 @@ export function App(): React.JSX.Element {
   }, [initialize, hydrateFromSession, setLatestAlertToast])
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
-      <TitleTabsBar />
-      <ClickThroughBanner />
-      <CommandNavBar />
-      <BookmarksBar />
-      <UpdateBanner />
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-        <PageTransitionLoader />
-        <div
-          ref={viewportScrollRef}
-          className={`wf-scroll-stable flex-1 overflow-y-auto ${isCompactMode ? '' : 'pb-10'}`}
-        >
-          <WorkspaceRouteViewport />
+    <div className="relative flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
+      <div
+        aria-hidden="true"
+        className="wf-app-gradient-layer pointer-events-none fixed inset-0 z-0"
+      />
+      <div className="relative z-10 flex h-full w-full flex-col overflow-hidden">
+        <TitleTabsBar />
+        <ClickThroughBanner />
+        <CommandNavBar />
+        <BookmarksBar />
+        <UpdateBanner />
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+          <PageTransitionLoader />
+          <div
+            ref={viewportScrollRef}
+            className={`wf-scroll-stable flex-1 overflow-y-auto ${isCompactMode ? '' : 'pb-10'}`}
+          >
+            <WorkspaceRouteViewport />
+          </div>
+          <DiscordCornerButton />
         </div>
-        <DiscordCornerButton />
+        <WhisperBar />
+        <CompactTimersBar />
+        <StatusBar />
       </div>
-      <WhisperBar />
-      <CompactTimersBar />
-      <StatusBar />
       <NotificationViewport />
       <OmniboxDialog />
       <SettingsModal />

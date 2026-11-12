@@ -197,7 +197,18 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     const optimistic = mergeModule8Fallback(
       {
         ...get().settings,
-        appearance: { ...get().settings.appearance, ...patch.appearance },
+        appearance: {
+          ...get().settings.appearance,
+          ...patch.appearance,
+          backgroundGradient: {
+            ...get().settings.appearance.backgroundGradient,
+            ...patch.appearance?.backgroundGradient
+          },
+          compactTimers: {
+            ...get().settings.appearance.compactTimers,
+            ...patch.appearance?.compactTimers
+          }
+        },
         audio: { ...get().settings.audio, ...patch.audio }
       },
       patch
