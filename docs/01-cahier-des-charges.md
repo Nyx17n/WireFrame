@@ -202,7 +202,7 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 
 ### Module 7 — Extension v2.5 : Alertes Worldstate Personnalisées & Minuteurs en Mode Compact
 
-> **Statut : BROUILLON — en attente de validation par Maxime.** Aucun code ne sera écrit avant validation de cette section et de la planche `09-hub-alerts-compact-timers.excalidraw`.
+> **Statut : Décisions D1–D4 validées par Maxime — en attente de la validation finale de cette section et de la planche `09-hub-alerts-compact-timers.excalidraw`.** Aucun code ne sera écrit avant.
 
 **Constat de départ (v2.4.0)** : le Module 3 propose déjà **11 alertes Worldstate figées** (cases à cocher `WorldAlertToggles`, évaluées dans `worldstate-alerts-evaluator.ts`). Elles ne couvrent que des cas prédéfinis : impossible par exemple d'être prévenu pour « *une fissure Axi Survie en Route de l'Acier* » ou « *une invasion qui donne un Catalyseur Orokin* » seulement. De plus, en Mode Compact, il faut ouvrir le Hub pour connaître l'état des cycles.
 
@@ -220,11 +220,15 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 | **Arbitrage** | Types de mission (multi) · Faction · Palier minimum (*S*, *A*) |
 | **Cycle** *(obligatoire : lieu + état)* | Lieu (Cetus, Vallée Orbis, Puy de Cambion, Zariman) · État ciblé (Nuit, Chaud, Vome, Corpus…) · Pré-alerte de `0` à `30` min avant le début de l'état |
 | **Baro Ki'Teer** | Arrivée · Pré-alerte de `1` à `48` h avant l'arrivée · Article présent dans l'inventaire (texte libre FR/EN) |
+| **Sortie** | Faction · Boss · Type de mission présent dans l'une des 3 étapes (multi) · Modificateur contenant… (texte libre, ex. *« Éclipse »*) |
+| **Chasse à l'Archonte** | Archonte ciblé (multi : *Amar* → Fragment Écarlate, *Nira* → Fragment Ambre, *Boréal* → Fragment Azur) · Type de mission présent dans l'une des étapes (multi) |
+| **Mises à prix** | Syndicat (multi : Ostrons, Union Solaris, Entrati) · Récompense possible contenant… (texte libre, ex. *« Arcane »*) · Niveau minimum de la mise à prix |
+| **Nightwave (Ondes Nocturnes)** | Type (*Quotidien*, *Hebdomadaire*, *Élite*) · Réputation minimum · Intitulé contenant… (texte libre) |
 
 3. **Aperçu en direct** : bouton **« Tester avec le Worldstate actuel »** dans le formulaire, qui affiche immédiatement le nombre d'occurrences correspondantes en ce moment (ex. *« 2 fissures correspondent : Axi Survie — Mot (Néant)… »*). Le joueur valide ainsi sa règle sans attendre.
 4. **Notification** (par règle) : *Toast dans l'application* (toujours actif) · *Notification Windows native* (on/off) · *Son* (on/off, réglages audio globaux du Module 3). Le toast contient un bouton **« Voir dans le Hub »** qui ouvre la sous-vue concernée (et **`Prix Plat ↗`** si la récompense est échangeable).
-5. **Anti-spam (déduplication)** : une règle ne se déclenche qu'**une seule fois par occurrence**. La clé d'occurrence est `ruleId + identifiant Worldstate` (id de fissure/invasion, ou date d'expiration pour cycles, Arbitrage et Baro). Les clés expirées sont purgées automatiquement.
-6. **Historique des alertes** : les **50 dernières** alertes déclenchées (Price Sniper + Worldstate), persistées localement, avec date, règle d'origine et bouton *Voir*. Bouton *Effacer l'historique*.
+5. **Anti-spam (déduplication)** : une règle ne se déclenche qu'**une seule fois par occurrence**. La clé d'occurrence est `ruleId + identifiant Worldstate` (id de fissure, invasion, sortie, mise à prix ou défi Nightwave ; date d'expiration pour cycles, Arbitrage et Baro). Les clés expirées sont purgées automatiquement.
+6. **Historique des alertes (session uniquement)** : les **50 dernières** alertes déclenchées (Price Sniper + Worldstate) depuis le lancement de WireFrame, conservées **en mémoire seulement** (vidées à la fermeture), avec date, règle d'origine et bouton *Voir*. Bouton *Effacer l'historique*.
 7. **Gestion des règles** : liste avec interrupteur on/off, *Dupliquer*, *Modifier*, *Supprimer* (avec confirmation), nom généré automatiquement et modifiable (ex. *« Fissure Axi · Survie · Acier »*).
 
 **Sources de données & rafraîchissement** : aucune nouvelle API. Les règles sont évaluées sur le Worldstate déjà récupéré par `WorldstateService` (`api.warframestat.us`), au même rythme que le scan existant de l'`AlertSchedulerService` (minimum `15 s`), en réutilisant le cache et le limiteur de débit global. **Aucune requête supplémentaire par règle.**
@@ -244,29 +248,29 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 
 **Objectif joueur** : voir d'un coup d'œil, par-dessus Warframe, les cycles et minuteurs importants sans ouvrir le Hub.
 
-1. **Emplacement** : bandeau fin repliable (hauteur ≈ `32 px`) placé **juste sous la barre d'adresse**, visible uniquement en Mode Compact (option *« Afficher aussi en mode Desktop »*, désactivée par défaut).
-2. **Contenu** : jusqu'à **4 minuteurs épinglés** sous forme de pastilles `icône + état coloré + compte à rebours` (ex. `🌙 Cetus · Nuit · 12m 04s`). Si les 4 pastilles ne tiennent pas en largeur, le bandeau défile horizontalement.
+1. **Emplacement** : bandeau fin repliable (hauteur ≈ `32 px`) placé **en bas de la fenêtre, juste au-dessus de la barre de statut** (et sous le bandeau `/w` quand celui-ci est affiché), visible uniquement en Mode Compact (option *« Afficher aussi en mode Desktop »*, désactivée par défaut — en Desktop, le bouton Discord flottant se décale au-dessus du bandeau).
+2. **Contenu** : jusqu'à **6 minuteurs épinglés** sous forme de pastilles `icône + état coloré + compte à rebours` (ex. `🌙 Cetus · Nuit · 12m 04s`). Les pastilles qui ne tiennent pas en largeur sont accessibles par **défilement horizontal** (molette ou glisser), avec un léger dégradé sur les bords pour signaler la suite.
 3. **Minuteurs disponibles** : Cetus (Jour/Nuit) · Vallée Orbis (Chaud/Froid) · Puy de Cambion (Fass/Vome) · Zariman (Corpus/Grineer) · Humeur de Duviri · Baro Ki'Teer (arrivée/départ) · Arbitrage (fin de l'heure) · Sortie & Chasse à l'Archonte (réinitialisation) · Réinitialisation quotidienne (`00:00 UTC`). **Défaut** : Cetus, Vallée Orbis, Puy de Cambion, Baro.
 4. **Interactions** : clic sur une pastille → ouvre la sous-vue correspondante du Hub. Bouton `⚙` en bout de bandeau → popover de choix et d'ordre des minuteurs. Bouton `˄/˅` → replier/déplier (état mémorisé).
 5. **Calcul** : comptes à rebours recalculés chaque seconde côté Renderer à partir des dates d'expiration (`hub-countdown.ts` existant), resynchronisés à chaque rafraîchissement du Worldstate. Une fois l'expiration dépassée, la pastille affiche *« Rotation… »* jusqu'à la donnée suivante.
 6. **4 états UI** : *Chargement* (pastilles Skeleton) · *Vide* (aucun minuteur épinglé → bouton *« Épingler des minuteurs »*) · *Nominal* · *Erreur / Données périmées* (Worldstate non rafraîchi depuis plus de `5 min` → pastilles grisées + icône hors-ligne + dernier compte à rebours connu).
 
-**Paramètres persistés** : `appearance.compactTimers = { enabled: true, showOnDesktop: false, collapsed: false, pinned: TimerKey[] (max 4) }`, validé par `zod`.
+**Paramètres persistés** : `appearance.compactTimers = { enabled: true, showOnDesktop: false, collapsed: false, pinned: TimerKey[] (max 6) }`, validé par `zod`.
 
 #### 7.C — Hors périmètre de cette extension (proposé pour plus tard)
 
-- Alertes sur Sorties, Chasse à l'Archonte, Mises à prix et Nightwave.
 - Plages horaires silencieuses (« ne pas déranger »).
 - Envoi des alertes vers Discord ou le téléphone.
+- Conservation de l'historique des alertes entre deux lancements.
 
-#### 7.D — Décisions à valider par Maxime
+#### 7.D — Décisions validées par Maxime (12/11/2026)
 
-| # | Question | Proposition par défaut |
+| # | Question | Décision |
 | :--- | :--- | :--- |
-| D1 | Position du bandeau Minuteurs en Compact | Sous la barre d'adresse (en haut) |
-| D2 | Nombre maximum de minuteurs épinglés | 4 |
-| D3 | Historique des alertes conservé après redémarrage | Oui (50 dernières) |
-| D4 | Sources des règles personnalisées en v2.5 | Fissure, Invasion, Arbitrage, Cycle, Baro |
+| D1 | Position du bandeau Minuteurs en Compact | **En bas, juste au-dessus de la barre de statut** |
+| D2 | Nombre maximum de minuteurs épinglés | **6**, avec défilement horizontal |
+| D3 | Historique des alertes conservé après redémarrage | **Non** — session uniquement |
+| D4 | Sources des règles personnalisées en v2.5 | **Toutes** : Fissure, Invasion, Arbitrage, Cycle, Baro, Sortie, Chasse à l'Archonte, Mises à prix, Nightwave |
 
 ---
 
