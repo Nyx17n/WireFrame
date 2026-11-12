@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
 import { MarketCatalogItemsDisplay } from '@/components/market/MarketCatalogItemsDisplay'
+import { useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { useAppStore } from '@/stores/useAppStore'
 import { normalizeSearchText, useMarketStore } from '@/stores/useMarketStore'
 import { useTabsStore } from '@/stores/useTabsStore'
@@ -26,8 +27,7 @@ export function MarketCatalogView({
 }): React.JSX.Element {
   const lang = useAppStore((s) => s.settings.market.language)
   const favorites = useAppStore((s) => s.settings.favorites)
-  const layoutMode = useAppStore((s) => s.settings.appearance.catalogLayoutMode)
-  const updateSettings = useAppStore((s) => s.updateSettings)
+  const { layoutMode, cardSize, setLayoutMode, setCardSize } = useCatalogDisplayPreferences()
 
   const catalog = useMarketStore((s) => s.catalog)
   const isLoading = useMarketStore((s) => s.isCatalogLoading)
@@ -102,9 +102,9 @@ export function MarketCatalogView({
 
           <ViewModeToggle
             value={layoutMode}
-            onChange={(nextMode) =>
-              void updateSettings({ appearance: { catalogLayoutMode: nextMode } })
-            }
+            onChange={setLayoutMode}
+            size={cardSize}
+            onSizeChange={setCardSize}
           />
         </div>
       </div>
@@ -131,6 +131,7 @@ export function MarketCatalogView({
         lang={lang}
         favorites={favorites}
         layoutMode={layoutMode}
+        cardSize={cardSize}
         query={query}
         onSelectItem={(slug, title) => navigateActive({ kind: 'market-item', slug }, title)}
         onOpenNewTab={(slug, title, background) =>

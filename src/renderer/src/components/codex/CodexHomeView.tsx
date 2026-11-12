@@ -11,8 +11,8 @@ import { Input } from '@/components/ui/input'
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
 import { CodexItemsDisplay } from '@/components/codex/CodexItemsDisplay'
 import { HelminthInfirmarySection } from '@/components/codex/HelminthInfirmarySection'
+import { useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { ipcClient } from '@/services/ipc-client'
-import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 type CodexTabMode = CodexCategory | 'helminth'
@@ -44,8 +44,7 @@ export function CodexHomeView({
 }): React.JSX.Element {
   const navigateActive = useTabsStore((s) => s.navigateActive)
   const openTab = useTabsStore((s) => s.openTab)
-  const layoutMode = useAppStore((s) => s.settings.appearance.catalogLayoutMode)
-  const updateSettings = useAppStore((s) => s.updateSettings)
+  const { layoutMode, cardSize, setLayoutMode, setCardSize } = useCatalogDisplayPreferences()
 
   const [activeTab, setActiveTab] = React.useState<CodexTabMode>(() =>
     initialCategory === 'helminth'
@@ -255,9 +254,9 @@ export function CodexHomeView({
             <div className="ml-auto">
               <ViewModeToggle
                 value={layoutMode}
-                onChange={(nextMode) =>
-                  void updateSettings({ appearance: { catalogLayoutMode: nextMode } })
-                }
+                onChange={setLayoutMode}
+                size={cardSize}
+                onSizeChange={setCardSize}
               />
             </div>
           </div>
@@ -270,6 +269,7 @@ export function CodexHomeView({
             items={result?.items ?? []}
             isLoading={isLoading && result === null}
             layoutMode={layoutMode}
+            cardSize={cardSize}
             onSelectCard={(route, title, inNewTab) =>
               inNewTab ? openTab(route, { title }) : navigateActive(route, title)
             }

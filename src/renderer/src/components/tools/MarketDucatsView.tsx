@@ -1,12 +1,12 @@
 import * as React from 'react'
-import { AlertTriangle, ChevronDown, Coins, Plus, RefreshCw, Search } from 'lucide-react'
-import { toWfAssetUrl } from '@shared/schemas/market.schema'
+import { AlertTriangle, ChevronDown, Coins, RefreshCw, Search } from 'lucide-react'
 import type { DucatItemEntry } from '@shared/schemas/tools.schema'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
+import { DucatsItemsDisplay } from '@/components/tools/DucatsItemsDisplay'
+import { getCatalogGridClass, useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
 import { normalizeSearchText } from '@/stores/useMarketStore'
@@ -14,6 +14,7 @@ import { useTabsStore } from '@/stores/useTabsStore'
 
 export function MarketDucatsView(): React.JSX.Element {
   const lang = useAppStore((s) => s.settings.market.language)
+  const { layoutMode, cardSize, setLayoutMode, setCardSize } = useCatalogDisplayPreferences()
   const navigateActive = useTabsStore((s) => s.navigateActive)
   const openTab = useTabsStore((s) => s.openTab)
   const refreshRevision = useTabsStore((s) => s.refreshRevision)
@@ -69,10 +70,18 @@ export function MarketDucatsView(): React.JSX.Element {
           <Coins className="h-4 w-4 text-primary" />
           <h1 className="text-sm font-bold">Ducanator — Rentabilité Ducats & Baro Ki’Teer</h1>
         </div>
-        <Button size="sm" variant="outline" onClick={() => void loadDucats(true)}>
-          <RefreshCw className="h-3.5 w-3.5" />
-          <span>Actualiser</span>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => void loadDucats(true)}>
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>Actualiser</span>
+          </Button>
+          <ViewModeToggle
+            value={layoutMode}
+            onChange={setLayoutMode}
+            size={cardSize}
+            onSizeChange={setCardSize}
+          />
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -125,58 +134,22 @@ export function MarketDucatsView(): React.JSX.Element {
           <p className="text-xs text-muted-foreground">{error}</p>
         </div>
       ) : loading ? (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className={getCatalogGridClass(layoutMode, cardSize)}>
           {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 w-full" />
+            <Skeleton key={i} className="h-20 w-full" />
           ))}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-            {sorted.slice(0, visibleLimit).map((item) => {
-              const label = lang === 'fr' ? item.nameFr : item.nameEn
-              const thumb = toWfAssetUrl(item.thumb)
-              return (
-                <Card
-                  key={item.itemId}
-                  onClick={() => navigateActive({ kind: 'market-item', slug: item.slug }, label)}
-                  className="cursor-pointer transition-colors hover:border-primary/60"
-                >
-                  <CardContent className="flex items-center justify-between gap-2 p-2.5 text-xs">
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      {thumb && <img src={thumb} alt="" className="h-9 w-9 shrink-0 object-contain" />}
-                      <div className="min-w-0">
-                        <div className="truncate font-semibold">{label}</div>
-                        <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                          <span>{item.ducats} Ducats</span>
-                          <span>· Moy: {item.waPricePlat}p</span>
-                          <span>· Vol: {item.volume}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-1.5">
-                      {mode === 'buy-ducats' ? (
-                        <Badge variant="success">{item.ducatsPerPlat} Duc/p</Badge>
-                      ) : (
-                        <Badge variant="default">{item.platPer100Ducats} p / 100 Duc</Badge>
-                      )}
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          openTab({ kind: 'market-item', slug: item.slug }, { title: label })
-                        }}
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+          <DucatsItemsDisplay
+            items={sorted.slice(0, visibleLimit)}
+            mode={mode}
+            lang={lang}
+            layoutMode={layoutMode}
+            cardSize={cardSize}
+            onSelectItem={(slug, title) => navigateActive({ kind: 'market-item', slug }, title)}
+            onOpenNewTab={(slug, title) => openTab({ kind: 'market-item', slug }, { title })}
+          />
           {sorted.length > 0 && (
             <div className="flex flex-col items-center gap-2 pt-2 text-xs text-muted-foreground">
               <span>
@@ -199,4 +172,3 @@ export function MarketDucatsView(): React.JSX.Element {
     </div>
   )
 }
-

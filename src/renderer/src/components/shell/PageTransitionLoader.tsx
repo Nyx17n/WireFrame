@@ -37,3 +37,4 @@ export function PageTransitionLoader(): React.JSX.Element | null {
     </div>
   )
 }
+

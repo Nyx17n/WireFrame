@@ -54,6 +54,9 @@ export const GlobalShortcutsMapSchema = z.object({
 export const CatalogLayoutModeSchema = z.enum(['square', 'rect', 'list'])
 export type CatalogLayoutMode = z.infer<typeof CatalogLayoutModeSchema>
 
+export const CatalogCardSizeSchema = z.enum(['sm', 'md', 'lg'])
+export type CatalogCardSize = z.infer<typeof CatalogCardSizeSchema>
+
 export const UserSettingsSchema = z.object({
   appearance: z.object({
     preset: ThemePresetIdSchema.default('dark'),
@@ -62,6 +65,7 @@ export const UserSettingsSchema = z.object({
     glowEnabled: z.boolean().default(true),
     startupAnimationEnabled: z.boolean().default(true),
     catalogLayoutMode: CatalogLayoutModeSchema.default('rect'),
+    catalogCardSize: CatalogCardSizeSchema.default('md'),
     zoomPercent: z.number().int().min(50).max(200).default(100)
   }),
   audio: z.object({

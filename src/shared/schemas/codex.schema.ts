@@ -32,6 +32,14 @@ export const CodexSearchParamsSchema = z.object({
 
 export type CodexSearchParams = z.infer<typeof CodexSearchParamsSchema>
 
+export const CodexCraftPreviewSchema = z.object({
+  nameFr: z.string().min(1).max(160),
+  count: z.number().int().positive(),
+  imageUrl: z.string().nullable()
+})
+
+export type CodexCraftPreview = z.infer<typeof CodexCraftPreviewSchema>
+
 export const CodexSummaryCardSchema = z.object({
   id: z.string().min(1).max(200),
   category: CodexCategorySchema,
@@ -43,7 +51,9 @@ export const CodexSummaryCardSchema = z.object({
   isPrime: z.boolean(),
   isVaulted: z.boolean(),
   isTradable: z.boolean(),
-  subsumedAbilityName: z.string().nullable().optional()
+  subsumedAbilityName: z.string().nullable().optional(),
+  craftComponents: z.array(CodexCraftPreviewSchema).optional(),
+  acquisitionText: z.string().nullable().optional()
 })
 
 export type CodexSummaryCard = z.infer<typeof CodexSummaryCardSchema>
