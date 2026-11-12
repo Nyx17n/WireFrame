@@ -28,6 +28,8 @@ interface TabsStoreState {
   tabs: BrowserTab[]
   navigationHistory: NavigationHistoryEntry[]
   refreshRevision: number
+  isPageTransitioning: boolean
+  transitionRevision: number
   hydrateFromSession: (session: TabsSession) => void
   activateHub: () => void
   activateTab: (id: string) => void
@@ -49,9 +51,28 @@ interface TabsStoreState {
   cycleTab: (direction: 1 | -1) => void
 }
 
+let pageTransitionTimer: number | undefined
+
 export const useTabsStore = create<TabsStoreState>((set, get) => {
-  const commit = (partial: Partial<TabsStoreState>): void => {
+  const triggerPageTransition = (): void => {
+    if (pageTransitionTimer !== undefined) {
+      window.clearTimeout(pageTransitionTimer)
+    }
+    set((s) => ({
+      isPageTransitioning: true,
+      transitionRevision: s.transitionRevision + 1
+    }))
+    pageTransitionTimer = window.setTimeout(() => {
+      set({ isPageTransitioning: false })
+      pageTransitionTimer = undefined
+    }, 300)
+  }
+
+  const commit = (partial: Partial<TabsStoreState>, withTransition = false): void => {
     set(partial)
+    if (withTransition) {
+      triggerPageTransition()
+    }
     const { hubActive, activeTabId, tabs, navigationHistory } = get()
     scheduleTabsSessionPersist({ hubActive, activeTabId, tabs, navigationHistory })
   }
@@ -62,6 +83,8 @@ export const useTabsStore = create<TabsStoreState>((set, get) => {
     tabs: [INITIAL_BROWSER_TAB],
     navigationHistory: loadLocalHistoryFallback(),
     refreshRevision: 0,
+    isPageTransitioning: false,
+    transitionRevision: 0,
 
     hydrateFromSession: (session) => {
       if (!session.tabs.length) return
@@ -78,22 +101,34 @@ export const useTabsStore = create<TabsStoreState>((set, get) => {
       })
     },
 
-    activateHub: () =>
-      commit({
-        hubActive: true,
-        navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, { kind: 'hub' })
-      }),
+    activateHub: () => {
+      const changed = !get().hubActive
+      commit(
+        {
+          hubActive: true,
+          navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, { kind: 'hub' })
+        },
+        changed
+      )
+    },
 
     activateTab: (id) => {
-      if (get().tabs.some((t) => t.id === id)) commit({ hubActive: false, activeTabId: id })
+      const state = get()
+      if (state.tabs.some((t) => t.id === id)) {
+        const changed = state.hubActive || state.activeTabId !== id
+        commit({ hubActive: false, activeTabId: id }, changed)
+      }
     },
 
     openTab: (route = { kind: 'market-home' }, options) => {
       if (route.kind === 'hub') {
-        return commit({
-          hubActive: true,
-          navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, route, options?.title)
-        })
+        return commit(
+          {
+            hubActive: true,
+            navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, route, options?.title)
+          },
+          true
+        )
       }
       const state = get()
       if (state.tabs.length >= 35) return
@@ -104,35 +139,44 @@ export const useTabsStore = create<TabsStoreState>((set, get) => {
         history: [route],
         historyIndex: 0
       }
-      commit({
-        tabs: orderPinnedFirst([...state.tabs, newTab]),
-        navigationHistory: appendNavigationHistoryEntry(state.navigationHistory, route, options?.title),
-        ...(options?.background ? {} : { hubActive: false, activeTabId: newTab.id })
-      })
+      commit(
+        {
+          tabs: orderPinnedFirst([...state.tabs, newTab]),
+          navigationHistory: appendNavigationHistoryEntry(state.navigationHistory, route, options?.title),
+          ...(options?.background ? {} : { hubActive: false, activeTabId: newTab.id })
+        },
+        !options?.background
+      )
     },
 
     navigateActive: (route, customTitle) => {
       if (route.kind === 'hub') {
-        return commit({
-          hubActive: true,
-          navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, route, customTitle)
-        })
+        return commit(
+          {
+            hubActive: true,
+            navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, route, customTitle)
+          },
+          true
+        )
       }
       const state = get()
       if (state.hubActive) return state.openTab(route, { title: customTitle })
-      commit({
-        navigationHistory: appendNavigationHistoryEntry(state.navigationHistory, route, customTitle),
-        tabs: state.tabs.map((tab) => {
-          if (tab.id !== state.activeTabId) return tab
-          const nextHistory = [...tab.history.slice(0, tab.historyIndex + 1), route].slice(-50)
-          return {
-            ...tab,
-            title: customTitle ?? getDefaultRouteTitle(route),
-            history: nextHistory,
-            historyIndex: nextHistory.length - 1
-          }
-        })
-      })
+      commit(
+        {
+          navigationHistory: appendNavigationHistoryEntry(state.navigationHistory, route, customTitle),
+          tabs: state.tabs.map((tab) => {
+            if (tab.id !== state.activeTabId) return tab
+            const nextHistory = [...tab.history.slice(0, tab.historyIndex + 1), route].slice(-50)
+            return {
+              ...tab,
+              title: customTitle ?? getDefaultRouteTitle(route),
+              history: nextHistory,
+              historyIndex: nextHistory.length - 1
+            }
+          })
+        },
+        true
+      )
     },
 
     removeHistoryEntry: (id) =>
@@ -143,30 +187,43 @@ export const useTabsStore = create<TabsStoreState>((set, get) => {
     goBack: () => {
       const state = get()
       if (state.hubActive) return
-      commit({
-        tabs: state.tabs.map((tab) => {
-          if (tab.id !== state.activeTabId || tab.historyIndex <= 0) return tab
-          const nextIdx = tab.historyIndex - 1
-          const target = tab.history[nextIdx]
-          return { ...tab, historyIndex: nextIdx, title: target ? getDefaultRouteTitle(target) : tab.title }
-        })
-      })
+      const active = state.tabs.find((t) => t.id === state.activeTabId)
+      if (!active || active.historyIndex <= 0) return
+      commit(
+        {
+          tabs: state.tabs.map((tab) => {
+            if (tab.id !== state.activeTabId || tab.historyIndex <= 0) return tab
+            const nextIdx = tab.historyIndex - 1
+            const target = tab.history[nextIdx]
+            return { ...tab, historyIndex: nextIdx, title: target ? getDefaultRouteTitle(target) : tab.title }
+          })
+        },
+        true
+      )
     },
 
     goForward: () => {
       const state = get()
       if (state.hubActive) return
-      commit({
-        tabs: state.tabs.map((tab) => {
-          if (tab.id !== state.activeTabId || tab.historyIndex >= tab.history.length - 1) return tab
-          const nextIdx = tab.historyIndex + 1
-          const target = tab.history[nextIdx]
-          return { ...tab, historyIndex: nextIdx, title: target ? getDefaultRouteTitle(target) : tab.title }
-        })
-      })
+      const active = state.tabs.find((t) => t.id === state.activeTabId)
+      if (!active || active.historyIndex >= active.history.length - 1) return
+      commit(
+        {
+          tabs: state.tabs.map((tab) => {
+            if (tab.id !== state.activeTabId || tab.historyIndex >= tab.history.length - 1) return tab
+            const nextIdx = tab.historyIndex + 1
+            const target = tab.history[nextIdx]
+            return { ...tab, historyIndex: nextIdx, title: target ? getDefaultRouteTitle(target) : tab.title }
+          })
+        },
+        true
+      )
     },
 
-    reloadActive: () => set((s) => ({ refreshRevision: s.refreshRevision + 1 })),
+    reloadActive: () => {
+      set((s) => ({ refreshRevision: s.refreshRevision + 1 }))
+      triggerPageTransition()
+    },
 
     closeTab: (id, force = false) => {
       const state = get()
@@ -242,12 +299,12 @@ export const useTabsStore = create<TabsStoreState>((set, get) => {
       if (!tabs.length) return
       if (hubActive) {
         const edge = direction === 1 ? tabs[0] : tabs[tabs.length - 1]
-        if (edge) commit({ hubActive: false, activeTabId: edge.id })
+        if (edge) commit({ hubActive: false, activeTabId: edge.id }, true)
         return
       }
       const idx = tabs.findIndex((t) => t.id === activeTabId)
       const next = tabs[(idx + direction + tabs.length) % tabs.length]
-      if (next) commit({ hubActive: false, activeTabId: next.id })
+      if (next && next.id !== activeTabId) commit({ hubActive: false, activeTabId: next.id }, true)
     }
   }
 })

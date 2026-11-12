@@ -15,6 +15,7 @@ import { formatRouteUri } from '@shared/schemas/navigation.schema'
 import { Button } from '@/components/ui/button'
 import { NavQuickMenus } from '@/components/shell/NavQuickMenus'
 import { getTabCurrentRoute } from '@/lib/tab-helpers'
+import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
@@ -34,6 +35,7 @@ export function CommandNavBar(): React.JSX.Element {
   const goBack = useTabsStore((s) => s.goBack)
   const goForward = useTabsStore((s) => s.goForward)
   const reloadActive = useTabsStore((s) => s.reloadActive)
+  const isPageTransitioning = useTabsStore((s) => s.isPageTransitioning)
 
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0]
   const canGoBack = !hubActive && Boolean(activeTab && activeTab.historyIndex > 0)
@@ -67,7 +69,9 @@ export function CommandNavBar(): React.JSX.Element {
           }}
           title="Actualiser l'onglet actif (Ctrl+R)"
         >
-          <RefreshCw className="h-3.5 w-3.5" />
+          <RefreshCw
+            className={cn('h-3.5 w-3.5 transition-colors', isPageTransitioning && 'animate-spin text-primary')}
+          />
         </Button>
       </div>
 

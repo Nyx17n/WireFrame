@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Copy, Globe, Minus, Plus, Square, X } from 'lucide-react'
+import { Copy, Globe, Loader2, Minus, Plus, Square, X } from 'lucide-react'
 import { BrowserTabPill } from '@/components/shell/BrowserTabPill'
 import { TabOrganizerPopover } from '@/components/shell/TabOrganizerPopover'
 import { ipcClient } from '@/services/ipc-client'
@@ -15,6 +15,7 @@ export function TitleTabsBar(): React.JSX.Element {
   const activateHub = useTabsStore((s) => s.activateHub)
   const openTab = useTabsStore((s) => s.openTab)
   const reorderTabs = useTabsStore((s) => s.reorderTabs)
+  const isPageTransitioning = useTabsStore((s) => s.isPageTransitioning)
 
   const [draggedTabId, setDraggedTabId] = React.useState<string | null>(null)
 
@@ -40,7 +41,11 @@ export function TitleTabsBar(): React.JSX.Element {
             alt="WireFrame"
             className="h-4 w-4 rounded-xs object-contain"
           />
-          <Globe className="h-3.5 w-3.5 text-primary" />
+          {hubActive && isPageTransitioning ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+          ) : (
+            <Globe className="h-3.5 w-3.5 text-primary" />
+          )}
           {!windowState.isCompactMode && <span>Hub</span>}
         </button>
 
