@@ -24,7 +24,15 @@ interface BookmarkShortcut {
   readonly route: AppRoute
 }
 
-const BOOKMARK_SHORTCUTS: readonly BookmarkShortcut[] = [
+const HISTORY_SHORTCUT: BookmarkShortcut = {
+  id: 'browser-history',
+  label: 'Historique',
+  tooltip: 'Historique de navigation (Ctrl+H · wf://history)',
+  icon: History,
+  route: { kind: 'browser-history' }
+}
+
+const CENTER_SHORTCUTS: readonly BookmarkShortcut[] = [
   {
     id: 'market-home',
     label: 'Marché',
@@ -73,13 +81,6 @@ const BOOKMARK_SHORTCUTS: readonly BookmarkShortcut[] = [
     tooltip: 'Enchères et contrats Mods Riven (wf://market/rivens)',
     icon: Flame,
     route: { kind: 'market-rivens' }
-  },
-  {
-    id: 'browser-history',
-    label: 'Historique',
-    tooltip: 'Historique de navigation (Ctrl+H · wf://history)',
-    icon: History,
-    route: { kind: 'browser-history' }
   }
 ]
 
@@ -101,52 +102,63 @@ export function BookmarksBar(): React.JSX.Element {
     return 0
   }
 
+  const renderShortcutButton = (item: BookmarkShortcut): React.JSX.Element => {
+    const Icon = item.icon
+    const isActive = currentKind === item.id
+    const badgeCount = getBadgeCount(item.id)
+
+    return (
+      <button
+        key={item.id}
+        type="button"
+        title={`${item.tooltip} — Ctrl+Clic ou clic molette : nouvel onglet`}
+        onClick={(e) => {
+          if (e.ctrlKey || e.metaKey) {
+            openTab(item.route)
+          } else {
+            navigateActive(item.route)
+          }
+        }}
+        onAuxClick={(e) => {
+          if (e.button === 1) {
+            e.preventDefault()
+            openTab(item.route)
+          }
+        }}
+        className={cn(
+          'inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors',
+          isActive
+            ? 'border-primary/50 bg-primary/15 text-foreground'
+            : 'border-transparent text-muted-foreground hover:border-border/60 hover:bg-secondary/75 hover:text-foreground'
+        )}
+      >
+        <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
+        <span className="whitespace-nowrap">{item.label}</span>
+        {badgeCount > 0 && (
+          <span className="rounded-full bg-primary/20 px-1.5 py-0 font-mono text-[10px] font-semibold text-primary">
+            {badgeCount}
+          </span>
+        )}
+      </button>
+    )
+  }
+
   return (
     <div
-      className="flex h-8 shrink-0 items-center gap-1 overflow-x-auto border-b border-border bg-card/55 px-2.5 [scrollbar-width:none]"
+      className="flex h-8 shrink-0 items-center gap-2 overflow-x-auto border-b border-border bg-card/55 px-2.5 [scrollbar-width:none] lg:grid lg:grid-cols-[1fr_auto_1fr]"
       role="navigation"
       aria-label="Barre de raccourcis et outils"
     >
-      {BOOKMARK_SHORTCUTS.map((item) => {
-        const Icon = item.icon
-        const isActive = currentKind === item.id
-        const badgeCount = getBadgeCount(item.id)
+      <div className="flex shrink-0 items-center justify-self-start">
+        {renderShortcutButton(HISTORY_SHORTCUT)}
+      </div>
 
-        return (
-          <button
-            key={item.id}
-            type="button"
-            title={`${item.tooltip} — Ctrl+Clic ou clic molette : nouvel onglet`}
-            onClick={(e) => {
-              if (e.ctrlKey || e.metaKey) {
-                openTab(item.route)
-              } else {
-                navigateActive(item.route)
-              }
-            }}
-            onAuxClick={(e) => {
-              if (e.button === 1) {
-                e.preventDefault()
-                openTab(item.route)
-              }
-            }}
-            className={cn(
-              'inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors',
-              isActive
-                ? 'border-primary/50 bg-primary/15 text-foreground'
-                : 'border-transparent text-muted-foreground hover:border-border/60 hover:bg-secondary/75 hover:text-foreground'
-            )}
-          >
-            <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
-            <span className="whitespace-nowrap">{item.label}</span>
-            {badgeCount > 0 && (
-              <span className="rounded-full bg-primary/20 px-1.5 py-0 font-mono text-[10px] font-semibold text-primary">
-                {badgeCount}
-              </span>
-            )}
-          </button>
-        )
-      })}
+      <div className="flex shrink-0 items-center justify-center gap-1 justify-self-center">
+        {CENTER_SHORTCUTS.map(renderShortcutButton)}
+      </div>
+
+      <div className="hidden lg:block" aria-hidden="true" />
     </div>
   )
 }
+
