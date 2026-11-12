@@ -232,7 +232,7 @@ export const useTabsStore = create<TabsStoreState>((set, get) => {
       const remaining = state.tabs.filter((t) => t.id !== id)
       if (remaining.length === 0) {
         const fresh: BrowserTab = { ...INITIAL_BROWSER_TAB, id: makeTabId() }
-        return commit({ tabs: [fresh], activeTabId: fresh.id, hubActive: false })
+        return commit({ tabs: [fresh], activeTabId: fresh.id, hubActive: state.hubActive })
       }
       const closedIdx = state.tabs.findIndex((t) => t.id === id)
       const fallback = remaining[Math.min(closedIdx, remaining.length - 1)] ?? remaining[0]

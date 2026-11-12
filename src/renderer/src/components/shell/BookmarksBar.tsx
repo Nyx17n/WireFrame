@@ -122,6 +122,9 @@ export function BookmarksBar(): React.JSX.Element | null {
             navigateActive(item.route)
           }
         }}
+        onMouseDown={(e) => {
+          if (e.button === 1) e.preventDefault()
+        }}
         onAuxClick={(e) => {
           if (e.button === 1) {
             e.preventDefault()

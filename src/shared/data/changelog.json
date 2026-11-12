@@ -1,5 +1,15 @@
 [
   {
+    "version": "2.5.3",
+    "date": "Novembre 2026",
+    "titleFr": "Fermeture Instantanée d’Onglet au Clic Molette",
+    "badgeFr": "Correctif v2.5.3",
+    "highlightsFr": [
+      "Fermeture immédiate de n’importe quel onglet d’un simple clic molette (bouton central de la souris) dans la barre d’onglets comme dans l’Organisateur d’onglets.",
+      "Blocage de l’autoscroll natif Windows/Chromium lors du clic molette sur les barres d’onglets et de raccourcis défilantes."
+    ]
+  },
+  {
     "version": "2.5.2",
     "date": "Novembre 2026",
     "titleFr": "Défilement Horizontal Fluide de la Barre d’Onglets (Molette & Flèches ‹ / ›)",

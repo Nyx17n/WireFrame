@@ -119,6 +119,9 @@ export function TitleTabsBar(): React.JSX.Element {
           ref={tabsStripRef}
           onScroll={updateScrollIndicators}
           onWheel={handleWheelScroll}
+          onMouseDown={(e) => {
+            if (e.button === 1) e.preventDefault()
+          }}
           className="wf-no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
         >
           {tabs.map((tab) => (

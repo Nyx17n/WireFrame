@@ -82,6 +82,20 @@ export function TabOrganizerPopover(): React.JSX.Element {
                   activateTab(tab.id)
                   setOpen(false)
                 }}
+                onMouseDown={(e) => {
+                  if (e.button === 1) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }
+                }}
+                onAuxClick={(e) => {
+                  if (e.button === 1) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    closeTab(tab.id, true)
+                  }
+                }}
+                title={`${tab.title} — Clic molette pour fermer`}
                 className={`flex cursor-pointer items-center justify-between gap-2 rounded px-2 py-1.5 text-xs ${
                   isSelected
                     ? 'bg-primary/15 font-semibold text-foreground'
