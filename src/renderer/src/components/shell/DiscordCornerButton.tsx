@@ -45,20 +45,14 @@ export function DiscordCornerButton(): React.JSX.Element | null {
     <button
       type="button"
       onClick={() => void handleOpenDiscord()}
-      title="Rejoindre le serveur Discord officiel WireFrame"
+      title={copiedFallback ? 'Lien Discord copié !' : 'Rejoindre le serveur Discord WireFrame'}
       aria-label="Rejoindre le serveur Discord officiel WireFrame"
-      className="group absolute bottom-3.5 right-5 z-30 inline-flex h-9 select-none items-center gap-2 rounded-full border border-[#5865F2]/45 bg-card/90 px-3.5 text-xs font-semibold text-foreground shadow-lg backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5865F2] hover:bg-[#5865F2] hover:text-white hover:shadow-[0_6px_20px_rgba(88,101,242,0.4)] active:translate-y-0"
+      className="group absolute bottom-3.5 right-5 z-30 inline-flex h-10 w-10 select-none items-center justify-center rounded-full border border-[#5865F2]/45 bg-card/90 shadow-lg backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5865F2] hover:bg-[#5865F2] hover:shadow-[0_6px_20px_rgba(88,101,242,0.4)] active:translate-y-0"
     >
       {copiedFallback ? (
-        <>
-          <Check className="h-4 w-4 shrink-0 text-emerald-400 group-hover:text-white" />
-          <span>Invitation copiée !</span>
-        </>
+        <Check className="h-5 w-5 text-emerald-400 group-hover:text-white" />
       ) : (
-        <>
-          <DiscordLogoIcon className="h-4 w-4 shrink-0 text-[#5865F2] transition-colors group-hover:text-white" />
-          <span>Discord</span>
-        </>
+        <DiscordLogoIcon className="h-5 w-5 text-[#5865F2] transition-colors group-hover:text-white" />
       )}
     </button>
   )

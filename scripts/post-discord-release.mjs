@@ -226,3 +226,4 @@ main().catch((err) => {
   console.error('[Discord Release] Erreur :', err)
   process.exit(1)
 })
+
