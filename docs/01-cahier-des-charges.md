@@ -274,6 +274,92 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 
 ---
 
+### Module 8 — Extension v2.5 : Notifications In-App, Centre de Notifications & Animations
+
+> **Statut : BROUILLON — en attente de validation par Maxime** (section + planche `10-notifications-animations.excalidraw`). Aucun code applicatif avant validation explicite.
+
+**Choix exprimés par Maxime (12/11/2026)** :
+- **A1** : Notifications in-app pour les actions de l'application (*« Copié ! »*, *« Ajouté aux favoris »*, *« Ajouté au panier »*, erreurs réseau, mise à jour disponible…) **+** Centre de notifications sous la cloche 🔔 avec historique de session.
+- **A2** : Affichage **en bas à droite, empilées au-dessus du bouton Discord** (qui reste visible).
+- **A3** : Animations sur **les 6 catégories** de l'interface (changement de page/onglet, cartes & listes en cascade, micro-interactions survol/clic, fenêtres/menus/popovers, notifications/toasts, barre d'onglets & raccourcis).
+- **A4** : Réglage à **3 niveaux** (*Complètes / Réduites / Désactivées*) + respect automatique du réglage Windows *« Afficher les animations »*.
+
+#### 8.A — Notifications in-app (« Toasts » empilés)
+
+**Objectif joueur** : recevoir un retour visuel immédiat, élégant et non bloquant à chaque action clé ou événement d'arrière-plan, avec possibilité de déclencher un aperçu à tout moment depuis les Paramètres.
+
+1. **5 types visuels** :
+
+| Type | Couleur / icône | Durée d'affichage | Exemples |
+| :--- | :--- | :--- | :--- |
+| **Succès** | Émeraude · `✓` | `4 s` | Favori ajouté/retiré, ajout au panier, règle enregistrée, paramètres exportés/importés |
+| **Info** | Accent (`--primary`) · `ℹ` | `4 s` | Commande `/w` ou lien copié, cache vidé, mise à jour disponible, notification de test |
+| **Avertissement** | Ambre · `⚠` | `6 s` | Limite de règles atteinte, données Worldstate périmées |
+| **Erreur** | Rouge (`--destructive`) · `✕` | `8 s` | Échec réseau / IPC, échec d'import ou de sauvegarde des réglages |
+| **Alerte** | Bordure accent · `🔔` | Jusqu'à fermeture | *Price Sniper* et règles *Worldstate* (unifie et remplace `AlertToastBanner`, en conservant les boutons `Copier /w`, `Voir dans le Hub` et `Prix Plat`) |
+
+2. **Pile & positionnement** :
+   - En **Desktop (`1440×900`)** : jusqu'à **3 notifications visibles** simultanément en bas à droite (`right-4`), la plus récente en bas, placées **au-dessus du bouton Discord flottant** (et au-dessus du bandeau `/w` ou Minuteurs s'ils sont affichés) afin qu'aucun élément ne se chevauche. Au-delà de 3, un badge **« +N en attente »** indique la file d'attente qui se dépile automatiquement.
+   - En **Mode Compact (`460×660`)** : **1 seule notification visible** à la fois, pleine largeur (moins les marges), juste au-dessus du bandeau Minuteurs.
+3. **Interactions** : bouton `✕` de fermeture manuelle · **survol souris = mise en pause du compte à rebours** (avec fine barre de progression en bas de la carte) · boutons d'action contextuels optionnels (*Ouvrir le panier*, *Voir dans le Hub*, *Copier /w*, *Prix Plat*).
+4. **Anti-spam (fusion des doublons rapides)** : si une notification de même type et même titre est émise moins de **2 secondes** après la précédente, elle ne crée pas de doublon mais incrémente un badge `×2`, `×3` et réinitialise sa barre de durée.
+5. **Catalogue des déclencheurs** :
+   - Favoris (ajout / retrait), Panier (ajout / retrait / vidage), Règles *Price Sniper* & *Worldstate* (création / modification / duplication / suppression).
+   - Presse-papiers (copie commande `/w`, copie de lien).
+   - Paramètres & Système (export JSON, import JSON, réinitialisation, purge du cache, mise à jour détectée / prête à installer, bouton **« Tester une notification »**).
+   - Erreurs réseau / IPC remontées par les stores.
+
+#### 8.B — Centre de Notifications (cloche 🔔 de la barre de navigation)
+
+1. Le clic sur l'icône 🔔 de `CommandNavBar` ouvre un **Popover « Centre de notifications »** listant les **50 dernières notifications de la session** (actions + alertes *Price Sniper* / *Worldstate*), de la plus récente à la plus ancienne, avec horodatage, icône colorée et bouton d'action rapide éventuel.
+2. **Badge de non-lus** : pastille sur la cloche 🔔 indiquant le nombre de notifications non lues (remis à `0` à l'ouverture du popover). Le rappel du nombre de règles actives (*Price Sniper* + *Worldstate*) est affiché dans l'en-tête du popover avec un bouton direct **« Ouvrir le Centre d'Alertes (`wf://alerts`) »**.
+3. **Actions du popover** : *Tout marquer comme lu* · *Effacer tout* · accès rapide aux réglages de notifications.
+4. **Les 4 états UI obligatoires** :
+   - *Chargement* : lignes `Skeleton` lors de l'hydratation initiale.
+   - *Vide* : icône + message *« Aucune notification pendant cette session »* + raccourci vers `wf://alerts`.
+   - *Nominal* : liste défilante horodatée avec distinction visuelle des éléments non lus.
+   - *Erreur* : notifications d'échec réseau/IPC mises en évidence avec bordure/fond teinté rouge et action *Réessayer* si applicable.
+5. **Cycle de vie** : historique conservé **en mémoire uniquement** pour la session en cours (cohérent avec la décision D3 du Module 7).
+
+**Paramètres associés** (*Paramètres → Audio & Alertes*) :
+- Interrupteur **« Notifications visuelles d'actions (Succès & Info) »** (activé par défaut ; les *Erreurs* et les *Alertes* restent toujours actives).
+- Bouton **« Tester une notification »** permettant de faire apparaître immédiatement une notification de démonstration (visuelle + son si activé).
+
+#### 8.C — Système Global d'Animations & Désactivation dans les Paramètres
+
+**Objectif joueur** : rendre chaque interaction fluide, réactive et moderne à 60 FPS+, tout en permettant de réduire ou couper instantanément toutes les animations dans les Paramètres (ou automatiquement selon Windows).
+
+| Catégorie | Niveau **Complètes** *(défaut)* | Niveau **Réduites** | Niveau **Désactivées** |
+| :--- | :--- | :--- | :--- |
+| **1. Changement de page / d'onglet** | Fondu + léger glissement vertical `8 px` (`180 ms`) | Fondu simple (`120 ms`, sans déplacement) | Instantané (`0 ms`) |
+| **2. Cartes & listes** | Apparition en cascade (`25 ms` de décalage par carte, plafonné aux **12 premiers éléments**) | Fondu global uniforme sans cascade | Instantané (`0 ms`) |
+| **3. Micro-interactions (survol & clic)** | Boutons : léger enfoncement `scale(0.97)` au clic · Cartes interactives : élévation `-2 px` au survol | Changement de couleur/bordure uniquement | Changement d'état instantané |
+| **4. Fenêtres, menus & popovers** | Ouverture/fermeture `scale(0.96 → 1)` + fondu (`150 ms`) sur `Dialog`, `Popover`, `Omnibox` | Fondu simple (`110 ms`) | Instantané (`0 ms`) |
+| **5. Notifications (toasts)** | Glissement fluide depuis la droite à l'entrée et vers la droite à la sortie (`200 ms`) | Fondu simple entrée/sortie | Apparition/retrait immédiats |
+| **6. Barre d'onglets & raccourcis** | Apparition nouvel onglet en fondu + échelle · surbrillance glissante · soulignement animé des raccourcis | Fondu simple | Instantané (`0 ms`) |
+
+**Réglages dans `Paramètres → Apparence & Thèmes`** :
+- Sélecteur segmenté à **3 niveaux** : **`Complètes`** (défaut) · **`Réduites`** · **`Désactivées`**.
+- Interrupteur **« Respecter le réglage Windows ( Mouvements réduits ) »** (`respectOsReducedMotion`, activé par défaut) : si Windows signale `prefers-reduced-motion: reduce` et que le niveau choisi est *Complètes*, WireFrame plafonne automatiquement le rendu effectif à **Réduites** (si l'utilisateur a choisi *Désactivées*, tout reste coupé).
+- L'interrupteur existant *« Animation d'ouverture Wire au lancement »* reste indépendant (mais respecte aussi le mode *Désactivées* sauf clic manuel sur *Rejouer*).
+
+**Architecture CSS, Performance & Contrats `zod`** :
+- Pilotage centralisé dans `applyThemeToDocument` via un attribut racine **`data-motion="full" | "reduced" | "off"`** sur `<html>` (+ écoute temps réel de `window.matchMedia('(prefers-reduced-motion: reduce)')`).
+- **100 % CSS accéléré GPU** : seules `transform` et `opacity` sont animées (`120–220 ms`, `cubic-bezier(0.22, 1, 0.36, 1)`), garantissant zéro *layout thrashing*. En mode `data-motion="off"`, toutes les animations et transitions décoratives sont forcées à `0ms` tandis que les **spinners d'activité réseau (`animate-spin` de chargement)** sont préservés pour indiquer que l'application travaille.
+- **Schéma `zod` (`src/shared/schemas/settings.schema.ts`)** :
+  - `appearance.animationLevel: z.enum(['full', 'reduced', 'off']).default('full')`
+  - `appearance.respectOsReducedMotion: z.boolean().default(true)`
+  - `audio.actionNotificationsEnabled: z.boolean().default(true)`
+- **Aucun nouveau canal IPC requis** : persistance atomique via `settings:update` existant ; orchestration des notifications côté Renderer dans `useNotificationStore` alimenté par les stores et `alerts:on-triggered`.
+- **Sécurité** : rendu strictement en nœuds texte React (aucun HTML brut), troncature défensive des chaînes (`title` ≤ 80 car., `message` ≤ 220 car.).
+
+#### 8.D — Hors périmètre (proposé pour plus tard)
+
+- Persistance sur disque de l'historique des notifications entre deux sessions.
+- Personnalisation individuelle des durées par type de toast ou positionnement libre aux 4 coins.
+
+---
+
 ## 4. Architecture Technique, Contrats IPC & Sécurité
 
 ### 4.1. Séparation Stricte des Couches (Clean Architecture sans serveur HTTP)
@@ -366,7 +452,8 @@ Avant tout développement, nous allons produire et valider ensemble **7 planches
 5. `05-codex-farm-helminth.excalidraw` : Explorateur Codex par catégories, Fiche Détail de Farm (tables de drop `%` + Fonderie) et vue **Infirmerie Helminth**.
 6. `06-alerts-settings-modals.excalidraw` : Centre d'Alertes (*Price Sniper* + Alertes Cycles) et Modale **Notes de Patch / Mise à jour**.
 7. `07-settings-system-complete.excalidraw` : **Système complet des Paramètres** (Modale `shadcn Dialog` structurée avec barre latérale en 5 catégories : *1. Apparence & Thèmes Bicolores*, *2. Audio & Notifications*, *3. Fenêtre, System Tray & Raccourcis Globaux éditables*, *4. Marché & Échanges*, *5. Mises à jour SHA-512, Export/Import JSON & Cache* + adaptation en `Sheet` plein écran pour le Mode Compact `460×660`).
-8. `09-hub-alerts-compact-timers.excalidraw` *(Module 7 — à produire après validation du CDC)* : liste des règles Worldstate + formulaire en 3 étapes avec aperçu en direct, historique des alertes, toast enrichi, et bandeau Minuteurs en Mode Compact avec ses 4 états UI.
+8. `09-hub-alerts-compact-timers.excalidraw` *(Module 7 — validé)* : liste des règles Worldstate + formulaire en 3 étapes avec aperçu en direct, historique des alertes, toast enrichi, et bandeau Minuteurs en Mode Compact avec ses 4 états UI.
+9. `10-notifications-animations.excalidraw` *(Module 8 — à valider)* : pile de notifications en bas à droite au-dessus du bouton Discord (5 types, compteur « +N », pause au survol), Centre de notifications sous 🔔 (Desktop `1440×900` & Compact `460×660`, 4 états UI), réglages Apparence / Audio (3 niveaux d'animations + bouton « Tester une notification »), et storyboard des 6 catégories d'animations (*Complètes* vs *Réduites* vs *Désactivées*).
 
 ---
 
