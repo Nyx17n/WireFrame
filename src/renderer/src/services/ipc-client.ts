@@ -119,6 +119,9 @@ export const ipcClient = {
     async setCompactMode(enabled: boolean): Promise<WindowState> {
       return WindowStateSchema.parse(await getBridge().window.setCompactMode(enabled))
     },
+    async setClickThrough(enabled: boolean): Promise<WindowState> {
+      return WindowStateSchema.parse(await getBridge().window.setClickThrough(enabled))
+    },
     async setZoom(zoomPercent: number): Promise<WindowState> {
       return WindowStateSchema.parse(await getBridge().window.setZoom(zoomPercent))
     },

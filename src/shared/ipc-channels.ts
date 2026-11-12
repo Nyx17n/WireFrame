@@ -47,6 +47,7 @@ export const IPC_CHANNELS = {
   WINDOW_CLOSE: 'window:close',
   WINDOW_SET_ALWAYS_ON_TOP: 'window:setAlwaysOnTop',
   WINDOW_SET_COMPACT_MODE: 'window:setCompactMode',
+  WINDOW_SET_CLICK_THROUGH: 'window:setClickThrough',
   WINDOW_SET_ZOOM: 'window:setZoom',
   WINDOW_OPEN_EXTERNAL: 'window:openExternalUrl',
   WINDOW_ON_STATE_CHANGED: 'window:onStateChanged',
@@ -99,6 +100,7 @@ export interface WireframeBridgeApi {
     close: () => Promise<void>
     setAlwaysOnTop: (enabled: boolean) => Promise<WindowState>
     setCompactMode: (enabled: boolean) => Promise<WindowState>
+    setClickThrough: (enabled: boolean) => Promise<WindowState>
     setZoom: (zoomPercent: number) => Promise<WindowState>
     openExternalUrl: (url: string) => Promise<boolean>
     onStateChanged: (listener: (state: WindowState) => void) => () => void

@@ -13,6 +13,7 @@ export const WindowStateSchema = z.object({
   isMaximized: z.boolean(),
   isAlwaysOnTop: z.boolean(),
   isCompactMode: z.boolean(),
+  isClickThrough: z.boolean().default(false),
   zoomPercent: z.number().int().min(50).max(200)
 })
 

@@ -1,5 +1,16 @@
 [
   {
+    "version": "2.5.4",
+    "date": "Novembre 2026",
+    "titleFr": "Mode Souris Traversante en Jeu (Click-Through Automatique en Pin 📌)",
+    "badgeFr": "Correctif v2.5.4",
+    "highlightsFr": [
+      "Souris traversante automatique en plein jeu : lorsque WireFrame est épinglée (Always-on-Top 📌) et que tu retournes dans Warframe, la fenêtre laisse désormais passer 100 % des mouvements de caméra et clics de tir sans jamais accrocher le curseur.",
+      "Reprise de main instantanée de 3 façons : raccourci global Alt+G (personnalisable), Alt+Tab / Alt+Shift+W, ou maintien volontaire de 0,5 s sur le badge « 🔓 Maintenir 0.5s » dans le bandeau supérieur.",
+      "Bouton rapide 👻 à côté de l’épingle 📌 (et option dédiée dans Paramètres → Fenêtre & Raccourcis) pour activer/désactiver ce comportement à la volée (pratique en configuration double écran)."
+    ]
+  },
+  {
     "version": "2.5.3",
     "date": "Novembre 2026",
     "titleFr": "Fermeture Instantanée d’Onglet au Clic Molette",

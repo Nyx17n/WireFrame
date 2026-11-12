@@ -68,6 +68,9 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     if (patch.window?.globalShortcutsEnabled !== undefined || patch.window?.shortcuts !== undefined) {
       await onShortcutsUpdated()
     }
+    if (patch.window?.clickThroughWhenPinned !== undefined) {
+      windowService.syncClickThroughWithSettings()
+    }
     if (
       patch.audio?.scanIntervalSec !== undefined ||
       patch.priceAlerts !== undefined ||
@@ -145,6 +148,12 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     assertTrustedSender(event, windowService.getMainWindow())
     const { enabled } = BooleanTogglePayloadSchema.parse(rawPayload)
     return windowService.setCompactMode(enabled)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.WINDOW_SET_CLICK_THROUGH, async (event, rawPayload: unknown) => {
+    assertTrustedSender(event, windowService.getMainWindow())
+    const { enabled } = BooleanTogglePayloadSchema.parse(rawPayload)
+    return windowService.setClickThrough(enabled)
   })
 
   ipcMain.handle(IPC_CHANNELS.WINDOW_SET_ZOOM, async (event, rawPayload: unknown) => {

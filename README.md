@@ -7,7 +7,7 @@
 
 > Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron 35 · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
-**WireFrame v2** (`v2.5.3`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés) et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
+**WireFrame v2** (`v2.5.4`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés) et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
 
 ---
 
@@ -24,7 +24,7 @@
    - Onglets dynamiques réordonnables par glisser-déposer, épinglables, indicateur fluide de transition de page et navigation *Précédent / Suivant* indépendante par onglet.
    - **Barre d’adresse `wf://` pleine largeur (`Ctrl+K`)** : recherche instantanée FR/EN dans les 3 900+ items du Marché, les 3 296 fiches du Codex, ou ouverture directe d’une URL `https://warframe.market/items/...` collée.
    - **Barre de raccourcis centrée** (*Marché · Favoris · Panier · Ordres récents · Codex · Ducanator · Contrats Mod Riven*) + **Historique de navigation complet (`wf://history`, `Ctrl+H`)** aligné à droite (masquée automatiquement sur le Hub Temps Réel).
-   - **Mode Compact Overlay (`460×660`, `Alt+M`)** + *Always-on-Top* (`Alt+P`) + bascule rapide en jeu (`Alt+Shift+W`) + contrôle du zoom `[ − | 100% | + ]`.
+   - **Mode Compact Overlay (`460×660`, `Alt+M`)** + *Always-on-Top* (`Alt+P`) avec **souris traversante automatique en plein jeu (`Alt+G`)** + bascule rapide (`Alt+Shift+W`) + contrôle du zoom `[ − | 100% | + ]`.
 
 2. **Marché Warframe Market Temps Réel & Outils Avancés**
    - Ordres d’achat/vente en direct, filtres statut/rang/réputation, flux complet des **annonces les plus récentes** dès l’accueil Marché et barre **`/w` Whisper** copiée en 1 clic en **EN ou FR**.

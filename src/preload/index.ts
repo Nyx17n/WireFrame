@@ -29,6 +29,8 @@ const wireframeApi: WireframeBridgeApi = Object.freeze({
       ipcRenderer.invoke(IPC_CHANNELS.WINDOW_SET_ALWAYS_ON_TOP, { enabled }),
     setCompactMode: (enabled: boolean) =>
       ipcRenderer.invoke(IPC_CHANNELS.WINDOW_SET_COMPACT_MODE, { enabled }),
+    setClickThrough: (enabled: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WINDOW_SET_CLICK_THROUGH, { enabled }),
     setZoom: (zoomPercent: number) =>
       ipcRenderer.invoke(IPC_CHANNELS.WINDOW_SET_ZOOM, { zoomPercent }),
     openExternalUrl: (url: string) =>

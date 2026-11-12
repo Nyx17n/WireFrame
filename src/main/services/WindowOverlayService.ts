@@ -12,6 +12,7 @@ import type { StorageService } from './StorageService'
 export class WindowOverlayService {
   private mainWindow: BrowserWindow | null = null
   private isCompactMode = false
+  private isClickThrough = false
   private isQuitting = false
 
   constructor(private readonly storageService: StorageService) {}
@@ -82,6 +83,7 @@ export class WindowOverlayService {
       isMaximized: this.mainWindow?.isMaximized() ?? false,
       isAlwaysOnTop: this.mainWindow?.isAlwaysOnTop() ?? settings.window.alwaysOnTop,
       isCompactMode: this.isCompactMode,
+      isClickThrough: this.isClickThrough,
       zoomPercent: settings.appearance.zoomPercent
     }
   }
@@ -118,14 +120,60 @@ export class WindowOverlayService {
     if (this.mainWindow.isVisible() && this.mainWindow.isFocused()) {
       this.mainWindow.hide()
     } else {
+      this.applyClickThroughInternal(false)
       if (this.mainWindow.isMinimized()) this.mainWindow.restore()
       this.mainWindow.show()
       this.mainWindow.focus()
+      this.emitStateChanged()
     }
+  }
+
+  public async setClickThrough(enabled: boolean): Promise<WindowState> {
+    this.applyClickThroughInternal(enabled)
+    const state = await this.getState()
+    this.emitStateChanged()
+    return state
+  }
+
+  public async toggleClickThroughShortcut(): Promise<WindowState> {
+    if (!this.mainWindow) return this.getState()
+
+    if (!this.mainWindow.isVisible()) {
+      this.applyClickThroughInternal(false)
+      if (this.mainWindow.isMinimized()) this.mainWindow.restore()
+      this.mainWindow.show()
+      this.mainWindow.focus()
+    } else if (this.isClickThrough) {
+      this.applyClickThroughInternal(false)
+      if (this.mainWindow.isMinimized()) this.mainWindow.restore()
+      this.mainWindow.show()
+      this.mainWindow.focus()
+    } else if (this.mainWindow.isAlwaysOnTop()) {
+      this.applyClickThroughInternal(true)
+      this.mainWindow.blur()
+    }
+
+    const state = await this.getState()
+    this.emitStateChanged()
+    return state
+  }
+
+  public syncClickThroughWithSettings(): void {
+    if (!this.mainWindow || this.mainWindow.isDestroyed()) return
+    const settings = this.storageService.getSettingsSync()
+    if (!settings.window.clickThroughWhenPinned || !this.mainWindow.isAlwaysOnTop()) {
+      this.applyClickThroughInternal(false)
+    } else if (!this.mainWindow.isFocused()) {
+      this.applyClickThroughInternal(true)
+    }
+    this.emitStateChanged()
   }
 
   public async setAlwaysOnTop(enabled: boolean): Promise<WindowState> {
     this.applyAlwaysOnTopInternal(enabled)
+    if (!enabled) {
+      this.applyClickThroughInternal(false)
+    }
     await this.storageService.updateSettings({ window: { alwaysOnTop: enabled } })
     const state = await this.getState()
     this.emitStateChanged()
@@ -190,6 +238,19 @@ export class WindowOverlayService {
       this.mainWindow.setAlwaysOnTop(true, 'screen-saver')
     } else {
       this.mainWindow.setAlwaysOnTop(false)
+      this.applyClickThroughInternal(false)
+    }
+  }
+
+  private applyClickThroughInternal(enabled: boolean): void {
+    if (!this.mainWindow || this.mainWindow.isDestroyed()) return
+    const shouldEnable = enabled && this.mainWindow.isAlwaysOnTop()
+    if (shouldEnable) {
+      this.mainWindow.setIgnoreMouseEvents(true, { forward: true })
+      this.isClickThrough = true
+    } else {
+      this.mainWindow.setIgnoreMouseEvents(false)
+      this.isClickThrough = false
     }
   }
 
@@ -211,6 +272,19 @@ export class WindowOverlayService {
   private attachWindowListeners(win: BrowserWindow): void {
     win.on('maximize', () => this.emitStateChanged())
     win.on('unmaximize', () => this.emitStateChanged())
+    win.on('focus', () => {
+      if (this.isClickThrough) {
+        this.applyClickThroughInternal(false)
+        this.emitStateChanged()
+      }
+    })
+    win.on('blur', () => {
+      const settings = this.storageService.getSettingsSync()
+      if (win.isAlwaysOnTop() && settings.window.clickThroughWhenPinned) {
+        this.applyClickThroughInternal(true)
+        this.emitStateChanged()
+      }
+    })
     win.on('close', (event) => {
       const settings = this.storageService.getSettingsSync()
       // En mode packagé, Alt+F4 replie dans le System Tray si closeToTray est actif.

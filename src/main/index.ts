@@ -115,7 +115,8 @@ async function bootstrap(): Promise<void> {
     const settings = await storageService.getSettings()
     if (!settings.window.globalShortcutsEnabled) return
 
-    const { toggleOverlay, toggleCompact, toggleAlwaysOnTop } = settings.window.shortcuts
+    const { toggleOverlay, toggleCompact, toggleAlwaysOnTop, toggleClickThrough } =
+      settings.window.shortcuts
     try {
       globalShortcut.register(toggleOverlay, () => windowService.toggleVisibility())
       globalShortcut.register(toggleCompact, () => {
@@ -123,6 +124,9 @@ async function bootstrap(): Promise<void> {
       })
       globalShortcut.register(toggleAlwaysOnTop, () => {
         void windowService.getState().then((st) => windowService.setAlwaysOnTop(!st.isAlwaysOnTop))
+      })
+      globalShortcut.register(toggleClickThrough, () => {
+        void windowService.toggleClickThroughShortcut()
       })
     } catch {
       // Ignore registration failure if shortcut is already held by another OS process

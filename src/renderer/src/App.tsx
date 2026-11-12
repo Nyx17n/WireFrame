@@ -4,6 +4,7 @@ import { ChangelogModal } from '@/components/modals/ChangelogModal'
 import { NotificationViewport } from '@/components/notifications/NotificationViewport'
 import { SettingsModal } from '@/components/settings/SettingsModal'
 import { BookmarksBar } from '@/components/shell/BookmarksBar'
+import { ClickThroughBanner } from '@/components/shell/ClickThroughBanner'
 import { CommandNavBar } from '@/components/shell/CommandNavBar'
 import { DiscordCornerButton } from '@/components/shell/DiscordCornerButton'
 import { OmniboxDialog } from '@/components/shell/OmniboxDialog'
@@ -120,6 +121,7 @@ export function App(): React.JSX.Element {
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
       <TitleTabsBar />
+      <ClickThroughBanner />
       <CommandNavBar />
       <BookmarksBar />
       <UpdateBanner />
