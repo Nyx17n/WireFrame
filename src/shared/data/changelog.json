@@ -1,5 +1,18 @@
 [
   {
+    "version": "2.4.0",
+    "date": "Novembre 2026",
+    "titleFr": "Grilles Personnalisables (S/M/L), Barre de Raccourcis, Prix Min/Moy/Max & Historique",
+    "badgeFr": "Nouveauté v2.4",
+    "highlightsFr": [
+      "3 modes d’affichage (Carrée, Rectangulaire, Liste pleine largeur) et 3 tailles de cartes (S / M / L) avec images proportionnelles sur Marché, Favoris, Panier, Ordres récents, Codex, Ducanator et Contrats Mod Riven.",
+      "Barre d’adresse wf:// pleine largeur et barre de raccourcis centrée sous la navigation (masquée automatiquement dans le Hub Temps Réel) + vue Historique dédiée (Ctrl+H).",
+      "Badges de prix en direct (Min · Moy · Max Platines) sur le Marché, Favoris, Panier, Ordres récents et les items échangeables du Codex, accompagnés de la liste complète des annonces récentes sur l’accueil Marché.",
+      "Codex enrichi : affichage direct des ressources de craft Fonderie dans les cases d’items, stabilisation de la barre de défilement et indicateur fluide de changement de page.",
+      "Bouton Discord officiel en bas à droite (masqué automatiquement en Mode Compact) et publication automatisée des patch notes."
+    ]
+  },
+  {
     "version": "2.3.2",
     "date": "Novembre 2026",
     "titleFr": "Alignement Identité Officielle GitHub Nyxo17 (Nyx17n)",

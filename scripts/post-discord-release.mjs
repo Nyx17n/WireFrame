@@ -90,8 +90,9 @@ function buildReleaseContent(version) {
     '',
     ...entry.highlightsFr.map((line) => `- ${line}`),
     '',
-    `### Téléchargement direct`,
-    `- **Installateur Windows (x64)** : [WireFrame-Setup-${version}.exe](${installerUrl})`
+    `### Téléchargement & Communauté`,
+    `- **Installateur Windows (x64)** : [WireFrame-Setup-${version}.exe](${installerUrl})`,
+    `- **Serveur Discord Officiel** : [Rejoindre discord.gg/DhGwHPf82n](https://discord.gg/DhGwHPf82n)`
   ].join('\n')
 
   return { entry, releaseUrl, installerUrl, avatarUrl, description, markdownReleaseBody }
