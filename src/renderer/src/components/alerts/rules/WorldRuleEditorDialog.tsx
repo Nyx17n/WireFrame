@@ -72,11 +72,12 @@ export function WorldRuleEditorDialog({ open, initialRule, onClose, onSave }: Ed
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent
+        layout={isCompact ? 'center' : 'drawer-right'}
         className={cn(
           'gap-3 overflow-hidden p-0',
           isCompact
-            ? 'h-full max-w-none rounded-none'
-            : 'left-auto right-0 top-0 h-full max-w-[560px] translate-x-0 translate-y-0 rounded-none border-y-0 border-r-0'
+            ? 'h-[92vh] max-w-[95vw]'
+            : 'h-full max-w-[560px] rounded-none border-y-0 border-r-0'
         )}
       >
         <DialogHeader className="border-b border-border px-5 pb-3 pt-5">

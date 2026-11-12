@@ -1,5 +1,16 @@
 [
   {
+    "version": "2.5.1",
+    "date": "Novembre 2026",
+    "titleFr": "Correctif Netteté ClearType des Animations & Résilience Worldstate",
+    "badgeFr": "Correctif v2.5.1",
+    "highlightsFr": [
+      "Netteté ClearType 100 % restaurée en mode d’animations « Complètes » : passage en animation-fill-mode: backwards avec libération immédiate des couches GPU (transform: none) et suppression du voile backdrop-blur lors des changements de page.",
+      "Centrage Flexbox pixel-perfect des fenêtres modales (Paramètres, Omnibox, Notes de Patch) éliminant le flou sous-pixel lié à translate(-50%, -50%) sur les hauteurs impaires.",
+      "Résilience renforcée du Hub Worldstate face aux erreurs HTTP 404 temporaires de api.warframestat.us/pc/ : bascule automatique multi-endpoints (FR → EN) et cache de secours persistant validé par Zod."
+    ]
+  },
+  {
     "version": "2.5.0",
     "date": "Novembre 2026",
     "titleFr": "Alertes Worldstate sur Mesure, Minuteurs Compact, Centre de Notifications & Animations",

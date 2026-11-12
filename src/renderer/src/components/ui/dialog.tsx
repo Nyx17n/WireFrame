@@ -23,30 +23,46 @@ export const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+export interface DialogContentProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
+  hideCloseButton?: boolean
+  layout?: 'center' | 'drawer-right'
+}
+
 export const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { hideCloseButton?: boolean }
->(({ className, children, hideCloseButton = false, ...props }, ref) => (
+  DialogContentProps
+>(({ className, children, hideCloseButton = false, layout = 'center', ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
+    <div
       className={cn(
-        'wf-dialog-motion fixed left-[50%] top-[50%] z-50 flex w-full max-w-lg translate-x-[-50%] translate-y-[-50%] flex-col gap-4 rounded-lg border border-border bg-card p-5 text-card-foreground shadow-xl',
-        className
+        'pointer-events-none fixed inset-0 z-50 flex',
+        layout === 'drawer-right'
+          ? 'items-stretch justify-end'
+          : 'items-center justify-center p-3 sm:p-4'
       )}
-      {...props}
     >
-      {children}
-      {!hideCloseButton && (
-        <DialogPrimitive.Close
-          className="absolute right-3 top-3 rounded-sm p-1 text-muted-foreground opacity-80 transition-opacity hover:bg-secondary hover:text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          aria-label="Fermer"
-        >
-          <X className="h-4 w-4" />
-        </DialogPrimitive.Close>
-      )}
-    </DialogPrimitive.Content>
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          layout === 'drawer-right' ? 'wf-drawer-motion' : 'wf-dialog-motion',
+          'pointer-events-auto relative flex w-full max-w-lg flex-col gap-4 rounded-lg border border-border bg-card p-5 text-card-foreground shadow-xl',
+          className
+        )}
+        {...props}
+      >
+        {children}
+        {!hideCloseButton && (
+          <DialogPrimitive.Close
+            className="absolute right-3 top-3 rounded-sm p-1 text-muted-foreground opacity-80 transition-opacity hover:bg-secondary hover:text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            aria-label="Fermer"
+          >
+            <X className="h-4 w-4" />
+          </DialogPrimitive.Close>
+        )}
+      </DialogPrimitive.Content>
+    </div>
   </DialogPortal>
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
