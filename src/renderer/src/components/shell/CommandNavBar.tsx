@@ -2,6 +2,7 @@ import * as React from 'react'
 import {
   ArrowLeft,
   ArrowRight,
+  Ghost,
   Maximize2,
   Minimize2,
   Minus,
@@ -21,6 +22,9 @@ import { useTabsStore } from '@/stores/useTabsStore'
 
 export function CommandNavBar(): React.JSX.Element {
   const windowState = useAppStore((s) => s.windowState)
+  const clickThroughWhenPinned = useAppStore((s) => s.settings.window.clickThroughWhenPinned)
+  const clickThroughShortcut = useAppStore((s) => s.settings.window.shortcuts.toggleClickThrough)
+  const updateSettings = useAppStore((s) => s.updateSettings)
   const updaterStatus = useAppStore((s) => s.updaterStatus)
   const setOmniboxOpen = useAppStore((s) => s.setOmniboxOpen)
   const openSettingsModal = useAppStore((s) => s.openSettingsModal)
@@ -139,6 +143,25 @@ export function CommandNavBar(): React.JSX.Element {
         >
           <Pin className="h-3.5 w-3.5" />
         </Button>
+
+        {windowState.isAlwaysOnTop && (
+          <Button
+            variant={clickThroughWhenPinned ? 'default' : 'outline'}
+            size="icon"
+            onClick={() =>
+              void updateSettings({
+                window: { clickThroughWhenPinned: !clickThroughWhenPinned }
+              })
+            }
+            title={
+              clickThroughWhenPinned
+                ? `Souris traversante en jeu ACTIVÉE (${clickThroughShortcut} pour reprendre la main — cliquer pour désactiver sur un 2e écran)`
+                : 'Souris traversante en jeu DÉSACTIVÉE (cliquer pour empêcher la souris d’accrocher la fenêtre en plein jeu)'
+            }
+          >
+            <Ghost className="h-3.5 w-3.5" />
+          </Button>
+        )}
 
         <Button
           variant={windowState.isCompactMode ? 'default' : 'outline'}

@@ -47,6 +47,7 @@ interface AppStoreState {
   importSettingsJson: () => Promise<boolean>
   toggleAlwaysOnTop: () => Promise<void>
   toggleCompactMode: () => Promise<void>
+  setClickThrough: (enabled: boolean) => Promise<void>
   setWindowZoom: (zoomPercent: number) => Promise<void>
 }
 
@@ -54,6 +55,7 @@ const DEFAULT_WINDOW_STATE: WindowState = {
   isMaximized: false,
   isAlwaysOnTop: false,
   isCompactMode: false,
+  isClickThrough: false,
   zoomPercent: 100
 }
 
@@ -265,6 +267,11 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
 
   toggleCompactMode: async () => {
     const windowState = await ipcClient.window.setCompactMode(!get().windowState.isCompactMode)
+    set({ windowState })
+  },
+
+  setClickThrough: async (enabled) => {
+    const windowState = await ipcClient.window.setClickThrough(enabled)
     set({ windowState })
   },
 

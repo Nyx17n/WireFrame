@@ -50,7 +50,8 @@ export const SellerStatusFilterSchema = z.enum(['ingame', 'online', 'all'])
 export const GlobalShortcutsMapSchema = z.object({
   toggleOverlay: z.string().min(1).max(64).default('Alt+Shift+W'),
   toggleCompact: z.string().min(1).max(64).default('Alt+M'),
-  toggleAlwaysOnTop: z.string().min(1).max(64).default('Alt+P')
+  toggleAlwaysOnTop: z.string().min(1).max(64).default('Alt+P'),
+  toggleClickThrough: z.string().min(1).max(64).default('Alt+G')
 })
 
 export const CatalogLayoutModeSchema = z.enum(['square', 'rect', 'list'])
@@ -114,12 +115,9 @@ export const UserSettingsSchema = z.object({
   window: z.object({
     closeToTray: z.boolean().default(true),
     alwaysOnTop: z.boolean().default(false),
+    clickThroughWhenPinned: z.boolean().default(true),
     globalShortcutsEnabled: z.boolean().default(true),
-    shortcuts: GlobalShortcutsMapSchema.default({
-      toggleOverlay: 'Alt+Shift+W',
-      toggleCompact: 'Alt+M',
-      toggleAlwaysOnTop: 'Alt+P'
-    }),
+    shortcuts: GlobalShortcutsMapSchema.default({}),
     desktopBounds: WindowBoundsSchema.default({ width: 1440, height: 900 }),
     compactBounds: WindowBoundsSchema.default({ width: 460, height: 660 })
   }),

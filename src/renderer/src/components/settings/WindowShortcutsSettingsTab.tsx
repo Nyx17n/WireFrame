@@ -4,7 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { useAppStore } from '@/stores/useAppStore'
 
-type ShortcutKey = 'toggleOverlay' | 'toggleCompact' | 'toggleAlwaysOnTop'
+type ShortcutKey =
+  | 'toggleOverlay'
+  | 'toggleCompact'
+  | 'toggleAlwaysOnTop'
+  | 'toggleClickThrough'
 
 function formatAccelerator(e: React.KeyboardEvent<HTMLButtonElement>): string | null {
   const ignored = new Set(['Control', 'Shift', 'Alt', 'Meta'])
@@ -32,7 +36,8 @@ export function WindowShortcutsSettingsTab(): React.JSX.Element {
   const shortcutRows: readonly { key: ShortcutKey; label: string }[] = [
     { key: 'toggleOverlay', label: 'Afficher / Masquer WireFrame en jeu' },
     { key: 'toggleCompact', label: 'Basculer Mode Compact (460×660)' },
-    { key: 'toggleAlwaysOnTop', label: 'Basculer Épingle Premier Plan' }
+    { key: 'toggleAlwaysOnTop', label: 'Basculer Épingle Premier Plan' },
+    { key: 'toggleClickThrough', label: 'Verrouiller / Déverrouiller la souris sur l’overlay' }
   ]
 
   return (
@@ -60,6 +65,21 @@ export function WindowShortcutsSettingsTab(): React.JSX.Element {
           <Switch
             checked={windowState.isAlwaysOnTop}
             onCheckedChange={() => void toggleAlwaysOnTop()}
+          />
+        </label>
+
+        <label className="flex cursor-pointer items-center justify-between gap-3 text-xs">
+          <div className="space-y-0.5">
+            <div>Souris traversante automatique en jeu (quand épinglé 📌)</div>
+            <div className="text-[11px] text-muted-foreground">
+              Empêche le curseur d’accrocher WireFrame quand tu tournes la caméra dans Warframe.
+            </div>
+          </div>
+          <Switch
+            checked={winSettings.clickThroughWhenPinned}
+            onCheckedChange={(checked) =>
+              void updateSettings({ window: { clickThroughWhenPinned: checked } })
+            }
           />
         </label>
 
