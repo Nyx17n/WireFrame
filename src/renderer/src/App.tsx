@@ -50,7 +50,7 @@ export function App(): React.JSX.Element {
       <TitleTabsBar />
       <CommandNavBar />
       <UpdateBanner />
-      <div className="flex-1 overflow-y-auto">
+      <div className="wf-scroll-stable flex-1 overflow-y-auto">
         <WorkspaceRouteViewport />
       </div>
       <WhisperBar />

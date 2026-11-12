@@ -268,7 +268,7 @@ export function CodexHomeView({
 
           <CodexItemsDisplay
             items={result?.items ?? []}
-            isLoading={isLoading}
+            isLoading={isLoading && result === null}
             layoutMode={layoutMode}
             onSelectCard={(route, title, inNewTab) =>
               inNewTab ? openTab(route, { title }) : navigateActive(route, title)
