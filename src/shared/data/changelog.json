@@ -1,5 +1,16 @@
 [
   {
+    "version": "2.6.0",
+    "date": "Novembre 2026",
+    "titleFr": "Dégradés de Fond d’Écran Sci-Fi & Atmosphère Personnalisable",
+    "badgeFr": "Nouveauté v2.6.0",
+    "highlightsFr": [
+      "8 styles de dégradés de fond d’écran dans Paramètres → Apparence & Thèmes : Uni, Halo Boréal, Diagonale, Double Énergie, Noyau du Néant, Horizon Bas, Nébuleuse Mesh et Zénith Linéaire, avec miniature d’aperçu en direct.",
+      "Mode de teinte intelligent « Auto (Accent du thème) » qui s’accorde automatiquement avec les 20 thèmes bicolores (Sombre, Clair, Full Black OLED…) ou mode « Couleurs personnalisées » à 2 teintes indépendantes.",
+      "Réglage fin de l’intensité lumineuse (5 % à 65 % avec contraste lisible garanti) et de l’angle d’orientation (0° à 360° + raccourcis rapides), rendu en pur CSS GPU statique à 0 % coût CPU en plein jeu."
+    ]
+  },
+  {
     "version": "2.5.4",
     "date": "Novembre 2026",
     "titleFr": "Mode Souris Traversante en Jeu (Click-Through Automatique en Pin 📌)",

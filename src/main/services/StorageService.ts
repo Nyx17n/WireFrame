@@ -85,6 +85,10 @@ export class StorageService {
       appearance: {
         ...current.appearance,
         ...patch.appearance,
+        backgroundGradient: {
+          ...current.appearance.backgroundGradient,
+          ...patch.appearance?.backgroundGradient
+        },
         compactTimers: { ...current.appearance.compactTimers, ...patch.appearance?.compactTimers }
       },
       audio: { ...current.audio, ...patch.audio },
