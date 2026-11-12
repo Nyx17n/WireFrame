@@ -26,6 +26,7 @@ import type {
 } from './schemas/tools.schema'
 import type { UpdaterStatus } from './schemas/updater.schema'
 import type { WindowState } from './schemas/window.schema'
+import type { WorldAlertRuleInput, WorldRulePreviewResult } from './schemas/world-rules.schema'
 import type {
   VoidTraderSnapshot,
   VitusModPriceEntry,
@@ -63,6 +64,9 @@ export const IPC_CHANNELS = {
   TOOLS_SEARCH_RIVENS: 'tools:searchRivens',
   ALERTS_SCAN_NOW: 'alerts:scanNow',
   ALERTS_ON_TRIGGERED: 'alerts:onTriggered',
+  ALERTS_PREVIEW_WORLD_RULE: 'alerts:previewWorldRule',
+  ALERTS_GET_HISTORY: 'alerts:getHistory',
+  ALERTS_CLEAR_HISTORY: 'alerts:clearHistory',
   WORLDSTATE_GET_CURRENT: 'worldstate:getCurrent',
   WORLDSTATE_GET_BARO_PRICES: 'worldstate:getBaroWithPrices',
   WORLDSTATE_GET_VITUS_PRICES: 'worldstate:getVitusWithPrices',
@@ -120,6 +124,9 @@ export interface WireframeBridgeApi {
   readonly alerts: {
     scanNow: () => Promise<TriggeredAlertEvent[]>
     onTriggered: (listener: (alert: TriggeredAlertEvent) => void) => () => void
+    previewWorldRule: (rule: WorldAlertRuleInput) => Promise<WorldRulePreviewResult>
+    getHistory: () => Promise<TriggeredAlertEvent[]>
+    clearHistory: () => Promise<void>
   }
   readonly worldstate: {
     getCurrent: (forceRefresh?: boolean) => Promise<WorldstateHubPayload>

@@ -11,6 +11,7 @@ import { OmniboxDialog } from '@/components/shell/OmniboxDialog'
 import { StartupSplashOverlay } from '@/components/shell/StartupSplashOverlay'
 import { StatusBar } from '@/components/shell/StatusBar'
 import { UpdateBanner } from '@/components/shell/UpdateBanner'
+import { CompactTimersBar } from '@/components/shell/timers/CompactTimersBar'
 import { SettingsModal } from '@/components/settings/SettingsModal'
 import { useLocalShortcuts } from '@/hooks/useLocalShortcuts'
 import { WorkspaceRouteViewport } from '@/pages/WorkspaceRouteViewport'
@@ -47,7 +48,7 @@ export function App(): React.JSX.Element {
     const cleanupAlerts = ipcClient.alerts.onTriggered((alertEvent) => {
       setLatestAlertToast(alertEvent)
       const { audio } = useAppStore.getState().settings
-      if (audio.soundEnabled) {
+      if (audio.soundEnabled && !alertEvent.silent) {
         void playAlertSoundPreview(audio.soundChoice, audio.volumePercent)
       }
     })
@@ -75,6 +76,7 @@ export function App(): React.JSX.Element {
         <DiscordCornerButton />
       </div>
       <WhisperBar />
+      <CompactTimersBar />
       <StatusBar />
       <AlertToastBanner />
       <OmniboxDialog />

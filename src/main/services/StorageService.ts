@@ -6,6 +6,7 @@ import {
   type UserSettings,
   type UserSettingsPatch
 } from '@shared/schemas/settings.schema'
+import { sanitizeWorldRules } from './settings-sanitizers'
 
 const LEGACY_THEME_PRESET_MAP: Readonly<Record<string, string>> = {
   'orokin-dark': 'dark',
@@ -53,7 +54,7 @@ export class StorageService {
 
     try {
       const raw = await fs.readFile(this.configPath, 'utf-8')
-      const parsedJson: unknown = migrateLegacySettings(JSON.parse(raw))
+      const parsedJson: unknown = sanitizeWorldRules(migrateLegacySettings(JSON.parse(raw)))
       const validated = UserSettingsSchema.safeParse(parsedJson)
       if (validated.success) {
         this.cachedSettings = validated.data
@@ -81,7 +82,11 @@ export class StorageService {
   public async updateSettings(patch: UserSettingsPatch): Promise<UserSettings> {
     const current = await this.load()
     const merged = {
-      appearance: { ...current.appearance, ...patch.appearance },
+      appearance: {
+        ...current.appearance,
+        ...patch.appearance,
+        compactTimers: { ...current.appearance.compactTimers, ...patch.appearance?.compactTimers }
+      },
       audio: { ...current.audio, ...patch.audio },
       window: {
         ...current.window,
@@ -97,6 +102,7 @@ export class StorageService {
       cart: patch.cart ?? current.cart,
       priceAlerts: patch.priceAlerts ?? current.priceAlerts,
       worldAlerts: { ...current.worldAlerts, ...patch.worldAlerts },
+      worldRules: patch.worldRules ?? current.worldRules,
       session: {
         ...current.session,
         ...patch.session,

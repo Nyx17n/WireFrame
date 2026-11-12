@@ -6,6 +6,7 @@ import type { UserSettingsPatch } from '@shared/schemas/settings.schema'
 import type { RivenSearchParams } from '@shared/schemas/tools.schema'
 import type { UpdaterStatus } from '@shared/schemas/updater.schema'
 import type { WindowState } from '@shared/schemas/window.schema'
+import type { WorldAlertRuleInput } from '@shared/schemas/world-rules.schema'
 
 const wireframeApi: WireframeBridgeApi = Object.freeze({
   system: Object.freeze({
@@ -72,6 +73,10 @@ const wireframeApi: WireframeBridgeApi = Object.freeze({
   }),
   alerts: Object.freeze({
     scanNow: () => ipcRenderer.invoke(IPC_CHANNELS.ALERTS_SCAN_NOW),
+    previewWorldRule: (rule: WorldAlertRuleInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.ALERTS_PREVIEW_WORLD_RULE, rule),
+    getHistory: () => ipcRenderer.invoke(IPC_CHANNELS.ALERTS_GET_HISTORY),
+    clearHistory: () => ipcRenderer.invoke(IPC_CHANNELS.ALERTS_CLEAR_HISTORY),
     onTriggered: (listener: (alert: TriggeredAlertEvent) => void) => {
       const wrapped = (_event: IpcRendererEvent, alert: TriggeredAlertEvent): void => {
         listener(alert)

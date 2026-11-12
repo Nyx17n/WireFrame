@@ -48,6 +48,11 @@ import {
 } from '@shared/schemas/tools.schema'
 import { WindowStateSchema, type WindowState } from '@shared/schemas/window.schema'
 import {
+  WorldRulePreviewResultSchema,
+  type WorldAlertRuleInput,
+  type WorldRulePreviewResult
+} from '@shared/schemas/world-rules.schema'
+import {
   UpdaterStatusSchema,
   type UpdaterStatus
 } from '@shared/schemas/updater.schema'
@@ -190,6 +195,23 @@ export const ipcClient = {
         const parsed = TriggeredAlertEventSchema.safeParse(rawAlert)
         if (parsed.success) listener(parsed.data)
       })
+    },
+    async previewWorldRule(rule: WorldAlertRuleInput): Promise<WorldRulePreviewResult> {
+      const bridge = getBridge()
+      if (!bridge.alerts?.previewWorldRule) {
+        throw new Error('Relance npm.cmd run dev pour activer les règles Worldstate.')
+      }
+      return WorldRulePreviewResultSchema.parse(await bridge.alerts.previewWorldRule(rule))
+    },
+    async getHistory(): Promise<TriggeredAlertEvent[]> {
+      const bridge = getBridge()
+      if (!bridge.alerts?.getHistory) return []
+      return z.array(TriggeredAlertEventSchema).parse(await bridge.alerts.getHistory())
+    },
+    async clearHistory(): Promise<void> {
+      const bridge = getBridge()
+      if (!bridge.alerts?.clearHistory) return
+      await bridge.alerts.clearHistory()
     }
   },
   worldstate: {
