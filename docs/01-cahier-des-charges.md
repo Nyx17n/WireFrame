@@ -276,7 +276,7 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 
 ### Module 8 — Extension v2.5 : Notifications In-App, Centre de Notifications & Animations
 
-> **Statut : BROUILLON — en attente de validation par Maxime** (section + planche `10-notifications-animations.excalidraw`). Aucun code applicatif avant validation explicite.
+> **Statut : VALIDÉ par Maxime le 12/11/2026** (section + planche `10-notifications-animations.excalidraw`). Implémentation sur la branche `feat/notifications-animations`.
 
 **Choix exprimés par Maxime (12/11/2026)** :
 - **A1** : Notifications in-app pour les actions de l'application (*« Copié ! »*, *« Ajouté aux favoris »*, *« Ajouté au panier »*, erreurs réseau, mise à jour disponible…) **+** Centre de notifications sous la cloche 🔔 avec historique de session.
@@ -453,7 +453,7 @@ Avant tout développement, nous allons produire et valider ensemble **7 planches
 6. `06-alerts-settings-modals.excalidraw` : Centre d'Alertes (*Price Sniper* + Alertes Cycles) et Modale **Notes de Patch / Mise à jour**.
 7. `07-settings-system-complete.excalidraw` : **Système complet des Paramètres** (Modale `shadcn Dialog` structurée avec barre latérale en 5 catégories : *1. Apparence & Thèmes Bicolores*, *2. Audio & Notifications*, *3. Fenêtre, System Tray & Raccourcis Globaux éditables*, *4. Marché & Échanges*, *5. Mises à jour SHA-512, Export/Import JSON & Cache* + adaptation en `Sheet` plein écran pour le Mode Compact `460×660`).
 8. `09-hub-alerts-compact-timers.excalidraw` *(Module 7 — validé)* : liste des règles Worldstate + formulaire en 3 étapes avec aperçu en direct, historique des alertes, toast enrichi, et bandeau Minuteurs en Mode Compact avec ses 4 états UI.
-9. `10-notifications-animations.excalidraw` *(Module 8 — à valider)* : pile de notifications en bas à droite au-dessus du bouton Discord (5 types, compteur « +N », pause au survol), Centre de notifications sous 🔔 (Desktop `1440×900` & Compact `460×660`, 4 états UI), réglages Apparence / Audio (3 niveaux d'animations + bouton « Tester une notification »), et storyboard des 6 catégories d'animations (*Complètes* vs *Réduites* vs *Désactivées*).
+9. `10-notifications-animations.excalidraw` *(Module 8 — validé)* : pile de notifications en bas à droite au-dessus du bouton Discord (5 types, compteur « +N », pause au survol), Centre de notifications sous 🔔 (Desktop `1440×900` & Compact `460×660`, 4 états UI), réglages Apparence / Audio (3 niveaux d'animations + bouton « Tester une notification »), et storyboard des 6 catégories d'animations (*Complètes* vs *Réduites* vs *Désactivées*).
 
 ---
 
