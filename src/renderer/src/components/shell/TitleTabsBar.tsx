@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { Copy, Globe, Loader2, Minus, Plus, Square, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Copy, Globe, Loader2, Minus, Plus, Square, X } from 'lucide-react'
 import { BrowserTabPill } from '@/components/shell/BrowserTabPill'
 import { TabOrganizerPopover } from '@/components/shell/TabOrganizerPopover'
+import { cn } from '@/lib/utils'
 import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
-import { cn } from '@/lib/utils'
 
 export function TitleTabsBar(): React.JSX.Element {
   const windowState = useAppStore((s) => s.windowState)
@@ -18,13 +18,65 @@ export function TitleTabsBar(): React.JSX.Element {
   const isPageTransitioning = useTabsStore((s) => s.isPageTransitioning)
 
   const [draggedTabId, setDraggedTabId] = React.useState<string | null>(null)
+  const [canScrollLeft, setCanScrollLeft] = React.useState(false)
+  const [canScrollRight, setCanScrollRight] = React.useState(false)
+  const tabsStripRef = React.useRef<HTMLDivElement | null>(null)
+
+  const updateScrollIndicators = React.useCallback(() => {
+    const strip = tabsStripRef.current
+    if (!strip) return
+    const maxScrollLeft = strip.scrollWidth - strip.clientWidth
+    setCanScrollLeft(strip.scrollLeft > 2)
+    setCanScrollRight(maxScrollLeft - strip.scrollLeft > 2)
+  }, [])
+
+  React.useEffect(() => {
+    updateScrollIndicators()
+    const strip = tabsStripRef.current
+    if (!strip) return
+    const observer = new ResizeObserver(() => updateScrollIndicators())
+    observer.observe(strip)
+    return () => observer.disconnect()
+  }, [tabs.length, windowState.isCompactMode, updateScrollIndicators])
+
+  React.useEffect(() => {
+    if (hubActive) return
+    const strip = tabsStripRef.current
+    if (!strip) return
+    const activeEl = Array.from(strip.querySelectorAll<HTMLElement>('[data-tab-id]')).find(
+      (el) => el.dataset.tabId === activeTabId
+    )
+    if (activeEl) {
+      const behavior =
+        document.documentElement.dataset.motion === 'off' ? 'auto' : 'smooth'
+      activeEl.scrollIntoView({ behavior, block: 'nearest', inline: 'nearest' })
+    }
+  }, [activeTabId, hubActive, tabs.length])
+
+  const scrollTabsBy = (delta: number): void => {
+    const strip = tabsStripRef.current
+    if (!strip) return
+    const behavior =
+      document.documentElement.dataset.motion === 'off' ? 'auto' : 'smooth'
+    strip.scrollBy({ left: delta, behavior })
+  }
+
+  const handleWheelScroll = (e: React.WheelEvent<HTMLDivElement>): void => {
+    const strip = tabsStripRef.current
+    if (!strip || strip.scrollWidth <= strip.clientWidth) return
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+    if (delta !== 0) {
+      strip.scrollLeft += delta
+      updateScrollIndicators()
+    }
+  }
 
   return (
     <header
       className="app-drag-region flex h-9 shrink-0 select-none items-center justify-between border-b border-border bg-background/95 pl-2"
       aria-label="Barre d'onglets et contrôles fenêtre"
     >
-      <div className="app-no-drag flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none]">
+      <div className="app-no-drag flex min-w-0 items-center gap-1">
         <button
           type="button"
           onClick={activateHub}
@@ -51,32 +103,65 @@ export function TitleTabsBar(): React.JSX.Element {
 
         <div className="mx-0.5 h-4 w-px shrink-0 bg-border" />
 
-        {tabs.map((tab) => (
-          <BrowserTabPill
-            key={tab.id}
-            tab={tab}
-            isActive={!hubActive && tab.id === activeTabId}
-            isCompact={windowState.isCompactMode}
-            onDragStartTab={(id) => setDraggedTabId(id)}
-            onDropOnTab={(targetId) => {
-              if (draggedTabId) {
-                reorderTabs(draggedTabId, targetId)
-                setDraggedTabId(null)
-              }
-            }}
-          />
-        ))}
+        {canScrollLeft && (
+          <button
+            type="button"
+            onClick={() => scrollTabsBy(-220)}
+            title="Faire défiler les onglets vers la gauche (ou molette souris)"
+            aria-label="Défiler les onglets à gauche"
+            className="inline-flex h-7 w-5 shrink-0 items-center justify-center rounded border border-border/70 bg-secondary/70 text-foreground transition-colors hover:border-primary/50 hover:bg-secondary"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+          </button>
+        )}
 
-        <button
-          type="button"
-          onClick={() => openTab({ kind: 'market-home' })}
-          title="Nouvel onglet (Ctrl+T)"
-          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        <div
+          ref={tabsStripRef}
+          onScroll={updateScrollIndicators}
+          onWheel={handleWheelScroll}
+          className="wf-no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
         >
-          <Plus className="h-3.5 w-3.5" />
-        </button>
+          {tabs.map((tab) => (
+            <BrowserTabPill
+              key={tab.id}
+              tab={tab}
+              isActive={!hubActive && tab.id === activeTabId}
+              isCompact={windowState.isCompactMode}
+              onDragStartTab={(id) => setDraggedTabId(id)}
+              onDropOnTab={(targetId) => {
+                if (draggedTabId) {
+                  reorderTabs(draggedTabId, targetId)
+                  setDraggedTabId(null)
+                }
+              }}
+            />
+          ))}
+        </div>
 
-        <TabOrganizerPopover />
+        {canScrollRight && (
+          <button
+            type="button"
+            onClick={() => scrollTabsBy(220)}
+            title="Faire défiler les onglets vers la droite (ou molette souris)"
+            aria-label="Défiler les onglets à droite"
+            className="inline-flex h-7 w-5 shrink-0 items-center justify-center rounded border border-border/70 bg-secondary/70 text-foreground transition-colors hover:border-primary/50 hover:bg-secondary"
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        )}
+
+        <div className="flex shrink-0 items-center gap-0.5 pl-0.5">
+          <button
+            type="button"
+            onClick={() => openTab({ kind: 'market-home' })}
+            title="Nouvel onglet (Ctrl+T)"
+            className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+
+          <TabOrganizerPopover />
+        </div>
       </div>
 
       <div className="app-drag-region h-full min-w-[36px] flex-1" />

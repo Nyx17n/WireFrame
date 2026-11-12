@@ -50,6 +50,15 @@ body.glow-enabled .wf-glow-surface {
   scrollbar-gutter: stable;
 }
 
+.wf-no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.wf-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

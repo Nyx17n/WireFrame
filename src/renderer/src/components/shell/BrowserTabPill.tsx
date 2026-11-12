@@ -48,6 +48,7 @@ export function BrowserTabPill({
 
   return (
     <div
+      data-tab-id={tab.id}
       draggable
       onDragStart={() => onDragStartTab(tab.id)}
       onDragOver={(e) => e.preventDefault()}
