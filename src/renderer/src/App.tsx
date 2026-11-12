@@ -4,6 +4,7 @@ import { WhisperBar } from '@/components/market/WhisperBar'
 import { ChangelogModal } from '@/components/modals/ChangelogModal'
 import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
 import { CommandNavBar } from '@/components/shell/CommandNavBar'
+import { BookmarksBar } from '@/components/shell/BookmarksBar'
 import { OmniboxDialog } from '@/components/shell/OmniboxDialog'
 import { StartupSplashOverlay } from '@/components/shell/StartupSplashOverlay'
 import { StatusBar } from '@/components/shell/StatusBar'
@@ -49,6 +50,7 @@ export function App(): React.JSX.Element {
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
       <TitleTabsBar />
       <CommandNavBar />
+      <BookmarksBar />
       <UpdateBanner />
       <div className="wf-scroll-stable flex-1 overflow-y-auto">
         <WorkspaceRouteViewport />

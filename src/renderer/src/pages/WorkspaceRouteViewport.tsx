@@ -16,6 +16,7 @@ import { MarketUserProfileView } from '@/components/market/MarketUserProfileView
 import { MarketCartView } from '@/components/tools/MarketCartView'
 import { MarketDucatsView } from '@/components/tools/MarketDucatsView'
 import { MarketRivensView } from '@/components/tools/MarketRivensView'
+import { BrowserHistoryView } from '@/components/shell/BrowserHistoryView'
 import { getTabCurrentRoute } from '@/lib/tab-helpers'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
@@ -86,5 +87,7 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
       return <CodexHomeView initialCategory={route.category} initialQuery={route.query} />
     case 'codex-detail':
       return <CodexDetailView categoryRaw={route.category} id={route.slug ?? 'wisp'} />
+    case 'browser-history':
+      return <BrowserHistoryView />
   }
 }

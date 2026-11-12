@@ -41,8 +41,9 @@ const BUILTIN_VIEWS: readonly QuickEntry[] = [
   { label: 'Catalogue Complet', subtitle: 'Parcourir les 3 900+ items échangeables', keywords: 'catalogue items sets mods arcanes', route: { kind: 'market-catalog' } },
   { label: 'Panier & Trade Bundler', subtitle: 'Calculateur multi-achats & vendeurs groupés', keywords: 'panier cart bundler achats', route: { kind: 'market-cart' } },
   { label: 'Ducanator', subtitle: 'Meilleurs ratios Ducats / Platinum avant Baro', keywords: 'ducats ducanator baro prime junk', route: { kind: 'market-ducats' } },
-  { label: 'Contrats Mods Riven', subtitle: 'Enchères et achats directs de Rivens', keywords: 'rivens contrats encheres', route: { kind: 'market-rivens' } },
-  { label: 'Alertes & Price Sniper', subtitle: 'Surveillance de prix en arrière-plan + sons', keywords: 'alertes sniper notifications sons', route: { kind: 'alerts' } }
+  { label: 'Contrats Mod Riven', subtitle: 'Enchères et achats directs de Rivens', keywords: 'rivens contrats encheres', route: { kind: 'market-rivens' } },
+  { label: 'Alertes & Price Sniper', subtitle: 'Surveillance de prix en arrière-plan + sons', keywords: 'alertes sniper notifications sons', route: { kind: 'alerts' } },
+  { label: 'Historique de navigation', subtitle: 'Pages, fiches Marché et recherches Codex consultées', keywords: 'historique history recent pages', route: { kind: 'browser-history' } }
 ]
 
 export function OmniboxDialog(): React.JSX.Element {

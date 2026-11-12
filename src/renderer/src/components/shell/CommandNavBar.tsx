@@ -74,7 +74,7 @@ export function CommandNavBar(): React.JSX.Element {
       <button
         type="button"
         onClick={() => setOmniboxOpen(true)}
-        className="flex h-7 min-w-0 max-w-xl flex-1 items-center justify-between gap-2 rounded-md border border-input bg-background/80 px-2.5 text-left text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground"
+        className="flex h-7 min-w-0 flex-1 items-center justify-between gap-2 rounded-md border border-input bg-background/80 px-2.5 text-left text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground"
       >
         <span className="flex min-w-0 items-center gap-2">
           <Search className="h-3.5 w-3.5 shrink-0 text-primary" />

@@ -13,7 +13,8 @@ export const RouteKindSchema = z.enum([
   'market-user',
   'alerts',
   'codex-home',
-  'codex-detail'
+  'codex-detail',
+  'browser-history'
 ])
 
 export type RouteKind = z.infer<typeof RouteKindSchema>
@@ -37,6 +38,15 @@ export const BrowserTabSchema = z.object({
 
 export type BrowserTab = z.infer<typeof BrowserTabSchema>
 
+export const NavigationHistoryEntrySchema = z.object({
+  id: z.string().min(1).max(64),
+  route: AppRouteSchema,
+  title: z.string().min(1).max(160),
+  visitedAt: z.string().min(1).max(64)
+})
+
+export type NavigationHistoryEntry = z.infer<typeof NavigationHistoryEntrySchema>
+
 export const TabsSessionSchema = z.object({
   hubActive: z.boolean().default(false),
   activeTabId: z.string().min(1).max(64).default('tab-welcome'),
@@ -52,7 +62,8 @@ export const TabsSessionSchema = z.object({
         history: [{ kind: 'market-home' }],
         historyIndex: 0
       }
-    ])
+    ]),
+  navigationHistory: z.array(NavigationHistoryEntrySchema).max(200).default([])
 })
 
 export type TabsSession = z.infer<typeof TabsSessionSchema>
@@ -80,7 +91,7 @@ export function getDefaultRouteTitle(route: AppRoute): string {
     case 'market-ducats':
       return 'Ducanator'
     case 'market-rivens':
-      return 'Contrats Rivens'
+      return 'Contrats Mod Riven'
     case 'market-recent':
       return 'Ordres Récents'
     case 'market-user':
@@ -91,6 +102,8 @@ export function getDefaultRouteTitle(route: AppRoute): string {
       return 'Codex & Helminth'
     case 'codex-detail':
       return route.slug ? `Codex : ${formatSlugTitle(route.slug)}` : 'Fiche Codex'
+    case 'browser-history':
+      return 'Historique'
   }
 }
 
@@ -117,13 +130,15 @@ export function formatRouteUri(route: AppRoute): string {
     case 'market-recent':
       return 'wf://market/recent'
     case 'market-user':
-      return `wf://market/user/${route.slug ?? 'Nyxo_17'}`
+      return `wf://market/user/${route.slug ?? 'Nyxo17'}`
     case 'alerts':
       return 'wf://alerts'
     case 'codex-home':
       return 'wf://codex'
     case 'codex-detail':
       return `wf://codex/${route.category ?? 'warframes'}/${route.slug ?? 'wisp'}`
+    case 'browser-history':
+      return 'wf://history'
   }
 }
 
@@ -164,6 +179,9 @@ export function parseInputToRoute(rawInput: string): AppRoute {
   if (lower === 'wf://alerts' || lower === 'alertes') return { kind: 'alerts' }
   if (lower === 'wf://codex' || lower === 'codex' || lower === 'helminth') {
     return { kind: 'codex-home' }
+  }
+  if (lower === 'wf://history' || lower === 'historique' || lower === 'history') {
+    return { kind: 'browser-history' }
   }
   if (lower.startsWith('wf://market/item/')) {
     const slug = lower.slice('wf://market/item/'.length).replace(/[^a-z0-9_-]/g, '')

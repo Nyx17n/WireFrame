@@ -4,11 +4,14 @@ import {
   getDefaultRouteTitle,
   type AppRoute,
   type BrowserTab,
+  type NavigationHistoryEntry,
   type TabsSession
 } from '@shared/schemas/navigation.schema'
 import {
+  appendNavigationHistoryEntry,
   getTabCurrentRoute,
   INITIAL_BROWSER_TAB,
+  loadLocalHistoryFallback,
   makeTabId,
   orderPinnedFirst,
   scheduleTabsSessionPersist
@@ -23,12 +26,15 @@ interface TabsStoreState {
   hubActive: boolean
   activeTabId: string
   tabs: BrowserTab[]
+  navigationHistory: NavigationHistoryEntry[]
   refreshRevision: number
   hydrateFromSession: (session: TabsSession) => void
   activateHub: () => void
   activateTab: (id: string) => void
   openTab: (route?: AppRoute, options?: OpenTabOptions) => void
   navigateActive: (route: AppRoute, customTitle?: string) => void
+  removeHistoryEntry: (id: string) => void
+  clearNavigationHistory: () => void
   goBack: () => void
   goForward: () => void
   reloadActive: () => void
@@ -46,34 +52,49 @@ interface TabsStoreState {
 export const useTabsStore = create<TabsStoreState>((set, get) => {
   const commit = (partial: Partial<TabsStoreState>): void => {
     set(partial)
-    const { hubActive, activeTabId, tabs } = get()
-    scheduleTabsSessionPersist({ hubActive, activeTabId, tabs })
+    const { hubActive, activeTabId, tabs, navigationHistory } = get()
+    scheduleTabsSessionPersist({ hubActive, activeTabId, tabs, navigationHistory })
   }
 
   return {
     hubActive: false,
     activeTabId: INITIAL_BROWSER_TAB.id,
     tabs: [INITIAL_BROWSER_TAB],
+    navigationHistory: loadLocalHistoryFallback(),
     refreshRevision: 0,
 
     hydrateFromSession: (session) => {
       if (!session.tabs.length) return
       const activeExists = session.tabs.some((t) => t.id === session.activeTabId)
+      const persistedHistory =
+        session.navigationHistory && session.navigationHistory.length > 0
+          ? session.navigationHistory
+          : loadLocalHistoryFallback()
       set({
         hubActive: session.hubActive,
         tabs: orderPinnedFirst(session.tabs),
-        activeTabId: activeExists ? session.activeTabId : (session.tabs[0]?.id ?? INITIAL_BROWSER_TAB.id)
+        activeTabId: activeExists ? session.activeTabId : (session.tabs[0]?.id ?? INITIAL_BROWSER_TAB.id),
+        navigationHistory: persistedHistory
       })
     },
 
-    activateHub: () => commit({ hubActive: true }),
+    activateHub: () =>
+      commit({
+        hubActive: true,
+        navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, { kind: 'hub' })
+      }),
 
     activateTab: (id) => {
       if (get().tabs.some((t) => t.id === id)) commit({ hubActive: false, activeTabId: id })
     },
 
     openTab: (route = { kind: 'market-home' }, options) => {
-      if (route.kind === 'hub') return commit({ hubActive: true })
+      if (route.kind === 'hub') {
+        return commit({
+          hubActive: true,
+          navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, route, options?.title)
+        })
+      }
       const state = get()
       if (state.tabs.length >= 35) return
       const newTab: BrowserTab = {
@@ -85,15 +106,22 @@ export const useTabsStore = create<TabsStoreState>((set, get) => {
       }
       commit({
         tabs: orderPinnedFirst([...state.tabs, newTab]),
+        navigationHistory: appendNavigationHistoryEntry(state.navigationHistory, route, options?.title),
         ...(options?.background ? {} : { hubActive: false, activeTabId: newTab.id })
       })
     },
 
     navigateActive: (route, customTitle) => {
-      if (route.kind === 'hub') return commit({ hubActive: true })
+      if (route.kind === 'hub') {
+        return commit({
+          hubActive: true,
+          navigationHistory: appendNavigationHistoryEntry(get().navigationHistory, route, customTitle)
+        })
+      }
       const state = get()
       if (state.hubActive) return state.openTab(route, { title: customTitle })
       commit({
+        navigationHistory: appendNavigationHistoryEntry(state.navigationHistory, route, customTitle),
         tabs: state.tabs.map((tab) => {
           if (tab.id !== state.activeTabId) return tab
           const nextHistory = [...tab.history.slice(0, tab.historyIndex + 1), route].slice(-50)
@@ -106,6 +134,11 @@ export const useTabsStore = create<TabsStoreState>((set, get) => {
         })
       })
     },
+
+    removeHistoryEntry: (id) =>
+      commit({ navigationHistory: get().navigationHistory.filter((entry) => entry.id !== id) }),
+
+    clearNavigationHistory: () => commit({ navigationHistory: [] }),
 
     goBack: () => {
       const state = get()

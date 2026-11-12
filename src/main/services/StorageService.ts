@@ -100,7 +100,9 @@ export class StorageService {
       session: {
         ...current.session,
         ...patch.session,
-        tabs: patch.session?.tabs ?? current.session.tabs
+        tabs: patch.session?.tabs ?? current.session.tabs,
+        navigationHistory:
+          patch.session?.navigationHistory ?? current.session.navigationHistory
       }
     }
 
