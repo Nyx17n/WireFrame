@@ -200,6 +200,76 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 
 ---
 
+### Module 7 — Extension v2.5 : Alertes Worldstate Personnalisées & Minuteurs en Mode Compact
+
+> **Statut : BROUILLON — en attente de validation par Maxime.** Aucun code ne sera écrit avant validation de cette section et de la planche `09-hub-alerts-compact-timers.excalidraw`.
+
+**Constat de départ (v2.4.0)** : le Module 3 propose déjà **11 alertes Worldstate figées** (cases à cocher `WorldAlertToggles`, évaluées dans `worldstate-alerts-evaluator.ts`). Elles ne couvrent que des cas prédéfinis : impossible par exemple d'être prévenu pour « *une fissure Axi Survie en Route de l'Acier* » ou « *une invasion qui donne un Catalyseur Orokin* » seulement. De plus, en Mode Compact, il faut ouvrir le Hub pour connaître l'état des cycles.
+
+#### 7.A — Moteur d'Alertes Worldstate Personnalisées (`wf://alerts`, onglet *Worldstate*)
+
+**Objectif joueur** : définir ses propres règles (« *préviens-moi quand…* ») et être notifié une seule fois par occurrence, même quand WireFrame est réduit dans le System Tray.
+
+1. **Conservation des 11 alertes existantes** : elles restent affichées en tête sous le titre *Alertes rapides* (aucune migration destructive des paramètres actuels).
+2. **Règles personnalisées** (maximum **30** règles) créées via un formulaire en 3 étapes : *Source → Conditions → Notification*.
+
+| Source | Conditions disponibles (toutes optionnelles sauf mention) |
+| :--- | :--- |
+| **Fissure du Néant** | Ères (multi : Lith, Meso, Neo, Axi, Requiem, Omnia) · Types de mission (multi : Survie, Défense, Capture, Extermination…) · Mode (*Normal*, *Route de l'Acier*, *Tempête du Néant*) · Faction · « Missions rapides uniquement » |
+| **Invasion** | Catégorie de récompense (multi : Catalyseur Orokin, Réacteur Orokin, Forma, Adaptateur Exilus, Pièce d'arme Wraith/Vandal) **ou** texte libre « la récompense contient… » (FR/EN) |
+| **Arbitrage** | Types de mission (multi) · Faction · Palier minimum (*S*, *A*) |
+| **Cycle** *(obligatoire : lieu + état)* | Lieu (Cetus, Vallée Orbis, Puy de Cambion, Zariman) · État ciblé (Nuit, Chaud, Vome, Corpus…) · Pré-alerte de `0` à `30` min avant le début de l'état |
+| **Baro Ki'Teer** | Arrivée · Pré-alerte de `1` à `48` h avant l'arrivée · Article présent dans l'inventaire (texte libre FR/EN) |
+
+3. **Aperçu en direct** : bouton **« Tester avec le Worldstate actuel »** dans le formulaire, qui affiche immédiatement le nombre d'occurrences correspondantes en ce moment (ex. *« 2 fissures correspondent : Axi Survie — Mot (Néant)… »*). Le joueur valide ainsi sa règle sans attendre.
+4. **Notification** (par règle) : *Toast dans l'application* (toujours actif) · *Notification Windows native* (on/off) · *Son* (on/off, réglages audio globaux du Module 3). Le toast contient un bouton **« Voir dans le Hub »** qui ouvre la sous-vue concernée (et **`Prix Plat ↗`** si la récompense est échangeable).
+5. **Anti-spam (déduplication)** : une règle ne se déclenche qu'**une seule fois par occurrence**. La clé d'occurrence est `ruleId + identifiant Worldstate` (id de fissure/invasion, ou date d'expiration pour cycles, Arbitrage et Baro). Les clés expirées sont purgées automatiquement.
+6. **Historique des alertes** : les **50 dernières** alertes déclenchées (Price Sniper + Worldstate), persistées localement, avec date, règle d'origine et bouton *Voir*. Bouton *Effacer l'historique*.
+7. **Gestion des règles** : liste avec interrupteur on/off, *Dupliquer*, *Modifier*, *Supprimer* (avec confirmation), nom généré automatiquement et modifiable (ex. *« Fissure Axi · Survie · Acier »*).
+
+**Sources de données & rafraîchissement** : aucune nouvelle API. Les règles sont évaluées sur le Worldstate déjà récupéré par `WorldstateService` (`api.warframestat.us`), au même rythme que le scan existant de l'`AlertSchedulerService` (minimum `15 s`), en réutilisant le cache et le limiteur de débit global. **Aucune requête supplémentaire par règle.**
+
+**Règles de gestion & sécurité** :
+- Les champs texte libre sont limités à `60` caractères et comparés par **inclusion insensible à la casse et aux accents** (normalisation Unicode). **Aucune expression régulière saisie par l'utilisateur** n'est exécutée (protection contre le *ReDoS*, une attaque où une regex piégée bloque le processeur).
+- Chaque règle est validée par un schéma `zod` (`WorldAlertRuleSchema`, union discriminée par `source`) à la sauvegarde **côté Main** ; une règle invalide est refusée avec un message explicite.
+- L'évaluation tourne exclusivement dans le **Main Process** (le Renderer ne fait qu'afficher).
+
+**Contrats IPC prévus (`src/shared/`)** :
+- Persistance via le canal existant `settings:update` → nouveau champ `alerts.worldRules: WorldAlertRule[]` (défaut `[]`).
+- `alerts:world-rule-preview` (*invoke*) : reçoit une règle, la valide (`zod`), renvoie la liste des occurrences correspondantes du Worldstate en cache.
+- `alerts:history-get` / `alerts:history-clear` (*invoke*) : lecture et purge de l'historique.
+- Événement existant `alerts:on-triggered` enrichi de `ruleId?` et `hubRoute?` (sous-vue cible du bouton *Voir*).
+
+#### 7.B — Widget « Minuteurs » en Mode Compact Overlay (`460×660`)
+
+**Objectif joueur** : voir d'un coup d'œil, par-dessus Warframe, les cycles et minuteurs importants sans ouvrir le Hub.
+
+1. **Emplacement** : bandeau fin repliable (hauteur ≈ `32 px`) placé **juste sous la barre d'adresse**, visible uniquement en Mode Compact (option *« Afficher aussi en mode Desktop »*, désactivée par défaut).
+2. **Contenu** : jusqu'à **4 minuteurs épinglés** sous forme de pastilles `icône + état coloré + compte à rebours` (ex. `🌙 Cetus · Nuit · 12m 04s`). Si les 4 pastilles ne tiennent pas en largeur, le bandeau défile horizontalement.
+3. **Minuteurs disponibles** : Cetus (Jour/Nuit) · Vallée Orbis (Chaud/Froid) · Puy de Cambion (Fass/Vome) · Zariman (Corpus/Grineer) · Humeur de Duviri · Baro Ki'Teer (arrivée/départ) · Arbitrage (fin de l'heure) · Sortie & Chasse à l'Archonte (réinitialisation) · Réinitialisation quotidienne (`00:00 UTC`). **Défaut** : Cetus, Vallée Orbis, Puy de Cambion, Baro.
+4. **Interactions** : clic sur une pastille → ouvre la sous-vue correspondante du Hub. Bouton `⚙` en bout de bandeau → popover de choix et d'ordre des minuteurs. Bouton `˄/˅` → replier/déplier (état mémorisé).
+5. **Calcul** : comptes à rebours recalculés chaque seconde côté Renderer à partir des dates d'expiration (`hub-countdown.ts` existant), resynchronisés à chaque rafraîchissement du Worldstate. Une fois l'expiration dépassée, la pastille affiche *« Rotation… »* jusqu'à la donnée suivante.
+6. **4 états UI** : *Chargement* (pastilles Skeleton) · *Vide* (aucun minuteur épinglé → bouton *« Épingler des minuteurs »*) · *Nominal* · *Erreur / Données périmées* (Worldstate non rafraîchi depuis plus de `5 min` → pastilles grisées + icône hors-ligne + dernier compte à rebours connu).
+
+**Paramètres persistés** : `appearance.compactTimers = { enabled: true, showOnDesktop: false, collapsed: false, pinned: TimerKey[] (max 4) }`, validé par `zod`.
+
+#### 7.C — Hors périmètre de cette extension (proposé pour plus tard)
+
+- Alertes sur Sorties, Chasse à l'Archonte, Mises à prix et Nightwave.
+- Plages horaires silencieuses (« ne pas déranger »).
+- Envoi des alertes vers Discord ou le téléphone.
+
+#### 7.D — Décisions à valider par Maxime
+
+| # | Question | Proposition par défaut |
+| :--- | :--- | :--- |
+| D1 | Position du bandeau Minuteurs en Compact | Sous la barre d'adresse (en haut) |
+| D2 | Nombre maximum de minuteurs épinglés | 4 |
+| D3 | Historique des alertes conservé après redémarrage | Oui (50 dernières) |
+| D4 | Sources des règles personnalisées en v2.5 | Fissure, Invasion, Arbitrage, Cycle, Baro |
+
+---
+
 ## 4. Architecture Technique, Contrats IPC & Sécurité
 
 ### 4.1. Séparation Stricte des Couches (Clean Architecture sans serveur HTTP)
@@ -292,6 +362,7 @@ Avant tout développement, nous allons produire et valider ensemble **7 planches
 5. `05-codex-farm-helminth.excalidraw` : Explorateur Codex par catégories, Fiche Détail de Farm (tables de drop `%` + Fonderie) et vue **Infirmerie Helminth**.
 6. `06-alerts-settings-modals.excalidraw` : Centre d'Alertes (*Price Sniper* + Alertes Cycles) et Modale **Notes de Patch / Mise à jour**.
 7. `07-settings-system-complete.excalidraw` : **Système complet des Paramètres** (Modale `shadcn Dialog` structurée avec barre latérale en 5 catégories : *1. Apparence & Thèmes Bicolores*, *2. Audio & Notifications*, *3. Fenêtre, System Tray & Raccourcis Globaux éditables*, *4. Marché & Échanges*, *5. Mises à jour SHA-512, Export/Import JSON & Cache* + adaptation en `Sheet` plein écran pour le Mode Compact `460×660`).
+8. `09-hub-alerts-compact-timers.excalidraw` *(Module 7 — à produire après validation du CDC)* : liste des règles Worldstate + formulaire en 3 étapes avec aperçu en direct, historique des alertes, toast enrichi, et bandeau Minuteurs en Mode Compact avec ses 4 états UI.
 
 ---
 
