@@ -67,3 +67,4 @@ export function NotificationViewport(): React.JSX.Element | null {
     </section>
   )
 }
+

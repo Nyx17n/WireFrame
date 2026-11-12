@@ -134,3 +134,4 @@ export function MotionSettingsSection(): React.JSX.Element {
     </div>
   )
 }
+
