@@ -11,10 +11,16 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install Wine for Windows NSIS Icon & Resource Packaging
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends wine wine64 wine32:i386
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
