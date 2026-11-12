@@ -108,3 +108,4 @@ export function CodexCardRequirements({
 
   return null
 }
+
