@@ -5,6 +5,7 @@ import { ChangelogModal } from '@/components/modals/ChangelogModal'
 import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
 import { CommandNavBar } from '@/components/shell/CommandNavBar'
 import { BookmarksBar } from '@/components/shell/BookmarksBar'
+import { DiscordCornerButton } from '@/components/shell/DiscordCornerButton'
 import { PageTransitionLoader } from '@/components/shell/PageTransitionLoader'
 import { OmniboxDialog } from '@/components/shell/OmniboxDialog'
 import { StartupSplashOverlay } from '@/components/shell/StartupSplashOverlay'
@@ -21,6 +22,7 @@ import { useTabsStore } from '@/stores/useTabsStore'
 
 export function App(): React.JSX.Element {
   const initialize = useAppStore((s) => s.initialize)
+  const isCompactMode = useAppStore((s) => s.windowState.isCompactMode)
   const hydrateFromSession = useTabsStore((s) => s.hydrateFromSession)
   const transitionRevision = useTabsStore((s) => s.transitionRevision)
   const setLatestAlertToast = useMarketStore((s) => s.setLatestAlertToast)
@@ -64,9 +66,13 @@ export function App(): React.JSX.Element {
       <UpdateBanner />
       <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
         <PageTransitionLoader />
-        <div ref={viewportScrollRef} className="wf-scroll-stable flex-1 overflow-y-auto">
+        <div
+          ref={viewportScrollRef}
+          className={`wf-scroll-stable flex-1 overflow-y-auto ${isCompactMode ? '' : 'pb-10'}`}
+        >
           <WorkspaceRouteViewport />
         </div>
+        <DiscordCornerButton />
       </div>
       <WhisperBar />
       <StatusBar />
