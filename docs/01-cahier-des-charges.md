@@ -400,6 +400,62 @@ Accessible directement dans `Paramètres → Apparence & Thèmes` sous la sectio
 
 ---
 
+### Module 10 — Sources d'Obtention Exhaustives du Codex & Overlay de Farm Activable en Jeu
+
+#### 10.A — Résolution Exhaustive des Sources d'Obtention (`CodexAcquisitionResolver`)
+
+- **Problème métier résolu** :
+  - Les tables de butin publiques de Digital Extremes ne répertorient que les récompenses aléatoires (RNG) de fin de mission, d'assassinat de boss ou de mise à prix. Par conséquent, de nombreux objets et composants du Codex — comme le **Schéma Principal d'Ember** (achetable directement en Crédits dans la Boutique en jeu de Warframe), l'intégralité de **Volt** (Laboratoire Tenno du Dojo) ou les schémas liés aux **Quêtes Warframe** — apparaissaient sans localisation d'obtention, tandis que certaines ressources de Fonderie (`Cellule Orokin`) perdaient leurs tables de drop ou subissaient une pollution de drops *Conclave* (`Cristal d'Argon`).
+- **Taxonomie unifiée des 6 canaux d'acquisition (`CodexAcquisitionSourceType`)** :
+  1. **`shop` (`🛒 Boutique en jeu Warframe`)** : Schémas principaux ou armes achetables directement dans la Console du Marché de l'Orbiteur en **Crédits** (ex: *Ember — Schéma Principal : 25 000 Crédits · 100 %*, *Gauss — Schéma Principal : 30 000 Crédits*, *Mirage — Schéma Principal : 35 000 Crédits*, *Excalibur, Mag, Rhino, Loki, Frost, Trinity, Oberon, Limbo, Mesa, Chroma, Fulmin, Hek, Soma, Atomos…*) ou armes exclusives Marché.
+  2. **`quest` (`📜 Quêtes Warframe & Rachat Céphalon Simaris`)** : Nom exact traduit en français (et anglais selon la langue active) de la quête octroyant le schéma ou l'arme complète (`100 %`), enrichi de la mention de rachat auprès du *Céphalon Simaris* lorsque applicable (ex: *Quête « Messages Cachés »* pour *Mirage*, *« Le Stratagème de Glast »* pour *Nidus*, *« La Nouvelle Guerre »* pour *Nataruk*, *« Le Sacrifice »* pour *Excalibur Umbra*, *« L'Hymne d'Octavia »* pour *Octavia*, *« Cœur de Deimos »* pour *Xaku*, *« Le Protocole Moribond »* pour *Protea*, *« Appel du Tempestarii »* pour *Sevagoth*, *« Ombres de Jade »* pour *Jade*, *« La Veillée de Saya »* pour *Gara*, *« Le Masque du Revenant »* pour *Revenant*, etc.).
+  3. **`dojo` (`🏯 Dojo de Clan — Laboratoires`)** : Identification précise du laboratoire de recherche à `100 %` (*Laboratoire Tenno* pour *Volt, Banshee, Zephyr, Wukong, Nezha…*, *Labo Chimique* pour *Ignis Wraith*, *Labo d'Énergie*, *Labo Biologique*, *Labo des Orphelins des Conduits / VentKids* pour *Yareli*).
+  4. **`duviri` & `syndicate` (`✨ Circuit Normal de Duviri, Syndicats & Marchands`)** : Rotation hebdomadaire garantie (`100 %`) du *Circuit Normal de Duviri* pour les Warframes standards éligibles (dont *Ember*), Syndicats de faction et de mondes ouverts (*Ostrons, Union Solaris, Entrati, Irréductibles, Cavia, L'Hexagone*), *Boutique des Ondes Nocturnes*, *Baro Ki'Teer* et *Résurgence Prime (Varzia — Aya)*.
+  5. **`drop` (`⚔ Missions, Boss, Mises à prix & Ennemis`)** : Planète / Nœud traduit + type de mission / Boss + Rotation (`A`, `B`, `C`) + **pourcentage exact de drop** (`38.72 %`, `22.56 %`, `7.52 %`, etc.) et niveau de rareté.
+  6. **`relic` (`◈ Reliques du Néant`)** : Taux exacts selon le raffinage (*Intacte → Éclatante*) et indicateur *Disponible / En Soute (Vaulted)*.
+- **Assainissement des recettes de Fonderie dans `CodexRepository`** :
+  - **Jointure automatique `resSlug → db.resources`** : Tout composant de fabrication pointant vers une ressource du Codex (ex: `Cellule Orokin ×1` sur *Ember*) hérite automatiquement des meilleures localisations PVE de `db.resources` lorsqu'aucun drop propre n'est attaché au composant.
+  - **Filtrage anti-pollution Conclave** : Exclusion des drops de ressources génériques en mode *Conclave* (`Cristal d'Argon` sur *Neptune / Cephalon Capture*) qui polluaient les fiches de Warframes et d'Armes PVE.
+
+#### 10.B — Sélecteur Granulaire d'Affichage dans le Codex (« Tout un équipement », « Pièces à la carte » ou « Objet en particulier »)
+
+- **Activation directe depuis le Codex (`wf://codex` et `wf://codex/item/:category/:id`)** :
+  - Barre d'action dédiée dans l'en-tête du Codex et de chaque fiche détail :
+    - Interrupteur maître **`[🎯 Overlay Farm : Actif / Désactivé]`** (synchronisé en temps réel avec le raccourci clavier global configurable **`Alt+O`**).
+    - Bouton **`[🎯 Choisir quoi afficher (N)]`** ouvrant le **Sélecteur Granulaire d'Objectifs (`CodexOverlaySelectorPopover`)**.
+- **Trois modes de sélection complémentaires** :
+  1. **Équipement complet en 1 clic** (ex: **`Ember`**) : le bouton **`[☑ Afficher tous les composants d'Ember (4)]`** ajoute simultanément *Schéma Principal* + *Neuroptiques* + *Châssis* + *Systèmes*, avec une case optionnelle **`[☐ Inclure les ressources de Fonderie (Cellule Orokin, Plastides…)]`**.
+  2. **Sélection à la carte par sous-pièce / ressource** : chaque ligne de composant de la fiche Codex possède sa propre case/épingle **`[🎯]`** permettant de ne suivre, par exemple, que le *Schéma Principal* (`Boutique · 25 000 Cr · 100 %`) et les *Systèmes d'Ember* (`Tethys, Saturne · 22.56 %`) si les *Neuroptiques* et le *Châssis* sont déjà possédés.
+  3. **Objet unique en particulier** : bouton **`[🎯 Épingler à l'Overlay]`** disponible sur n'importe quel objet individuel du Codex (Arme de quête comme *Nataruk*, Ressource comme *Cellule Orokin*, Mod comme *Continuité*, Relique ou Arcane).
+- **Gestion fluide de la liste suivie (max 12 entrées)** :
+  - Possibilité de cocher **`✓ Obtenu`** sur une pièce directement depuis le Codex ou depuis l'overlay en jeu (l'entrée est barrée/repliée avec compteur de progression `2/4 obtenus`), de réordonner ou de vider la liste en un clic.
+
+#### 10.C — Fenêtre « Codex Farm Overlay » Flottante en Jeu (`FarmOverlayWindowService`)
+
+- **Architecture de fenêtre secondaire durcie & 100 % conforme CGU Digital Extremes** :
+  - Seconde `BrowserWindow` Electron légère (`/?view=codex-farm-overlay`) gérée par `FarmOverlayWindowService` dans `src/main/services/` :
+    - `frame: false`, `alwaysOnTop: true` (niveau `'screen-saver'` compatible *Fenêtré sans bordure*), `skipTaskbar: true`, dimensions mémorisées (défaut `380×420`, redimensionnable).
+    - Durcissement identique à la fenêtre principale : `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true`, `webSecurity: true`, CSP stricte `connect-src 'none'`.
+    - **Zéro interaction avec `Warframe.x64.exe`** : affichage passif de données locales Codex uniquement.
+- **Ergonomie en mission Warframe** :
+  - **Mode Souris Traversante `👻` (*Click-Through* Win32)** : activable d'un clic sur `👻` dans la barre de titre de l'overlay ou automatiquement verrouillable pour que 100 % des clics et mouvements de caméra traversent l'overlay en combat ; déverrouillage au maintien `0.5s` sur la pilule `🔓` ou via le raccourci global **`Alt+O`** (afficher/masquer l'overlay).
+  - **Contrôles compacts intégrés** : poignée de déplacement *drag*, sélecteur de taille **`[S | M | L]`**, curseur d'opacité d'arrière-plan (`40 % – 98 %`), puces de filtrage rapide par cible (`[Tout (4)] [Ember] [Nataruk]`), case **`✓ Obtenu`** par ligne et bouton `✕` (masquer).
+  - **Informations affichées sur chaque carte de l'overlay** :
+    - Icône `wf-asset://` + Nom de l'équipement / composant (`Ember — Schéma Principal`, `Ember — Systèmes`, `Nataruk`).
+    - **Badge de source coloré + Nom exact de la Quête, de la Boutique, du Dojo ou du Nœud de mission** (ex: `🛒 Boutique Warframe · 25 000 Crédits`, `📜 Quête : La Nouvelle Guerre`, `📜 Quête : Messages Cachés (+ Simaris)`, `⚔ Saturne / Tethys · Gén. Sargas Ruk (Assassinat)`).
+    - **Taux d'obtention mis en avant (`% de drop`)** : badge `100 %` vert émeraude pour les sources garanties (Boutique, Quête, Dojo, Circuit Duviri) ou pourcentage exact (`38.72 %`, `22.56 %`, `7.52 %`) accompagné d'une micro-barre visuelle de probabilité et du tri automatique des meilleures localisations.
+
+#### 10.D — Contrats IPC & Schémas `zod` (`codex.schema.ts` & `settings.schema.ts`)
+
+- **Enrichissement `src/shared/schemas/codex.schema.ts`** :
+  - `CodexAcquisitionSourceSchema` : `{ type: 'shop' | 'quest' | 'dojo' | 'duviri' | 'syndicate' | 'drop' | 'relic', labelFr, labelEn, sublabelFr?, sublabelEn?, chancePct: number, rarity?, costCredits?, isGuaranteed: boolean }`.
+  - Ajout de `acquisitionSources: CodexAcquisitionSource[]` sur `CodexItemDetail` et sur chaque `CodexComponent`.
+- **Persistance & Synchronisation Temps Réel (`settings.codexFarmOverlay`)** :
+  - `enabled: boolean` (ouverture/masquage de la fenêtre overlay), `clickThrough: boolean`, `size: 'sm' | 'md' | 'lg'`, `opacityPercent: number (40..98)`, `bounds: { x, y, width, height }`, `shortcutToggle: string` (défaut `'Alt+O'`), `pinnedEntries: CodexOverlayPinnedEntry[]` (max 12 entrées typées avec `obtained: boolean` et sources pré-résolues).
+  - Canaux IPC dédiés dans `overlay` (`src/shared/ipc-channels.ts`) : `overlay:getState`, `overlay:setEnabled`, `overlay:updateState`, `overlay:setClickThrough`, et événement `overlay:onStateChanged` diffusant instantanément tout changement entre la fenêtre principale WireFrame et la fenêtre flottante *Codex Farm Overlay*.
+
+---
+
 ## 4. Architecture Technique, Contrats IPC & Sécurité
 
 ### 4.1. Séparation Stricte des Couches (Clean Architecture sans serveur HTTP)
@@ -464,6 +520,7 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 | **`alerts`** | `alerts:list`, `alerts:upsertPriceAlert`, `alerts:deletePriceAlert`, `alerts:updateWorldAlerts`, `alerts:onTriggered` *(event Main → Renderer)* | Gestion et réception temps réel des alertes *Price Sniper* et cycles |
 | **`settings`** | `settings:get`, `settings:update` | Lecture/écriture typée des préférences utilisateur, panier, favoris et thèmes |
 | **`window`** | `window:minimize`, `window:toggleMaximize`, `window:close`, `window:setAlwaysOnTop`, `window:setCompactMode`, `window:setZoom`, `window:openExternalUrl`, `window:onStateChanged` *(event)* | Pilotage natif de la fenêtre, du mode Overlay et ouverture sécurisée de liens externes |
+| **`overlay`** | `overlay:getState`, `overlay:setEnabled`, `overlay:updateState`, `overlay:setClickThrough`, `overlay:onStateChanged` *(event)* | Pilotage temps réel de la fenêtre secondaire *Codex Farm Overlay* en jeu et synchronisation de la sélection d'objets/pièces |
 | **`updater`** | `updater:check`, `updater:downloadAndInstall`, `updater:getChangelog`, `updater:onStatus` *(event)* | Cycle de mise à jour `electron-updater` |
 
 ### 4.4. Exigences Non-Fonctionnelles & Sécurité Intransigeante
@@ -496,6 +553,7 @@ L'ensemble des **11 planches Excalidraw** dans `docs/02-wireframes/` documente f
 9. `09-hub-alerts-compact-timers.excalidraw` *(Module 7 — validé)* : liste des règles Worldstate + éditeur en 3 étapes sur 9 sources avec aperçu en direct, historique de session, toast enrichi empilé au-dessus de Discord, et bandeau Minuteurs Compacts (6 max).
 10. `10-notifications-animations.excalidraw` *(Module 8 — validé)* : pile `NotificationViewport` en bas à droite au-dessus du bouton Discord (5 types visuels, file `+N`, pause au survol, anti-spam `×2`), Popover Centre de notifications sous `🔔`, et storyboard des 6 catégories d'animations (*Complètes / Réduites / Désactivées*).
 11. `11-background-gradients.excalidraw` *(Module 9 — validé `v2.6.0`)* : section « ✨ Dégradé de Fond d'Écran » (`BackgroundGradientSection`) avec 8 styles CSS GPU, bascule `Auto (Accent du thème)` vs `Couleurs personnalisées` (2 teintes), curseurs d'Intensité `5–65 %` et d'Angle `0–360°`.
+12. `12-codex-sources-farm-overlay.excalidraw` *(Module 10 — Sources d'Obtention Exhaustives du Codex & Overlay Farm en Jeu)* : fiche Codex enrichie des 6 canaux d'acquisition (`🛒 Boutique Warframe` ex: *Ember — Schéma Principal 25 000 Cr · 100 %*, `📜 Quêtes FR + Simaris`, `🏯 Dojo`, `✨ Circuit Duviri`, `⚔ Missions/Boss + %`, `◈ Reliques`), **Sélecteur Granulaire** (*Équipement complet*, *Pièces à la carte* ou *Objet unique*), **Simulation Écran en Jeu Warframe + Fenêtre flottante « Codex Farm Overlay »** (`👻 Click-Through`, `Alt+O`, `[S|M|L]`, cochage `✓ Obtenu`), Mode Compact `460×660` et les 4 états UI.
 
 ---
 
