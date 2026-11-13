@@ -400,9 +400,21 @@ Accessible directement dans `Paramètres → Apparence & Thèmes` sous la sectio
 
 ---
 
-### Module 10 — Sources d'Obtention Exhaustives du Codex & Overlay de Farm Activable en Jeu
+### Module 10 — Système d'Extensions (Paramètres), Sources Exhaustives du Codex & Extension « Codex Farm Overlay »
 
-#### 10.A — Résolution Exhaustive des Sources d'Obtention (`CodexAcquisitionResolver`)
+#### 10.A — Système d'Extensions Modulaires sous forme de Liste dans les Paramètres (`ExtensionsSettingsTab`)
+
+- **Nouvel onglet dédié `🧩 Extensions` dans `SettingsModal` (6ᵉ onglet de la barre latérale des Paramètres)** :
+  - Présenté sous forme de **liste verticale structurée** avec barre de recherche (`🔍 Filtrer les extensions…`) et pastilles de filtrage rapide (`[Toutes]`, `[Activées]`, `[En jeu / Overlay]`, `[Codex & Farm]`).
+  - **Architecture 100 % intégrée et sécurisée (*First-Party Extension Registry*)** :
+    - Aucun chargement de code distant arbitraire ni `eval()` (`CSP script-src 'self'` strictement préservée) : chaque extension est un module interne fortement typé et validé par `zod` dans `settings.extensions`.
+    - Lorsqu'une extension est **désactivée (`OFF`)** dans la liste : ses contrôles UI contextuels sont masqués dans l'application, ses raccourcis globaux dédiés sont désenregistrés, et aucune fenêtre secondaire n'est instanciée en mémoire (`0 Mo` de coût RAM/CPU).
+    - Lorsqu'une extension est **activée (`ON`)** : ses points d'entrée s'affichent automatiquement dans les vues concernées et un panneau **`[⚙ Configurer ▾]`** dépliable directement sous la ligne de l'extension dans la liste permet d'ajuster finement ses options.
+  - **Première extension phare intégrée dans la liste : `🎯 Codex Farm Overlay`** :
+    - Ligne de liste affichant : icône `🎯`, titre **`Codex Farm Overlay`**, badges `Officielle · v1.0.0` · `Codex & En jeu` · statut `● Activée / ○ Désactivée`, résumé clair, bouton **`[⚙ Configurer ▾]`**, bouton rapide **`[🎯 Ouvrir / Masquer l'Overlay]`** et interrupteur maître **`Switch`**.
+    - Tiroir de configuration intégré sous la ligne : réglage du mode *Souris traversante (`👻 Click-Through`)*, raccourci global (`Alt+O`), densité par défaut (`[S | M | L]`), opacité du fond (`40 % – 98 %`) et compteur/purge des objectifs suivis (`N / 12`).
+
+#### 10.B — Résolution Exhaustive des Sources d'Obtention (`CodexAcquisitionResolver`)
 
 - **Problème métier résolu** :
   - Les tables de butin publiques de Digital Extremes ne répertorient que les récompenses aléatoires (RNG) de fin de mission, d'assassinat de boss ou de mise à prix. Par conséquent, de nombreux objets et composants du Codex — comme le **Schéma Principal d'Ember** (achetable directement en Crédits dans la Boutique en jeu de Warframe), l'intégralité de **Volt** (Laboratoire Tenno du Dojo) ou les schémas liés aux **Quêtes Warframe** — apparaissaient sans localisation d'obtention, tandis que certaines ressources de Fonderie (`Cellule Orokin`) perdaient leurs tables de drop ou subissaient une pollution de drops *Conclave* (`Cristal d'Argon`).
@@ -417,12 +429,13 @@ Accessible directement dans `Paramètres → Apparence & Thèmes` sous la sectio
   - **Jointure automatique `resSlug → db.resources`** : Tout composant de fabrication pointant vers une ressource du Codex (ex: `Cellule Orokin ×1` sur *Ember*) hérite automatiquement des meilleures localisations PVE de `db.resources` lorsqu'aucun drop propre n'est attaché au composant.
   - **Filtrage anti-pollution Conclave** : Exclusion des drops de ressources génériques en mode *Conclave* (`Cristal d'Argon` sur *Neptune / Cephalon Capture*) qui polluaient les fiches de Warframes et d'Armes PVE.
 
-#### 10.B — Sélecteur Granulaire d'Affichage dans le Codex (« Tout un équipement », « Pièces à la carte » ou « Objet en particulier »)
+#### 10.C — Sélecteur Granulaire d'Affichage dans le Codex (« Tout un équipement », « Pièces à la carte » ou « Objet en particulier »)
 
-- **Activation directe depuis le Codex (`wf://codex` et `wf://codex/item/:category/:id`)** :
-  - Barre d'action dédiée dans l'en-tête du Codex et de chaque fiche détail :
-    - Interrupteur maître **`[🎯 Overlay Farm : Actif / Désactivé]`** (synchronisé en temps réel avec le raccourci clavier global configurable **`Alt+O`**).
+- **Conditionné par l'extension `Codex Farm Overlay` (`settings.extensions.codexFarmOverlay.extensionEnabled`)** :
+  - Si l'extension est activée dans `Paramètres → 🧩 Extensions`, la barre d'action dédiée s'affiche dans l'en-tête du Codex (`wf://codex`) et de chaque fiche détail (`wf://codex/item/:category/:id`) :
+    - Interrupteur maître **`[🎯 Overlay Farm : Affiché / Masqué]`** (synchronisé en temps réel avec le raccourci clavier global configurable **`Alt+O`**).
     - Bouton **`[🎯 Choisir quoi afficher (N)]`** ouvrant le **Sélecteur Granulaire d'Objectifs (`CodexOverlaySelectorPopover`)**.
+  - Si l'extension est désactivée, le Codex reste épuré (avec un lien discret optionnel *« Activer l'extension Overlay Farm dans Paramètres → Extensions »*).
 - **Trois modes de sélection complémentaires** :
   1. **Équipement complet en 1 clic** (ex: **`Ember`**) : le bouton **`[☑ Afficher tous les composants d'Ember (4)]`** ajoute simultanément *Schéma Principal* + *Neuroptiques* + *Châssis* + *Systèmes*, avec une case optionnelle **`[☐ Inclure les ressources de Fonderie (Cellule Orokin, Plastides…)]`**.
   2. **Sélection à la carte par sous-pièce / ressource** : chaque ligne de composant de la fiche Codex possède sa propre case/épingle **`[🎯]`** permettant de ne suivre, par exemple, que le *Schéma Principal* (`Boutique · 25 000 Cr · 100 %`) et les *Systèmes d'Ember* (`Tethys, Saturne · 22.56 %`) si les *Neuroptiques* et le *Châssis* sont déjà possédés.
@@ -430,7 +443,7 @@ Accessible directement dans `Paramètres → Apparence & Thèmes` sous la sectio
 - **Gestion fluide de la liste suivie (max 12 entrées)** :
   - Possibilité de cocher **`✓ Obtenu`** sur une pièce directement depuis le Codex ou depuis l'overlay en jeu (l'entrée est barrée/repliée avec compteur de progression `2/4 obtenus`), de réordonner ou de vider la liste en un clic.
 
-#### 10.C — Fenêtre « Codex Farm Overlay » Flottante en Jeu (`FarmOverlayWindowService`)
+#### 10.D — Fenêtre « Codex Farm Overlay » Flottante en Jeu (`FarmOverlayWindowService`)
 
 - **Architecture de fenêtre secondaire durcie & 100 % conforme CGU Digital Extremes** :
   - Seconde `BrowserWindow` Electron légère (`/?view=codex-farm-overlay`) gérée par `FarmOverlayWindowService` dans `src/main/services/` :
@@ -445,14 +458,15 @@ Accessible directement dans `Paramètres → Apparence & Thèmes` sous la sectio
     - **Badge de source coloré + Nom exact de la Quête, de la Boutique, du Dojo ou du Nœud de mission** (ex: `🛒 Boutique Warframe · 25 000 Crédits`, `📜 Quête : La Nouvelle Guerre`, `📜 Quête : Messages Cachés (+ Simaris)`, `⚔ Saturne / Tethys · Gén. Sargas Ruk (Assassinat)`).
     - **Taux d'obtention mis en avant (`% de drop`)** : badge `100 %` vert émeraude pour les sources garanties (Boutique, Quête, Dojo, Circuit Duviri) ou pourcentage exact (`38.72 %`, `22.56 %`, `7.52 %`) avec **sa barre de couleur de probabilité placée directement sous le badge `%`** et tri automatique des meilleures localisations.
 
-#### 10.D — Contrats IPC & Schémas `zod` (`codex.schema.ts` & `settings.schema.ts`)
+#### 10.E — Contrats IPC & Schémas `zod` (`codex.schema.ts` & `settings.schema.ts`)
 
 - **Enrichissement `src/shared/schemas/codex.schema.ts`** :
   - `CodexAcquisitionSourceSchema` : `{ type: 'shop' | 'quest' | 'dojo' | 'duviri' | 'syndicate' | 'drop' | 'relic', labelFr, labelEn, sublabelFr?, sublabelEn?, chancePct: number, rarity?, costCredits?, isGuaranteed: boolean }`.
   - Ajout de `acquisitionSources: CodexAcquisitionSource[]` sur `CodexItemDetail` et sur chaque `CodexComponent`.
-- **Persistance & Synchronisation Temps Réel (`settings.codexFarmOverlay`)** :
-  - `enabled: boolean` (ouverture/masquage de la fenêtre overlay), `clickThrough: boolean`, `size: 'sm' | 'md' | 'lg'`, `opacityPercent: number (40..98)`, `bounds: { x, y, width, height }`, `shortcutToggle: string` (défaut `'Alt+O'`), `pinnedEntries: CodexOverlayPinnedEntry[]` (max 12 entrées typées avec `obtained: boolean` et sources pré-résolues).
-  - Canaux IPC dédiés dans `overlay` (`src/shared/ipc-channels.ts`) : `overlay:getState`, `overlay:setEnabled`, `overlay:updateState`, `overlay:setClickThrough`, et événement `overlay:onStateChanged` diffusant instantanément tout changement entre la fenêtre principale WireFrame et la fenêtre flottante *Codex Farm Overlay*.
+- **Persistance & Synchronisation Temps Réel (`settings.extensions` & `settings.codexFarmOverlay`)** :
+  - `extensions: { codexFarmOverlay: boolean }` (activation de l'extension dans l'onglet `🧩 Extensions` des Paramètres ; si `false`, la fenêtre secondaire est détruite et le raccourci `Alt+O` désenregistré).
+  - `codexFarmOverlay` : `enabled: boolean` (visibilité courante de la fenêtre overlay quand l'extension est active), `clickThrough: boolean`, `size: 'sm' | 'md' | 'lg'`, `opacityPercent: number (40..98)`, `bounds: { x, y, width, height }`, `shortcutToggle: string` (défaut `'Alt+O'`), `pinnedEntries: CodexOverlayPinnedEntry[]` (max 12 entrées typées avec `obtained: boolean` et sources pré-résolues).
+  - Canaux IPC dédiés dans `overlay` (`src/shared/ipc-channels.ts`) : `overlay:getState`, `overlay:setEnabled`, `overlay:updateState`, `overlay:setClickThrough`, et événement `overlay:onStateChanged` diffusant instantanément tout changement entre la fenêtre principale WireFrame, l'onglet `🧩 Extensions` des Paramètres et la fenêtre flottante *Codex Farm Overlay*.
 
 ---
 
@@ -540,7 +554,7 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 
 ## 5. Plan des Maquettes Wireframes Excalidraw (`docs/02-wireframes/` — Synchronisées `v2.6.0`)
 
-L'ensemble des **11 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'état réel de **WireFrame `v2.6.0`**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
+L'ensemble des **12 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **WireFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
 
 1. `01-app-shell-navigation.excalidraw` : Fenêtre *Frameless* `v2.6.0`, `TitleTabsBar` (défilement molette + chevrons `‹ / ›` + fermeture clic molette), `ClickThroughBanner` (`👻` `Alt+G` + maintien `0.5s`), `CommandNavBar` (`Ctrl+K`, cloche `🔔`, `PC · Cross · FR ▾`, Zoom, `📌`, `👻`, `🗖`, `⚙`), `BookmarksBar` centrée + `Historique` (`Ctrl+H`), Omnibox, Organisateur d'onglets, bandeau `/w`, `CompactTimersBar`, bouton Discord et `StatusBar v2.6.0`.
 2. `02-market-home-catalog-item.excalidraw` : Accueil Marché (flux d'annonces récentes en direct, `ViewModeToggle` `[⊞|▭|☰] + [S|M|L]`, badges `Min · Moy · Max` Platinum), Catalogue, Favoris, Profil joueur, et **Fiche Item complète** (Ordres Vente/Achat, Comparateur *Set vs Pièces*, Pont bidirectionnel *Codex*, Statistiques 48h/90j + pagination *Afficher plus*).
@@ -548,12 +562,12 @@ L'ensemble des **11 planches Excalidraw** dans `docs/02-wireframes/` documente f
 4. `04-hub-worldstate.excalidraw` : **Hub Temps Réel Warframe** (`BookmarksBar` masquée auto sur `wf://hub`) et ses **6 sous-vues** : Planètes & Mises à prix (avec épinglage aux Minuteurs Compacts), Fissures & Archonte/Sortie, Invasions/Teshin/Arbitrage (enrichi des prix Platinum des Mods Essence Vitus) & Nightwave, Circuit Duviri (Normal + Incarnon), Baro Ki'Teer, et News/Darvo/Résurgence Varzia.
 5. `05-codex-farm-helminth.excalidraw` : **Codex Hors-Ligne FR/EN (3 296 entrées)** en 5 catégories + **Infirmerie Helminth** (`★ Méta S-Tier` & 6 Sécrétions), aperçu direct des recettes de Fonderie sur les cartes, prix Platinum temps réel sur items échangeables, tables de drop `%` et pont bidirectionnel *Codex ↔ Marché*.
 6. `06-alerts-settings-modals.excalidraw` : **Centre d'Alertes unifié** à 3 onglets (*Price Sniper*, *Worldstate*, *Historique session*), **Omnibox globale (`Ctrl+K`)** et **Modale Notes de Patch (`v2.6.0`)**.
-7. `07-settings-system-complete.excalidraw` : **Système complet des Paramètres (`SettingsModal`)** en **5 onglets** (*1. Apparence & Thèmes* : 20 thèmes dont `Full Black`/`Full White`, 76 pastilles de couleurs, 8 Dégradés Sci-Fi, Animations 3 niveaux & Zoom ; *2. Audio & Alertes* ; *3. Fenêtre & Raccourcis* avec `👻` & `Alt+G` ; *4. Marché & Échanges* ; *5. Système, MAJ SHA-512 & JSON*) + adaptation Mode Compact `460×660`.
+7. `07-settings-system-complete.excalidraw` : **Système complet des Paramètres (`SettingsModal`)** en **6 onglets** (*1. Apparence & Thèmes* : 20 thèmes dont `Full Black`/`Full White`, 76 pastilles de couleurs, 8 Dégradés Sci-Fi, Animations 3 niveaux & Zoom ; *2. Audio & Alertes* ; *3. Fenêtre & Raccourcis* avec `👻` & `Alt+G` ; *4. Marché & Échanges* ; *5. 🧩 Extensions sous forme de liste* incluant `Codex Farm Overlay` ; *6. Système, MAJ SHA-512 & JSON*) + adaptation Mode Compact `460×660`.
 8. `08-splash-startup-animations.excalidraw` : **Animation d'ouverture cinétique (`StartupSplashOverlay`)** — Ondes concentriques du Lotus teintées par le thème actif + rouleau vertical `[Frame → Doc → Companion → Market → Index → Codex → Wire centré]`, clic pour passer et respect de `animationLevel="off"`.
 9. `09-hub-alerts-compact-timers.excalidraw` *(Module 7 — validé)* : liste des règles Worldstate + éditeur en 3 étapes sur 9 sources avec aperçu en direct, historique de session, toast enrichi empilé au-dessus de Discord, et bandeau Minuteurs Compacts (6 max).
 10. `10-notifications-animations.excalidraw` *(Module 8 — validé)* : pile `NotificationViewport` en bas à droite au-dessus du bouton Discord (5 types visuels, file `+N`, pause au survol, anti-spam `×2`), Popover Centre de notifications sous `🔔`, et storyboard des 6 catégories d'animations (*Complètes / Réduites / Désactivées*).
 11. `11-background-gradients.excalidraw` *(Module 9 — validé `v2.6.0`)* : section « ✨ Dégradé de Fond d'Écran » (`BackgroundGradientSection`) avec 8 styles CSS GPU, bascule `Auto (Accent du thème)` vs `Couleurs personnalisées` (2 teintes), curseurs d'Intensité `5–65 %` et d'Angle `0–360°`.
-12. `12-codex-sources-farm-overlay.excalidraw` *(Module 10 — Sources d'Obtention Exhaustives du Codex & Overlay Farm en Jeu)* : fiche Codex enrichie des 6 canaux d'acquisition (`🛒 Boutique Warframe` ex: *Ember — Schéma Principal 25 000 Cr · 100 %*, `📜 Quêtes FR + Simaris`, `🏯 Dojo`, `✨ Circuit Duviri`, `⚔ Missions/Boss + %`, `◈ Reliques`), **Sélecteur Granulaire** (*Équipement complet*, *Pièces à la carte* ou *Objet unique*), **Simulation Écran en Jeu Warframe + Fenêtre flottante « Codex Farm Overlay »** (`👻 Click-Through`, `Alt+O`, `[S|M|L]`, cochage `✓ Obtenu`), Mode Compact `460×660` et les 4 états UI.
+12. `12-codex-sources-farm-overlay.excalidraw` *(Module 10 — Système d'Extensions, Sources Exhaustives du Codex & Extension « Codex Farm Overlay »)* : **Modale Paramètres → Onglet `🧩 Extensions` sous forme de liste** (avec l'extension `🎯 Codex Farm Overlay` affichée, activable et configurable dedans), fiche Codex enrichie des 6 canaux d'acquisition (`🛒 Boutique Warframe` ex: *Ember — Schéma Principal 25 000 Cr · 100 %*, `📜 Quêtes FR + Simaris`, `🏯 Dojo`, `✨ Circuit Duviri`, `⚔ Missions/Boss + %`, `◈ Reliques`), **Sélecteur Granulaire** (*Équipement complet*, *Pièces à la carte* ou *Objet unique*), **Simulation Écran en Jeu Warframe + Fenêtre flottante « Codex Farm Overlay »** (barre de couleur sous le `%`, `👻 Click-Through`, `Alt+O`, `[S|M|L]`, cochage `✓ Obtenu`), Mode Compact `460×660` et les 4 états UI.
 
 ---
 
