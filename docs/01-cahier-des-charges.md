@@ -443,7 +443,7 @@ Accessible directement dans `Paramètres → Apparence & Thèmes` sous la sectio
   - **Informations affichées sur chaque carte de l'overlay** :
     - Icône `wf-asset://` + Nom de l'équipement / composant (`Ember — Schéma Principal`, `Ember — Systèmes`, `Nataruk`).
     - **Badge de source coloré + Nom exact de la Quête, de la Boutique, du Dojo ou du Nœud de mission** (ex: `🛒 Boutique Warframe · 25 000 Crédits`, `📜 Quête : La Nouvelle Guerre`, `📜 Quête : Messages Cachés (+ Simaris)`, `⚔ Saturne / Tethys · Gén. Sargas Ruk (Assassinat)`).
-    - **Taux d'obtention mis en avant (`% de drop`)** : badge `100 %` vert émeraude pour les sources garanties (Boutique, Quête, Dojo, Circuit Duviri) ou pourcentage exact (`38.72 %`, `22.56 %`, `7.52 %`) accompagné d'une micro-barre visuelle de probabilité et du tri automatique des meilleures localisations.
+    - **Taux d'obtention mis en avant (`% de drop`)** : badge `100 %` vert émeraude pour les sources garanties (Boutique, Quête, Dojo, Circuit Duviri) ou pourcentage exact (`38.72 %`, `22.56 %`, `7.52 %`) avec **sa barre de couleur de probabilité placée directement sous le badge `%`** et tri automatique des meilleures localisations.
 
 #### 10.D — Contrats IPC & Schémas `zod` (`codex.schema.ts` & `settings.schema.ts`)
 
