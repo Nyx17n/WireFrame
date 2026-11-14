@@ -9,6 +9,7 @@ import {
 import {
   toCodexImageUrl,
   type CodexCategory,
+  type CodexComponentEntry,
   type CodexItemDetail,
   type CodexSearchParams,
   type CodexSearchResult,
@@ -18,9 +19,10 @@ import {
 import type { MarketApiService } from './MarketApiService'
 import { CodexAcquisitionResolver } from './CodexAcquisitionResolver'
 import {
+  CodexCraftRecipesDatabaseSchema,
   CodexRawDatabaseSchema,
-  type CodexRawDatabase,
-  type RawComponent
+  type CodexCraftRecipesDatabase,
+  type CodexRawDatabase
 } from './codex-raw.schemas'
 
 function normalizeText(value: string): string {
@@ -31,25 +33,28 @@ function normalizeText(value: string): string {
     .trim()
 }
 
-function resolveCodexDbPath(): string {
+function resolveResourceFilePath(filename: string): string {
   if (app.isPackaged) {
-    return join(process.resourcesPath, 'codex-db.json')
+    return join(process.resourcesPath, filename)
   }
-  const fromOutDir = join(__dirname, '../../resources/codex-db.json')
+  const fromOutDir = join(__dirname, `../../resources/${filename}`)
   if (existsSync(fromOutDir)) return fromOutDir
-  return join(app.getAppPath(), 'resources', 'codex-db.json')
+  return join(app.getAppPath(), 'resources', filename)
 }
 
-function mapCraftPreview(components: readonly RawComponent[]) {
-  const prioritized = [...components].sort((a, b) => {
-    const aBp = a.name.toLowerCase().includes('schéma') ? 1 : 0
-    const bBp = b.name.toLowerCase().includes('schéma') ? 1 : 0
+function mapResolvedCraftPreview(components: readonly CodexComponentEntry[]) {
+  // Prioritize real Foundry crafting resources first so Warframe & Weapon cards show required materials
+  const resourcesOnly = components.filter((c) => c.isResource)
+  const source = resourcesOnly.length > 0 ? resourcesOnly : components
+  const prioritized = [...source].sort((a, b) => {
+    const aBp = a.nameFr.toLowerCase().includes('schéma') ? 1 : 0
+    const bBp = b.nameFr.toLowerCase().includes('schéma') ? 1 : 0
     return aBp - bBp
   })
   return prioritized.slice(0, 6).map((c) => ({
-    nameFr: c.name,
+    nameFr: c.nameFr,
     count: c.count,
-    imageUrl: toCodexImageUrl(c.img)
+    imageUrl: c.imageUrl
   }))
 }
 
@@ -62,6 +67,7 @@ function repairRelicRewardName(nameFr: string, nameEn: string): string {
 
 export class CodexRepository {
   private db: CodexRawDatabase | null = null
+  private craftRecipes: CodexCraftRecipesDatabase | null = null
   private resolver: CodexAcquisitionResolver | null = null
   private loadingPromise: Promise<CodexRawDatabase> | null = null
   private summariesByCat: Record<CodexCategory, CodexSummaryCard[]> | null = null
@@ -73,10 +79,19 @@ export class CodexRepository {
     if (this.loadingPromise) return this.loadingPromise
 
     this.loadingPromise = (async () => {
-      const rawJson = await readFile(resolveCodexDbPath(), 'utf-8')
+      const rawJson = await readFile(resolveResourceFilePath('codex-db.json'), 'utf-8')
       const parsed = CodexRawDatabaseSchema.parse(JSON.parse(rawJson))
-      const resolver = new CodexAcquisitionResolver(parsed)
+
+      let craftRecipes: CodexCraftRecipesDatabase = { warframes: {}, weapons: {} }
+      const craftPath = resolveResourceFilePath('codex-craft-recipes.json')
+      if (existsSync(craftPath)) {
+        const rawCraft = await readFile(craftPath, 'utf-8')
+        craftRecipes = CodexCraftRecipesDatabaseSchema.parse(JSON.parse(rawCraft))
+      }
+
+      const resolver = new CodexAcquisitionResolver(parsed, craftRecipes)
       this.db = parsed
+      this.craftRecipes = craftRecipes
       this.resolver = resolver
       this.summariesByCat = this.buildSummaries(parsed, resolver)
       return parsed
@@ -130,7 +145,7 @@ export class CodexRepository {
             isVaulted: w.vaulted,
             isTradable: w.prime,
             subsumedAbilityName: subAbility,
-            craftComponents: mapCraftPreview(w.components),
+            craftComponents: mapResolvedCraftPreview(resolved.components),
             acquisitionText: resolved.summaryText
           }
         }),
@@ -147,7 +162,7 @@ export class CodexRepository {
           isPrime: w.prime,
           isVaulted: w.vaulted,
           isTradable: w.tradable || w.prime,
-          craftComponents: mapCraftPreview(w.components),
+          craftComponents: mapResolvedCraftPreview(resolved.components),
           acquisitionText: resolved.summaryText
         }
       }),
@@ -296,6 +311,53 @@ export class CodexRepository {
       if (!item) throw new Error(`Ressource Codex introuvable : ${id}`)
       const marketSlug = await this.resolveMarketSlug(category, item.id, item.en, false, item.tradable)
       const resolved = resolver.resolveResource(item)
+
+      const usedForMap = new Map<
+        string,
+        { category: 'warframes' | 'weapons'; id: string; nameFr: string; imageUrl: string | null; count: number }
+      >()
+      for (const u of item.usedFor) {
+        usedForMap.set(`${u.cat}:${u.id}`, {
+          category: u.cat,
+          id: u.id,
+          nameFr: u.name,
+          imageUrl: toCodexImageUrl(u.img),
+          count: u.count
+        })
+      }
+      if (this.craftRecipes) {
+        for (const wf of db.warframes) {
+          if (wf.id === 'helminth') continue
+          const found = this.craftRecipes.warframes[wf.id]?.totalResources.find(
+            (tr) => tr.resSlug === item.id
+          )
+          if (found) {
+            usedForMap.set(`warframes:${wf.id}`, {
+              category: 'warframes',
+              id: wf.id,
+              nameFr: wf.name,
+              imageUrl: toCodexImageUrl(wf.img),
+              count: found.count
+            })
+          }
+        }
+        for (const wep of db.weapons) {
+          const found = this.craftRecipes.weapons[wep.id]?.totalResources.find(
+            (tr) => tr.resSlug === item.id
+          )
+          if (found) {
+            usedForMap.set(`weapons:${wep.id}`, {
+              category: 'weapons',
+              id: wep.id,
+              nameFr: wep.name,
+              imageUrl: toCodexImageUrl(wep.img),
+              count: found.count
+            })
+          }
+        }
+      }
+      const mergedUsedFor = Array.from(usedForMap.values())
+
       return {
         id: item.id,
         category,
@@ -317,15 +379,10 @@ export class CodexRepository {
         relicInfo: null,
         drops: resolved.drops,
         acquisitionSources: resolved.acquisitionSources,
+        totalBuildCredits: null,
         components: [],
-        totalUsedFor: item.totalUsedFor,
-        usedFor: item.usedFor.map((u) => ({
-          category: u.cat,
-          id: u.id,
-          nameFr: u.name,
-          imageUrl: toCodexImageUrl(u.img),
-          count: u.count
-        }))
+        totalUsedFor: Math.max(item.totalUsedFor, mergedUsedFor.length),
+        usedFor: mergedUsedFor.slice(0, 60)
       }
     }
 
@@ -371,6 +428,7 @@ export class CodexRepository {
         relicInfo: null,
         drops: resolved.drops,
         acquisitionSources: resolved.acquisitionSources,
+        totalBuildCredits: resolved.totalBuildCredits,
         components: resolved.components,
         totalUsedFor: 0,
         usedFor: []
@@ -418,6 +476,7 @@ export class CodexRepository {
         relicInfo: null,
         drops: resolved.drops,
         acquisitionSources: resolved.acquisitionSources,
+        totalBuildCredits: resolved.totalBuildCredits,
         components: resolved.components,
         totalUsedFor: 0,
         usedFor: []
@@ -457,6 +516,7 @@ export class CodexRepository {
         relicInfo: null,
         drops: resolved.drops,
         acquisitionSources: resolved.acquisitionSources,
+        totalBuildCredits: null,
         components: [],
         totalUsedFor: 0,
         usedFor: []
@@ -497,6 +557,7 @@ export class CodexRepository {
       },
       drops: resolved.drops,
       acquisitionSources: resolved.acquisitionSources,
+      totalBuildCredits: null,
       components: [],
       totalUsedFor: 0,
       usedFor: []

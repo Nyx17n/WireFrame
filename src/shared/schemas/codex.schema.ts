@@ -111,12 +111,24 @@ export const CodexAcquisitionSourceSchema = z.object({
 
 export type CodexAcquisitionSource = z.infer<typeof CodexAcquisitionSourceSchema>
 
+export const CodexSubResourceEntrySchema = z.object({
+  resourceSlug: z.string().nullable(),
+  nameFr: z.string().min(1),
+  nameEn: z.string(),
+  imageUrl: z.string().nullable(),
+  count: z.number().int().positive()
+})
+
+export type CodexSubResourceEntry = z.infer<typeof CodexSubResourceEntrySchema>
+
 export const CodexComponentEntrySchema = z.object({
   nameFr: z.string().min(1),
   nameEn: z.string(),
   resourceSlug: z.string().nullable(),
   isResource: z.boolean().default(false),
   count: z.number().int().positive(),
+  buildCredits: z.number().int().nonnegative().nullable().default(null),
+  subResources: z.array(CodexSubResourceEntrySchema).default([]),
   imageUrl: z.string().nullable(),
   drops: z.array(CodexDropEntrySchema),
   acquisitionSources: z.array(CodexAcquisitionSourceSchema).default([])
@@ -205,6 +217,7 @@ export const CodexItemDetailSchema = z.object({
     .nullable(),
   drops: z.array(CodexDropEntrySchema),
   acquisitionSources: z.array(CodexAcquisitionSourceSchema).default([]),
+  totalBuildCredits: z.number().int().nonnegative().nullable().default(null),
   components: z.array(CodexComponentEntrySchema),
   totalUsedFor: z.number().int().nonnegative(),
   usedFor: z.array(CodexUsedForEntrySchema)

@@ -142,7 +142,33 @@ export const CodexRawDatabaseSchema = z.object({
   relics: z.array(RawRelicSchema)
 })
 
+export const RawCraftResourceRefSchema = z.object({
+  resSlug: z.string().nullable(),
+  nameFr: z.string(),
+  nameEn: z.string().default(''),
+  img: z.string().default(''),
+  count: z.number().int().positive()
+})
+
+export const RawCraftPartRecipeSchema = z.object({
+  buildCredits: z.number().int().nonnegative().default(0),
+  resources: z.array(RawCraftResourceRefSchema).default([])
+})
+
+export const RawCraftItemRecipeSchema = z.object({
+  buildCredits: z.number().int().nonnegative().default(0),
+  totalResources: z.array(RawCraftResourceRefSchema).default([]),
+  partRecipes: z.record(z.string(), RawCraftPartRecipeSchema).default({})
+})
+
+export const CodexCraftRecipesDatabaseSchema = z.object({
+  warframes: z.record(z.string(), RawCraftItemRecipeSchema).default({}),
+  weapons: z.record(z.string(), RawCraftItemRecipeSchema).default({})
+})
+
 export type CodexRawDatabase = z.infer<typeof CodexRawDatabaseSchema>
+export type CodexCraftRecipesDatabase = z.infer<typeof CodexCraftRecipesDatabaseSchema>
+export type RawCraftItemRecipe = z.infer<typeof RawCraftItemRecipeSchema>
 export type RawDrop = z.infer<typeof RawDropSchema>
 export type RawComponent = z.infer<typeof RawComponentSchema>
 export type RawResource = z.infer<typeof RawResourceSchema>

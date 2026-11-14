@@ -72,7 +72,7 @@ export const CodexOverlayPinnedSourceSchema = z.object({
 
 export type CodexOverlayPinnedSource = z.infer<typeof CodexOverlayPinnedSourceSchema>
 
-export const CODEX_OVERLAY_MAX_ENTRIES = 24
+export const CODEX_OVERLAY_MAX_ENTRIES = 48
 
 export const CodexOverlayPinnedEntrySchema = z.object({
   entryId: z.string().min(1).max(240),
@@ -84,6 +84,8 @@ export const CodexOverlayPinnedEntrySchema = z.object({
   labelFr: z.string().min(1).max(240),
   groupLabelFr: z.string().min(1).max(180),
   imageUrl: z.string().max(512).nullable().default(null),
+  isResource: z.boolean().default(false),
+  requiredCount: z.number().int().positive().nullable().default(null),
   obtained: z.boolean().default(false),
   sources: z.array(CodexOverlayPinnedSourceSchema).min(1).max(8)
 })

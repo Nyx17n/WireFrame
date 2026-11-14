@@ -9,6 +9,8 @@ import type {
   CodexOverlayPinnedSource
 } from '@shared/schemas/extensions.schema'
 
+export type EquipmentPinMode = 'all' | 'parts' | 'resources'
+
 export function getChanceVisualStyle(
   chance: number,
   isGuaranteed: boolean
@@ -146,6 +148,8 @@ export function buildSingleItemOverlayEntry(detail: CodexItemDetail): CodexOverl
     labelFr: detail.nameFr,
     groupLabelFr: detail.typeLabel,
     imageUrl: detail.imageUrl,
+    isResource: detail.category === 'resources',
+    requiredCount: null,
     obtained: false,
     sources: toPinnedSources(detail.acquisitionSources, fallback)
   }
@@ -154,17 +158,21 @@ export function buildSingleItemOverlayEntry(detail: CodexItemDetail): CodexOverl
 export function buildComponentOverlayEntry(
   detail: CodexItemDetail,
   comp: CodexComponentEntry,
-  idx: number
+  idx = 0
 ): CodexOverlayPinnedEntry {
   const itemKey = buildItemKey(detail.category, detail.id)
-  const partSlug = comp.nameFr
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '') || `part-${idx}`
-  const partKey = `${partSlug}-${idx}`
-  const displayLabel = comp.isResource
-    ? `${comp.nameFr} (×${comp.count})`
-    : `${detail.nameFr} — ${comp.nameFr}`
+  const cleanSlug =
+    comp.nameFr
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || `part-${idx}`
+  const partKey = comp.isResource
+    ? `res-${comp.resourceSlug ?? cleanSlug}`
+    : `part-${cleanSlug}`
+
+  const displayLabel = comp.isResource ? comp.nameFr : `${detail.nameFr} — ${comp.nameFr}`
 
   return {
     entryId: `${itemKey}::${partKey}`,
@@ -174,8 +182,10 @@ export function buildComponentOverlayEntry(
     itemNameFr: detail.nameFr,
     partKey,
     labelFr: displayLabel,
-    groupLabelFr: comp.isResource ? `Matériau pour ${detail.nameFr}` : detail.nameFr,
+    groupLabelFr: comp.isResource ? `Ressource craft · ${detail.nameFr}` : detail.nameFr,
     imageUrl: comp.imageUrl ?? detail.imageUrl,
+    isResource: comp.isResource,
+    requiredCount: comp.isResource || comp.count > 1 ? comp.count : null,
     obtained: false,
     sources: toPinnedSources(
       comp.acquisitionSources.length > 0 ? comp.acquisitionSources : detail.acquisitionSources,
@@ -184,24 +194,28 @@ export function buildComponentOverlayEntry(
   }
 }
 
-export function getEquipmentPartEntries(
+export function getEquipmentEntriesByMode(
   detail: CodexItemDetail,
-  includeResources: boolean
+  mode: EquipmentPinMode
 ): CodexOverlayPinnedEntry[] {
-  const nonResComponents = detail.components.filter((c) => !c.isResource)
-  if (nonResComponents.length === 0) {
-    const base = [buildSingleItemOverlayEntry(detail)]
-    if (!includeResources) return base
-    const resEntries = detail.components
-      .map((c, idx) => ({ c, idx }))
-      .filter(({ c }) => c.isResource)
-      .map(({ c, idx }) => buildComponentOverlayEntry(detail, c, idx))
-    return [...base, ...resEntries]
-  }
-
-  return detail.components
+  const nonResComponents = detail.components
     .map((c, idx) => ({ c, idx }))
-    .filter(({ c }) => includeResources || !c.isResource)
+    .filter(({ c }) => !c.isResource)
     .map(({ c, idx }) => buildComponentOverlayEntry(detail, c, idx))
-}
 
+  const resComponents = detail.components
+    .map((c, idx) => ({ c, idx }))
+    .filter(({ c }) => c.isResource)
+    .map(({ c, idx }) => buildComponentOverlayEntry(detail, c, idx))
+
+  const baseParts =
+    nonResComponents.length > 0 ? nonResComponents : [buildSingleItemOverlayEntry(detail)]
+
+  if (mode === 'resources') {
+    return resComponents
+  }
+  if (mode === 'parts') {
+    return baseParts
+  }
+  return [...baseParts, ...resComponents]
+}

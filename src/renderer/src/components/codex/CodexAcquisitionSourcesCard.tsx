@@ -30,19 +30,19 @@ export function CodexAcquisitionSourcesCard({
 
   const itemKey = buildItemKey(detail.category, detail.id)
   const isGroupPinned = pinnedEntries.some((e) => e.itemKey === itemKey)
-  const hasMultipleGearParts =
+  const hasCraftComponents =
     (detail.category === 'warframes' || detail.category === 'weapons') &&
-    detail.components.filter((c) => !c.isResource).length > 1
+    detail.components.length > 0
 
   const handleQuickPin = (): void => {
     if (isGroupPinned) {
       void unpinItemGroup(detail.category, detail.id)
       return
     }
-    if (hasMultipleGearParts) {
-      void pinEquipmentSelection(detail, false, true)
+    if (hasCraftComponents) {
+      void pinEquipmentSelection(detail, 'all', true)
     } else {
-      void toggleEntry(buildSingleItemOverlayEntry(detail))
+      void toggleEntry(buildSingleItemOverlayEntry(detail), true)
     }
   }
 
@@ -65,8 +65,8 @@ export function CodexAcquisitionSourcesCard({
             <span>
               {isGroupPinned
                 ? 'Retirer de l’Overlay Farm'
-                : hasMultipleGearParts
-                  ? `Épingler tout ${detail.nameFr} à l’Overlay`
+                : hasCraftComponents
+                  ? `Tout épingler (Pièces + Ressources)`
                   : 'Épingler à l’Overlay Farm'}
             </span>
           </Button>

@@ -29,7 +29,8 @@ export function CodexFarmOverlayCard({
   return (
     <div
       className={cn(
-        'rounded-lg border border-border/75 bg-card/85 transition-colors',
+        'rounded-lg border bg-card/85 transition-colors',
+        entry.isResource ? 'border-amber-500/35' : 'border-border/75',
         density === 'sm' ? 'px-2.5 py-1.5' : density === 'lg' ? 'p-3' : 'px-3 py-2',
         entry.obtained && 'opacity-55'
       )}
@@ -74,14 +75,24 @@ export function CodexFarmOverlayCard({
           )}
 
           <div className="min-w-0 flex-1">
-            <div
-              className={cn(
-                'truncate font-semibold leading-tight text-foreground',
-                density === 'sm' ? 'text-[11px]' : 'text-xs',
-                entry.obtained && 'line-through'
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span
+                className={cn(
+                  'truncate font-semibold leading-tight text-foreground',
+                  density === 'sm' ? 'text-[11px]' : 'text-xs',
+                  entry.obtained && 'line-through'
+                )}
+              >
+                {entry.labelFr}
+              </span>
+              {entry.requiredCount !== null && (
+                <Badge
+                  variant="outline"
+                  className="border-amber-500/45 bg-amber-500/15 px-1.5 py-0 font-mono text-[10px] text-amber-300"
+                >
+                  ×{entry.requiredCount.toLocaleString('fr-FR')}
+                </Badge>
               )}
-            >
-              {entry.labelFr}
             </div>
             {density !== 'sm' && (
               <div className="truncate text-[10px] text-muted-foreground">
@@ -143,4 +154,3 @@ export function CodexFarmOverlayCard({
     </div>
   )
 }
-
