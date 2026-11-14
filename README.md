@@ -1,19 +1,19 @@
-# WireFrame — Warframe Companion, Trading Browser & Codex
+# TennoFrame — Warframe Companion, Trading Browser & Codex
 
-[![Dernière Release](https://img.shields.io/github/v/release/Nyx17n/WireFrame?color=26b9d1&label=Release&logo=github)](https://github.com/Nyx17n/WireFrame/releases/latest)
-[![Windows 10/11 x64](https://img.shields.io/badge/Windows-10%20%2F%2011%20(x64)-0078D6?logo=windows)](https://github.com/Nyx17n/WireFrame/releases/latest)
+[![Dernière Release](https://img.shields.io/github/v/release/Nyx17n/TennoFrame?color=26b9d1&label=Release&logo=github)](https://github.com/Nyx17n/TennoFrame/releases/latest)
+[![Windows 10/11 x64](https://img.shields.io/badge/Windows-10%20%2F%2011%20(x64)-0078D6?logo=windows)](https://github.com/Nyx17n/TennoFrame/releases/latest)
 [![Serveur Discord](https://img.shields.io/badge/Discord-Rejoindre%20la%20communaut%C3%A9-5865F2?logo=discord&logoColor=white)](https://discord.gg/DhGwHPf82n)
-[![Licence MIT](https://img.shields.io/badge/Licence-MIT-22c55e)](https://github.com/Nyx17n/WireFrame)
+[![Licence MIT](https://img.shields.io/badge/Licence-MIT-22c55e)](https://github.com/Nyx17n/TennoFrame)
 
 > Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron 35 · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
-**WireFrame v2** (`v2.8.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés), une **Encyclopédie de Farm, Bestiaire des Mobs, Annuaire des Marchands & Helminth** hors-ligne complète en FR/EN et un **Système d’Extensions modulaires** incluant le **Codex Farm Overlay en jeu (`Alt+O`)**.
+**TennoFrame v2** (`v2.9.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés), une **Encyclopédie de Farm, Bestiaire des Mobs, Annuaire des Marchands & Helminth** hors-ligne complète en FR/EN et un **Système d’Extensions modulaires** incluant le **Codex Farm Overlay en jeu (`Alt+O`)**.
 
 ---
 
 ## Téléchargement & Communauté
 
-- **Installateur Windows (`.exe`)** : Télécharge la dernière version depuis **[GitHub Releases](https://github.com/Nyx17n/WireFrame/releases/latest)** *(les mises à jour suivantes sont téléchargées et proposées automatiquement au lancement grâce à l'auto-updater intégré avec vérification SHA-512)*.
+- **Installateur Windows (`.exe`)** : Télécharge la dernière version depuis **[GitHub Releases](https://github.com/Nyx17n/TennoFrame/releases/latest)** *(les mises à jour suivantes sont téléchargées et proposées automatiquement au lancement grâce à l'auto-updater intégré avec vérification SHA-512)*.
 - **Serveur Discord Officiel** : Rejoins la communauté et reçois automatiquement les annonces de patch notes sur **[discord.gg/DhGwHPf82n](https://discord.gg/DhGwHPf82n)**.
 
 ---
@@ -72,7 +72,7 @@
 # Installer les dépendances
 npm install
 
-# Lancer WireFrame en mode développement (Hot-Reload)
+# Lancer TennoFrame en mode développement (Hot-Reload)
 npm.cmd run dev
 
 # Vérification TypeScript stricte + Build de production (out/)

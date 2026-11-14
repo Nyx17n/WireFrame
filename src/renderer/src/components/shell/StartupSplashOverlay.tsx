@@ -76,7 +76,7 @@ export function StartupSplashOverlay(): React.JSX.Element | null {
     <div
       onClick={dismissNow}
       role="status"
-      aria-label="Animation de lancement WireFrame"
+      aria-label="Animation de lancement TennoFrame"
       title="Cliquer pour passer l'intro"
       className={`fixed inset-0 z-50 flex select-none flex-col items-center justify-center overflow-hidden bg-background transition-all duration-300 ${
         fadingOut ? 'pointer-events-none scale-[1.03] opacity-0' : 'opacity-100'
@@ -100,10 +100,10 @@ export function StartupSplashOverlay(): React.JSX.Element | null {
               isCenteredFinal ? 'scale-110 border-primary' : 'scale-100'
             }`}
           >
-            <img src="./images/logo.png" alt="WireFrame" className="h-7 w-7 object-contain" />
+            <img src="./images/logo.png" alt="TennoFrame" className="h-7 w-7 object-contain" />
           </div>
 
-          {/* Kinetic Word Row: "Wire" stays anchored, suffixes slide Top -> Center -> Bottom, then "Wire" centers! */}
+          {/* Kinetic Word Row: "Tenno" stays anchored, suffixes slide Top -> Center -> Bottom, then "Tenno" centers! */}
           <div className="flex items-center justify-center">
             <span
               className={`font-extrabold tracking-tight text-foreground transition-all duration-500 ${
@@ -115,7 +115,7 @@ export function StartupSplashOverlay(): React.JSX.Element | null {
                   : undefined
               }
             >
-              Wire
+              Tenno
             </span>
 
             <div

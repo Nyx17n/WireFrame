@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 /**
  * Résout récursivement les recettes officielles de Fonderie Digital Extremes (ExportRecipes)
  * y compris les sous-schémas (Neuroptiques, Châssis, Systèmes, Aspects Equinox, pièces d'armes/Necramechs)
- * et génère `resources/codex-craft-recipes.json` indexé par `<category>:<id>` du Codex WireFrame.
+ * et génère `resources/codex-craft-recipes.json` indexé par `<category>:<id>` du Codex TennoFrame.
  */
 const BASE_EXPORT_URL =
   'https://raw.githubusercontent.com/calamity-inc/warframe-public-export-plus/senpai'

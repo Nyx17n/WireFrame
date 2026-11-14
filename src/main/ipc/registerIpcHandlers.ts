@@ -108,8 +108,8 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     assertTrustedSender(event, win)
     if (!win) return false
     const result = await dialog.showSaveDialog(win, {
-      title: 'Exporter la configuration WireFrame v2',
-      defaultPath: 'wireframe-config.json',
+      title: 'Exporter la configuration TennoFrame v2',
+      defaultPath: 'tennoframe-config.json',
       filters: [{ name: 'Fichier JSON', extensions: ['json'] }]
     })
     if (result.canceled || !result.filePath) return false
@@ -122,7 +122,7 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     assertTrustedSender(event, win)
     if (!win) return null
     const result = await dialog.showOpenDialog(win, {
-      title: 'Importer une configuration WireFrame v2',
+      title: 'Importer une configuration TennoFrame v2',
       properties: ['openFile'],
       filters: [{ name: 'Fichier JSON', extensions: ['json'] }]
     })

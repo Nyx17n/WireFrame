@@ -119,7 +119,7 @@ export function PriceSniperPanel(): React.JSX.Element {
         <div className="mt-3 space-y-2">
           {rules.length === 0 ? (
             <p className="py-2 text-xs text-muted-foreground">
-              Aucune surveillance active. Dès qu’une offre En jeu passe sous ton seuil, WireFrame déclenche le son + une notification Windows + bouton `/w` !
+              Aucune surveillance active. Dès qu’une offre En jeu passe sous ton seuil, TennoFrame déclenche le son + une notification Windows + bouton `/w` !
             </p>
           ) : (
             rules.map((r) => {

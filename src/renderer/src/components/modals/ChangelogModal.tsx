@@ -21,7 +21,7 @@ export function ChangelogModal(): React.JSX.Element {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base font-bold">
             <Sparkles className="h-4 w-4 text-primary" />
-            <span>Notes de Patch & Historique WireFrame</span>
+            <span>Notes de Patch & Historique TennoFrame</span>
           </DialogTitle>
           <DialogDescription className="text-xs">
             Journal des nouveautés et améliorations de sécurité de ton compagnon Warframe.

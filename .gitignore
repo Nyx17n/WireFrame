@@ -1,5 +1,5 @@
 # ============================================================================
-# WireFrame v2 — Fichier .gitignore strict (Electron + React + TypeScript)
+# TennoFrame v2 — Fichier .gitignore strict (Electron + React + TypeScript)
 # RÈGLE ABSOLUE : Aucun binaire, exécutable, archive ou artefact de build
 # ne doit jamais être commité dans Git.
 # ============================================================================

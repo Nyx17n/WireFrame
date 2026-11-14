@@ -2,7 +2,7 @@ import { ALERT_HISTORY_MAX, type TriggeredAlertEvent } from '@shared/schemas/ale
 
 /**
  * In-memory history of triggered alerts for the current session only
- * (decision D3 of the CDC: wiped when WireFrame quits, never written to disk).
+ * (decision D3 of the CDC: wiped when TennoFrame quits, never written to disk).
  */
 export class AlertHistory {
   private entries: TriggeredAlertEvent[] = []

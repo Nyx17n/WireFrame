@@ -69,13 +69,13 @@ import {
   type VoidTraderSnapshot,
   type WorldstateHubPayload
 } from '@shared/schemas/worldstate.schema'
-import type { WireframeBridgeApi } from '@shared/ipc-channels'
+import type { TennoFrameBridgeApi } from '@shared/ipc-channels'
 
-function getBridge(): WireframeBridgeApi {
-  if (typeof window === 'undefined' || !window.wireframeApi) {
-    throw new Error('Pont IPC preload indisponible (window.wireframeApi manquant).')
+function getBridge(): TennoFrameBridgeApi {
+  if (typeof window === 'undefined' || !window.tennoframeApi) {
+    throw new Error('Pont IPC preload indisponible (window.tennoframeApi manquant).')
   }
-  return window.wireframeApi
+  return window.tennoframeApi
 }
 
 export const ipcClient = {

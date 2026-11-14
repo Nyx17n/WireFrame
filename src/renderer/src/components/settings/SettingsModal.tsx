@@ -46,7 +46,7 @@ export function SettingsModal(): React.JSX.Element {
         )}
       >
         <DialogHeader className="shrink-0 border-b border-border bg-background/70 px-4 py-3 pr-10">
-          <DialogTitle>Paramètres WireFrame v2</DialogTitle>
+          <DialogTitle>Paramètres TennoFrame v2</DialogTitle>
           <DialogDescription>
             Tous les changements sont validés par Zod et enregistrés automatiquement.
           </DialogDescription>

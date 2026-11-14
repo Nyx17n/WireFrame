@@ -1,8 +1,8 @@
-import type { WireframeBridgeApi } from '@shared/ipc-channels'
+import type { TennoFrameBridgeApi } from '@shared/ipc-channels'
 
 declare global {
   interface Window {
-    readonly wireframeApi: WireframeBridgeApi
+    readonly tennoframeApi: TennoFrameBridgeApi
   }
 }
 

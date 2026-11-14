@@ -31,7 +31,7 @@ async function ensureElectronBinary() {
     return
   }
 
-  console.log('[WireFrame] Extraction du binaire Electron local...')
+  console.log('[TennoFrame] Extraction du binaire Electron local...')
   const { downloadArtifact } = require('@electron/get')
   const pkg = JSON.parse(readFileSync(resolve(electronDir, 'package.json'), 'utf8'))
   const checksums = JSON.parse(readFileSync(resolve(electronDir, 'checksums.json'), 'utf8'))
@@ -71,6 +71,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('[WireFrame] Échec du lancement Electron :', err)
+  console.error('[TennoFrame] Échec du lancement Electron :', err)
   process.exit(1)
 })

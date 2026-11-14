@@ -2,12 +2,12 @@
 name: spec-first-workflow
 description: >-
   Enforces the mandatory Spec-First & Wireframe-First engineering workflow for
-  WireFrame v2 (Electron + React + TypeScript). Activate this skill whenever
+  TennoFrame v2 (Electron + React + TypeScript). Activate this skill whenever
   planning, specifying, wireframing, or implementing any view, service, or
   feature with Maxime.
 ---
 
-# Workflow d'Ingénierie WireFrame v2 (CDC -> Wireframes -> Code)
+# Workflow d'Ingénierie TennoFrame v2 (CDC -> Wireframes -> Code)
 
 Suis rigoureusement ces étapes dans l'ordre lors du travail avec Maxime :
 

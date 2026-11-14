@@ -59,7 +59,7 @@ export function StatusBar(): React.JSX.Element {
         )}
         <button
           type="button"
-          title="Voir les Notes de Patch WireFrame"
+          title="Voir les Notes de Patch TennoFrame"
           onClick={() => setChangelogOpen(true)}
           className="font-mono text-[10px] text-foreground/80 transition-colors hover:text-primary"
         >

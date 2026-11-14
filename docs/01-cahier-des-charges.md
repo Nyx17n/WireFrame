@@ -1,6 +1,6 @@
-# Cahier des Charges Fonctionnel & Technique — WireFrame v2.0
+# Cahier des Charges Fonctionnel & Technique — TennoFrame v2.0
 
-- **Projet** : WireFrame v2 — Companion, Trading Browser & Codex pour Warframe
+- **Projet** : TennoFrame v2 — Companion, Trading Browser & Codex pour Warframe
 - **Auteur** : Maxime (`Nyxo_17`)
 - **Stack Cible** : Electron · Node.js · React · `shadcn/ui` (Tailwind CSS + Radix UI) · TypeScript (`strict: true`) · Validation `zod`
 - **Statut du document** : `VALIDÉ DÉFINITIF (CDC + 7 Planches Wireframes Excalidraw approuvés)`
@@ -9,7 +9,7 @@
 
 ## 1. Vision Produit & Objectifs de la v2.0
 
-**WireFrame v2** est une application de bureau native Windows (extensible Linux/macOS) conçue pour accompagner les joueurs de **Warframe** sur leur écran principal ou en superposition (*Overlay*) par-dessus le jeu en mode *Plein écran sans bordure*.
+**TennoFrame v2** est une application de bureau native Windows (extensible Linux/macOS) conçue pour accompagner les joueurs de **Warframe** sur leur écran principal ou en superposition (*Overlay*) par-dessus le jeu en mode *Plein écran sans bordure*.
 
 Elle réunit **3 besoins métier complémentaires** dans une interface inspirée d'un navigateur multi-onglets ultra-réactif :
 1. **Trading optimisé sur Warframe Market** : comparer plusieurs items en parallèle dans des onglets, calculer s'il vaut mieux acheter un Set complet ou ses pièces détachées, regrouper ses achats chez un même vendeur (*Trade Bundler*), surveiller les bonnes affaires en arrière-plan (*Price Sniper*), et générer les commandes `/w` en un clic.
@@ -30,7 +30,7 @@ Elle réunit **3 besoins métier complémentaires** dans une interface inspirée
 Conformément au choix d'ergonomie retenu, toute la navigation tient dans **2 barres compactes** en haut de la fenêtre Electron (*Frameless*) :
 
 1. **Barre 1 — Barre d'Onglets & Contrôles Fenêtre (`Title & Tabs Bar`, hauteur ~38 px)** :
-   - **Bouton Hub Permanent (à gauche)** : onglet fixe non fermable portant le logo WireFrame, basculant instantanément sur le **Hub Temps Réel Warframe**.
+   - **Bouton Hub Permanent (à gauche)** : onglet fixe non fermable portant le logo TennoFrame, basculant instantanément sur le **Hub Temps Réel Warframe**.
    - **Liste d'onglets dynamiques** : chaque fiche d'item, recherche catalogue, page Codex, Panier ou profil joueur peut s'ouvrir dans un onglet dédié.
      - *Actions sur les onglets* : glisser-déposer horizontal pour réordonner, clic molette pour fermer, clic droit (menu contextuel : *Épingler `📌`, Dupliquer, Fermer les doublons, Fermer les autres, Fermer à droite*), bouton `+` (*Nouvel onglet*), et popover **Organisateur d'onglets** (filtrer les onglets ouverts, trier A→Z ou par catégorie, nettoyer les doublons).
    - **Zone de déplacement fenêtre (`app-region: drag`)** sur l'espace libre.
@@ -62,7 +62,7 @@ Conformément au choix d'ergonomie retenu, toute la navigation tient dans **2 ba
 
 ### 2.3. Raccourcis Clavier
 
-#### Raccourcis locaux (quand la fenêtre WireFrame a le focus)
+#### Raccourcis locaux (quand la fenêtre TennoFrame a le focus)
 - `Ctrl + T` : Ouvrir un nouvel onglet (Accueil Marché)
 - `Ctrl + W` : Fermer l'onglet actif (sauf s'il est épinglé ou s'il s'agit du Hub)
 - `Ctrl + Tab` / `Ctrl + Shift + Tab` : Onglet suivant / précédent
@@ -72,7 +72,7 @@ Conformément au choix d'ergonomie retenu, toute la navigation tient dans **2 ba
 - `Ctrl + +` / `Ctrl + -` / `Ctrl + 0` : Zoom natif Chromium (`50 %` à `200 %`, pas de `10 %`)
 
 #### Raccourcis globaux système (actifs même quand Warframe est au premier plan — désactivables dans Paramètres)
-- `Alt + Shift + W` : Afficher / Masquer instantanément la fenêtre WireFrame par-dessus le jeu
+- `Alt + Shift + W` : Afficher / Masquer instantanément la fenêtre TennoFrame par-dessus le jeu
 - `Alt + P` : Basculer l'épinglage *Toujours au premier plan* (*Always-on-Top*)
 - `Alt + M` : Basculer entre le *Mode Desktop* et le *Mode Compact (`460×660`)*
 
@@ -89,10 +89,10 @@ Conformément au choix d'ergonomie retenu, toute la navigation tient dans **2 ba
      - **EN (par défaut)** : `/w <Pseudo> Hi! I want to buy: "<Item En>" (rank <X>) for <Prix> platinum. (warframe.market)`
      - **FR (bascule 1 clic)** : `/w <Pseudo> Bonjour ! Je voudrais acheter : "<Item Fr>" (rang <X>) pour <Prix> platinum. (warframe.market)`
 2. **Vie en arrière-plan (`System Tray`)** :
-   - Icône permanente près de l'horloge Windows avec menu contextuel : *Afficher / Masquer WireFrame*, *Basculer Mode Compact*, *Mettre en pause les sons d'alerte*, *Quitter complètement*.
+   - Icône permanente près de l'horloge Windows avec menu contextuel : *Afficher / Masquer TennoFrame*, *Basculer Mode Compact*, *Mettre en pause les sons d'alerte*, *Quitter complètement*.
    - Permet au *Price Sniper* et aux alertes Worldstate de continuer à tourner à consommation quasi nulle lorsque la fenêtre principale est fermée.
 3. **Persistance locale fiable** :
-   - Sauvegarde automatique dans `%APPDATA%\WireFrame\config.json` (validée par schéma `zod`, écriture atomique anti-corruption) : onglets ouverts, favoris, panier, alertes configurées, préférences audio, plateforme/langue, thème personnalisé et positions des fenêtres.
+   - Sauvegarde automatique dans `%APPDATA%\TennoFrame\config.json` (validée par schéma `zod`, écriture atomique anti-corruption) : onglets ouverts, favoris, panier, alertes configurées, préférences audio, plateforme/langue, thème personnalisé et positions des fenêtres.
 
 ---
 
@@ -160,7 +160,7 @@ Contrairement à la `v1` où les timers vivaient dans la page web, l'orchestrate
 
 ---
 
-### Module 4 — Hub Temps Réel « WireFrame Info » (`wf://hub`)
+### Module 4 — Hub Temps Réel « TennoFrame Info » (`wf://hub`)
 
 Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en **6 sous-vues** avec compteurs calculés chaque seconde côté client et resynchronisés périodiquement :
 
@@ -208,7 +208,7 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 
 #### 7.A — Moteur d'Alertes Worldstate Personnalisées (`wf://alerts`, onglet *Worldstate*)
 
-**Objectif joueur** : définir ses propres règles (« *préviens-moi quand…* ») et être notifié une seule fois par occurrence, même quand WireFrame est réduit dans le System Tray.
+**Objectif joueur** : définir ses propres règles (« *préviens-moi quand…* ») et être notifié une seule fois par occurrence, même quand TennoFrame est réduit dans le System Tray.
 
 1. **Conservation des 11 alertes existantes** : elles restent affichées en tête sous le titre *Alertes rapides* (aucune migration destructive des paramètres actuels).
 2. **Règles personnalisées** (maximum **30** règles) créées via un formulaire en 3 étapes : *Source → Conditions → Notification*.
@@ -228,7 +228,7 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 3. **Aperçu en direct** : bouton **« Tester avec le Worldstate actuel »** dans le formulaire, qui affiche immédiatement le nombre d'occurrences correspondantes en ce moment (ex. *« 2 fissures correspondent : Axi Survie — Mot (Néant)… »*). Le joueur valide ainsi sa règle sans attendre.
 4. **Notification** (par règle) : *Toast dans l'application* (toujours actif) · *Notification Windows native* (on/off) · *Son* (on/off, réglages audio globaux du Module 3). Le toast contient un bouton **« Voir dans le Hub »** qui ouvre la sous-vue concernée (et **`Prix Plat ↗`** si la récompense est échangeable).
 5. **Anti-spam (déduplication)** : une règle ne se déclenche qu'**une seule fois par occurrence**. La clé d'occurrence est `ruleId + identifiant Worldstate` (id de fissure, invasion, sortie, mise à prix ou défi Nightwave ; date d'expiration pour cycles, Arbitrage et Baro). Les clés expirées sont purgées automatiquement.
-6. **Historique des alertes (session uniquement)** : les **50 dernières** alertes déclenchées (Price Sniper + Worldstate) depuis le lancement de WireFrame, conservées **en mémoire seulement** (vidées à la fermeture), avec date, règle d'origine et bouton *Voir*. Bouton *Effacer l'historique*.
+6. **Historique des alertes (session uniquement)** : les **50 dernières** alertes déclenchées (Price Sniper + Worldstate) depuis le lancement de TennoFrame, conservées **en mémoire seulement** (vidées à la fermeture), avec date, règle d'origine et bouton *Voir*. Bouton *Effacer l'historique*.
 7. **Gestion des règles** : liste avec interrupteur on/off, *Dupliquer*, *Modifier*, *Supprimer* (avec confirmation), nom généré automatiquement et modifiable (ex. *« Fissure Axi · Survie · Acier »*).
 
 **Sources de données & rafraîchissement** : aucune nouvelle API. Les règles sont évaluées sur le Worldstate déjà récupéré par `WorldstateService` (`api.warframestat.us`), au même rythme que le scan existant de l'`AlertSchedulerService` (minimum `15 s`), en réutilisant le cache et le limiteur de débit global. **Aucune requête supplémentaire par règle.**
@@ -340,7 +340,7 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 
 **Réglages dans `Paramètres → Apparence & Thèmes`** :
 - Sélecteur segmenté à **3 niveaux** : **`Complètes`** (défaut) · **`Réduites`** · **`Désactivées`**.
-- Interrupteur **« Respecter le réglage Windows ( Mouvements réduits ) »** (`respectOsReducedMotion`, activé par défaut) : si Windows signale `prefers-reduced-motion: reduce` et que le niveau choisi est *Complètes*, WireFrame plafonne automatiquement le rendu effectif à **Réduites** (si l'utilisateur a choisi *Désactivées*, tout reste coupé).
+- Interrupteur **« Respecter le réglage Windows ( Mouvements réduits ) »** (`respectOsReducedMotion`, activé par défaut) : si Windows signale `prefers-reduced-motion: reduce` et que le niveau choisi est *Complètes*, TennoFrame plafonne automatiquement le rendu effectif à **Réduites** (si l'utilisateur a choisi *Désactivées*, tout reste coupé).
 - L'interrupteur existant *« Animation d'ouverture Wire au lancement »* reste indépendant (mais respecte aussi le mode *Désactivées* sauf clic manuel sur *Rejouer*).
 
 **Architecture CSS, Performance & Contrats `zod`** :
@@ -360,7 +360,7 @@ Accessible à tout moment depuis l'onglet fixe en haut à gauche, structuré en 
 
 ### Module 9 — Dégradés de Fond d'Écran de l'Application (`Paramètres → Apparence & Thèmes`)
 
-**Objectif joueur** : permettre de personnaliser l'atmosphère visuelle globale de WireFrame avec des **dégradés de fond d'écran Sci-Fi élégants** (compatibles avec les 20 thèmes bicolores prédéfinis, le mode `Full Black` OLED, les thèmes clairs et les couleurs libres), tout en préservant une lisibilité irréprochable des prix Platinum, minuteries Worldstate et fiches Codex en Desktop (`1440×900`) comme en Mode Compact (`460×660`).
+**Objectif joueur** : permettre de personnaliser l'atmosphère visuelle globale de TennoFrame avec des **dégradés de fond d'écran Sci-Fi élégants** (compatibles avec les 20 thèmes bicolores prédéfinis, le mode `Full Black` OLED, les thèmes clairs et les couleurs libres), tout en préservant une lisibilité irréprochable des prix Platinum, minuteries Worldstate et fiches Codex en Desktop (`1440×900`) comme en Mode Compact (`460×660`).
 
 #### 9.A — Galerie des 8 Styles de Dégradés (`BackgroundGradientStyle`)
 
@@ -466,13 +466,13 @@ Accessible directement dans `Paramètres → Apparence & Thèmes` sous la sectio
 - **Persistance & Synchronisation Temps Réel (`settings.extensions` & `settings.codexFarmOverlay`)** :
   - `extensions: { codexFarmOverlay: boolean }` (activation de l'extension dans l'onglet `🧩 Extensions` des Paramètres ; si `false`, la fenêtre secondaire est détruite et le raccourci `Alt+O` désenregistré).
   - `codexFarmOverlay` : `enabled: boolean` (visibilité courante de la fenêtre overlay quand l'extension est active), `clickThrough: boolean`, `size: 'sm' | 'md' | 'lg'`, `opacityPercent: number (40..98)`, `bounds: { x, y, width, height }`, `shortcutToggle: string` (défaut `'Alt+O'`), `pinnedEntries: CodexOverlayPinnedEntry[]` (max 12 entrées typées avec `obtained: boolean` et sources pré-résolues).
-  - Canaux IPC dédiés dans `overlay` (`src/shared/ipc-channels.ts`) : `overlay:getState`, `overlay:setEnabled`, `overlay:updateState`, `overlay:setClickThrough`, et événement `overlay:onStateChanged` diffusant instantanément tout changement entre la fenêtre principale WireFrame, l'onglet `🧩 Extensions` des Paramètres et la fenêtre flottante *Codex Farm Overlay*.
+  - Canaux IPC dédiés dans `overlay` (`src/shared/ipc-channels.ts`) : `overlay:getState`, `overlay:setEnabled`, `overlay:updateState`, `overlay:setClickThrough`, et événement `overlay:onStateChanged` diffusant instantanément tout changement entre la fenêtre principale TennoFrame, l'onglet `🧩 Extensions` des Paramètres et la fenêtre flottante *Codex Farm Overlay*.
 
 ### 3.8. Module 11 — Bestiaire Complet des Mobs & Répertoire des Marchands dans le Codex (`👾 Mobs` & `🏪 Marchands`)
 
 #### 11.A — Objectif Métier Joueur
 
-Jusqu'à présent, le Codex hors-ligne de WireFrame couvrait les objets finaux (*Ressources, Warframes, Armes, Mods, Reliques*) et l'Infirmerie Helminth, mais ne répondait pas directement à deux questions quotidiennes majeures des joueurs Warframe :
+Jusqu'à présent, le Codex hors-ligne de TennoFrame couvrait les objets finaux (*Ressources, Warframes, Armes, Mods, Reliques*) et l'Infirmerie Helminth, mais ne répondait pas directement à deux questions quotidiennes majeures des joueurs Warframe :
 1. **« Où trouver tel Mob / Eximus / Boss dans le jeu et que lâche-t-il ? »** — Indispensable pour chasser un mod de posture ou rare sur une unité précise (ex: *Bombardier Lourd Corrompu*, * Maniaque Grineer*, *Nox*, *Thrax*, *Juggernaut*), accomplir un défi Ondes Nocturnes / Riven ou compléter les cibles de synthèse du Céphalon Simaris.
 2. **« Où trouver tel Marchand / Syndicat dans le jeu et que vend-il exactement (et à quel prix) ? »** — Le Système Origine compte plus de 40 vendeurs répartis entre les Relais Tenno, le Bazar de Maroo, Cetus, Fortuna, le Necralisk, le Sanctum Anatomica, le Chrysalithe, Duviri, le Camp du Voyageur et Höllvanie (1999), chacun avec sa propre monnaie ou réputation. Pouvoir localiser instantanément chaque marchand **et** chercher un objet (ex: *« Extrait de Nitain »*, *« Citrine »*, *« Ignis Wraith »*, *« Holoclef »*, *« Arcane »*) à travers toutes les boutiques du jeu fait gagner un temps considérable.
 
@@ -512,7 +512,7 @@ L'index `codex-mobs-vendors.json` est chargé **à la demande (lazy-load asynchr
 
 - **Recherche & Filtres « Boutique Globale »** :
   - **Recherche transversale intelligente FR/EN** : interroge à la fois le **nom du marchand / syndicat / hub / planète** ET l'**inventaire complet de tout ce qu'il vend** !
-    - *Exemple métier* : si le joueur tape *« Citrine »*, WireFrame remonte immédiatement **Otak (Necralisk — Deimos)** en affichant en aperçu sur sa carte : *« Vend : Citrine — Schéma (500 Cristaux Rania + 500 Belric) + 3 pièces »* ! S'il tape *« Nitain »*, il remonte **Nora Night (Boutique Crédits Ondes Nocturnes : 15 Crédits ×5)**.
+    - *Exemple métier* : si le joueur tape *« Citrine »*, TennoFrame remonte immédiatement **Otak (Necralisk — Deimos)** en affichant en aperçu sur sa carte : *« Vend : Citrine — Schéma (500 Cristaux Rania + 500 Belric) + 3 pièces »* ! S'il tape *« Nitain »*, il remonte **Nora Night (Boutique Crédits Ondes Nocturnes : 15 Crédits ×5)**.
   - **Barre de puces Zones / Hubs** : `Tous les Marchands` · `Relais & Bazar de Maroo` · `Syndicats Principaux (6)` · `Cetus (Terre)` · `Fortuna (Vénus)` · `Necralisk & Sanctum (Deimos)` · `Chrysalithe & Duviri` · `Höllvanie 1999 & Camp`.
 - **Cartes Catalogue Marchands** :
   - Portrait / Emblème du marchand ou syndicat, Nom FR/EN, rôle / titre (ex: *« Minage, Géologie & Fragments de Citrine »*),
@@ -578,7 +578,7 @@ flowchart TB
         Codex["CodexRepository (Index JSON en mémoire légère à la demande)"]
         Alerts["AlertSchedulerService (Price Sniper + Worldstate + Notifications)"]
         Win["WindowOverlayService (Frameless, Topmost, Compact, Tray, Shortcuts)"]
-        Store["StorageService (%APPDATA%/WireFrame/config.json atomique)"]
+        Store["StorageService (%APPDATA%/TennoFrame/config.json atomique)"]
         Upd["UpdaterService (electron-updater SHA-512)"]
     end
 
@@ -633,7 +633,7 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 
 ## 5. Plan des Maquettes Wireframes Excalidraw (`docs/02-wireframes/` — Synchronisées `v2.7+`)
 
-L'ensemble des **13 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **WireFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
+L'ensemble des **13 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **TennoFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
 
 1. `01-app-shell-navigation.excalidraw` : Fenêtre *Frameless* `v2.6.0`, `TitleTabsBar` (défilement molette + chevrons `‹ / ›` + fermeture clic molette), `ClickThroughBanner` (`👻` `Alt+G` + maintien `0.5s`), `CommandNavBar` (`Ctrl+K`, cloche `🔔`, `PC · Cross · FR ▾`, Zoom, `📌`, `👻`, `🗖`, `⚙`), `BookmarksBar` centrée + `Historique` (`Ctrl+H`), Omnibox, Organisateur d'onglets, bandeau `/w`, `CompactTimersBar`, bouton Discord et `StatusBar v2.6.0`.
 2. `02-market-home-catalog-item.excalidraw` : Accueil Marché (flux d'annonces récentes en direct, `ViewModeToggle` `[⊞|▭|☰] + [S|M|L]`, badges `Min · Moy · Max` Platinum), Catalogue, Favoris, Profil joueur, et **Fiche Item complète** (Ordres Vente/Achat, Comparateur *Set vs Pièces*, Pont bidirectionnel *Codex*, Statistiques 48h/90j + pagination *Afficher plus*).

@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import { IPC_CHANNELS, type WireframeBridgeApi } from '@shared/ipc-channels'
+import { IPC_CHANNELS, type TennoFrameBridgeApi } from '@shared/ipc-channels'
 import type { TriggeredAlertEvent } from '@shared/schemas/alerts.schema'
 import type { CodexCategory, CodexSearchParams } from '@shared/schemas/codex.schema'
 import type {
@@ -12,7 +12,7 @@ import type { UpdaterStatus } from '@shared/schemas/updater.schema'
 import type { WindowState } from '@shared/schemas/window.schema'
 import type { WorldAlertRuleInput } from '@shared/schemas/world-rules.schema'
 
-const wireframeApi: WireframeBridgeApi = Object.freeze({
+const tennoframeApi: TennoFrameBridgeApi = Object.freeze({
   system: Object.freeze({
     getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM_GET_STATUS),
     clearCache: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM_CLEAR_CACHE)
@@ -144,4 +144,4 @@ const wireframeApi: WireframeBridgeApi = Object.freeze({
   })
 })
 
-contextBridge.exposeInMainWorld('wireframeApi', wireframeApi)
+contextBridge.exposeInMainWorld('tennoframeApi', tennoframeApi)

@@ -186,7 +186,7 @@ export function CommandNavBar(): React.JSX.Element {
           title={
             updaterStatus?.state === 'downloaded'
               ? `Mise à jour v${updaterStatus.availableVersion} prête à installer`
-              : 'Paramètres WireFrame (Ctrl+,)'
+              : 'Paramètres TennoFrame (Ctrl+,)'
           }
         >
           <Settings className="h-3.5 w-3.5" />

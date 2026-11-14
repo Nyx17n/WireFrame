@@ -55,7 +55,7 @@ export class UpdaterService {
         state: 'up-to-date',
         availableVersion: null,
         progressPercent: null,
-        message: `WireFrame v${app.getVersion()} est à jour.`,
+        message: `TennoFrame v${app.getVersion()} est à jour.`,
         checkedAt: new Date().toISOString()
       })
     })

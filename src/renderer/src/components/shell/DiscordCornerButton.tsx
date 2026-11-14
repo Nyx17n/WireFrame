@@ -49,8 +49,8 @@ export function DiscordCornerButton(): React.JSX.Element | null {
     <button
       type="button"
       onClick={() => void handleOpenDiscord()}
-      title={copiedFallback ? 'Lien Discord copié !' : 'Rejoindre le serveur Discord WireFrame'}
-      aria-label="Rejoindre le serveur Discord officiel WireFrame"
+      title={copiedFallback ? 'Lien Discord copié !' : 'Rejoindre le serveur Discord TennoFrame'}
+      aria-label="Rejoindre le serveur Discord officiel TennoFrame"
       className="wf-interactive-btn group absolute bottom-3.5 right-5 z-30 inline-flex h-10 w-10 select-none items-center justify-center rounded-full border border-[#5865F2]/45 bg-card/90 shadow-lg backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5865F2] hover:bg-[#5865F2] hover:shadow-[0_6px_20px_rgba(88,101,242,0.4)] active:translate-y-0"
     >
       {copiedFallback ? (

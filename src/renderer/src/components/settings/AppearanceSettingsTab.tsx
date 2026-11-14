@@ -21,7 +21,7 @@ export function AppearanceSettingsTab(): React.JSX.Element {
             <span>Thème de l’Interface</span>
           </h3>
           <p className="text-xs text-muted-foreground">
-            Choisis l’apparence visuelle de WireFrame parmi les 20 thèmes (Sombre, Clair, OLED,
+            Choisis l’apparence visuelle de TennoFrame parmi les 20 thèmes (Sombre, Clair, OLED,
             Bleu, Cyan, Vert, Jaune, Rouge, Orange, Violet, Rose) :
           </p>
         </div>
