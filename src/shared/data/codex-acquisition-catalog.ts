@@ -563,3 +563,4 @@ export const DOJO_WEAPON_LAB_BY_ID: Readonly<Record<string, string>> = {
   'daikyu': 'Laboratoire Tenno',
   'kompressa': 'Syndicat Orphelins des Conduits (VentKids — Fortuna)'
 }
+

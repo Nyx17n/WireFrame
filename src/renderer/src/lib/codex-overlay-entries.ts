@@ -204,3 +204,4 @@ export function getEquipmentPartEntries(
     .filter(({ c }) => includeResources || !c.isResource)
     .map(({ c, idx }) => buildComponentOverlayEntry(detail, c, idx))
 }
+
