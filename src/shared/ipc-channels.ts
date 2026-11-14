@@ -45,7 +45,8 @@ import type {
   WfmPresenceStatus,
   WfmSessionState,
   WfmSignInCredentialsInput,
-  WfmSignInTokenInput
+  WfmSignInTokenInput,
+  WfmSignInWebInput
 } from './schemas/wfm-account.schema'
 
 export const IPC_CHANNELS = {
@@ -76,6 +77,7 @@ export const IPC_CHANNELS = {
   MARKET_GET_USER_PROFILE: 'market:getUserProfile',
   WFM_ACCOUNT_GET_SESSION: 'wfmAccount:getSession',
   WFM_ACCOUNT_SIGN_IN_CREDENTIALS: 'wfmAccount:signInCredentials',
+  WFM_ACCOUNT_SIGN_IN_WEB: 'wfmAccount:signInWeb',
   WFM_ACCOUNT_SIGN_IN_TOKEN: 'wfmAccount:signInToken',
   WFM_ACCOUNT_SIGN_OUT: 'wfmAccount:signOut',
   WFM_ACCOUNT_SET_STATUS: 'wfmAccount:setStatus',
@@ -151,6 +153,7 @@ export interface TennoFrameBridgeApi {
   readonly wfmAccount: {
     getSession: () => Promise<WfmSessionState>
     signInCredentials: (input: WfmSignInCredentialsInput) => Promise<WfmSessionState>
+    signInWeb: (input: WfmSignInWebInput) => Promise<WfmSessionState>
     signInToken: (input: WfmSignInTokenInput) => Promise<WfmSessionState>
     signOut: () => Promise<WfmSessionState>
     setStatus: (status: WfmPresenceStatus) => Promise<WfmSessionState>

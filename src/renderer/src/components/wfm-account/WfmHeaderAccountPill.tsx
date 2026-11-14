@@ -39,7 +39,7 @@ export function WfmHeaderAccountPill({ isCompact }: { isCompact: boolean }): Rea
       <Button
         variant="outline"
         size={isCompact ? 'icon' : 'sm'}
-        onClick={openSignInModal}
+        onClick={() => openSignInModal()}
         className={cn(!isCompact && 'h-7 gap-1.5 px-2.5 text-[11px]')}
         title="Connexion optionnelle à votre compte Warframe Market (afficher son profil & mettre en vente)"
       >
@@ -115,3 +115,4 @@ export function WfmHeaderAccountPill({ isCompact }: { isCompact: boolean }): Rea
     </DropdownMenu>
   )
 }
+

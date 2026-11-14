@@ -44,6 +44,11 @@ export const WfmSignInTokenInputSchema = z.object({
 })
 export type WfmSignInTokenInput = z.infer<typeof WfmSignInTokenInputSchema>
 
+export const WfmSignInWebInputSchema = z.object({
+  initialStatus: WfmPresenceStatusSchema.default('ingame')
+})
+export type WfmSignInWebInput = z.infer<typeof WfmSignInWebInputSchema>
+
 export const WfmOwnOrderSchema = z.object({
   id: z.string().min(1),
   type: z.enum(['sell', 'buy']),
@@ -179,3 +184,4 @@ export const SUBTYPE_LABELS_FR: Readonly<Record<string, string>> = {
 export function formatWfmSubtypeLabel(subtype: string): string {
   return SUBTYPE_LABELS_FR[subtype.toLowerCase()] ?? subtype
 }
+

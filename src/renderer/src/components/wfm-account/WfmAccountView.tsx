@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {
   AlertTriangle,
+  Globe,
   KeyRound,
   PackageOpen,
   PlusCircle,
@@ -74,10 +75,16 @@ export function WfmAccountView(): React.JSX.Element {
               <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
               <span>Mot de passe jamais stocké · Session chiffrée via Windows DPAPI</span>
             </div>
-            <Button onClick={openSignInModal}>
-              <KeyRound className="h-4 w-4" />
-              <span>Se connecter à Warframe Market</span>
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button onClick={() => openSignInModal('credentials')}>
+                <KeyRound className="h-4 w-4" />
+                <span>Connexion dans l’app</span>
+              </Button>
+              <Button variant="outline" onClick={() => openSignInModal('web')}>
+                <Globe className="h-4 w-4" />
+                <span>Connexion via page Web WFM</span>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -114,7 +121,7 @@ export function WfmAccountView(): React.JSX.Element {
             <RefreshCw className="h-3.5 w-3.5" />
             <span>Réessayer</span>
           </Button>
-          <Button onClick={openSignInModal}>
+          <Button onClick={() => openSignInModal()}>
             <KeyRound className="h-3.5 w-3.5" />
             <span>Se reconnecter</span>
           </Button>
@@ -250,3 +257,4 @@ export function WfmAccountView(): React.JSX.Element {
     </div>
   )
 }
+

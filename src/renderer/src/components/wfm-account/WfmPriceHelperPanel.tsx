@@ -155,3 +155,4 @@ export function WfmPriceHelperPanel({
     </div>
   )
 }
+

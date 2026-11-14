@@ -8,7 +8,8 @@ import type {
   WfmPresenceStatus,
   WfmSessionState,
   WfmSignInCredentialsInput,
-  WfmSignInTokenInput
+  WfmSignInTokenInput,
+  WfmSignInWebInput
 } from '@shared/schemas/wfm-account.schema'
 import { ipcClient } from '@/services/ipc-client'
 import { notify } from '@/stores/useNotificationStore'
@@ -37,15 +38,17 @@ interface WfmAccountStoreState {
   isLoadingOverview: boolean
   overviewError: string | null
   signInModalOpen: boolean
+  signInModalDefaultTab: 'credentials' | 'web'
   createOrderModal: CreateOrderModalState
 
   initialize: () => Promise<() => void>
-  openSignInModal: () => void
+  openSignInModal: (defaultTab?: 'credentials' | 'web') => void
   closeSignInModal: () => void
   openCreateOrderModal: (opts?: { prefillSlug?: string; defaultType?: 'sell' | 'buy' }) => void
   closeCreateOrderModal: () => void
 
   signInCredentials: (input: WfmSignInCredentialsInput) => Promise<void>
+  signInWeb: (input: WfmSignInWebInput) => Promise<void>
   signInToken: (input: WfmSignInTokenInput) => Promise<void>
   signOut: () => Promise<void>
   setStatus: (status: WfmPresenceStatus) => Promise<void>
@@ -64,6 +67,7 @@ export const useWfmAccountStore = create<WfmAccountStoreState>((set, get) => ({
   isLoadingOverview: false,
   overviewError: null,
   signInModalOpen: false,
+  signInModalDefaultTab: 'credentials',
   createOrderModal: { open: false, defaultType: 'sell' },
 
   initialize: async () => {
@@ -108,7 +112,8 @@ export const useWfmAccountStore = create<WfmAccountStoreState>((set, get) => ({
     })
   },
 
-  openSignInModal: () => set({ signInModalOpen: true }),
+  openSignInModal: (defaultTab = 'credentials') =>
+    set({ signInModalOpen: true, signInModalDefaultTab: defaultTab }),
   closeSignInModal: () => set({ signInModalOpen: false }),
 
   openCreateOrderModal: (opts) => {
@@ -142,6 +147,18 @@ export const useWfmAccountStore = create<WfmAccountStoreState>((set, get) => ({
       kind: 'success',
       title: `Connecté : ${session.user?.ingameName ?? 'Warframe Market'}`,
       message: 'Session chiffrée via Windows DPAPI. Votre profil et la mise en vente sont actifs.',
+      forceShow: true
+    })
+    await get().loadOverview(true)
+  },
+
+  signInWeb: async (input) => {
+    const session = await ipcClient.wfmAccount.signInWeb(input)
+    set({ session, signInModalOpen: false, overviewError: null })
+    notify({
+      kind: 'success',
+      title: `Connecté via le Web : ${session.user?.ingameName ?? 'Warframe Market'}`,
+      message: 'Compte détecté automatiquement et jeton chiffré via Windows DPAPI.',
       forceShow: true
     })
     await get().loadOverview(true)
@@ -263,3 +280,4 @@ export const useWfmAccountStore = create<WfmAccountStoreState>((set, get) => ({
     })
   }
 }))
+

@@ -22,6 +22,7 @@ import { TradingToolsService } from './services/TradingToolsService'
 import { UpdaterService } from './services/UpdaterService'
 import { WfmAccountService } from './services/WfmAccountService'
 import { WfmAuthService } from './services/WfmAuthService'
+import { WfmWebLoginService } from './services/WfmWebLoginService'
 import { WindowOverlayService } from './services/WindowOverlayService'
 import { WorldstateService } from './services/WorldstateService'
 
@@ -74,6 +75,7 @@ async function bootstrap(): Promise<void> {
   const farmOverlayService = new FarmOverlayWindowService(storageService, windowService)
   const marketApi = new MarketApiService(httpClient, cacheService, storageService)
   const wfmAuth = new WfmAuthService(userDataPath, httpClient)
+  const wfmWebLogin = new WfmWebLoginService(wfmAuth, windowService)
   const wfmAccount = new WfmAccountService(httpClient, cacheService, marketApi, wfmAuth)
   const setCalculator = new SetCalculatorService(marketApi)
   const cartBundler = new CartBundlerService(marketApi, storageService)
@@ -175,6 +177,7 @@ async function bootstrap(): Promise<void> {
   registerWfmAccountHandlers({
     wfmAuth,
     wfmAccount,
+    wfmWebLogin,
     windowService
   })
   registerToolsAndAlertsHandlers({
@@ -250,6 +253,7 @@ async function bootstrap(): Promise<void> {
   app.on('before-quit', () => {
     windowService.markQuitting()
     farmOverlayService.markQuitting()
+    wfmWebLogin.dispose()
     wfmAuth.dispose()
     alertScheduler.stop()
     updaterService.stop()

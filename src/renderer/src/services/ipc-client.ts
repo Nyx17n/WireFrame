@@ -73,7 +73,8 @@ import {
   type WfmPresenceStatus,
   type WfmSessionState,
   type WfmSignInCredentialsInput,
-  type WfmSignInTokenInput
+  type WfmSignInTokenInput,
+  type WfmSignInWebInput
 } from '@shared/schemas/wfm-account.schema'
 import {
   VitusModPriceEntrySchema,
@@ -196,6 +197,13 @@ export const ipcClient = {
         throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
       }
       return WfmSessionStateSchema.parse(await bridge.wfmAccount.signInCredentials(input))
+    },
+    async signInWeb(input: WfmSignInWebInput): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.signInWeb(input))
     },
     async signInToken(input: WfmSignInTokenInput): Promise<WfmSessionState> {
       const bridge = getBridge()

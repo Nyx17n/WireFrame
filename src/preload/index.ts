@@ -16,7 +16,8 @@ import type {
   WfmPresenceStatus,
   WfmSessionState,
   WfmSignInCredentialsInput,
-  WfmSignInTokenInput
+  WfmSignInTokenInput,
+  WfmSignInWebInput
 } from '@shared/schemas/wfm-account.schema'
 import type { WindowState } from '@shared/schemas/window.schema'
 import type { WorldAlertRuleInput } from '@shared/schemas/world-rules.schema'
@@ -81,6 +82,8 @@ const tennoframeApi: TennoFrameBridgeApi = Object.freeze({
     getSession: () => ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_GET_SESSION),
     signInCredentials: (input: WfmSignInCredentialsInput) =>
       ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SIGN_IN_CREDENTIALS, input),
+    signInWeb: (input: WfmSignInWebInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SIGN_IN_WEB, input),
     signInToken: (input: WfmSignInTokenInput) =>
       ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SIGN_IN_TOKEN, input),
     signOut: () => ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SIGN_OUT),

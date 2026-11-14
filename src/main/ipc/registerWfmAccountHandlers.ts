@@ -7,10 +7,12 @@ import {
   UpdateWfmOrderInputSchema,
   WfmPresenceStatusSchema,
   WfmSignInCredentialsInputSchema,
-  WfmSignInTokenInputSchema
+  WfmSignInTokenInputSchema,
+  WfmSignInWebInputSchema
 } from '@shared/schemas/wfm-account.schema'
 import type { WfmAccountService } from '../services/WfmAccountService'
 import type { WfmAuthService } from '../services/WfmAuthService'
+import type { WfmWebLoginService } from '../services/WfmWebLoginService'
 import type { WindowOverlayService } from '../services/WindowOverlayService'
 import { assertTrustedSender } from './security'
 
@@ -36,9 +38,10 @@ const DeleteOrderPayloadSchema = z.object({
 export function registerWfmAccountHandlers(deps: {
   wfmAuth: WfmAuthService
   wfmAccount: WfmAccountService
+  wfmWebLogin: WfmWebLoginService
   windowService: WindowOverlayService
 }): void {
-  const { wfmAuth, wfmAccount, windowService } = deps
+  const { wfmAuth, wfmAccount, wfmWebLogin, windowService } = deps
 
   wfmAuth.onSessionChanged((sessionState) => {
     const win = windowService.getMainWindow()
@@ -60,6 +63,12 @@ export function registerWfmAccountHandlers(deps: {
       return wfmAuth.signInWithCredentials(input)
     }
   )
+
+  ipcMain.handle(IPC_CHANNELS.WFM_ACCOUNT_SIGN_IN_WEB, async (event, rawPayload: unknown) => {
+    assertTrustedSender(event, windowService.getMainWindow())
+    const input = WfmSignInWebInputSchema.parse(rawPayload ?? {})
+    return wfmWebLogin.signInViaWebWindow(input)
+  })
 
   ipcMain.handle(IPC_CHANNELS.WFM_ACCOUNT_SIGN_IN_TOKEN, async (event, rawPayload: unknown) => {
     assertTrustedSender(event, windowService.getMainWindow())
@@ -108,3 +117,4 @@ export function registerWfmAccountHandlers(deps: {
     return wfmAccount.deleteOrder(orderId)
   })
 }
+

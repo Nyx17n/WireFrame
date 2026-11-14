@@ -218,3 +218,4 @@ export function WfmOwnOrderRow({ order, isCompact }: WfmOwnOrderRowProps): React
     </div>
   )
 }
+
