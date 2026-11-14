@@ -42,6 +42,7 @@ const BUILTIN_VIEWS: readonly QuickEntry[] = [
   { label: 'Panier & Trade Bundler', subtitle: 'Calculateur multi-achats & vendeurs groupés', keywords: 'panier cart bundler achats', route: { kind: 'market-cart' } },
   { label: 'Ducanator', subtitle: 'Meilleurs ratios Ducats / Platinum avant Baro', keywords: 'ducats ducanator baro prime junk', route: { kind: 'market-ducats' } },
   { label: 'Contrats Mod Riven', subtitle: 'Enchères et achats directs de Rivens', keywords: 'rivens contrats encheres', route: { kind: 'market-rivens' } },
+  { label: 'Mon Profil Warframe Market', subtitle: 'Compte optionnel : mes annonces en vente, réputation & statut En jeu', keywords: 'profil compte wfm vendre mes ventes annonces login', route: { kind: 'wfm-account' } },
   { label: 'Alertes & Price Sniper', subtitle: 'Surveillance de prix en arrière-plan + sons', keywords: 'alertes sniper notifications sons', route: { kind: 'alerts' } },
   { label: 'Historique de navigation', subtitle: 'Pages, fiches Marché et recherches Codex consultées', keywords: 'historique history recent pages', route: { kind: 'browser-history' } }
 ]

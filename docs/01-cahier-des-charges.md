@@ -603,9 +603,10 @@ Accessible via la puce d'en-tête, la barre de raccourcis ou l'Omnibox (`wf://wf
 
 #### 12.D — Mise en Vente d'Items (`CreateWfmOrderModal`) & Intégration Transversale
 
-- **2 Points d'accès rapides** :
-  1. Depuis **`wf://wfm-account`** (et le menu rapide de la puce profil) via **`➕ Mettre un item en vente`** (recherche libre d'item),
-  2. Depuis **n'importe quelle Fiche Item du Marché (`wf://market/item/:slug`)** et les **items échangeables du Codex** via un bouton dédié **`💰 Mettre en vente`** qui ouvre la modale déjà pré-remplie sur l'item courant ! *(Si l'utilisateur n'est pas encore connecté, un clic sur `💰 Mettre en vente` ouvre proprement la modale de connexion puis enchaîne sur la mise en vente).*
+- **2 Points d'accès rapides (strictement réservés à un compte connecté)** :
+  1. Depuis **`wf://wfm-account`** (et le menu rapide de la puce profil connectée) via **`➕ Mettre un item en vente`** (recherche libre d'item),
+  2. Depuis **n'importe quelle Fiche Item du Marché (`wf://market/item/:slug`)** et les **items échangeables du Codex** via un bouton dédié **`💰 Mettre en vente`** affiché **uniquement lorsque l'utilisateur est connecté à son compte Warframe Market**.
+  - **Garde de sécurité stricte (« Zéro vente hors-connexion »)** : tant que l'utilisateur n'est pas authentifié à son compte `warframe.market`, aucun bouton ni modale de mise en vente n'est accessible dans l'UI, et le Main Process (`WfmAccountService`) rejette systématiquement tout appel IPC de création/modification/clôture d'annonce sans session valide.
 - **Formulaire intelligent & contextuel (`POST /v2/order`)** :
   - **Recherche auto-complétée bilingue FR/EN** dans le catalogue local WFM (icône, nom FR, nom EN, catégorie).
   - **Sélecteur de type d'ordre** : `Vendre (WTS)` *(défaut)* ou `Acheter (WTB)`.

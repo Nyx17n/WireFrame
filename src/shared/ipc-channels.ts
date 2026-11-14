@@ -36,6 +36,17 @@ import type {
   VitusModPriceEntry,
   WorldstateHubPayload
 } from './schemas/worldstate.schema'
+import type {
+  CloseWfmOrderUnitInput,
+  CreateWfmOrderInput,
+  UpdateWfmOrderInput,
+  WfmAccountOverview,
+  WfmOwnOrder,
+  WfmPresenceStatus,
+  WfmSessionState,
+  WfmSignInCredentialsInput,
+  WfmSignInTokenInput
+} from './schemas/wfm-account.schema'
 
 export const IPC_CHANNELS = {
   SYSTEM_GET_STATUS: 'system:getStatus',
@@ -63,6 +74,17 @@ export const IPC_CHANNELS = {
   MARKET_GET_ITEM_STATS: 'market:getItemStats',
   MARKET_GET_RECENT_ORDERS: 'market:getRecentOrders',
   MARKET_GET_USER_PROFILE: 'market:getUserProfile',
+  WFM_ACCOUNT_GET_SESSION: 'wfmAccount:getSession',
+  WFM_ACCOUNT_SIGN_IN_CREDENTIALS: 'wfmAccount:signInCredentials',
+  WFM_ACCOUNT_SIGN_IN_TOKEN: 'wfmAccount:signInToken',
+  WFM_ACCOUNT_SIGN_OUT: 'wfmAccount:signOut',
+  WFM_ACCOUNT_SET_STATUS: 'wfmAccount:setStatus',
+  WFM_ACCOUNT_GET_OVERVIEW: 'wfmAccount:getOverview',
+  WFM_ACCOUNT_CREATE_ORDER: 'wfmAccount:createOrder',
+  WFM_ACCOUNT_UPDATE_ORDER: 'wfmAccount:updateOrder',
+  WFM_ACCOUNT_CLOSE_ORDER_UNIT: 'wfmAccount:closeOrderUnit',
+  WFM_ACCOUNT_DELETE_ORDER: 'wfmAccount:deleteOrder',
+  WFM_ACCOUNT_ON_SESSION_CHANGED: 'wfmAccount:onSessionChanged',
   TOOLS_ANALYZE_CART: 'tools:analyzeCartBundles',
   TOOLS_GET_DUCATS: 'tools:getDucats',
   TOOLS_GET_RIVEN_WEAPONS: 'tools:getRivenWeapons',
@@ -125,6 +147,19 @@ export interface TennoFrameBridgeApi {
     getItemStats: (slug: string) => Promise<MarketItemStats>
     getRecentOrders: (forceRefresh?: boolean) => Promise<MarketOrder[]>
     getUserProfile: (userSlug: string) => Promise<MarketUserProfile>
+  }
+  readonly wfmAccount: {
+    getSession: () => Promise<WfmSessionState>
+    signInCredentials: (input: WfmSignInCredentialsInput) => Promise<WfmSessionState>
+    signInToken: (input: WfmSignInTokenInput) => Promise<WfmSessionState>
+    signOut: () => Promise<WfmSessionState>
+    setStatus: (status: WfmPresenceStatus) => Promise<WfmSessionState>
+    getOverview: (forceRefresh?: boolean) => Promise<WfmAccountOverview>
+    createOrder: (input: CreateWfmOrderInput) => Promise<WfmOwnOrder>
+    updateOrder: (input: UpdateWfmOrderInput) => Promise<WfmOwnOrder>
+    closeOrderUnit: (input: CloseWfmOrderUnitInput) => Promise<{ closed: boolean; remainingQuantity: number }>
+    deleteOrder: (orderId: string) => Promise<boolean>
+    onSessionChanged: (listener: (session: WfmSessionState) => void) => () => void
   }
   readonly tools: {
     analyzeCartBundles: (forceRefresh?: boolean) => Promise<CartBundleAnalysis>

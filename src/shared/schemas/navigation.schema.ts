@@ -11,6 +11,7 @@ export const RouteKindSchema = z.enum([
   'market-rivens',
   'market-recent',
   'market-user',
+  'wfm-account',
   'alerts',
   'codex-home',
   'codex-detail',
@@ -96,6 +97,8 @@ export function getDefaultRouteTitle(route: AppRoute): string {
       return 'Ordres Récents'
     case 'market-user':
       return route.slug ? `Profil : ${route.slug}` : 'Profil Joueur'
+    case 'wfm-account':
+      return 'Mon Profil WFM'
     case 'alerts':
       return 'Alertes & Price Sniper'
     case 'codex-home':
@@ -131,6 +134,8 @@ export function formatRouteUri(route: AppRoute): string {
       return 'wf://market/recent'
     case 'market-user':
       return `wf://market/user/${route.slug ?? 'Nyxo17'}`
+    case 'wfm-account':
+      return 'wf://wfm-account'
     case 'alerts':
       return 'wf://alerts'
     case 'codex-home':
@@ -165,6 +170,15 @@ export function parseInputToRoute(rawInput: string): AppRoute {
 
   const lower = trimmed.toLowerCase()
   if (lower === 'wf://hub' || lower === 'hub') return { kind: 'hub' }
+  if (
+    lower === 'wf://wfm-account' ||
+    lower === 'wfm-account' ||
+    lower === 'mon profil wfm' ||
+    lower === 'mon compte wfm' ||
+    lower === 'mon profil'
+  ) {
+    return { kind: 'wfm-account' }
+  }
   if (lower === 'wf://market' || lower === 'market' || lower === 'marché') {
     return { kind: 'market-home' }
   }

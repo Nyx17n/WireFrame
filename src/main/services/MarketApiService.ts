@@ -68,7 +68,11 @@ export class MarketApiService {
         thumb: fr?.thumb ?? en?.thumb ?? fr?.icon ?? en?.icon ?? null,
         tags: entry.tags,
         ...(entry.maxRank !== undefined ? { maxRank: entry.maxRank } : {}),
-        ...(entry.ducats !== undefined ? { ducats: entry.ducats } : {})
+        ...(entry.ducats !== undefined ? { ducats: entry.ducats } : {}),
+        ...(entry.subtypes && entry.subtypes.length > 0 ? { subtypes: entry.subtypes } : {}),
+        ...(entry.maxAmberStars !== undefined ? { maxAmberStars: entry.maxAmberStars } : {}),
+        ...(entry.maxCyanStars !== undefined ? { maxCyanStars: entry.maxCyanStars } : {}),
+        ...(entry.bulkTradable !== undefined ? { bulkTradable: entry.bulkTradable } : {})
       }
     })
 
@@ -124,6 +128,10 @@ export class MarketApiService {
       ...(target.tradingTax !== undefined ? { tradingTax: target.tradingTax } : {}),
       ...(target.reqMasteryRank !== undefined ? { reqMasteryRank: target.reqMasteryRank } : {}),
       ...(target.maxRank !== undefined ? { maxRank: target.maxRank } : {}),
+      ...(target.subtypes && target.subtypes.length > 0 ? { subtypes: target.subtypes } : {}),
+      ...(target.maxAmberStars !== undefined ? { maxAmberStars: target.maxAmberStars } : {}),
+      ...(target.maxCyanStars !== undefined ? { maxCyanStars: target.maxCyanStars } : {}),
+      ...(target.bulkTradable !== undefined ? { bulkTradable: target.bulkTradable } : {}),
       setRoot: Boolean(target.setRoot),
       setItems: raw.data.items.map((part) => {
         const pEn = part.i18n?.['en']
@@ -280,6 +288,9 @@ export class MarketApiService {
       quantity: raw.quantity,
       ...(raw.perTrade !== undefined ? { perTrade: raw.perTrade } : {}),
       ...(raw.rank !== undefined ? { rank: raw.rank } : {}),
+      ...(raw.subtype !== undefined ? { subtype: raw.subtype } : {}),
+      ...(raw.amberStars !== undefined ? { amberStars: raw.amberStars } : {}),
+      ...(raw.cyanStars !== undefined ? { cyanStars: raw.cyanStars } : {}),
       updatedAt: raw.updatedAt,
       itemId: raw.itemId,
       ...(catItem

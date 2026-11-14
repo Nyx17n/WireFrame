@@ -62,6 +62,20 @@ import {
   type UpdaterStatus
 } from '@shared/schemas/updater.schema'
 import {
+  WfmAccountOverviewSchema,
+  WfmOwnOrderSchema,
+  WfmSessionStateSchema,
+  type CloseWfmOrderUnitInput,
+  type CreateWfmOrderInput,
+  type UpdateWfmOrderInput,
+  type WfmAccountOverview,
+  type WfmOwnOrder,
+  type WfmPresenceStatus,
+  type WfmSessionState,
+  type WfmSignInCredentialsInput,
+  type WfmSignInTokenInput
+} from '@shared/schemas/wfm-account.schema'
+import {
   VitusModPriceEntrySchema,
   VoidTraderSnapshotSchema,
   WorldstateHubPayloadSchema,
@@ -166,6 +180,90 @@ export const ipcClient = {
     },
     async getUserProfile(userSlug: string): Promise<MarketUserProfile> {
       return MarketUserProfileSchema.parse(await getBridge().market.getUserProfile(userSlug))
+    }
+  },
+  wfmAccount: {
+    async getSession(): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.getSession())
+    },
+    async signInCredentials(input: WfmSignInCredentialsInput): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.signInCredentials(input))
+    },
+    async signInToken(input: WfmSignInTokenInput): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.signInToken(input))
+    },
+    async signOut(): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.signOut())
+    },
+    async setStatus(status: WfmPresenceStatus): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.setStatus(status))
+    },
+    async getOverview(forceRefresh?: boolean): Promise<WfmAccountOverview> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmAccountOverviewSchema.parse(await bridge.wfmAccount.getOverview(forceRefresh))
+    },
+    async createOrder(input: CreateWfmOrderInput): Promise<WfmOwnOrder> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmOwnOrderSchema.parse(await bridge.wfmAccount.createOrder(input))
+    },
+    async updateOrder(input: UpdateWfmOrderInput): Promise<WfmOwnOrder> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmOwnOrderSchema.parse(await bridge.wfmAccount.updateOrder(input))
+    },
+    async closeOrderUnit(
+      input: CloseWfmOrderUnitInput
+    ): Promise<{ closed: boolean; remainingQuantity: number }> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return z
+        .object({ closed: z.boolean(), remainingQuantity: z.number().int().nonnegative() })
+        .parse(await bridge.wfmAccount.closeOrderUnit(input))
+    },
+    async deleteOrder(orderId: string): Promise<boolean> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return z.boolean().parse(await bridge.wfmAccount.deleteOrder(orderId))
+    },
+    onSessionChanged(listener: (session: WfmSessionState) => void): () => void {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount?.onSessionChanged) return () => undefined
+      return bridge.wfmAccount.onSessionChanged((raw) => {
+        const parsed = WfmSessionStateSchema.safeParse(raw)
+        if (parsed.success) listener(parsed.data)
+      })
     }
   },
   tools: {

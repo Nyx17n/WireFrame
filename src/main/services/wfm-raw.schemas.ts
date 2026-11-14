@@ -19,6 +19,10 @@ export const RawWfmCatalogResponseSchema = z.object({
         tags: z.array(z.string()).default([]),
         maxRank: z.number().int().nonnegative().optional(),
         ducats: z.number().int().nonnegative().optional(),
+        subtypes: z.array(z.string()).optional(),
+        maxAmberStars: z.number().int().nonnegative().optional(),
+        maxCyanStars: z.number().int().nonnegative().optional(),
+        bulkTradable: z.boolean().optional(),
         i18n: z.record(z.string(), RawI18nEntrySchema).optional()
       })
       .passthrough()
@@ -36,6 +40,10 @@ export const RawWfmFullItemSchema = z
     reqMasteryRank: z.number().int().nonnegative().optional(),
     tradingTax: z.number().int().nonnegative().optional(),
     maxRank: z.number().int().nonnegative().optional(),
+    subtypes: z.array(z.string()).optional(),
+    maxAmberStars: z.number().int().nonnegative().optional(),
+    maxCyanStars: z.number().int().nonnegative().optional(),
+    bulkTradable: z.boolean().optional(),
     i18n: z.record(z.string(), RawI18nEntrySchema).optional()
   })
   .passthrough()
@@ -69,7 +77,11 @@ export const RawWfmOrderSchema = z
     quantity: z.number().int().nonnegative().default(1),
     perTrade: z.number().int().nonnegative().optional(),
     rank: z.number().int().nonnegative().optional(),
+    subtype: z.string().optional(),
+    amberStars: z.number().int().nonnegative().optional(),
+    cyanStars: z.number().int().nonnegative().optional(),
     visible: z.boolean().default(true),
+    createdAt: z.string().default(''),
     updatedAt: z.string().default(''),
     itemId: z.string(),
     user: RawWfmUserSchema.optional()

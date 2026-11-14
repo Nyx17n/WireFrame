@@ -12,7 +12,11 @@ export const MarketCatalogItemSchema = z.object({
   thumb: z.string().nullable(),
   tags: z.array(z.string()),
   maxRank: z.number().int().nonnegative().optional(),
-  ducats: z.number().int().nonnegative().optional()
+  ducats: z.number().int().nonnegative().optional(),
+  subtypes: z.array(z.string()).optional(),
+  maxAmberStars: z.number().int().nonnegative().optional(),
+  maxCyanStars: z.number().int().nonnegative().optional(),
+  bulkTradable: z.boolean().optional()
 })
 export type MarketCatalogItem = z.infer<typeof MarketCatalogItemSchema>
 
@@ -43,6 +47,10 @@ export const MarketItemDetailSchema = z.object({
   tradingTax: z.number().int().nonnegative().optional(),
   reqMasteryRank: z.number().int().nonnegative().optional(),
   maxRank: z.number().int().nonnegative().optional(),
+  subtypes: z.array(z.string()).optional(),
+  maxAmberStars: z.number().int().nonnegative().optional(),
+  maxCyanStars: z.number().int().nonnegative().optional(),
+  bulkTradable: z.boolean().optional(),
   setRoot: z.boolean(),
   setItems: z.array(MarketSetPartSummarySchema)
 })
@@ -67,6 +75,9 @@ export const MarketOrderSchema = z.object({
   quantity: z.number().int().nonnegative(),
   perTrade: z.number().int().nonnegative().optional(),
   rank: z.number().int().nonnegative().optional(),
+  subtype: z.string().optional(),
+  amberStars: z.number().int().nonnegative().optional(),
+  cyanStars: z.number().int().nonnegative().optional(),
   updatedAt: z.string(),
   itemId: z.string(),
   itemSlug: z.string().optional(),
