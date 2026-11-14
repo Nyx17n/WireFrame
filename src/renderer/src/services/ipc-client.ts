@@ -200,8 +200,10 @@ export const ipcClient = {
     },
     async signInWeb(input: WfmSignInWebInput): Promise<WfmSessionState> {
       const bridge = getBridge()
-      if (!bridge.wfmAccount) {
-        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      if (typeof bridge.wfmAccount?.signInWeb !== 'function') {
+        throw new Error(
+          'Pont Electron mis à jour : ferme TennoFrame (Ctrl+C dans le terminal) et relance "npm run dev" pour activer la connexion Web.'
+        )
       }
       return WfmSessionStateSchema.parse(await bridge.wfmAccount.signInWeb(input))
     },
