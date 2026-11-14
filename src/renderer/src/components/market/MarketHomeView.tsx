@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { ChevronDown, Clock, Compass, RefreshCw, Search, Star, TrendingUp } from 'lucide-react'
+import type { MarketFilterChip } from '@shared/schemas/market-search.schema'
 import type { MarketOrder } from '@shared/schemas/market.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
 import { MarketCatalogItemsDisplay } from '@/components/market/MarketCatalogItemsDisplay'
+import { MarketTokenFilterBar } from '@/components/market/MarketTokenFilterBar'
 import { RecentOrdersDisplay } from '@/components/market/RecentOrdersDisplay'
 import { useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { ipcClient } from '@/services/ipc-client'
@@ -42,12 +44,20 @@ export function MarketHomeView(): React.JSX.Element {
   const openTab = useTabsStore((s) => s.openTab)
   const refreshRevision = useTabsStore((s) => s.refreshRevision)
 
-  const [searchText, setSearchText] = React.useState('')
   const [recentFilterText, setRecentFilterText] = React.useState('')
   const [recentType, setRecentType] = React.useState<'all' | 'sell' | 'buy'>('sell')
   const [recentOrders, setRecentOrders] = React.useState<MarketOrder[]>([])
   const [visibleRecent, setVisibleRecent] = React.useState(RECENT_STEP)
   const [loadingRecent, setLoadingRecent] = React.useState(true)
+
+  const knownSellers = React.useMemo(
+    () =>
+      recentOrders
+        .map((o) => o.user)
+        .filter((u): u is NonNullable<typeof u> => Boolean(u))
+        .map((u) => ({ ingameName: u.ingameName, slug: u.slug })),
+    [recentOrders]
+  )
 
   React.useEffect(() => {
     void ensureCatalogLoaded()
@@ -124,26 +134,17 @@ export function MarketHomeView(): React.JSX.Element {
             </div>
           </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              navigateActive({ kind: 'market-catalog', query: searchText.trim() })
-            }}
-            className="flex gap-2"
-          >
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-primary" />
-              <Input
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Rechercher en FR ou EN parmi tous les Sets Prime, Mods, Arcanes, Reliques..."
-                className="h-9 pl-9"
-              />
-            </div>
-            <Button type="submit" className="h-9 px-4">
-              Rechercher
-            </Button>
-          </form>
+          <MarketTokenFilterBar
+            chips={[]}
+            catalog={catalog}
+            knownSellers={knownSellers}
+            placeholder="Rechercher un item (ex: volt) ou un vendeur (@pseudo) — cumulable par pastilles !"
+            submitLabel="Rechercher"
+            onAddChip={(firstChip: MarketFilterChip) =>
+              navigateActive({ kind: 'market-catalog', chips: [firstChip] })
+            }
+            onRemoveChip={() => undefined}
+          />
         </CardContent>
       </Card>
 

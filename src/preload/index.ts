@@ -6,9 +6,20 @@ import type {
   CodexFarmOverlayPatch,
   FarmOverlayLiveState
 } from '@shared/schemas/extensions.schema'
+import type { MarketFacetedSearchInput } from '@shared/schemas/market-search.schema'
 import type { UserSettingsPatch } from '@shared/schemas/settings.schema'
 import type { RivenSearchParams } from '@shared/schemas/tools.schema'
 import type { UpdaterStatus } from '@shared/schemas/updater.schema'
+import type {
+  CloseWfmOrderUnitInput,
+  CreateWfmOrderInput,
+  UpdateWfmOrderInput,
+  WfmPresenceStatus,
+  WfmSessionState,
+  WfmSignInCredentialsInput,
+  WfmSignInTokenInput,
+  WfmSignInWebInput
+} from '@shared/schemas/wfm-account.schema'
 import type { WindowState } from '@shared/schemas/window.schema'
 import type { WorldAlertRuleInput } from '@shared/schemas/world-rules.schema'
 
@@ -65,8 +76,41 @@ const tennoframeApi: TennoFrameBridgeApi = Object.freeze({
       ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_ITEM_STATS, { slug }),
     getRecentOrders: (forceRefresh?: boolean) =>
       ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_RECENT_ORDERS, { forceRefresh }),
-    getUserProfile: (userSlug: string) =>
-      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_USER_PROFILE, { slug: userSlug })
+    getUserProfile: (userSlug: string, forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_USER_PROFILE, { slug: userSlug, forceRefresh }),
+    searchFacetedOrders: (input: MarketFacetedSearchInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_SEARCH_FACETED_ORDERS, input)
+  }),
+  wfmAccount: Object.freeze({
+    getSession: () => ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_GET_SESSION),
+    signInCredentials: (input: WfmSignInCredentialsInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SIGN_IN_CREDENTIALS, input),
+    signInWeb: (input: WfmSignInWebInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SIGN_IN_WEB, input),
+    signInToken: (input: WfmSignInTokenInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SIGN_IN_TOKEN, input),
+    signOut: () => ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SIGN_OUT),
+    setStatus: (status: WfmPresenceStatus) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_SET_STATUS, { status }),
+    getOverview: (forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_GET_OVERVIEW, { forceRefresh }),
+    createOrder: (input: CreateWfmOrderInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_CREATE_ORDER, input),
+    updateOrder: (input: UpdateWfmOrderInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_UPDATE_ORDER, input),
+    closeOrderUnit: (input: CloseWfmOrderUnitInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_CLOSE_ORDER_UNIT, input),
+    deleteOrder: (orderId: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_DELETE_ORDER, { orderId }),
+    onSessionChanged: (listener: (session: WfmSessionState) => void) => {
+      const wrapped = (_event: IpcRendererEvent, sessionState: WfmSessionState): void => {
+        listener(sessionState)
+      }
+      ipcRenderer.on(IPC_CHANNELS.WFM_ACCOUNT_ON_SESSION_CHANGED, wrapped)
+      return () => {
+        ipcRenderer.removeListener(IPC_CHANNELS.WFM_ACCOUNT_ON_SESSION_CHANGED, wrapped)
+      }
+    }
   }),
   tools: Object.freeze({
     analyzeCartBundles: (forceRefresh?: boolean) =>

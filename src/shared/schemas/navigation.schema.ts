@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { MarketFilterChipSchema } from './market-search.schema'
 
 export const RouteKindSchema = z.enum([
   'hub',
@@ -11,6 +12,7 @@ export const RouteKindSchema = z.enum([
   'market-rivens',
   'market-recent',
   'market-user',
+  'wfm-account',
   'alerts',
   'codex-home',
   'codex-detail',
@@ -23,7 +25,8 @@ export const AppRouteSchema = z.object({
   kind: RouteKindSchema,
   slug: z.string().min(1).max(160).optional(),
   category: z.string().min(1).max(64).optional(),
-  query: z.string().max(160).optional()
+  query: z.string().max(160).optional(),
+  chips: z.array(MarketFilterChipSchema).max(20).optional()
 })
 
 export type AppRoute = z.infer<typeof AppRouteSchema>
@@ -81,6 +84,13 @@ export function getDefaultRouteTitle(route: AppRoute): string {
     case 'market-home':
       return 'Accueil Marché'
     case 'market-catalog':
+      if (route.chips && route.chips.length > 0) {
+        const summary = route.chips
+          .slice(0, 2)
+          .map((c) => (c.kind === 'seller' ? `@${c.label}` : c.label))
+          .join(' + ')
+        return `Recherche : ${summary}`
+      }
       return route.query ? `Catalogue : ${route.query}` : 'Catalogue Marché'
     case 'market-item':
       return route.slug ? formatSlugTitle(route.slug) : 'Fiche Item'
@@ -96,6 +106,8 @@ export function getDefaultRouteTitle(route: AppRoute): string {
       return 'Ordres Récents'
     case 'market-user':
       return route.slug ? `Profil : ${route.slug}` : 'Profil Joueur'
+    case 'wfm-account':
+      return 'Mon Profil WFM'
     case 'alerts':
       return 'Alertes & Price Sniper'
     case 'codex-home':
@@ -114,6 +126,10 @@ export function formatRouteUri(route: AppRoute): string {
     case 'market-home':
       return 'wf://market'
     case 'market-catalog':
+      if (route.chips && route.chips.length > 0) {
+        const encoded = route.chips.map((c) => `${c.kind}:${c.value}`).join(',')
+        return `wf://market/catalog?chips=${encodeURIComponent(encoded)}`
+      }
       return route.query
         ? `wf://market/catalog?q=${encodeURIComponent(route.query)}`
         : 'wf://market/catalog'
@@ -131,6 +147,8 @@ export function formatRouteUri(route: AppRoute): string {
       return 'wf://market/recent'
     case 'market-user':
       return `wf://market/user/${route.slug ?? 'Nyxo17'}`
+    case 'wfm-account':
+      return 'wf://wfm-account'
     case 'alerts':
       return 'wf://alerts'
     case 'codex-home':
@@ -165,6 +183,15 @@ export function parseInputToRoute(rawInput: string): AppRoute {
 
   const lower = trimmed.toLowerCase()
   if (lower === 'wf://hub' || lower === 'hub') return { kind: 'hub' }
+  if (
+    lower === 'wf://wfm-account' ||
+    lower === 'wfm-account' ||
+    lower === 'mon profil wfm' ||
+    lower === 'mon compte wfm' ||
+    lower === 'mon profil'
+  ) {
+    return { kind: 'wfm-account' }
+  }
   if (lower === 'wf://market' || lower === 'market' || lower === 'marché') {
     return { kind: 'market-home' }
   }

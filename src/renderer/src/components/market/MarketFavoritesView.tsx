@@ -7,6 +7,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
 import { ItemPriceRangeBadges } from '@/components/market/ItemPriceRangeBadges'
 import {
+  MarketItemContextMenu,
+  type MarketContextMenuState
+} from '@/components/market/MarketItemContextMenu'
+import {
   getCardImageClass,
   getCatalogGridClass,
   useCatalogDisplayPreferences
@@ -18,6 +22,7 @@ import { useMarketStore } from '@/stores/useMarketStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 export function MarketFavoritesView(): React.JSX.Element {
+  const [ctxMenu, setCtxMenu] = React.useState<MarketContextMenuState | null>(null)
   const favorites = useAppStore((s) => s.settings.favorites)
   const lang = useAppStore((s) => s.settings.market.language)
   const { layoutMode, cardSize, setLayoutMode, setCardSize } = useCatalogDisplayPreferences()
@@ -94,6 +99,14 @@ export function MarketFavoritesView(): React.JSX.Element {
               <Card
                 key={slug}
                 onClick={() => navigateActive({ kind: 'market-item', slug }, label)}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setCtxMenu({
+                    position: { x: e.clientX, y: e.clientY },
+                    item: { slug, nameFr, nameEn, thumb: cat?.thumb ?? null }
+                  })
+                }}
                 className={cn(
                   'group relative flex aspect-square cursor-pointer flex-col items-center justify-between overflow-hidden text-center transition-colors hover:border-primary/60 hover:bg-secondary/40',
                   cardSize === 'sm' ? 'p-2' : cardSize === 'lg' ? 'p-4' : 'p-3'
@@ -179,7 +192,18 @@ export function MarketFavoritesView(): React.JSX.Element {
             const summary = summaries[slug]
 
             return (
-              <Card key={slug} className="transition-colors hover:border-primary/50">
+              <Card
+                key={slug}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setCtxMenu({
+                    position: { x: e.clientX, y: e.clientY },
+                    item: { slug, nameFr, nameEn, thumb: cat?.thumb ?? null }
+                  })
+                }}
+                className="transition-colors hover:border-primary/50"
+              >
                 <CardContent
                   className={cn(
                     'flex items-center justify-between gap-2.5 text-xs',
@@ -262,6 +286,7 @@ export function MarketFavoritesView(): React.JSX.Element {
           })}
         </div>
       )}
+      <MarketItemContextMenu state={ctxMenu} onClose={() => setCtxMenu(null)} />
     </div>
   )
 }

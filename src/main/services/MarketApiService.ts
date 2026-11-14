@@ -4,11 +4,14 @@ import type {
   MarketItemDetail,
   MarketItemStats,
   MarketOrder,
+  MarketProfileBucket,
+  MarketProfileReview,
   MarketUserProfile
 } from '@shared/schemas/market.schema'
 import type { RateLimitedHttpClient } from '../infrastructure/http/RateLimitedHttpClient'
 import type { CacheService } from './CacheService'
 import type { StorageService } from './StorageService'
+import { RawWfmV1ReviewsResponseSchema } from './wfm-account-raw.schemas'
 import {
   RawWfmCatalogResponseSchema,
   RawWfmOrderSchema,
@@ -68,7 +71,11 @@ export class MarketApiService {
         thumb: fr?.thumb ?? en?.thumb ?? fr?.icon ?? en?.icon ?? null,
         tags: entry.tags,
         ...(entry.maxRank !== undefined ? { maxRank: entry.maxRank } : {}),
-        ...(entry.ducats !== undefined ? { ducats: entry.ducats } : {})
+        ...(entry.ducats !== undefined ? { ducats: entry.ducats } : {}),
+        ...(entry.subtypes && entry.subtypes.length > 0 ? { subtypes: entry.subtypes } : {}),
+        ...(entry.maxAmberStars !== undefined ? { maxAmberStars: entry.maxAmberStars } : {}),
+        ...(entry.maxCyanStars !== undefined ? { maxCyanStars: entry.maxCyanStars } : {}),
+        ...(entry.bulkTradable !== undefined ? { bulkTradable: entry.bulkTradable } : {})
       }
     })
 
@@ -124,6 +131,10 @@ export class MarketApiService {
       ...(target.tradingTax !== undefined ? { tradingTax: target.tradingTax } : {}),
       ...(target.reqMasteryRank !== undefined ? { reqMasteryRank: target.reqMasteryRank } : {}),
       ...(target.maxRank !== undefined ? { maxRank: target.maxRank } : {}),
+      ...(target.subtypes && target.subtypes.length > 0 ? { subtypes: target.subtypes } : {}),
+      ...(target.maxAmberStars !== undefined ? { maxAmberStars: target.maxAmberStars } : {}),
+      ...(target.maxCyanStars !== undefined ? { maxCyanStars: target.maxCyanStars } : {}),
+      ...(target.bulkTradable !== undefined ? { bulkTradable: target.bulkTradable } : {}),
       setRoot: Boolean(target.setRoot),
       setItems: raw.data.items.map((part) => {
         const pEn = part.i18n?.['en']
@@ -228,14 +239,16 @@ export class MarketApiService {
     return orders
   }
 
-  public async getUserProfile(userSlug: string): Promise<MarketUserProfile> {
+  public async getUserProfile(userSlug: string, forceRefresh = false): Promise<MarketUserProfile> {
     const safeSlug = encodeURIComponent(userSlug.trim())
     const cacheKey = `wfm:user:${safeSlug}`
-    const cached = this.cache.get<MarketUserProfile>(cacheKey)
-    if (cached) return cached
+    if (!forceRefresh) {
+      const cached = this.cache.get<MarketUserProfile>(cacheKey)
+      if (cached) return cached
+    }
 
     const [headers, index] = await Promise.all([this.buildHeaders(), this.ensureCatalogIndex()])
-    const [userRes, ordersRes] = await Promise.all([
+    const [userRes, ordersRes, recentReviews] = await Promise.all([
       this.http.getJson(`${WFM_API_BASE}/v2/user/${safeSlug}`, RawWfmUserProfileResponseSchema, {
         headers
       }),
@@ -243,13 +256,23 @@ export class MarketApiService {
         `${WFM_API_BASE}/v2/orders/user/${safeSlug}`,
         RawWfmOrdersResponseSchema,
         { headers }
-      )
+      ),
+      this.fetchPublicReviewsSafe(safeSlug, headers)
     ])
 
     const u = userRes.data
     const mapped = ordersRes.data
       .filter((o) => o.visible)
       .map((o) => this.mapOrder(o, index.get(o.itemId)))
+
+    const sellOrders = mapped
+      .filter((o) => o.type === 'sell')
+      .sort((a, b) => b.platinum * b.quantity - a.platinum * a.quantity)
+    const buyOrders = mapped
+      .filter((o) => o.type === 'buy')
+      .sort((a, b) => b.platinum - a.platinum)
+    const totalSellPlat = sellOrders.reduce((sum, o) => sum + o.platinum * o.quantity, 0)
+    const aboutText = (u.aboutRaw ?? u.about ?? '').trim()
 
     const profile: MarketUserProfile = {
       id: u.id,
@@ -261,12 +284,87 @@ export class MarketApiService {
       platform: u.platform,
       crossplay: u.crossplay,
       status: u.status,
-      sellOrders: mapped.filter((o) => o.type === 'sell').sort((a, b) => a.platinum - b.platinum),
-      buyOrders: mapped.filter((o) => o.type === 'buy').sort((a, b) => b.platinum - a.platinum)
+      ...(u.verified !== undefined ? { verified: u.verified } : {}),
+      ...(u.locale ? { locale: u.locale } : {}),
+      ...(aboutText ? { about: aboutText } : {}),
+      sellOrders,
+      buyOrders,
+      portfolioBreakdown: this.computeProfileBreakdown(sellOrders, totalSellPlat),
+      recentReviews
     }
 
     this.cache.set(cacheKey, profile, 30)
     return profile
+  }
+
+  private async fetchPublicReviewsSafe(
+    safeSlug: string,
+    headers: Record<string, string>
+  ): Promise<MarketProfileReview[]> {
+    try {
+      const res = await this.http.getJson(
+        `${WFM_API_BASE}/v1/profile/${safeSlug}/reviews`,
+        RawWfmV1ReviewsResponseSchema,
+        { headers }
+      )
+      return res.payload.reviews.slice(0, 8).map((r, idx) => ({
+        id: r.id ?? r._id ?? `rev-${idx}`,
+        authorName: r.user_from?.ingame_name ?? 'Tenno',
+        positive: (r.review_type ?? 1) >= 0,
+        text: r.text.trim() || 'Échange rapide et courtois (+1)',
+        dateIso: r.date ?? ''
+      }))
+    } catch {
+      return []
+    }
+  }
+
+  private computeProfileBreakdown(
+    sellOrders: readonly MarketOrder[],
+    totalPlat: number
+  ): MarketProfileBucket[] {
+    const totals = {
+      prime_sets_parts: { count: 0, plat: 0, labelFr: 'Sets & Pièces Prime' },
+      mods_arcanes: { count: 0, plat: 0, labelFr: 'Mods & Arcanes' },
+      relics_ayatan: { count: 0, plat: 0, labelFr: 'Reliques & Trésors Ayatan' },
+      other: { count: 0, plat: 0, labelFr: 'Armes, Schémas & Divers' }
+    }
+
+    for (const ord of sellOrders) {
+      const val = ord.platinum * ord.quantity
+      const tags = (ord.itemTags ?? []).map((t) => t.toLowerCase())
+      if (tags.includes('mod') || tags.includes('arcane_enhancement')) {
+        totals.mods_arcanes.count += 1
+        totals.mods_arcanes.plat += val
+      } else if (
+        tags.includes('relic') ||
+        tags.includes('ayatan_sculpture') ||
+        tags.includes('ayatan_star')
+      ) {
+        totals.relics_ayatan.count += 1
+        totals.relics_ayatan.plat += val
+      } else if (tags.includes('prime') || tags.includes('set')) {
+        totals.prime_sets_parts.count += 1
+        totals.prime_sets_parts.plat += val
+      } else {
+        totals.other.count += 1
+        totals.other.plat += val
+      }
+    }
+
+    const keys: Array<keyof typeof totals> = [
+      'prime_sets_parts',
+      'mods_arcanes',
+      'relics_ayatan',
+      'other'
+    ]
+    return keys.map((key) => ({
+      key,
+      labelFr: totals[key].labelFr,
+      ordersCount: totals[key].count,
+      totalPlatinum: totals[key].plat,
+      sharePercent: totalPlat > 0 ? Math.round((totals[key].plat / totalPlat) * 100) : 0
+    }))
   }
 
   private mapOrder(
@@ -280,6 +378,9 @@ export class MarketApiService {
       quantity: raw.quantity,
       ...(raw.perTrade !== undefined ? { perTrade: raw.perTrade } : {}),
       ...(raw.rank !== undefined ? { rank: raw.rank } : {}),
+      ...(raw.subtype !== undefined ? { subtype: raw.subtype } : {}),
+      ...(raw.amberStars !== undefined ? { amberStars: raw.amberStars } : {}),
+      ...(raw.cyanStars !== undefined ? { cyanStars: raw.cyanStars } : {}),
       updatedAt: raw.updatedAt,
       itemId: raw.itemId,
       ...(catItem
@@ -287,7 +388,9 @@ export class MarketApiService {
             itemSlug: catItem.slug,
             itemNameFr: catItem.nameFr,
             itemNameEn: catItem.nameEn,
-            itemThumb: catItem.thumb
+            itemThumb: catItem.thumb,
+            itemTags: catItem.tags,
+            ...(catItem.maxRank !== undefined ? { itemMaxRank: catItem.maxRank } : {})
           }
         : {}),
       ...(raw.user

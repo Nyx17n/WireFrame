@@ -7,6 +7,7 @@ import { registerIpcHandlers } from './ipc/registerIpcHandlers'
 import { registerMarketHandlers } from './ipc/registerMarketHandlers'
 import { registerOverlayHandlers } from './ipc/registerOverlayHandlers'
 import { registerToolsAndAlertsHandlers } from './ipc/registerToolsAndAlertsHandlers'
+import { registerWfmAccountHandlers } from './ipc/registerWfmAccountHandlers'
 import { registerWorldstateHandlers } from './ipc/registerWorldstateHandlers'
 import { AlertSchedulerService } from './services/AlertSchedulerService'
 import { CacheService } from './services/CacheService'
@@ -14,11 +15,15 @@ import { CartBundlerService } from './services/CartBundlerService'
 import { CodexRepository } from './services/CodexRepository'
 import { FarmOverlayWindowService } from './services/FarmOverlayWindowService'
 import { MarketApiService } from './services/MarketApiService'
+import { MarketFacetedSearchService } from './services/MarketFacetedSearchService'
 import { SetCalculatorService } from './services/SetCalculatorService'
 import { StorageService } from './services/StorageService'
 import { migrateLegacyWireFrameUserData } from './services/migrateLegacyUserData'
 import { TradingToolsService } from './services/TradingToolsService'
 import { UpdaterService } from './services/UpdaterService'
+import { WfmAccountService } from './services/WfmAccountService'
+import { WfmAuthService } from './services/WfmAuthService'
+import { WfmWebLoginService } from './services/WfmWebLoginService'
 import { WindowOverlayService } from './services/WindowOverlayService'
 import { WorldstateService } from './services/WorldstateService'
 
@@ -70,6 +75,10 @@ async function bootstrap(): Promise<void> {
   const windowService = new WindowOverlayService(storageService)
   const farmOverlayService = new FarmOverlayWindowService(storageService, windowService)
   const marketApi = new MarketApiService(httpClient, cacheService, storageService)
+  const marketFacetedSearch = new MarketFacetedSearchService(marketApi)
+  const wfmAuth = new WfmAuthService(userDataPath, httpClient)
+  const wfmWebLogin = new WfmWebLoginService(wfmAuth, windowService)
+  const wfmAccount = new WfmAccountService(httpClient, cacheService, marketApi, wfmAuth)
   const setCalculator = new SetCalculatorService(marketApi)
   const cartBundler = new CartBundlerService(marketApi, storageService)
   const tradingTools = new TradingToolsService(httpClient, cacheService, storageService, marketApi)
@@ -164,7 +173,14 @@ async function bootstrap(): Promise<void> {
   })
   registerMarketHandlers({
     marketApi,
+    marketFacetedSearch,
     setCalculator,
+    windowService
+  })
+  registerWfmAccountHandlers({
+    wfmAuth,
+    wfmAccount,
+    wfmWebLogin,
     windowService
   })
   registerToolsAndAlertsHandlers({
@@ -186,6 +202,7 @@ async function bootstrap(): Promise<void> {
   const iconPath = resolveAppIconPath()
   farmOverlayService.setIconPath(iconPath)
   await windowService.createMainWindow(iconPath)
+  void wfmAuth.restorePersistedSession()
   await farmOverlayService.syncWithSettings()
   await syncGlobalShortcuts()
   await alertScheduler.startOrRestart()
@@ -239,6 +256,8 @@ async function bootstrap(): Promise<void> {
   app.on('before-quit', () => {
     windowService.markQuitting()
     farmOverlayService.markQuitting()
+    wfmWebLogin.dispose()
+    wfmAuth.dispose()
     alertScheduler.stop()
     updaterService.stop()
     globalShortcut.unregisterAll()

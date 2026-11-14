@@ -4,6 +4,7 @@ import {
   BarChart3,
   BookOpen,
   Check,
+  Coins,
   Crosshair,
   ExternalLink,
   ListOrdered,
@@ -30,11 +31,14 @@ import { ipcClient } from '@/services/ipc-client'
 import { useAppStore } from '@/stores/useAppStore'
 import { useMarketStore } from '@/stores/useMarketStore'
 import { useTabsStore } from '@/stores/useTabsStore'
+import { useWfmAccountStore } from '@/stores/useWfmAccountStore'
 
 export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Element {
   const lang = useAppStore((s) => s.settings.market.language)
   const favorites = useAppStore((s) => s.settings.favorites)
   const cart = useAppStore((s) => s.settings.cart)
+  const wfmConnected = useWfmAccountStore((s) => Boolean(s.session.connected && s.session.user))
+  const openCreateOrderModal = useWfmAccountStore((s) => s.openCreateOrderModal)
   const toggleFavorite = useMarketStore((s) => s.toggleFavorite)
   const toggleCartItem = useMarketStore((s) => s.toggleCartItem)
   const addPriceAlert = useMarketStore((s) => s.addPriceAlert)
@@ -217,6 +221,19 @@ export function MarketItemDetailView({ slug }: { slug: string }): React.JSX.Elem
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+            {wfmConnected && (
+              <Button
+                size="sm"
+                onClick={() =>
+                  openCreateOrderModal({ prefillSlug: detail.slug, defaultType: 'sell' })
+                }
+                title="Mettre cet item en vente sur votre compte Warframe Market"
+              >
+                <Coins className="h-3.5 w-3.5" />
+                <span>Mettre en vente</span>
+              </Button>
+            )}
+
             <Button
               size="sm"
               variant={inCart ? 'default' : 'outline'}

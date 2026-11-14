@@ -13,7 +13,8 @@ import {
   Sparkles,
   Star,
   Store,
-  User
+  User,
+  UserCheck
 } from 'lucide-react'
 import type { RouteKind } from '@shared/schemas/navigation.schema'
 
@@ -45,6 +46,8 @@ export function RouteIcon({
       return <Clock className={className} />
     case 'market-user':
       return <User className={className} />
+    case 'wfm-account':
+      return <UserCheck className={className} />
     case 'alerts':
       return <Bell className={className} />
     case 'codex-home':

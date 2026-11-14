@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ArrowLeft, Dna, ExternalLink, Package, Shield, Zap } from 'lucide-react'
+import { ArrowLeft, Coins, Dna, ExternalLink, Package, Shield, Zap } from 'lucide-react'
 import { CodexCategorySchema, type CodexItemDetail } from '@shared/schemas/codex.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import { CodexOverlayToolbar } from '@/components/codex/CodexOverlayToolbar'
 import { CodexVendorDetailSection } from '@/components/codex/CodexVendorDetailSection'
 import { ipcClient } from '@/services/ipc-client'
 import { useTabsStore } from '@/stores/useTabsStore'
+import { useWfmAccountStore } from '@/stores/useWfmAccountStore'
 
 export function CodexDetailView({
   categoryRaw,
@@ -22,6 +23,8 @@ export function CodexDetailView({
 }): React.JSX.Element {
   const navigateActive = useTabsStore((s) => s.navigateActive)
   const openTab = useTabsStore((s) => s.openTab)
+  const wfmConnected = useWfmAccountStore((s) => Boolean(s.session.connected && s.session.user))
+  const openCreateOrderModal = useWfmAccountStore((s) => s.openCreateOrderModal)
 
   const parsedCat = CodexCategorySchema.safeParse(categoryRaw)
   const category = parsedCat.success ? parsedCat.data : 'warframes'
@@ -93,17 +96,32 @@ export function CodexDetailView({
         </Button>
 
         {detail.marketSlug && (
-          <Button
-            size="sm"
-            onClick={(e) => {
-              const marketRoute = { kind: 'market-item' as const, slug: detail.marketSlug! }
-              if (e.ctrlKey || e.metaKey) openTab(marketRoute, { title: detail.nameFr })
-              else navigateActive(marketRoute, detail.nameFr)
-            }}
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            <span>Voir Prix Platinum sur le Marché</span>
-          </Button>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {wfmConnected && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                  openCreateOrderModal({ prefillSlug: detail.marketSlug!, defaultType: 'sell' })
+                }
+                title="Mettre cet item en vente sur votre compte Warframe Market"
+              >
+                <Coins className="h-3.5 w-3.5 text-primary" />
+                <span>Mettre en vente</span>
+              </Button>
+            )}
+            <Button
+              size="sm"
+              onClick={(e) => {
+                const marketRoute = { kind: 'market-item' as const, slug: detail.marketSlug! }
+                if (e.ctrlKey || e.metaKey) openTab(marketRoute, { title: detail.nameFr })
+                else navigateActive(marketRoute, detail.nameFr)
+              }}
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              <span>Voir Prix Platinum sur le Marché</span>
+            </Button>
+          </div>
         )}
       </div>
 

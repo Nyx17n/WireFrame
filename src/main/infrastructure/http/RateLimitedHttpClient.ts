@@ -1,10 +1,30 @@
 import { net } from 'electron'
 import type { z } from 'zod'
 
+export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE'
+
 export interface HttpRequestOptions {
+  method?: HttpMethod
   headers?: Record<string, string>
+  bodyJson?: unknown
   timeoutMs?: number
   bypassRateLimit?: boolean
+}
+
+export class HttpStatusError extends Error {
+  public readonly status: number
+  public readonly detailMessage: string
+
+  constructor(status: number, pathname: string, detailMessage = '') {
+    super(
+      detailMessage
+        ? `HTTP ${status} (${detailMessage})`
+        : `HTTP ${status} sur ${pathname}`
+    )
+    this.name = 'HttpStatusError'
+    this.status = status
+    this.detailMessage = detailMessage
+  }
 }
 
 /**
@@ -55,6 +75,54 @@ export class RateLimitedHttpClient {
     return task
   }
 
+  public async sendJson<T>(
+    method: HttpMethod,
+    url: string,
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
+    options: Omit<HttpRequestOptions, 'method'> = {}
+  ): Promise<T> {
+    return this.executeJsonRequest(url, schema, { ...options, method })
+  }
+
+  public async sendVoid(
+    method: HttpMethod,
+    url: string,
+    options: Omit<HttpRequestOptions, 'method'> = {}
+  ): Promise<void> {
+    if (!options.bypassRateLimit) {
+      await this.acquireRateLimitSlot()
+    }
+    await this.performFetch(url, {
+      ...options,
+      method,
+      headers: {
+        Accept: 'application/json',
+        ...options.headers
+      }
+    })
+    this.lastSuccessAt = Date.now()
+  }
+
+  public async sendRawResponse(
+    method: HttpMethod,
+    url: string,
+    options: Omit<HttpRequestOptions, 'method'> = {}
+  ): Promise<Response> {
+    if (!options.bypassRateLimit) {
+      await this.acquireRateLimitSlot()
+    }
+    const response = await this.performFetch(url, {
+      ...options,
+      method,
+      headers: {
+        Accept: 'application/json',
+        ...options.headers
+      }
+    })
+    this.lastSuccessAt = Date.now()
+    return response
+  }
+
   public async getBytes(
     url: string,
     options: HttpRequestOptions = {}
@@ -101,18 +169,42 @@ export class RateLimitedHttpClient {
     const controller = new AbortController()
     const timeoutMs = options.timeoutMs ?? 15_000
     const timer = setTimeout(() => controller.abort(), timeoutMs)
+    const method = options.method ?? 'GET'
+    const hasBody = options.bodyJson !== undefined
 
     try {
       const response = await net.fetch(url, {
-        method: 'GET',
+        method,
         headers: {
           'User-Agent': 'TennoFrame/2.0 (Electron; Windows; Warframe Companion)',
+          ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
           ...options.headers
         },
+        ...(hasBody ? { body: JSON.stringify(options.bodyJson) } : {}),
         signal: controller.signal
       })
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status} on ${parsedUrl.hostname}${parsedUrl.pathname}`)
+        let detail = ''
+        try {
+          const errJson: unknown = await response.json()
+          if (errJson && typeof errJson === 'object') {
+            const errRec = errJson as Record<string, unknown>
+            if (typeof errRec['error'] === 'string') {
+              detail = errRec['error']
+            } else if (errRec['error'] && typeof errRec['error'] === 'object') {
+              detail = Object.entries(errRec['error'] as Record<string, unknown>)
+                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`)
+                .join(' · ')
+            }
+          }
+        } catch {
+          // Non-JSON error body (e.g. 503 / Cloudflare challenge HTML)
+        }
+        throw new HttpStatusError(
+          response.status,
+          `${parsedUrl.hostname}${parsedUrl.pathname}`,
+          detail
+        )
       }
       return response
     } finally {

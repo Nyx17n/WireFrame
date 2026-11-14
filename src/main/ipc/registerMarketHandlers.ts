@@ -1,7 +1,9 @@
 import { ipcMain } from 'electron'
 import { z } from 'zod'
 import { IPC_CHANNELS } from '@shared/ipc-channels'
+import { MarketFacetedSearchInputSchema } from '@shared/schemas/market-search.schema'
 import type { MarketApiService } from '../services/MarketApiService'
+import type { MarketFacetedSearchService } from '../services/MarketFacetedSearchService'
 import type { SetCalculatorService } from '../services/SetCalculatorService'
 import type { WindowOverlayService } from '../services/WindowOverlayService'
 import { assertTrustedSender } from './security'
@@ -26,10 +28,11 @@ const RefreshOnlyPayloadSchema = z
 
 export function registerMarketHandlers(deps: {
   marketApi: MarketApiService
+  marketFacetedSearch: MarketFacetedSearchService
   setCalculator: SetCalculatorService
   windowService: WindowOverlayService
 }): void {
-  const { marketApi, setCalculator, windowService } = deps
+  const { marketApi, marketFacetedSearch, setCalculator, windowService } = deps
 
   ipcMain.handle(IPC_CHANNELS.MARKET_GET_CATALOG, async (event, rawPayload: unknown) => {
     assertTrustedSender(event, windowService.getMainWindow())
@@ -69,8 +72,17 @@ export function registerMarketHandlers(deps: {
 
   ipcMain.handle(IPC_CHANNELS.MARKET_GET_USER_PROFILE, async (event, rawPayload: unknown) => {
     assertTrustedSender(event, windowService.getMainWindow())
-    const { slug } = SlugPayloadSchema.parse(rawPayload)
-    return marketApi.getUserProfile(slug)
+    const { slug, forceRefresh } = SlugRefreshPayloadSchema.parse(rawPayload)
+    return marketApi.getUserProfile(slug, Boolean(forceRefresh))
   })
+
+  ipcMain.handle(
+    IPC_CHANNELS.MARKET_SEARCH_FACETED_ORDERS,
+    async (event, rawPayload: unknown) => {
+      assertTrustedSender(event, windowService.getMainWindow())
+      const input = MarketFacetedSearchInputSchema.parse(rawPayload)
+      return marketFacetedSearch.searchFacetedOrders(input)
+    }
+  )
 }
 

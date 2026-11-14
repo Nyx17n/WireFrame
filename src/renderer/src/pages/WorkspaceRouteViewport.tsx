@@ -17,6 +17,7 @@ import { MarketCartView } from '@/components/tools/MarketCartView'
 import { MarketDucatsView } from '@/components/tools/MarketDucatsView'
 import { MarketRivensView } from '@/components/tools/MarketRivensView'
 import { BrowserHistoryView } from '@/components/shell/BrowserHistoryView'
+import { WfmAccountView } from '@/components/wfm-account/WfmAccountView'
 import { getTabCurrentRoute } from '@/lib/tab-helpers'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
@@ -71,7 +72,12 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
       case 'market-home':
         return <MarketHomeView />
       case 'market-catalog':
-        return <MarketCatalogView initialQuery={route.query ?? ''} />
+        return (
+          <MarketCatalogView
+            initialQuery={route.query ?? ''}
+            {...(route.chips ? { initialChips: route.chips } : {})}
+          />
+        )
       case 'market-item':
         return <MarketItemDetailView slug={route.slug ?? 'glaive_prime_set'} />
       case 'market-cart':
@@ -86,6 +92,8 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
         return <MarketRecentOrdersView />
       case 'market-user':
         return <MarketUserProfileView userSlug={route.slug ?? 'nyxo_17'} />
+      case 'wfm-account':
+        return <WfmAccountView />
       case 'alerts':
         return <AlertsCenterView />
       case 'codex-home':

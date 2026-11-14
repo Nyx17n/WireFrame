@@ -14,6 +14,8 @@ import { StatusBar } from '@/components/shell/StatusBar'
 import { TitleTabsBar } from '@/components/shell/TitleTabsBar'
 import { UpdateBanner } from '@/components/shell/UpdateBanner'
 import { CompactTimersBar } from '@/components/shell/timers/CompactTimersBar'
+import { CreateWfmOrderModal } from '@/components/wfm-account/CreateWfmOrderModal'
+import { WfmSignInModal } from '@/components/wfm-account/WfmSignInModal'
 import { useLocalShortcuts } from '@/hooks/useLocalShortcuts'
 import { openHubSection } from '@/lib/hub-navigation'
 import { applyThemeToDocument, subscribeOsReducedMotion } from '@/lib/theme-engine'
@@ -24,9 +26,11 @@ import { useAppStore } from '@/stores/useAppStore'
 import { useMarketStore } from '@/stores/useMarketStore'
 import { notify, type NotificationAction } from '@/stores/useNotificationStore'
 import { useTabsStore } from '@/stores/useTabsStore'
+import { useWfmAccountStore } from '@/stores/useWfmAccountStore'
 
 export function App(): React.JSX.Element {
   const initialize = useAppStore((s) => s.initialize)
+  const initWfmAccount = useWfmAccountStore((s) => s.initialize)
   const isCompactMode = useAppStore((s) => s.windowState.isCompactMode)
   const hydrateFromSession = useTabsStore((s) => s.hydrateFromSession)
   const transitionRevision = useTabsStore((s) => s.transitionRevision)
@@ -52,9 +56,13 @@ export function App(): React.JSX.Element {
 
   React.useEffect(() => {
     let cleanupWindow: (() => void) | undefined
+    let cleanupWfm: (() => void) | undefined
     void initialize().then((unsubscribe) => {
       cleanupWindow = unsubscribe
       hydrateFromSession(useAppStore.getState().settings.session)
+    })
+    void initWfmAccount().then((unsubWfm) => {
+      cleanupWfm = unsubWfm
     })
 
     const cleanupAlerts = ipcClient.alerts.onTriggered((alertEvent) => {
@@ -114,9 +122,10 @@ export function App(): React.JSX.Element {
 
     return () => {
       cleanupWindow?.()
+      cleanupWfm?.()
       cleanupAlerts()
     }
-  }, [initialize, hydrateFromSession, setLatestAlertToast])
+  }, [initialize, initWfmAccount, hydrateFromSession, setLatestAlertToast])
 
   return (
     <div className="relative flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
@@ -146,6 +155,8 @@ export function App(): React.JSX.Element {
       </div>
       <NotificationViewport />
       <OmniboxDialog />
+      <WfmSignInModal />
+      <CreateWfmOrderModal />
       <SettingsModal />
       <ChangelogModal />
       <StartupSplashOverlay />

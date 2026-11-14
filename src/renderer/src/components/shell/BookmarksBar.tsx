@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   Star,
   Store,
+  UserCheck,
   type LucideIcon
 } from 'lucide-react'
 import type { AppRoute, RouteKind } from '@shared/schemas/navigation.schema'
@@ -15,6 +16,7 @@ import { getTabCurrentRoute } from '@/lib/tab-helpers'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
+import { useWfmAccountStore } from '@/stores/useWfmAccountStore'
 
 interface BookmarkShortcut {
   readonly id: RouteKind
@@ -81,6 +83,13 @@ const CENTER_SHORTCUTS: readonly BookmarkShortcut[] = [
     tooltip: 'Enchères et contrats Mods Riven (wf://market/rivens)',
     icon: Flame,
     route: { kind: 'market-rivens' }
+  },
+  {
+    id: 'wfm-account',
+    label: 'Mon Profil WFM',
+    tooltip: 'Mon compte Warframe Market optionnel & mes ventes (wf://wfm-account)',
+    icon: UserCheck,
+    route: { kind: 'wfm-account' }
   }
 ]
 
@@ -92,6 +101,9 @@ export function BookmarksBar(): React.JSX.Element | null {
 
   const favoritesCount = useAppStore((s) => s.settings.favorites.length)
   const cartCount = useAppStore((s) => s.settings.cart.length)
+  const ownSellCount = useWfmAccountStore((s) =>
+    s.session.connected && s.overview ? s.overview.sellOrders.length : 0
+  )
 
   if (hubActive) {
     return null
@@ -102,6 +114,7 @@ export function BookmarksBar(): React.JSX.Element | null {
   const getBadgeCount = (kind: RouteKind): number => {
     if (kind === 'market-favorites') return favoritesCount
     if (kind === 'market-cart') return cartCount
+    if (kind === 'wfm-account') return ownSellCount
     return 0
   }
 

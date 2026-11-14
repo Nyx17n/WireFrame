@@ -7,7 +7,7 @@
 
 > Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron 35 · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
-**TennoFrame v2** (`v2.9.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés), une **Encyclopédie de Farm, Bestiaire des Mobs, Annuaire des Marchands & Helminth** hors-ligne complète en FR/EN et un **Système d’Extensions modulaires** incluant le **Codex Farm Overlay en jeu (`Alt+O`)**.
+**TennoFrame v2** (`v2.10.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market** (avec connexion compte optionnelle, mise en vente & recherche cumulative à pastilles), un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés), une **Encyclopédie de Farm, Bestiaire des Mobs, Annuaire des Marchands & Helminth** hors-ligne complète en FR/EN et un **Système d’Extensions modulaires** incluant le **Codex Farm Overlay en jeu (`Alt+O`)**.
 
 ---
 
@@ -26,7 +26,10 @@
    - **Barre de raccourcis centrée** (*Marché · Favoris · Panier · Ordres récents · Codex · Ducanator · Contrats Mod Riven*) + **Historique de navigation complet (`wf://history`, `Ctrl+H`)** aligné à droite (masquée automatiquement sur le Hub Temps Réel).
    - **Mode Compact Overlay (`460×660`, `Alt+M`)** + *Always-on-Top* (`Alt+P`) avec **souris traversante automatique en plein jeu (`Alt+G`)** + bascule rapide (`Alt+Shift+W`) + contrôle du zoom `[ − | 100% | + ]`.
 
-2. **Marché Warframe Market Temps Réel & Outils Avancés**
+2. **Marché Warframe Market Temps Réel, Compte Vendeur & Outils Avancés**
+   - **Compte Warframe Market optionnel & Mise en vente (`wf://wfm-account`)** : connexion sécurisée chiffrée via DPAPI Windows (`safeStorage`) avec statut temps réel (*En jeu · En ligne · Invisible*), gestion complète de tes ventes/achats, bouton `✓ Vendu -1` et modale intelligente « Mettre un item en vente » avec aide au prix en direct.
+   - **Barre de recherche cumulative à pastilles (`Tokenized Filter Bar`)** : croise librement plusieurs pastilles (`[📦 Item] + [👤 Vendeur] + [💎 ≤ Xp]`) et consulte des **profils joueurs publics enrichis** (KPIs, ventes, achats et avis vérifiés).
+   - **Menus contextuels rapides au clic droit** : sur les onglets, sur tous les items du Marché (*Favoris, Nouvel onglet, Panier, Snipe, Codex, Wiki Officiel*) et sur les entrées du Codex (*Afficher en Overlay Farm* lorsque l’extension est activée).
    - Ordres d’achat/vente en direct, filtres statut/rang/réputation, flux complet des **annonces les plus récentes** dès l’accueil Marché et barre **`/w` Whisper** copiée en 1 clic en **EN ou FR**.
    - **Badges de prix temps réel (`Min · Moy · Max` Platines)** avec filtrage anti-outliers affichés automatiquement sur les cartes du Marché, Favoris, Panier, Ordres récents et les items échangeables du Codex.
    - **Comparateur automatique Set Complet vs Pièces Détachées** calculé en arrière-plan sans bloquer l’affichage.

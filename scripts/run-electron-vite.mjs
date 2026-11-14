@@ -60,7 +60,8 @@ async function main() {
   // ce qui empêche Electron d'ouvrir sa fenêtre graphique si on ne le retire pas.
   delete env.ELECTRON_RUN_AS_NODE
 
-  const child = spawn(process.execPath, [cliPath, mode], {
+  const cliArgs = mode === 'dev' ? [cliPath, 'dev', '--watch'] : [cliPath, mode]
+  const child = spawn(process.execPath, cliArgs, {
     stdio: 'inherit',
     env
   })

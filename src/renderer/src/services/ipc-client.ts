@@ -35,6 +35,11 @@ import {
   type SetVsPartsAnalysis
 } from '@shared/schemas/market.schema'
 import {
+  MarketFacetedSearchResultSchema,
+  type MarketFacetedSearchInput,
+  type MarketFacetedSearchResult
+} from '@shared/schemas/market-search.schema'
+import {
   UserSettingsSchema,
   type UserSettings,
   type UserSettingsPatch
@@ -61,6 +66,21 @@ import {
   UpdaterStatusSchema,
   type UpdaterStatus
 } from '@shared/schemas/updater.schema'
+import {
+  WfmAccountOverviewSchema,
+  WfmOwnOrderSchema,
+  WfmSessionStateSchema,
+  type CloseWfmOrderUnitInput,
+  type CreateWfmOrderInput,
+  type UpdateWfmOrderInput,
+  type WfmAccountOverview,
+  type WfmOwnOrder,
+  type WfmPresenceStatus,
+  type WfmSessionState,
+  type WfmSignInCredentialsInput,
+  type WfmSignInTokenInput,
+  type WfmSignInWebInput
+} from '@shared/schemas/wfm-account.schema'
 import {
   VitusModPriceEntrySchema,
   VoidTraderSnapshotSchema,
@@ -164,8 +184,112 @@ export const ipcClient = {
     async getRecentOrders(forceRefresh?: boolean): Promise<MarketOrder[]> {
       return z.array(MarketOrderSchema).parse(await getBridge().market.getRecentOrders(forceRefresh))
     },
-    async getUserProfile(userSlug: string): Promise<MarketUserProfile> {
-      return MarketUserProfileSchema.parse(await getBridge().market.getUserProfile(userSlug))
+    async getUserProfile(userSlug: string, forceRefresh?: boolean): Promise<MarketUserProfile> {
+      return MarketUserProfileSchema.parse(
+        await getBridge().market.getUserProfile(userSlug, forceRefresh)
+      )
+    },
+    async searchFacetedOrders(input: MarketFacetedSearchInput): Promise<MarketFacetedSearchResult> {
+      const bridge = getBridge()
+      if (typeof bridge.market?.searchFacetedOrders !== 'function') {
+        throw new Error(
+          'Pont Electron mis à jour : ferme TennoFrame (Ctrl+C) et relance "npm run dev" pour activer la recherche à pastilles.'
+        )
+      }
+      return MarketFacetedSearchResultSchema.parse(await bridge.market.searchFacetedOrders(input))
+    }
+  },
+  wfmAccount: {
+    async getSession(): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.getSession())
+    },
+    async signInCredentials(input: WfmSignInCredentialsInput): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.signInCredentials(input))
+    },
+    async signInWeb(input: WfmSignInWebInput): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (typeof bridge.wfmAccount?.signInWeb !== 'function') {
+        throw new Error(
+          'Pont Electron mis à jour : ferme TennoFrame (Ctrl+C dans le terminal) et relance "npm run dev" pour activer la connexion Web.'
+        )
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.signInWeb(input))
+    },
+    async signInToken(input: WfmSignInTokenInput): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.signInToken(input))
+    },
+    async signOut(): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.signOut())
+    },
+    async setStatus(status: WfmPresenceStatus): Promise<WfmSessionState> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmSessionStateSchema.parse(await bridge.wfmAccount.setStatus(status))
+    },
+    async getOverview(forceRefresh?: boolean): Promise<WfmAccountOverview> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmAccountOverviewSchema.parse(await bridge.wfmAccount.getOverview(forceRefresh))
+    },
+    async createOrder(input: CreateWfmOrderInput): Promise<WfmOwnOrder> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmOwnOrderSchema.parse(await bridge.wfmAccount.createOrder(input))
+    },
+    async updateOrder(input: UpdateWfmOrderInput): Promise<WfmOwnOrder> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return WfmOwnOrderSchema.parse(await bridge.wfmAccount.updateOrder(input))
+    },
+    async closeOrderUnit(
+      input: CloseWfmOrderUnitInput
+    ): Promise<{ closed: boolean; remainingQuantity: number }> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return z
+        .object({ closed: z.boolean(), remainingQuantity: z.number().int().nonnegative() })
+        .parse(await bridge.wfmAccount.closeOrderUnit(input))
+    },
+    async deleteOrder(orderId: string): Promise<boolean> {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount) {
+        throw new Error('Relance npm.cmd run dev pour activer le compte Warframe Market.')
+      }
+      return z.boolean().parse(await bridge.wfmAccount.deleteOrder(orderId))
+    },
+    onSessionChanged(listener: (session: WfmSessionState) => void): () => void {
+      const bridge = getBridge()
+      if (!bridge.wfmAccount?.onSessionChanged) return () => undefined
+      return bridge.wfmAccount.onSessionChanged((raw) => {
+        const parsed = WfmSessionStateSchema.safeParse(raw)
+        if (parsed.success) listener(parsed.data)
+      })
     }
   },
   tools: {
