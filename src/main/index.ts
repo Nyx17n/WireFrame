@@ -15,6 +15,7 @@ import { CartBundlerService } from './services/CartBundlerService'
 import { CodexRepository } from './services/CodexRepository'
 import { FarmOverlayWindowService } from './services/FarmOverlayWindowService'
 import { MarketApiService } from './services/MarketApiService'
+import { MarketFacetedSearchService } from './services/MarketFacetedSearchService'
 import { SetCalculatorService } from './services/SetCalculatorService'
 import { StorageService } from './services/StorageService'
 import { migrateLegacyWireFrameUserData } from './services/migrateLegacyUserData'
@@ -74,6 +75,7 @@ async function bootstrap(): Promise<void> {
   const windowService = new WindowOverlayService(storageService)
   const farmOverlayService = new FarmOverlayWindowService(storageService, windowService)
   const marketApi = new MarketApiService(httpClient, cacheService, storageService)
+  const marketFacetedSearch = new MarketFacetedSearchService(marketApi)
   const wfmAuth = new WfmAuthService(userDataPath, httpClient)
   const wfmWebLogin = new WfmWebLoginService(wfmAuth, windowService)
   const wfmAccount = new WfmAccountService(httpClient, cacheService, marketApi, wfmAuth)
@@ -171,6 +173,7 @@ async function bootstrap(): Promise<void> {
   })
   registerMarketHandlers({
     marketApi,
+    marketFacetedSearch,
     setCalculator,
     windowService
   })

@@ -236,11 +236,13 @@ export class MarketApiService {
     return orders
   }
 
-  public async getUserProfile(userSlug: string): Promise<MarketUserProfile> {
+  public async getUserProfile(userSlug: string, forceRefresh = false): Promise<MarketUserProfile> {
     const safeSlug = encodeURIComponent(userSlug.trim())
     const cacheKey = `wfm:user:${safeSlug}`
-    const cached = this.cache.get<MarketUserProfile>(cacheKey)
-    if (cached) return cached
+    if (!forceRefresh) {
+      const cached = this.cache.get<MarketUserProfile>(cacheKey)
+      if (cached) return cached
+    }
 
     const [headers, index] = await Promise.all([this.buildHeaders(), this.ensureCatalogIndex()])
     const [userRes, ordersRes] = await Promise.all([

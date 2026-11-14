@@ -72,7 +72,12 @@ export function WorkspaceRouteViewport(): React.JSX.Element {
       case 'market-home':
         return <MarketHomeView />
       case 'market-catalog':
-        return <MarketCatalogView initialQuery={route.query ?? ''} />
+        return (
+          <MarketCatalogView
+            initialQuery={route.query ?? ''}
+            {...(route.chips ? { initialChips: route.chips } : {})}
+          />
+        )
       case 'market-item':
         return <MarketItemDetailView slug={route.slug ?? 'glaive_prime_set'} />
       case 'market-cart':

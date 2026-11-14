@@ -35,6 +35,11 @@ import {
   type SetVsPartsAnalysis
 } from '@shared/schemas/market.schema'
 import {
+  MarketFacetedSearchResultSchema,
+  type MarketFacetedSearchInput,
+  type MarketFacetedSearchResult
+} from '@shared/schemas/market-search.schema'
+import {
   UserSettingsSchema,
   type UserSettings,
   type UserSettingsPatch
@@ -181,6 +186,15 @@ export const ipcClient = {
     },
     async getUserProfile(userSlug: string): Promise<MarketUserProfile> {
       return MarketUserProfileSchema.parse(await getBridge().market.getUserProfile(userSlug))
+    },
+    async searchFacetedOrders(input: MarketFacetedSearchInput): Promise<MarketFacetedSearchResult> {
+      const bridge = getBridge()
+      if (typeof bridge.market?.searchFacetedOrders !== 'function') {
+        throw new Error(
+          'Pont Electron mis à jour : ferme TennoFrame (Ctrl+C) et relance "npm run dev" pour activer la recherche à pastilles.'
+        )
+      }
+      return MarketFacetedSearchResultSchema.parse(await bridge.market.searchFacetedOrders(input))
     }
   },
   wfmAccount: {

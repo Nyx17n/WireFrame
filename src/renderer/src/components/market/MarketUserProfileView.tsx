@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { AlertTriangle, Award, RefreshCw, User } from 'lucide-react'
+import { AlertTriangle, Award, RefreshCw, Search, User } from 'lucide-react'
+import { createMarketChipId } from '@shared/schemas/market-search.schema'
 import { toWfAssetUrl, type MarketOrder, type MarketUserProfile } from '@shared/schemas/market.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -154,6 +155,27 @@ export function MarketUserProfileView({ userSlug }: { userSlug: string }): React
               </div>
             </div>
           </div>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              navigateActive({
+                kind: 'market-catalog',
+                chips: [
+                  {
+                    id: createMarketChipId('seller', profile.slug),
+                    kind: 'seller',
+                    value: profile.slug,
+                    label: profile.ingameName
+                  }
+                ]
+              })
+            }
+          >
+            <Search className="h-3.5 w-3.5 text-primary" />
+            <span>Filtrer sa boutique par pastilles</span>
+          </Button>
         </CardContent>
       </Card>
 

@@ -6,6 +6,7 @@ import type {
   CodexFarmOverlayPatch,
   FarmOverlayLiveState
 } from '@shared/schemas/extensions.schema'
+import type { MarketFacetedSearchInput } from '@shared/schemas/market-search.schema'
 import type { UserSettingsPatch } from '@shared/schemas/settings.schema'
 import type { RivenSearchParams } from '@shared/schemas/tools.schema'
 import type { UpdaterStatus } from '@shared/schemas/updater.schema'
@@ -76,7 +77,9 @@ const tennoframeApi: TennoFrameBridgeApi = Object.freeze({
     getRecentOrders: (forceRefresh?: boolean) =>
       ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_RECENT_ORDERS, { forceRefresh }),
     getUserProfile: (userSlug: string) =>
-      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_USER_PROFILE, { slug: userSlug })
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_USER_PROFILE, { slug: userSlug }),
+    searchFacetedOrders: (input: MarketFacetedSearchInput) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_SEARCH_FACETED_ORDERS, input)
   }),
   wfmAccount: Object.freeze({
     getSession: () => ipcRenderer.invoke(IPC_CHANNELS.WFM_ACCOUNT_GET_SESSION),

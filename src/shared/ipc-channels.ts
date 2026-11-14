@@ -19,6 +19,10 @@ import type {
   MarketUserProfile,
   SetVsPartsAnalysis
 } from './schemas/market.schema'
+import type {
+  MarketFacetedSearchInput,
+  MarketFacetedSearchResult
+} from './schemas/market-search.schema'
 import type { UserSettings, UserSettingsPatch } from './schemas/settings.schema'
 import type { SystemStatus } from './schemas/system.schema'
 import type {
@@ -75,6 +79,7 @@ export const IPC_CHANNELS = {
   MARKET_GET_ITEM_STATS: 'market:getItemStats',
   MARKET_GET_RECENT_ORDERS: 'market:getRecentOrders',
   MARKET_GET_USER_PROFILE: 'market:getUserProfile',
+  MARKET_SEARCH_FACETED_ORDERS: 'market:searchFacetedOrders',
   WFM_ACCOUNT_GET_SESSION: 'wfmAccount:getSession',
   WFM_ACCOUNT_SIGN_IN_CREDENTIALS: 'wfmAccount:signInCredentials',
   WFM_ACCOUNT_SIGN_IN_WEB: 'wfmAccount:signInWeb',
@@ -149,6 +154,7 @@ export interface TennoFrameBridgeApi {
     getItemStats: (slug: string) => Promise<MarketItemStats>
     getRecentOrders: (forceRefresh?: boolean) => Promise<MarketOrder[]>
     getUserProfile: (userSlug: string) => Promise<MarketUserProfile>
+    searchFacetedOrders: (input: MarketFacetedSearchInput) => Promise<MarketFacetedSearchResult>
   }
   readonly wfmAccount: {
     getSession: () => Promise<WfmSessionState>
