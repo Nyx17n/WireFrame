@@ -1,5 +1,17 @@
 [
   {
+    "version": "2.8.0",
+    "date": "Novembre 2026",
+    "titleFr": "Bestiaire des Mobs (Spawn % & Drops), Annuaire Complet des Marchands & Ressources de Craft en Overlay",
+    "badgeFr": "Nouveauté v2.8.0",
+    "highlightsFr": [
+      "Nouvel onglet « 👾 Mobs (481) » dans le Codex : Bestiaire complet FR/EN (Boss, Eximus/Élite, Standard & Faune) avec icônes officielles, statistiques PV/Bouclier/Armure, faiblesses élémentaires, localisations exactes avec % de chance de spawn + barre de probabilité colorée dessous et table de drops complète avec % de drop + barre colorée dessous.",
+      "Nouvel onglet « 🏪 Marchands (33) » dans le Codex : tous les Marchands & Syndicats du jeu (Relais, 6 Syndicats, Cetus, Fortuna, Deimos/Sanctum, Zariman/Duviri, Camp du Voyageur & Höllvanie 1999) avec portraits officiels, comment les trouver, comment obtenir leurs devises et l’intégralité de leurs 3 228 articles vendus filtrables.",
+      "Ressources de Craft Fonderie complètes visibles et épinglables dans le Codex Farm Overlay (Alt+O) pour les Warframes et Armes (recettes officielles complètes par composant ou au global), ainsi que l’épinglage direct d’un Mob ou d’un article de Marchand.",
+      "Correctif de l’Overlay Farm sur Windows 10/11 : suppression définitive de la barre blanche système Win32 (WS_THICKFRAME) derrière la fenêtre transparente en mode Click-Through et ajout d’une poignée de redimensionnement fluide."
+    ]
+  },
+  {
     "version": "2.7.0",
     "date": "Novembre 2026",
     "titleFr": "Codex Farm Overlay en Jeu, Sources d’Obtention Exhaustives & Système d’Extensions",

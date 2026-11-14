@@ -7,7 +7,7 @@
 
 > Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron 35 · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
-**WireFrame v2** (`v2.7.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés), une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN et un **Système d’Extensions modulaires** incluant le **Codex Farm Overlay en jeu (`Alt+O`)**.
+**WireFrame v2** (`v2.8.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés), une **Encyclopédie de Farm, Bestiaire des Mobs, Annuaire des Marchands & Helminth** hors-ligne complète en FR/EN et un **Système d’Extensions modulaires** incluant le **Codex Farm Overlay en jeu (`Alt+O`)**.
 
 ---
 
@@ -22,7 +22,7 @@
 
 1. **Navigateur de Trading Multi-Onglets, Barre de Raccourcis & Historique**
    - Onglets dynamiques réordonnables par glisser-déposer, épinglables, indicateur fluide de transition de page et navigation *Précédent / Suivant* indépendante par onglet.
-   - **Barre d’adresse `wf://` pleine largeur (`Ctrl+K`)** : recherche instantanée FR/EN dans les 3 900+ items du Marché, les 3 296 fiches du Codex, ou ouverture directe d’une URL `https://warframe.market/items/...` collée.
+   - **Barre d’adresse `wf://` pleine largeur (`Ctrl+K`)** : recherche instantanée FR/EN dans les 3 900+ items du Marché, les 3 810 fiches du Codex, ou ouverture directe d’une URL `https://warframe.market/items/...` collée.
    - **Barre de raccourcis centrée** (*Marché · Favoris · Panier · Ordres récents · Codex · Ducanator · Contrats Mod Riven*) + **Historique de navigation complet (`wf://history`, `Ctrl+H`)** aligné à droite (masquée automatiquement sur le Hub Temps Réel).
    - **Mode Compact Overlay (`460×660`, `Alt+M`)** + *Always-on-Top* (`Alt+P`) avec **souris traversante automatique en plein jeu (`Alt+G`)** + bascule rapide (`Alt+Shift+W`) + contrôle du zoom `[ − | 100% | + ]`.
 
@@ -41,10 +41,11 @@
    - **Baro Ki’Teer** (inventaire enrichi en Platinum ou aperçu des classiques hors visite) & **Résurgence Prime (Varzia)**.
    - **Actualités, Événements & Offre du jour de Darvo**.
 
-4. **Codex FR/EN Exhaustif (3 296 Fiches), Overlay Farm en Jeu & Infirmerie Helminth**
-   - **Ressources (365)**, **Warframes (122)**, **Armes (607)**, **Mods (1 402)** et **Reliques (799)**.
-   - **Sources d’obtention complètes** : Boutique en jeu Warframe (Crédits), Quêtes traduites en français (+ rachat Céphalon Simaris), Laboratoires de Dojo de Clan, Circuit Normal de Duviri, Syndicats, Némésis (*Kuva*, *Principe*, *Coda*), Baro Ki’Teer, Soute Prime et tables de drop triées par **meilleure probabilité (`%`)** avec barre colorée sous le badge `%`.
-   - **Extension `Codex Farm Overlay` en jeu (`Alt+O`)** : fenêtre transparente *Always-on-Top* avec souris traversante (`👻` Click-Through + déverrouillage `0,5 s`), sélection granulaire d’un set complet (ex. *Tout Ember*) ou d’un objet précis sur les 5 catégories, gérée depuis la liste **`Paramètres → Extensions`**.
+4. **Codex FR/EN Exhaustif (3 810 Fiches), Bestiaire Mobs, Marchands, Overlay Farm en Jeu & Helminth**
+   - **Ressources (365)**, **Warframes (122)**, **Armes (607)**, **Mods (1 402)**, **Reliques (799)**, **Mobs (481)** et **Marchands (33 — 3 228 articles vendus)**.
+   - **Bestiaire `👾 Mobs` & Annuaire `🏪 Marchands`** : localisations d’apparition des ennemis avec **`% de spawn` + barre colorée dessous**, tables complètes de butin (**`% de drop` + barre colorée dessous**), portraits officiels, emplacements exacts des marchands, devises et catalogues complets filtrables.
+   - **Sources d’obtention & Recettes Fonderie complètes** : Boutique en jeu Warframe (Crédits), Quêtes traduites en français (+ rachat Céphalon Simaris), Laboratoires de Dojo de Clan, Circuit Normal de Duviri, Syndicats, Némésis (*Kuva*, *Principe*, *Coda*), Baro Ki’Teer, Soute Prime, matériaux de craft Fonderie détaillés et tables de drop triées par **meilleure probabilité (`%`)**.
+   - **Extension `Codex Farm Overlay` en jeu (`Alt+O`)** : fenêtre transparente *Always-on-Top* avec souris traversante (`👻` Click-Through + déverrouillage `0,5 s`), sélection granulaire d’un set complet, des **ressources de craft Fonderie**, d’un Mob, d’une offre Marchand ou d’un objet précis, gérée depuis **`Paramètres → Extensions`**.
    - **Infirmerie Helminth** : compétences subsumables par Warframe (filtre *★ Méta S-Tier*), **6 Sécrétions & Bile** et compétences natives.
 
 5. **Personnalisation Visuelle Avancée, Notifications & Animations**
