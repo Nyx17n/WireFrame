@@ -14,6 +14,7 @@ export function WhisperBar(): React.JSX.Element | null {
   const whisperCopiedAt = useMarketStore((s) => s.whisperCopiedAt)
   const dismissWhisper = useMarketStore((s) => s.dismissWhisper)
   const whisperLanguage = useAppStore((s) => s.settings.market.whisperLanguage)
+  const whisperExtensionEnabled = useAppStore((s) => s.settings.extensions.whisperBarPersistent)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const openTab = useTabsStore((s) => s.openTab)
 
@@ -26,7 +27,7 @@ export function WhisperBar(): React.JSX.Element | null {
     return () => window.clearTimeout(timer)
   }, [whisperCopiedAt])
 
-  if (!activeWhisper) return null
+  if (!activeWhisper || !whisperExtensionEnabled) return null
 
   const commandText = buildWhisperCommand(activeWhisper, whisperLanguage)
 

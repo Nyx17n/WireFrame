@@ -5,12 +5,14 @@ import { RateLimitedHttpClient } from './infrastructure/http/RateLimitedHttpClie
 import { registerCodexAndUpdaterHandlers } from './ipc/registerCodexAndUpdaterHandlers'
 import { registerIpcHandlers } from './ipc/registerIpcHandlers'
 import { registerMarketHandlers } from './ipc/registerMarketHandlers'
+import { registerOverlayHandlers } from './ipc/registerOverlayHandlers'
 import { registerToolsAndAlertsHandlers } from './ipc/registerToolsAndAlertsHandlers'
 import { registerWorldstateHandlers } from './ipc/registerWorldstateHandlers'
 import { AlertSchedulerService } from './services/AlertSchedulerService'
 import { CacheService } from './services/CacheService'
 import { CartBundlerService } from './services/CartBundlerService'
 import { CodexRepository } from './services/CodexRepository'
+import { FarmOverlayWindowService } from './services/FarmOverlayWindowService'
 import { MarketApiService } from './services/MarketApiService'
 import { SetCalculatorService } from './services/SetCalculatorService'
 import { StorageService } from './services/StorageService'
@@ -59,6 +61,7 @@ async function bootstrap(): Promise<void> {
   await storageService.load()
 
   const windowService = new WindowOverlayService(storageService)
+  const farmOverlayService = new FarmOverlayWindowService(storageService, windowService)
   const marketApi = new MarketApiService(httpClient, cacheService, storageService)
   const setCalculator = new SetCalculatorService(marketApi)
   const cartBundler = new CartBundlerService(marketApi, storageService)
@@ -128,6 +131,11 @@ async function bootstrap(): Promise<void> {
       globalShortcut.register(toggleClickThrough, () => {
         void windowService.toggleClickThroughShortcut()
       })
+      if (settings.extensions.codexFarmOverlay) {
+        globalShortcut.register(settings.codexFarmOverlay.shortcutToggle, () => {
+          void farmOverlayService.toggleWindowOpenShortcut()
+        })
+      }
     } catch {
       // Ignore registration failure if shortcut is already held by another OS process
     }
@@ -138,8 +146,14 @@ async function bootstrap(): Promise<void> {
     cacheService,
     storageService,
     windowService,
+    farmOverlayService,
     onShortcutsUpdated: syncGlobalShortcuts,
     onAlertsConfigUpdated: () => alertScheduler.startOrRestart()
+  })
+  registerOverlayHandlers({
+    windowService,
+    farmOverlayService,
+    onOverlayShortcutChanged: syncGlobalShortcuts
   })
   registerMarketHandlers({
     marketApi,
@@ -163,7 +177,9 @@ async function bootstrap(): Promise<void> {
   })
 
   const iconPath = resolveAppIconPath()
+  farmOverlayService.setIconPath(iconPath)
   await windowService.createMainWindow(iconPath)
+  await farmOverlayService.syncWithSettings()
   await syncGlobalShortcuts()
   await alertScheduler.startOrRestart()
   updaterService.startPeriodicChecks()
@@ -185,11 +201,18 @@ async function bootstrap(): Promise<void> {
               .then((st) => windowService.setCompactMode(!st.isCompactMode))
           }
         },
+        {
+          label: 'Afficher / Masquer Overlay Farm Codex',
+          click: () => {
+            void farmOverlayService.toggleWindowOpenShortcut()
+          }
+        },
         { type: 'separator' },
         {
           label: 'Quitter complètement WireFrame',
           click: () => {
             windowService.markQuitting()
+            farmOverlayService.markQuitting()
             app.quit()
           }
         }
@@ -208,6 +231,7 @@ async function bootstrap(): Promise<void> {
 
   app.on('before-quit', () => {
     windowService.markQuitting()
+    farmOverlayService.markQuitting()
     alertScheduler.stop()
     updaterService.stop()
     globalShortcut.unregisterAll()

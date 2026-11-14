@@ -30,6 +30,26 @@ export function assertTrustedSender(
 }
 
 /**
+ * Validates that an IPC call originates strictly from the top-level frame
+ * of one of our hardened application BrowserWindows (e.g., Main window or Farm Overlay window).
+ */
+export function assertTrustedAnyWindowSender(
+  event: IpcMainInvokeEvent,
+  windows: readonly (BrowserWindow | null | undefined)[]
+): void {
+  const senderFrame = event.senderFrame
+  if (!senderFrame) {
+    throw new Error('Security violation: missing IPC sender frame')
+  }
+  const matched = windows.some(
+    (win) => win && !win.isDestroyed() && senderFrame === win.webContents.mainFrame
+  )
+  if (!matched) {
+    throw new Error('Security violation: untrusted IPC sender frame')
+  }
+}
+
+/**
  * Opens an external URL in the OS browser ONLY if it uses strict HTTPS
  * and belongs to an explicitly allowlisted Warframe domain.
  */

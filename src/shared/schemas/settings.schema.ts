@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import { WORLD_RULES_MAX } from '../data/world-rule-options'
 import { PriceSniperRuleSchema, WorldAlertTogglesSchema } from './alerts.schema'
+import {
+  CodexFarmOverlayPatchSchema,
+  CodexFarmOverlaySettingsSchema,
+  ExtensionsSettingsSchema
+} from './extensions.schema'
 import { TabsSessionSchema } from './navigation.schema'
 import { CartItemEntrySchema } from './tools.schema'
 import { WindowBoundsSchema } from './window.schema'
@@ -162,12 +167,17 @@ export const UserSettingsSchema = z.object({
   priceAlerts: z.array(PriceSniperRuleSchema).max(40).default([]),
   worldAlerts: WorldAlertTogglesSchema.default({}),
   worldRules: z.array(WorldAlertRuleSchema).max(WORLD_RULES_MAX, `${WORLD_RULES_MAX} règles maximum`).default([]),
+  extensions: ExtensionsSettingsSchema.default({}),
+  codexFarmOverlay: CodexFarmOverlaySettingsSchema.default({}),
   session: TabsSessionSchema.default({})
 })
 
 export type UserSettings = z.infer<typeof UserSettingsSchema>
 
-export const UserSettingsPatchSchema = UserSettingsSchema.deepPartial()
+export const UserSettingsPatchSchema = UserSettingsSchema.deepPartial().extend({
+  extensions: ExtensionsSettingsSchema.partial().optional(),
+  codexFarmOverlay: CodexFarmOverlayPatchSchema.optional()
+})
 export type UserSettingsPatch = z.infer<typeof UserSettingsPatchSchema>
 
 export const DEFAULT_USER_SETTINGS: UserSettings = UserSettingsSchema.parse({
@@ -180,6 +190,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = UserSettingsSchema.parse({
   priceAlerts: [],
   worldAlerts: {},
   worldRules: [],
+  extensions: {},
+  codexFarmOverlay: {},
   session: {}
 })
 

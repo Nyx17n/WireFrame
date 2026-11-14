@@ -9,9 +9,10 @@ import {
 } from '@shared/schemas/window.schema'
 import type { RateLimitedHttpClient } from '../infrastructure/http/RateLimitedHttpClient'
 import type { CacheService } from '../services/CacheService'
+import type { FarmOverlayWindowService } from '../services/FarmOverlayWindowService'
 import type { StorageService } from '../services/StorageService'
 import type { WindowOverlayService } from '../services/WindowOverlayService'
-import { assertTrustedSender } from './security'
+import { assertTrustedAnyWindowSender, assertTrustedSender } from './security'
 
 const ClipboardTextSchema = z.object({
   text: z.string().min(1).max(1024)
@@ -22,6 +23,7 @@ export interface MainServicesContainer {
   cacheService: CacheService
   storageService: StorageService
   windowService: WindowOverlayService
+  farmOverlayService: FarmOverlayWindowService
   onShortcutsUpdated: () => Promise<void>
   onAlertsConfigUpdated?: () => Promise<void>
 }
@@ -32,6 +34,7 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     cacheService,
     storageService,
     windowService,
+    farmOverlayService,
     onShortcutsUpdated,
     onAlertsConfigUpdated
   } = services
@@ -57,7 +60,10 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, async (event) => {
-    assertTrustedSender(event, windowService.getMainWindow())
+    assertTrustedAnyWindowSender(event, [
+      windowService.getMainWindow(),
+      farmOverlayService.getOverlayWindow()
+    ])
     return storageService.getSettings()
   })
 
@@ -65,8 +71,16 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     assertTrustedSender(event, windowService.getMainWindow())
     const patch = UserSettingsPatchSchema.parse(rawPatch)
     const updated = await storageService.updateSettings(patch)
-    if (patch.window?.globalShortcutsEnabled !== undefined || patch.window?.shortcuts !== undefined) {
+    if (
+      patch.window?.globalShortcutsEnabled !== undefined ||
+      patch.window?.shortcuts !== undefined ||
+      patch.extensions?.codexFarmOverlay !== undefined ||
+      patch.codexFarmOverlay?.shortcutToggle !== undefined
+    ) {
       await onShortcutsUpdated()
+    }
+    if (patch.extensions !== undefined || patch.codexFarmOverlay !== undefined) {
+      await farmOverlayService.syncWithSettings()
     }
     if (patch.window?.clickThroughWhenPinned !== undefined) {
       windowService.syncClickThroughWithSettings()
@@ -84,6 +98,7 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
   ipcMain.handle(IPC_CHANNELS.SETTINGS_RESET, async (event) => {
     assertTrustedSender(event, windowService.getMainWindow())
     const reset = await storageService.resetSettings()
+    await farmOverlayService.syncWithSettings()
     await onShortcutsUpdated()
     return reset
   })
@@ -114,6 +129,7 @@ export function registerIpcHandlers(services: MainServicesContainer): void {
     const firstFile = result.filePaths[0]
     if (result.canceled || !firstFile) return null
     const imported = await storageService.importFromPath(firstFile)
+    await farmOverlayService.syncWithSettings()
     await onShortcutsUpdated()
     return imported
   })

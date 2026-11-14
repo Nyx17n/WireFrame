@@ -9,8 +9,6 @@ import {
 import {
   toCodexImageUrl,
   type CodexCategory,
-  type CodexComponentEntry,
-  type CodexDropEntry,
   type CodexItemDetail,
   type CodexSearchParams,
   type CodexSearchResult,
@@ -18,11 +16,11 @@ import {
   type HelminthOverview
 } from '@shared/schemas/codex.schema'
 import type { MarketApiService } from './MarketApiService'
+import { CodexAcquisitionResolver } from './CodexAcquisitionResolver'
 import {
   CodexRawDatabaseSchema,
   type CodexRawDatabase,
-  type RawComponent,
-  type RawDrop
+  type RawComponent
 } from './codex-raw.schemas'
 
 function normalizeText(value: string): string {
@@ -42,28 +40,6 @@ function resolveCodexDbPath(): string {
   return join(app.getAppPath(), 'resources', 'codex-db.json')
 }
 
-function mapDropsSorted(drops: readonly RawDrop[]): CodexDropEntry[] {
-  return [...drops]
-    .sort((a, b) => b.chance - a.chance)
-    .map((d) => ({
-      part: d.part ?? null,
-      location: d.loc,
-      chance: d.chance,
-      rarity: d.rarity
-    }))
-}
-
-function mapComponents(components: readonly RawComponent[]): CodexComponentEntry[] {
-  return components.map((c) => ({
-    nameFr: c.name,
-    nameEn: c.en,
-    resourceSlug: c.resSlug || null,
-    count: c.count,
-    imageUrl: toCodexImageUrl(c.img),
-    drops: mapDropsSorted(c.drops)
-  }))
-}
-
 function mapCraftPreview(components: readonly RawComponent[]) {
   const prioritized = [...components].sort((a, b) => {
     const aBp = a.name.toLowerCase().includes('schéma') ? 1 : 0
@@ -77,13 +53,6 @@ function mapCraftPreview(components: readonly RawComponent[]) {
   }))
 }
 
-function pickTopDropText(drops: readonly RawDrop[]): string | null {
-  if (drops.length === 0) return null
-  const best = [...drops].sort((a, b) => b.chance - a.chance)[0]
-  if (!best) return null
-  return `${best.loc} (${best.chance}%)`
-}
-
 function repairRelicRewardName(nameFr: string, nameEn: string): string {
   const trimmed = nameFr.trim()
   if (!trimmed.startsWith('-')) return trimmed
@@ -93,6 +62,7 @@ function repairRelicRewardName(nameFr: string, nameEn: string): string {
 
 export class CodexRepository {
   private db: CodexRawDatabase | null = null
+  private resolver: CodexAcquisitionResolver | null = null
   private loadingPromise: Promise<CodexRawDatabase> | null = null
   private summariesByCat: Record<CodexCategory, CodexSummaryCard[]> | null = null
 
@@ -105,8 +75,10 @@ export class CodexRepository {
     this.loadingPromise = (async () => {
       const rawJson = await readFile(resolveCodexDbPath(), 'utf-8')
       const parsed = CodexRawDatabaseSchema.parse(JSON.parse(rawJson))
+      const resolver = new CodexAcquisitionResolver(parsed)
       this.db = parsed
-      this.summariesByCat = this.buildSummaries(parsed)
+      this.resolver = resolver
+      this.summariesByCat = this.buildSummaries(parsed, resolver)
       return parsed
     })()
 
@@ -117,28 +89,35 @@ export class CodexRepository {
     }
   }
 
-  private buildSummaries(db: CodexRawDatabase): Record<CodexCategory, CodexSummaryCard[]> {
+  private buildSummaries(
+    db: CodexRawDatabase,
+    resolver: CodexAcquisitionResolver
+  ): Record<CodexCategory, CodexSummaryCard[]> {
     return {
-      resources: db.resources.map((r) => ({
-        id: r.id,
-        category: 'resources',
-        nameFr: r.name,
-        nameEn: r.en,
-        imageUrl: toCodexImageUrl(r.img),
-        badgeText: r.totalUsedFor > 0 ? `${r.totalUsedFor} crafts` : 'Ressource',
-        subtitle: (r.planets || r.type).slice(0, 240),
-        isPrime: false,
-        isVaulted: false,
-        isTradable: r.tradable,
-        craftComponents: [],
-        acquisitionText: pickTopDropText(r.drops) ?? (r.planets || null)
-      })),
+      resources: db.resources.map((r) => {
+        const resolved = resolver.resolveResource(r)
+        return {
+          id: r.id,
+          category: 'resources',
+          nameFr: r.name,
+          nameEn: r.en,
+          imageUrl: toCodexImageUrl(r.img),
+          badgeText: r.totalUsedFor > 0 ? `${r.totalUsedFor} crafts` : 'Ressource',
+          subtitle: (r.planets || r.type).slice(0, 240),
+          isPrime: false,
+          isVaulted: false,
+          isTradable: r.tradable,
+          craftComponents: [],
+          acquisitionText: resolved.summaryText
+        }
+      }),
       warframes: db.warframes
         .filter((w) => w.id !== 'helminth')
         .map((w) => {
           const helmMeta = HELMINTH_SUBSUMED_INDEX_BY_WARFRAME[w.id]
           const subAbility =
             helmMeta !== undefined ? w.abilities[helmMeta.abilityIndex]?.name ?? null : null
+          const resolved = resolver.resolveWarframe(w)
           return {
             id: w.id,
             category: 'warframes',
@@ -152,39 +131,46 @@ export class CodexRepository {
             isTradable: w.prime,
             subsumedAbilityName: subAbility,
             craftComponents: mapCraftPreview(w.components),
-            acquisitionText: pickTopDropText(w.drops)
+            acquisitionText: resolved.summaryText
           }
         }),
-      weapons: db.weapons.map((w) => ({
-        id: w.id,
-        category: 'weapons',
-        nameFr: w.name,
-        nameEn: w.en,
-        imageUrl: toCodexImageUrl(w.img),
-        badgeText: w.slotLabel,
-        subtitle: `MR ${w.mr} · Crit ${w.cc}% · Statut ${w.sc}%`,
-        isPrime: w.prime,
-        isVaulted: w.vaulted,
-        isTradable: w.tradable || w.prime,
-        craftComponents: mapCraftPreview(w.components),
-        acquisitionText: pickTopDropText(w.drops)
-      })),
-      mods: db.mods.map((m) => ({
-        id: m.id,
-        category: 'mods',
-        nameFr: m.name,
-        nameEn: m.en,
-        imageUrl: toCodexImageUrl(m.img),
-        badgeText: m.rarity,
-        subtitle: `${m.compat || m.type} · Rang max ${m.maxRank}`,
-        isPrime: m.en.startsWith('Primed '),
-        isVaulted: false,
-        isTradable: m.tradable,
-        craftComponents: [],
-        acquisitionText: pickTopDropText(m.drops)
-      })),
+      weapons: db.weapons.map((w) => {
+        const resolved = resolver.resolveWeapon(w)
+        return {
+          id: w.id,
+          category: 'weapons',
+          nameFr: w.name,
+          nameEn: w.en,
+          imageUrl: toCodexImageUrl(w.img),
+          badgeText: w.slotLabel,
+          subtitle: `MR ${w.mr} · Crit ${w.cc}% · Statut ${w.sc}%`,
+          isPrime: w.prime,
+          isVaulted: w.vaulted,
+          isTradable: w.tradable || w.prime,
+          craftComponents: mapCraftPreview(w.components),
+          acquisitionText: resolved.summaryText
+        }
+      }),
+      mods: db.mods.map((m) => {
+        const resolved = resolver.resolveMod(m)
+        return {
+          id: m.id,
+          category: 'mods',
+          nameFr: m.name,
+          nameEn: m.en,
+          imageUrl: toCodexImageUrl(m.img),
+          badgeText: m.rarity,
+          subtitle: `${m.compat || m.type} · Rang max ${m.maxRank}`,
+          isPrime: m.en.startsWith('Primed '),
+          isVaulted: false,
+          isTradable: m.tradable,
+          craftComponents: [],
+          acquisitionText: resolved.summaryText
+        }
+      }),
       relics: db.relics.map((r) => {
         const rare = r.rewards.find((rw) => rw.tier.includes('Rare'))
+        const resolved = resolver.resolveRelic(r)
         return {
           id: r.id,
           category: 'relics',
@@ -197,9 +183,7 @@ export class CodexRepository {
           isVaulted: r.vaulted,
           isTradable: r.tradable,
           craftComponents: [],
-          acquisitionText: r.vaulted
-            ? 'Aya (Varzia — Résurgence Prime)'
-            : (pickTopDropText(r.drops) ?? 'Packs de Reliques / Missions')
+          acquisitionText: resolved.summaryText
         }
       })
     }
@@ -216,7 +200,8 @@ export class CodexRepository {
         const matchText =
           normalizeText(card.nameFr).includes(q) ||
           normalizeText(card.nameEn).includes(q) ||
-          normalizeText(card.subtitle).includes(q)
+          normalizeText(card.subtitle).includes(q) ||
+          normalizeText(card.acquisitionText ?? '').includes(q)
         if (!matchText) return false
       }
       if (params.variantFilter === 'prime' && !card.isPrime) return false
@@ -304,11 +289,13 @@ export class CodexRepository {
 
   public async getItemDetail(category: CodexCategory, id: string): Promise<CodexItemDetail> {
     const db = await this.ensureLoaded()
+    const resolver = this.resolver!
 
     if (category === 'resources') {
       const item = db.resources.find((r) => r.id === id)
       if (!item) throw new Error(`Ressource Codex introuvable : ${id}`)
       const marketSlug = await this.resolveMarketSlug(category, item.id, item.en, false, item.tradable)
+      const resolved = resolver.resolveResource(item)
       return {
         id: item.id,
         category,
@@ -328,7 +315,8 @@ export class CodexRepository {
         weaponStats: null,
         modStats: null,
         relicInfo: null,
-        drops: mapDropsSorted(item.drops),
+        drops: resolved.drops,
+        acquisitionSources: resolved.acquisitionSources,
         components: [],
         totalUsedFor: item.totalUsedFor,
         usedFor: item.usedFor.map((u) => ({
@@ -346,6 +334,7 @@ export class CodexRepository {
       if (!item) throw new Error(`Warframe Codex introuvable : ${id}`)
       const helm = HELMINTH_SUBSUMED_INDEX_BY_WARFRAME[item.id]
       const marketSlug = await this.resolveMarketSlug(category, item.id, item.en, item.prime, item.prime)
+      const resolved = resolver.resolveWarframe(item)
       return {
         id: item.id,
         category,
@@ -380,8 +369,9 @@ export class CodexRepository {
         weaponStats: null,
         modStats: null,
         relicInfo: null,
-        drops: mapDropsSorted(item.drops),
-        components: mapComponents(item.components),
+        drops: resolved.drops,
+        acquisitionSources: resolved.acquisitionSources,
+        components: resolved.components,
         totalUsedFor: 0,
         usedFor: []
       }
@@ -397,6 +387,7 @@ export class CodexRepository {
         item.prime,
         item.tradable
       )
+      const resolved = resolver.resolveWeapon(item)
       return {
         id: item.id,
         category,
@@ -425,8 +416,9 @@ export class CodexRepository {
         },
         modStats: null,
         relicInfo: null,
-        drops: mapDropsSorted(item.drops),
-        components: mapComponents(item.components),
+        drops: resolved.drops,
+        acquisitionSources: resolved.acquisitionSources,
+        components: resolved.components,
         totalUsedFor: 0,
         usedFor: []
       }
@@ -436,6 +428,7 @@ export class CodexRepository {
       const item = db.mods.find((m) => m.id === id)
       if (!item) throw new Error(`Mod Codex introuvable : ${id}`)
       const marketSlug = await this.resolveMarketSlug(category, item.id, item.en, false, item.tradable)
+      const resolved = resolver.resolveMod(item)
       return {
         id: item.id,
         category,
@@ -462,7 +455,8 @@ export class CodexRepository {
           effects: item.stats
         },
         relicInfo: null,
-        drops: mapDropsSorted(item.drops),
+        drops: resolved.drops,
+        acquisitionSources: resolved.acquisitionSources,
         components: [],
         totalUsedFor: 0,
         usedFor: []
@@ -472,6 +466,7 @@ export class CodexRepository {
     const relic = db.relics.find((r) => r.id === id)
     if (!relic) throw new Error(`Relique Codex introuvable : ${id}`)
     const marketSlug = await this.resolveMarketSlug(category, relic.id, relic.en, false, relic.tradable)
+    const resolved = resolver.resolveRelic(relic)
     return {
       id: relic.id,
       category,
@@ -500,7 +495,8 @@ export class CodexRepository {
           radiantChance: rw.radChance
         }))
       },
-      drops: mapDropsSorted(relic.drops),
+      drops: resolved.drops,
+      acquisitionSources: resolved.acquisitionSources,
       components: [],
       totalUsedFor: 0,
       usedFor: []

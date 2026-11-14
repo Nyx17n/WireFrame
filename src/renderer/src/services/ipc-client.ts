@@ -16,6 +16,11 @@ import {
   type HelminthOverview
 } from '@shared/schemas/codex.schema'
 import {
+  FarmOverlayLiveStateSchema,
+  type CodexFarmOverlayPatch,
+  type FarmOverlayLiveState
+} from '@shared/schemas/extensions.schema'
+import {
   MarketCatalogItemSchema,
   MarketItemDetailSchema,
   MarketItemStatsSchema,
@@ -272,6 +277,32 @@ export const ipcClient = {
         throw new Error('Relance npm.cmd run dev pour activer l’Infirmerie Helminth.')
       }
       return HelminthOverviewSchema.parse(await bridge.codex.getHelminth())
+    }
+  },
+  overlay: {
+    async getState(): Promise<FarmOverlayLiveState> {
+      const bridge = getBridge()
+      return FarmOverlayLiveStateSchema.parse(await bridge.overlay.getState())
+    },
+    async setWindowOpen(open: boolean): Promise<FarmOverlayLiveState> {
+      const bridge = getBridge()
+      return FarmOverlayLiveStateSchema.parse(await bridge.overlay.setWindowOpen(open))
+    },
+    async updateState(patch: CodexFarmOverlayPatch): Promise<FarmOverlayLiveState> {
+      const bridge = getBridge()
+      return FarmOverlayLiveStateSchema.parse(await bridge.overlay.updateState(patch))
+    },
+    async setClickThrough(enabled: boolean): Promise<FarmOverlayLiveState> {
+      const bridge = getBridge()
+      return FarmOverlayLiveStateSchema.parse(await bridge.overlay.setClickThrough(enabled))
+    },
+    onStateChanged(listener: (state: FarmOverlayLiveState) => void): () => void {
+      const bridge = getBridge()
+      if (!bridge.overlay?.onStateChanged) return () => undefined
+      return bridge.overlay.onStateChanged((raw) => {
+        const parsed = FarmOverlayLiveStateSchema.safeParse(raw)
+        if (parsed.success) listener(parsed.data)
+      })
     }
   },
   updater: {

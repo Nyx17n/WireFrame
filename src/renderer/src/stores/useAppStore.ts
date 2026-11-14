@@ -14,9 +14,10 @@ import {
 } from '@/lib/motion-prefs-cache'
 import { applyThemeToDocument } from '@/lib/theme-engine'
 import { ipcClient } from '@/services/ipc-client'
+import { useFarmOverlayStore } from '@/stores/useFarmOverlayStore'
 import { notify, useNotificationStore } from '@/stores/useNotificationStore'
 
-export type SettingsTabId = 'appearance' | 'audio' | 'window' | 'market' | 'system'
+export type SettingsTabId = 'appearance' | 'audio' | 'window' | 'market' | 'extensions' | 'system'
 
 interface AppStoreState {
   settings: UserSettings
@@ -129,6 +130,7 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     const unsubWindow = ipcClient.window.onStateChanged((nextWindowState) => {
       set({ windowState: nextWindowState })
     })
+    const unsubOverlayPromise = useFarmOverlayStore.getState().hydrate()
     const unsubUpdater = ipcClient.updater.onStatus((nextStatus) => {
       const prevState = get().updaterStatus?.state
       set({ updaterStatus: nextStatus })
@@ -158,6 +160,7 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     return () => {
       unsubWindow()
       unsubUpdater()
+      void unsubOverlayPromise.then((fn) => fn())
     }
   },
 
@@ -209,7 +212,18 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
             ...patch.appearance?.compactTimers
           }
         },
-        audio: { ...get().settings.audio, ...patch.audio }
+        audio: { ...get().settings.audio, ...patch.audio },
+        extensions: { ...get().settings.extensions, ...patch.extensions },
+        codexFarmOverlay: {
+          ...get().settings.codexFarmOverlay,
+          ...patch.codexFarmOverlay,
+          bounds: {
+            ...get().settings.codexFarmOverlay.bounds,
+            ...patch.codexFarmOverlay?.bounds
+          },
+          pinnedEntries:
+            patch.codexFarmOverlay?.pinnedEntries ?? get().settings.codexFarmOverlay.pinnedEntries
+        }
       },
       patch
     )
