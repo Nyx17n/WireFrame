@@ -549,6 +549,105 @@ L'index `codex-mobs-vendors.json` est chargé **à la demande (lazy-load asynchr
 
 ---
 
+### 3.12. Module 12 — Connexion Optionnelle au Compte Warframe Market, Profil Personnel Complet & Mise en Vente d'Items (`wf://wfm-account`)
+
+#### 12.A — Objectif Métier & Caractère 100 % Optionnel
+
+- Permettre aux joueurs qui le souhaitent de **connecter optionnellement leur compte `warframe.market`** directement dans **TennoFrame** afin de :
+  1. **Consulter l'intégralité de leur profil Warframe Market** (identité vérifiée, avatar, réputation, valeur totale de leur stock en Platinum, annonces de vente et d'achat actives ou masquées, avis reçus et répartition de leur inventaire marchand),
+  2. **Piloter leur statut de présence en direct** (`🟢 En jeu`, `🟣 En ligne`, `⚫ Invisible`) depuis l'en-tête de TennoFrame sans garder un onglet navigateur ouvert sur `warframe.market`,
+  3. **Mettre en vente des items (`WTS`) ou publier des ordres d'achat (`WTB`)** en quelques secondes avec **aide au prix en temps réel**, et gérer leurs ventes au Dojo en 1 clic (`✓ Vendu -1`, modification de prix/quantité, masquage/visibilité, suppression).
+- **100 % Optionnel (Zéro verrouillage)** : TennoFrame reste **intégralement utilisable sans compte** pour toutes les fonctionnalités existantes (navigation Marché public, Hub Worldstate, Codex/Helminth, Overlays en jeu, Panier Bundler, Ducanator, Price Sniper). Aucun écran de connexion forcé n'est affiché au démarrage.
+
+#### 12.B — Authentification Sécurisée & Gestion du Statut Temps Réel (`CommandNavBar` & `WfmAuthModal`)
+
+- **Puce Compte WFM dans la `CommandNavBar` & Raccourci `BookmarksBar`** :
+  - **État Non connecté** : bouton discret `👤 Connexion WFM` dans la barre de commande (et entrée `Mon Profil WFM` dans les favoris de navigation).
+  - **État Connecté** : puce compacte `🟢 <PseudoEnJeu> ▾` affichant la pastille de statut en direct, le pseudo vérifié, un menu déroulant rapide (`🟢 En jeu`, `🟣 En ligne`, `⚫ Invisible`, `👤 Ouvrir Mon Profil WFM`, `➕ Mettre un item en vente`, `🚪 Se déconnecter`).
+- **Modale de Connexion Sécurisée (`WfmSignInModal`) — 2 Méthodes Compatibles 100 % des Comptes** :
+  1. **Onglet « Email & Mot de passe WFM »** : authentification directe via `POST https://api.warframe.market/v1/auth/signin` (HTTPS TLS strict côté Main Process uniquement). Le mot de passe n'est **jamais** stocké ni journalisé ; seul le jeton de session `JWT` obtenu est chiffré sur disque via **Electron `safeStorage` (Windows DPAPI)**.
+  2. **Onglet « Compte Steam / Console / Discord (Jeton de session) »** : destiné aux joueurs ayant créé leur compte `warframe.market` via SSO externe sans mot de passe dédié (coller le jeton `JWT` de session, vérifié immédiatement via `GET https://api.warframe.market/v2/me` puis chiffré via `safeStorage`).
+  - Bandeau de transparence sécurité affiché clairement dans la modale : *« Connexion 100 % optionnelle · Mot de passe jamais conservé · Session chiffrée localement par Windows DPAPI (`safeStorage`) »*.
+  - **Respect strict Anti-Bot / CAPTCHA** : si `warframe.market` retourne un blocage Cloudflare/Turnstile (`403`) ou exige une validation humaine sur le site, TennoFrame n'essaie jamais de contourner la protection et affiche un message clair orientant vers l'onglet Jeton ou la réauthentification ultérieure.
+- **Synchronisation du Statut en Direct (`wss://ws.warframe.market/socket`)** :
+  - Connexion WebSocket sécurisée (`TLS`, sous-protocole `wfm`) gérée exclusivement dans le Main Process (`WfmPresenceService`) lorsque l'utilisateur est connecté et choisit `En jeu` ou `En ligne`, avec reconnexion exponentielle propre et fermeture immédiate au passage sur `Invisible` ou à la déconnexion.
+
+#### 12.C — Page « Mon Profil Warframe Market » (`wf://wfm-account`)
+
+Accessible via la puce d'en-tête, la barre de raccourcis ou l'Omnibox (`wf://wfm-account`), la vue affiche tout le profil personnel du joueur :
+
+1. **Bannière d'Identité & KPIs du Profil** :
+   - **Identité complète** (`GET /v2/me` + `GET /v2/user/:slug`) : Avatar officiel WFM (`wf-asset://`), Pseudo en jeu (`ingameName`), statut de vérification en jeu, Plateforme & badge Crossplay (`PC · Crossplay`), Palier de Maîtrise (`PM`), Langue (`FR`), date d'inscription / dernière activité, bouton `↗ Voir profil public` et bouton `🚪 Déconnexion`.
+   - **Sélecteur de présence en 1 clic** : `[🟢 En jeu]` · `[🟣 En ligne]` · `[⚫ Invisible]` + bouton d'action primaire **`➕ Mettre un item en vente`**.
+   - **4 Cartes Métriques (KPIs)** :
+     - **Réputation** : score total `★ +N` et accès rapide aux avis récents,
+     - **Valeur Totale en Vente** : somme en Platinum (`∑ prix × quantité`) de toutes les annonces de vente visibles (+ sous-total des annonces masquées),
+     - **Annonces Actives** : compteur `Ventes visibles / totales` et `Ordres d'achat (WTB)`,
+     - **Ventes de la Session** : compteur d'items marqués `✓ Vendu` et Platinum encaissé pendant la session TennoFrame courante.
+2. **Sous-onglet 1 — `💰 Mes Ventes (WTS)`** *(vue par défaut)* :
+   - Barre d'outils : recherche locale FR/EN dans ses annonces, filtre (`Toutes`, `Visibles uniquement`, `Masquées`), tri (`Plus récentes`, `Prix décroissant`, `Valeur stock`, `Nom A→Z`), bouton global `Tout masquer / Tout afficher` optionnel et `ViewModeToggle`.
+   - Chaque ligne / carte d'annonce affiche :
+     - Miniature `wf-asset://`, **Nom FR** (+ sous-titre EN) cliquable vers `wf://market/item/:slug`,
+     - Badges d'attributs (`Rang 8/10`, `Éclatante`, `Sculpture 2★/2★`, `Lot min`),
+     - **Édition rapide en ligne** (`PATCH /v2/order/:id`) : champ **Prix Plat** (`-` / saisie directe / `+`) et champ **Quantité** (`-` / saisie directe / `+`) avec sauvegarde explicite ou validation `Entrée`,
+     - **Repère de compétitivité optionnel** : badge indiquant l'écart ou le prix le plus bas `En jeu` actuel au clic sur `Comparer`,
+     - **Switch `Visible`** (`true` / `false`) permettant de suspendre ou réactiver une annonce instantanément,
+     - **Bouton `✓ Vendu (-1)`** : clôture 1 unité (`POST /v2/order/:id/close` ou décrémentation / suppression si `quantité = 1`), met à jour le compteur de session et affiche un toast de confirmation,
+     - **Bouton `🗑 Supprimer`** (`DELETE /v2/order/:id`).
+3. **Sous-onglet 2 — `🛒 Mes Achats (WTB)`** :
+   - Gestion identique pour les ordres d'achat publiés par le joueur (`type: 'buy'`), avec bouton `+ Créer un ordre d'achat` et bouton `✓ Acheté (-1)`.
+4. **Sous-onglet 3 — `⭐ Profil Complet, Réputation & Répartition du Stock`** :
+   - Détails étendus du profil WFM : présentation / bio du compte, paramètres compte détectés (plateforme, région, crossplay, statut bannissement/avertissement éventuel en lecture seule),
+   - **Répartition visuelle du portefeuille en vente** par famille d'items (*Sets & Pièces Prime*, *Mods & Arcanes*, *Reliques*, *Autres*) en nombre d'annonces et valeur Platinum,
+   - **Liste des derniers avis de réputation reçus** sur le profil du joueur.
+
+#### 12.D — Mise en Vente d'Items (`CreateWfmOrderModal`) & Intégration Transversale
+
+- **2 Points d'accès rapides** :
+  1. Depuis **`wf://wfm-account`** (et le menu rapide de la puce profil) via **`➕ Mettre un item en vente`** (recherche libre d'item),
+  2. Depuis **n'importe quelle Fiche Item du Marché (`wf://market/item/:slug`)** et les **items échangeables du Codex** via un bouton dédié **`💰 Mettre en vente`** qui ouvre la modale déjà pré-remplie sur l'item courant ! *(Si l'utilisateur n'est pas encore connecté, un clic sur `💰 Mettre en vente` ouvre proprement la modale de connexion puis enchaîne sur la mise en vente).*
+- **Formulaire intelligent & contextuel (`POST /v2/order`)** :
+  - **Recherche auto-complétée bilingue FR/EN** dans le catalogue local WFM (icône, nom FR, nom EN, catégorie).
+  - **Sélecteur de type d'ordre** : `Vendre (WTS)` *(défaut)* ou `Acheter (WTB)`.
+  - **Champs dynamiques pilotés par les métadonnées de l'item** :
+    - **Prix unitaire en Platinum** (`entier ≥ 1`),
+    - **Quantité** (`entier ≥ 1`, défaut `1`),
+    - **Rang du Mod / Arcane** (`0` jusqu'à `maxRank` de l'item, avec raccourcis `[Rang 0]` et `[Rang Max]` — affiché uniquement si `maxRank > 0`),
+    - **Sous-type / Raffinement** (`Intacte`, `Exceptionnelle`, `Impeccable`, `Éclatante` ou variante — affiché uniquement si l'item possède `subtypes`),
+    - **Étoiles Ayatan** (`amberStars`, `cyanStars` — affiché uniquement pour les Sculptures Ayatan),
+    - **Quantité par échange (`perTrade`)** optionnelle (pour la vente par lots de reliques/poissons/gemmes),
+    - **Visibilité initiale** : `Visible immédiatement sur le marché` (`true`, défaut) ou `Brouillon masqué` (`false`).
+- **Panneau intégré « 📊 Aide au Prix en Direct »** :
+  - Dès qu'un item (et son rang/sous-type) est sélectionné, la modale affiche un encadré comparatif temps réel basé sur `/v2/orders/item/:slug` :
+    - **Prix le plus bas `🟢 En jeu`** (ex: `45 p`),
+    - **Top 5 vendeurs `🟢 En jeu`** (ex: `45p · 46p · 48p · 50p · 50p`),
+    - **Prix médian / moyen 48h** (ex: `47 p`),
+    - **3 Boutons d'auto-remplissage en 1 clic** : **`[ S'aligner : 45p ]`**, **`[ Vente rapide -1p : 44p ]`**, **`[ Moyenne : 47p ]`**.
+- **Prévention des doublons** :
+  - Si une annonce du joueur existe déjà pour le même item + même type + même rang/sous-type, la modale l'indique clairement (*« Vous vendez déjà cet item (×2 à 48p) »*) et propose de **fusionner / mettre à jour l'annonce existante** via `PATCH /v2/order/:id`.
+
+#### 12.E — Adaptation Mode Compact Overlay (`460×660`) & 4 États UI Obligatoires
+
+- **Mode Compact (`460×660`)** :
+  - Barre condensée en haut de `wf://wfm-account` : sélecteur de statut `[🟢 En jeu ▾]`, résumé `18 ventes · 1 420p` et bouton compact `[+ Vendre]`.
+  - Liste verticale compacte d'annonces pensée pour les échanges au Dojo : nom de l'item, prix éditable rapide, switch visibilité et bouton **`[✓ Vendu -1]`** accessible en 1 clic sans quitter Warframe des yeux.
+- **4 États UI Obligatoires** :
+  1. **Chargement (`Skeleton`)** : squelettes `shadcn` de la bannière profil, des 4 cartes KPI et des lignes d'annonces pendant la vérification de session / lecture `/v2/orders/my`.
+  2. **État Vide / Non Connecté (`EmptyState`)** :
+     - *Si non connecté* : présentation claire et sobre des avantages du compte WFM optionnel avec bouton `[Se connecter à Warframe Market]` (sans bloquer le reste de l'app),
+     - *Si connecté mais 0 annonce* : illustration vide avec bouton `[➕ Mettre mon premier item en vente]`.
+  3. **État Nominal** : profil complet chargé, statut temps réel actif, édition/clôture/création d'annonces instantanée.
+  4. **État d'Erreur (`ErrorState`)** : gestion distincte et explicite de **Session expirée (`401` → bouton `Se reconnecter`)**, **Limite de débit / API WFM en maintenance (`429/503` → bouton `Réessayer`)**, et **Validation `zod` / Champs invalides** sur la création d'annonce.
+
+#### 12.F — Architecture Sécurité & Contrats IPC (`wfmAuth` & `wfmAccount`)
+
+- **Isolation & Chiffrement (`Security by Design`)** :
+  - Nouveau service Main Process `WfmAuthService` : chiffrement/déchiffrement du jeton via `safeStorage.encryptString` / `safeStorage.decryptString` dans `%APPDATA%/TennoFrame/wfm-session.enc` (permissions utilisateur courant uniquement). Si `safeStorage.isEncryptionAvailable()` est `false` sur un environnement dégradé, le jeton n'est conservé **qu'en mémoire vive (session éphémère)** et jamais écrit en clair sur disque !
+  - Nouveau service Main Process `WfmAccountService` & `WfmPresenceService` : exécution des requêtes authentifiées via le `RateLimiter` partagé (`≤ 3 req/s`) et maintien optionnel du WebSocket de statut.
+  - Le Renderer ne manipule que des DTOs strictement validés par `zod` (`src/shared/schemas/wfm-account.schema.ts`) : `WfmSessionState`, `WfmProfileOverview`, `WfmOwnOrder`, `CreateWfmOrderInput`, `UpdateWfmOrderInput`.
+
+---
+
 ## 4. Architecture Technique, Contrats IPC & Sécurité
 
 ### 4.1. Séparation Stricte des Couches (Clean Architecture sans serveur HTTP)
@@ -562,7 +661,7 @@ flowchart TB
     end
 
     subgraph Preload["src/preload (Sandbox ContextBridge)"]
-        Bridge["window.wireframeApi (Surface minimale figée Object.freeze)"]
+        Bridge["window.tennoframeApi (Surface minimale figée Object.freeze)"]
     end
 
     subgraph Shared["src/shared (Contrats & Schémas)"]
@@ -574,6 +673,7 @@ flowchart TB
         Rate["HttpClient & RateLimiter (net.fetch TLS strict, max 3 req/s WFM)"]
         Cache["CacheService (Mémoire TTL + Cache Disque icônes)"]
         Market["MarketApiService & TradeCalculatorService"]
+        WfmAcc["WfmAuthService (safeStorage DPAPI) & WfmAccountService + Presence WS"]
         World["WorldstateService"]
         Codex["CodexRepository (Index JSON en mémoire légère à la demande)"]
         Alerts["AlertSchedulerService (Price Sniper + Worldstate + Notifications)"]
@@ -584,8 +684,8 @@ flowchart TB
 
     UI --> State --> Client
     Client <--> Bridge <--> IPC
-    IPC --> Market & World & Codex & Alerts & Win & Store & Upd
-    Market & World --> Cache --> Rate
+    IPC --> Market & WfmAcc & World & Codex & Alerts & Win & Store & Upd
+    Market & WfmAcc & World --> Cache --> Rate
     Zod -.-> Renderer & Preload & Main
 ```
 
@@ -608,6 +708,7 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 | Domaine | Canaux IPC (`invoke` / événements `on`) | Responsabilité |
 | :--- | :--- | :--- |
 | **`market`** | `market:getCatalog`, `market:getItemDetail`, `market:getItemOrders`, `market:getItemStats`, `market:getRecentOrders`, `market:getUserProfile`, `market:getDucats`, `market:searchRivens`, `market:analyzeSetVsParts`, `market:analyzeCartBundles` | Données Warframe Market et calculs métier lourds |
+| **`wfmAccount`** | `wfmAccount:getSession`, `wfmAccount:signInCredentials`, `wfmAccount:signInToken`, `wfmAccount:signOut`, `wfmAccount:setStatus`, `wfmAccount:getOverview`, `wfmAccount:createOrder`, `wfmAccount:updateOrder`, `wfmAccount:closeOrderUnit`, `wfmAccount:deleteOrder`, `wfmAccount:onSessionChanged` *(event Main → Renderer)* | Connexion optionnelle WFM chiffrée (`safeStorage` DPAPI), statut temps réel (`En jeu / En ligne / Invisible`), profil complet & mise en vente / gestion d'annonces |
 | **`worldstate`** | `worldstate:getCurrent`, `worldstate:getBaroWithPrices` | État du monde Warframe et enrichissement Platinum de Baro |
 | **`codex`** | `codex:search`, `codex:getItemDetail`, `codex:getHelminthData` | Requêtes rapides paginées dans la base Codex locale (Ressources, Warframes, Armes, Mods, Reliques, **Mobs** & **Marchands**) sans charger plusieurs Mo dans chaque onglet React |
 | **`alerts`** | `alerts:list`, `alerts:upsertPriceAlert`, `alerts:deletePriceAlert`, `alerts:updateWorldAlerts`, `alerts:onTriggered` *(event Main → Renderer)* | Gestion et réception temps réel des alertes *Price Sniper* et cycles |
@@ -622,6 +723,7 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
    - `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true`, `webSecurity: true`.
    - **Content-Security-Policy (CSP)** stricte : `default-src 'self'; img-src 'self' wf-asset: data:; media-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'` (le Renderer ne fait **aucune** connexion Internet directe : `connect-src 'none'`, 100 % passe par le Main Process !).
    - **TLS strict** : validation systématique des certificats HTTPS du système d'exploitation.
+   - **Chiffrement OS des jetons (`safeStorage`)** : tout jeton de session optionnel (`warframe.market`) est chiffré via DPAPI Windows dans le Main Process et n'est jamais exposé au Renderer ni inclus dans les exports JSON.
    - **Ouverture de liens externes filtrée** : seuls les domaines explicitement autorisés (`https://warframe.market/...`, `https://www.warframe.com/...`, `https://wiki.warframe.com/...`) peuvent être ouverts dans le navigateur par défaut de Windows via `shell.openExternal`.
 2. **Qualité & Standards de Code** :
    - TypeScript `strict: true`, `noUncheckedIndexedAccess: true`, zéro `any`, zéro `dangerouslySetInnerHTML`.
@@ -631,9 +733,9 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 
 ---
 
-## 5. Plan des Maquettes Wireframes Excalidraw (`docs/02-wireframes/` — Synchronisées `v2.7+`)
+## 5. Plan des Maquettes Wireframes Excalidraw (`docs/02-wireframes/` — Synchronisées `v2.9+`)
 
-L'ensemble des **13 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **TennoFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
+L'ensemble des **14 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **TennoFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
 
 1. `01-app-shell-navigation.excalidraw` : Fenêtre *Frameless* `v2.6.0`, `TitleTabsBar` (défilement molette + chevrons `‹ / ›` + fermeture clic molette), `ClickThroughBanner` (`👻` `Alt+G` + maintien `0.5s`), `CommandNavBar` (`Ctrl+K`, cloche `🔔`, `PC · Cross · FR ▾`, Zoom, `📌`, `👻`, `🗖`, `⚙`), `BookmarksBar` centrée + `Historique` (`Ctrl+H`), Omnibox, Organisateur d'onglets, bandeau `/w`, `CompactTimersBar`, bouton Discord et `StatusBar v2.6.0`.
 2. `02-market-home-catalog-item.excalidraw` : Accueil Marché (flux d'annonces récentes en direct, `ViewModeToggle` `[⊞|▭|☰] + [S|M|L]`, badges `Min · Moy · Max` Platinum), Catalogue, Favoris, Profil joueur, et **Fiche Item complète** (Ordres Vente/Achat, Comparateur *Set vs Pièces*, Pont bidirectionnel *Codex*, Statistiques 48h/90j + pagination *Afficher plus*).
@@ -642,12 +744,13 @@ L'ensemble des **13 planches Excalidraw** dans `docs/02-wireframes/` documente f
 5. `05-codex-farm-helminth.excalidraw` : **Codex Hors-Ligne FR/EN (3 296 entrées)** en 5 catégories + **Infirmerie Helminth** (`★ Méta S-Tier` & 6 Sécrétions), aperçu direct des recettes de Fonderie sur les cartes, prix Platinum temps réel sur items échangeables, tables de drop `%` et pont bidirectionnel *Codex ↔ Marché*.
 6. `06-alerts-settings-modals.excalidraw` : **Centre d'Alertes unifié** à 3 onglets (*Price Sniper*, *Worldstate*, *Historique session*), **Omnibox globale (`Ctrl+K`)** et **Modale Notes de Patch (`v2.6.0`)**.
 7. `07-settings-system-complete.excalidraw` : **Système complet des Paramètres (`SettingsModal`)** en **6 onglets** (*1. Apparence & Thèmes* : 20 thèmes dont `Full Black`/`Full White`, 76 pastilles de couleurs, 8 Dégradés Sci-Fi, Animations 3 niveaux & Zoom ; *2. Audio & Alertes* ; *3. Fenêtre & Raccourcis* avec `👻` & `Alt+G` ; *4. Marché & Échanges* ; *5. 🧩 Extensions sous forme de liste* incluant `Codex Farm Overlay` ; *6. Système, MAJ SHA-512 & JSON*) + adaptation Mode Compact `460×660`.
-8. `08-splash-startup-animations.excalidraw` : **Animation d'ouverture cinétique (`StartupSplashOverlay`)** — Ondes concentriques du Lotus teintées par le thème actif + rouleau vertical `[Frame → Doc → Companion → Market → Index → Codex → Wire centré]`, clic pour passer et respect de `animationLevel="off"`.
+8. `08-splash-startup-animations.excalidraw` : **Animation d'ouverture cinétique (`StartupSplashOverlay`)** — Ondes concentriques du Lotus teintées par le thème actif + rouleau vertical `[Frame → Doc → Companion → Market → Index → Codex → Tenno centré]`, clic pour passer et respect de `animationLevel="off"`.
 9. `09-hub-alerts-compact-timers.excalidraw` *(Module 7 — validé)* : liste des règles Worldstate + éditeur en 3 étapes sur 9 sources avec aperçu en direct, historique de session, toast enrichi empilé au-dessus de Discord, et bandeau Minuteurs Compacts (6 max).
 10. `10-notifications-animations.excalidraw` *(Module 8 — validé)* : pile `NotificationViewport` en bas à droite au-dessus du bouton Discord (5 types visuels, file `+N`, pause au survol, anti-spam `×2`), Popover Centre de notifications sous `🔔`, et storyboard des 6 catégories d'animations (*Complètes / Réduites / Désactivées*).
 11. `11-background-gradients.excalidraw` *(Module 9 — validé `v2.6.0`)* : section « ✨ Dégradé de Fond d'Écran » (`BackgroundGradientSection`) avec 8 styles CSS GPU, bascule `Auto (Accent du thème)` vs `Couleurs personnalisées` (2 teintes), curseurs d'Intensité `5–65 %` et d'Angle `0–360°`.
 12. `12-codex-sources-farm-overlay.excalidraw` *(Module 10 — Système d'Extensions, Sources Exhaustives du Codex & Extension « Codex Farm Overlay »)* : **Modale Paramètres → Onglet `🧩 Extensions` sous forme de liste** (avec l'extension `🎯 Codex Farm Overlay` affichée, activable et configurable dedans), fiche Codex enrichie des 6 canaux d'acquisition (`🛒 Boutique Warframe` ex: *Ember — Schéma Principal 25 000 Cr · 100 %*, `📜 Quêtes FR + Simaris`, `🏯 Dojo`, `✨ Circuit Duviri`, `⚔ Missions/Boss + %`, `◈ Reliques`), **Sélecteur Granulaire** (*Équipement complet*, *Pièces à la carte* ou *Objet unique*), **Simulation Écran en Jeu Warframe + Fenêtre flottante « Codex Farm Overlay »** (barre de couleur sous le `%`, `👻 Click-Through`, `Alt+O`, `[S|M|L]`, cochage `✓ Obtenu`), Mode Compact `460×660` et les 4 états UI.
 13. `13-codex-mobs-vendors.excalidraw` *(Module 11 — Bestiaire Complet des Mobs & Répertoire des Marchands dans le Codex)* : barre Codex à **8 onglets** (`Ressources · Warframes · Armes · Mods · Reliques · 👾 Mobs · 🏪 Marchands · Helminth`), **Vue Desktop `1440×900` de l'onglet `👾 Mobs`** (filtres Factions & Rang d'unité, recherche par mob/planète/drop, cartes Bestiaire + Fiche Détail Mob avec planètes/missions d'apparition, défenses/faiblesses élémentaires et table de drop `%` avec barre colorée sous le `%`), **Vue Desktop `1440×900` de l'onglet `🏪 Marchands`** (recherche transversale par nom de marchand OU nom d'article vendu, filtres Hubs/Planètes, cartes Marchands + Fiche Détail Marchand avec localisation exacte Planète/Hub/Salle/Quête requise, devises acceptées et catalogue filtrable « Ce qu'il vend » avec coûts exacts, rang requis, pont Codex/Plat et épinglage `🎯`), **Adaptation Mode Compact `460×660` + Aperçu `Codex Farm Overlay` en jeu** (cartes Mob & Offre Marchand épinglées) et **les 4 états UI obligatoires**.
+14. `14-wfm-account-profile-listings.excalidraw` *(Module 12 — Connexion Optionnelle Warframe Market, Profil Complet & Mise en Vente d'Items)* : **Puce d'en-tête `CommandNavBar`** (`👤 Connexion WFM` vs `🟢 Nyxo17 ▾` avec statut temps réel `En jeu / En ligne / Invisible`), **Vue Desktop `1440×900` « Mon Profil Warframe Market » (`wf://wfm-account`)** (bannière identité complète + 4 KPIs Réputation / Valeur Stock Plat / Annonces / Ventes session, onglets `💰 Mes Ventes` / `🛒 Mes Achats` / `⭐ Profil Complet & Avis`, édition rapide prix/quantité/visibilité et bouton `✓ Vendu -1`), **Vue Desktop `1440×900` Fiche Item + Modale intelligente « Mettre un item en vente »** (champs dynamiques Rang/Raffinement/Ayatan, panneau **📊 Aide au Prix en Direct** avec Top 5 `En jeu` et boutons `[S'aligner] [-1p] [Moyenne]`, détection de doublon), **Modale de Connexion Sécurisée Optionnelle** (`Email/Mot de passe` + `Jeton SSO Steam/Console/Discord` chiffré via `safeStorage` DPAPI), **Adaptation Mode Compact `460×660`** et **les 4 états UI obligatoires**.
 
 ---
 
