@@ -500,12 +500,13 @@ L'index `codex-mobs-vendors.json` est chargé **à la demande (lazy-load asynchr
   - **Filtre de rang d'unité** : `Tous` · `Unités Standard` · `Eximus & Unités Lourdes` · `Boss & Assassins`.
 - **Cartes Catalogue Mobs (`[⊞ Carrée | ▭ Rect | ☰ Liste] + [S | M | L]`)** :
   - Portrait `wf-asset://`, nom FR (+ sous-titre EN si différent), badge coloré de **Faction** et de **Type d'unité** (*Standard / Eximus / Boss*),
+  - **Taux d'apparition principal (`% de chance de spawn` + petite barre de couleur sous le `%`)** via `ChanceBadgeWithUnderBar`,
   - Aperçu direct **« 📍 Planètes d'apparition »** (jusqu'à 3 puces planètes + `+N`),
-  - Aperçu des **meilleurs drops `%`** du mob et bouton rapide **`🎯` Épingler à l'Overlay**.
+  - Aperçu des **meilleurs drops (`%` + barre de couleur)** du mob et bouton rapide **`🎯` Épingler à l'Overlay**.
 - **Fiche Détail Mob (`CodexDetailView`)** :
-  1. **Bloc « 📍 Où le trouver — Planètes, Régions & Missions »** : liste claire des planètes d'apparition décodées, types de missions / nœuds recommandés (ex: *Saturne — Tethys (Assassinat)*, *Néant — Mot / Ani*, *Laboratoires d'Albrecht — Deimos*) et conditions spéciales éventuelles (*Alarme active, Fissure du Néant / Corrompu, Route de l'Acier, Marque d'Assassinat*).
+  1. **Bloc « 📍 Où le trouver & % de Chance de Spawn »** : liste détaillée des localisations d'apparition décodées (Planètes, Nœuds/Missions recommandés et conditions spéciales : *Alarme, Fissure, Route de l'Acier, Marque d'Assassinat, Rotation*) affichant pour chaque lieu **son `%` de chance de spawn exact ou estimé accompagné de sa petite barre de couleur sous le `%`** (`ChanceBadgeWithUnderBar`, ex: *100 % sur nœud d'Assassinat*, *25 %–35 % en Survie Néant*, *5 %–20 % Eximus*, *1.5 %–3.5 % Chasseurs Stalker/Zanuka/G3*).
   2. **Bloc « 🛡 Défenses de Base & Vulnérabilités Élémentaires »** : Santé, Bouclier et Armure de base, accompagnés des badges de **Faiblesses recommandées (`++`)** et **Résistances (`--`)** (ex: *Grineer : ++ Corrosif / Chaleur*, *Murmure : ++ Électrique / Radiation*).
-  3. **Bloc « ⚔ Tables de Drop du Mob (`%`) »** : liste triée par probabilité décroissante de tous les Mods, Schémas, Composants et Ressources lâchés par le mob, avec le composant visuel unifié (`ChanceBadgeWithUnderBar` : **barre de couleur de rareté placée directement sous le `%`**), clic `↗` vers la fiche Codex de l'objet droppé, et bouton **`🎯` Suivre ce mob en Overlay** (affiche en jeu le nom du mob, ses planètes/missions d'apparition et ses principaux drops `%`).
+  3. **Bloc « ⚔ Tables de Drop du Mob (`%` + petite barre de couleur) »** : liste triée par probabilité décroissante de tous les Mods, Schémas, Composants et Ressources lâchés par le mob, avec `ChanceBadgeWithUnderBar` (**barre de couleur de rareté placée directement sous le `%`**), clic `↗` vers la fiche Codex de l'objet droppé, et bouton **`🎯` Suivre ce mob en Overlay** (affiche en jeu le nom du mob, ses lieux + `%` de spawn et ses drops `%` avec leur barre de couleur !).
 
 #### 11.D — Spécification Fonctionnelle de l'Onglet Codex `🏪 Marchands` (`category: 'vendors'`)
 
@@ -539,9 +540,9 @@ L'index `codex-mobs-vendors.json` est chargé **à la demande (lazy-load asynchr
 - **Extension des paramètres de recherche (`CodexSearchParamsSchema`)** :
   - Ajout optionnel rétrocompatible de `factionFilter?: string` (filtrage par faction sur `mobs`), `unitTierFilter?: 'all' | 'standard' | 'eximus' | 'boss'` et `hubFilter?: string` (filtrage par hub/région sur `vendors`).
 - **Enrichissement des résumés et détails (`CodexItemSummarySchema` & `CodexItemDetailSchema`)** :
-  - Sur `CodexItemSummarySchema` : champs légers optionnels `mobFaction?: string`, `mobUnitTier?: 'standard' | 'eximus' | 'boss'`, `spawnPlanetsFr?: string[]`, `vendorHubFr?: string`, `vendorPlanetFr?: string`, `vendorCurrenciesFr?: string[]`, `vendorOfferingsCount?: number`, `matchedOfferingPreview?: string` (lorsqu'un marchand remonte grâce à la recherche d'un article qu'il vend).
+  - Sur `CodexItemSummarySchema` : champs légers optionnels `mobFaction?: string`, `mobUnitTier?: 'standard' | 'eximus' | 'boss'`, `mobSpawnChancePct?: number`, `spawnPlanetsFr?: string[]`, `topDropPreviewFr?: string`, `topDropChancePct?: number`, `vendorHubFr?: string`, `vendorPlanetFr?: string`, `vendorCurrenciesFr?: string[]`, `vendorOfferingsCount?: number`, `matchedOfferingPreview?: string` (lorsqu'un marchand remonte grâce à la recherche d'un article qu'il vend).
   - Sur `CodexItemDetailSchema` :
-    - `mobInfo?: CodexMobInfo` (`factionFr`, `factionEn`, `unitTier`, `health`, `shield`, `armor`, `planetsFr[]`, `planetsEn[]`, `missionsFr[]`, `spawnNotesFr?`, `weaknessesFr[]`, `resistancesFr[]`),
+    - `mobInfo?: CodexMobInfo` (`factionFr`, `factionEn`, `unitTier`, `health`, `shield`, `armor`, `planetsFr[]`, `planetsEn[]`, `spawns: CodexMobSpawnLocation[]` avec `{ locationFr, locationEn, conditionFr?, spawnChancePct }`, `spawnNotesFr?`, `weaknessesFr[]`, `resistancesFr[]`),
     - `vendorInfo?: CodexVendorInfo` (`roleFr`, `roleEn`, `planetFr`, `planetEn`, `hubFr`, `hubEn`, `zoneFr`, `unlockQuestFr?`, `syndicateNameFr?`, `currencies: { nameFr, howToGetFr? }[]`, `offerings: CodexVendorOffering[]`),
     - `CodexVendorOfferingSchema` : `{ id, nameFr, nameEn, category: 'equipment' | 'mod_arcane' | 'resource_relic' | 'cosmetic_misc', imageName?, rankRequiredFr?, costs: { amount: number, currencyFr: string }[], linkedCodexId?, linkedWfmSlug? }`.
 - Aucune ouverture réseau supplémentaire, aucun nouveau canal IPC risqué : `codex:search` et `codex:getItemDetail` transportent nativement ces données validées de bout en bout par `zod`.
