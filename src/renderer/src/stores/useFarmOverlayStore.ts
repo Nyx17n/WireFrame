@@ -9,7 +9,8 @@ import {
 import {
   buildItemKey,
   buildSingleItemOverlayEntry,
-  getEquipmentPartEntries
+  getEquipmentEntriesByMode,
+  type EquipmentPinMode
 } from '@/lib/codex-overlay-entries'
 import { ipcClient } from '@/services/ipc-client'
 import { notify } from '@/stores/useNotificationStore'
@@ -25,12 +26,13 @@ interface FarmOverlayStoreState {
   setOpacity: (opacityPercent: number) => Promise<void>
   setShowObtained: (showObtained: boolean) => Promise<void>
   setShortcut: (shortcutToggle: string) => Promise<void>
-  toggleEntry: (entry: CodexOverlayPinnedEntry) => Promise<void>
+  toggleEntry: (entry: CodexOverlayPinnedEntry, openWindow?: boolean) => Promise<void>
   pinEquipmentSelection: (
     detail: CodexItemDetail,
-    includeResources: boolean,
+    mode: EquipmentPinMode,
     openWindow?: boolean
   ) => Promise<void>
+  toggleCraftResources: (detail: CodexItemDetail) => Promise<void>
   unpinItemGroup: (category: CodexCategory, itemId: string) => Promise<void>
   pinQuickItem: (category: CodexCategory, itemId: string) => Promise<void>
   toggleObtained: (entryId: string) => Promise<void>
@@ -110,7 +112,7 @@ export const useFarmOverlayStore = create<FarmOverlayStoreState>((set, get) => (
     set({ liveState })
   },
 
-  toggleEntry: async (entry) => {
+  toggleEntry: async (entry, openWindow = false) => {
     const current = get().liveState.pinnedEntries
     const exists = current.some((e) => e.entryId === entry.entryId)
     let next: CodexOverlayPinnedEntry[]
@@ -129,13 +131,18 @@ export const useFarmOverlayStore = create<FarmOverlayStoreState>((set, get) => (
       next = [...current, entry]
     }
 
-    const liveState = await ipcClient.overlay.updateState({ pinnedEntries: next })
+    const liveState = await ipcClient.overlay.updateState({
+      pinnedEntries: next,
+      ...(!exists && openWindow ? { windowOpen: true } : {})
+    })
     set({ liveState })
   },
 
-  pinEquipmentSelection: async (detail, includeResources, openWindow = true) => {
+  pinEquipmentSelection: async (detail, mode, openWindow = true) => {
     const itemKey = buildItemKey(detail.category, detail.id)
-    const desired = getEquipmentPartEntries(detail, includeResources)
+    const desired = getEquipmentEntriesByMode(detail, mode)
+    if (desired.length === 0) return
+
     const current = get().liveState.pinnedEntries
     const preservedObtained = new Map(
       current.filter((e) => e.itemKey === itemKey).map((e) => [e.entryId, e.obtained])
@@ -152,10 +159,57 @@ export const useFarmOverlayStore = create<FarmOverlayStoreState>((set, get) => (
       ...(openWindow ? { windowOpen: true } : {})
     })
     set({ liveState })
+    const modeLabel =
+      mode === 'resources'
+        ? 'Ressources de craft'
+        : mode === 'parts'
+          ? 'Pièces & Schémas'
+          : 'Pièces + Ressources de craft'
     notify({
       kind: 'success',
       title: `${detail.nameFr} envoyé dans l’Overlay`,
-      message: `${mergedDesired.length} entrée(s) affichée(s) dans le Codex Farm Overlay.`
+      message: `${mergedDesired.length} entrée(s) (${modeLabel}) affichée(s) en jeu.`
+    })
+  },
+
+  toggleCraftResources: async (detail) => {
+    const resDesired = getEquipmentEntriesByMode(detail, 'resources')
+    if (resDesired.length === 0) return
+
+    const current = get().liveState.pinnedEntries
+    const desiredIds = new Set(resDesired.map((d) => d.entryId))
+    const allAlreadyPinned = resDesired.every((d) =>
+      current.some((c) => c.entryId === d.entryId)
+    )
+
+    if (allAlreadyPinned) {
+      const next = current.filter((c) => !desiredIds.has(c.entryId))
+      const liveState = await ipcClient.overlay.updateState({ pinnedEntries: next })
+      set({ liveState })
+      notify({
+        kind: 'info',
+        title: `Ressources de ${detail.nameFr} retirées`,
+        message: 'Les matériaux de Fonderie ont été retirés de l’Overlay.'
+      })
+      return
+    }
+
+    const preservedObtained = new Map(current.map((e) => [e.entryId, e.obtained]))
+    const kept = current.filter((c) => !desiredIds.has(c.entryId))
+    const mergedRes = resDesired.map((d) => ({
+      ...d,
+      obtained: preservedObtained.get(d.entryId) ?? false
+    }))
+    const next = [...kept, ...mergedRes].slice(0, CODEX_OVERLAY_MAX_ENTRIES)
+    const liveState = await ipcClient.overlay.updateState({
+      pinnedEntries: next,
+      windowOpen: true
+    })
+    set({ liveState })
+    notify({
+      kind: 'success',
+      title: `Ressources de craft (${detail.nameFr}) en Overlay`,
+      message: `${mergedRes.length} matériau(x) requis affichés avec quantités et spots de farm.`
     })
   },
 
@@ -183,12 +237,11 @@ export const useFarmOverlayStore = create<FarmOverlayStoreState>((set, get) => (
     }
 
     const detail = await ipcClient.codex.getItemDetail(category, itemId)
-    const nonResParts = detail.components.filter((c) => !c.isResource)
     if (
       (detail.category === 'warframes' || detail.category === 'weapons') &&
-      nonResParts.length > 1
+      detail.components.length > 0
     ) {
-      await get().pinEquipmentSelection(detail, false, true)
+      await get().pinEquipmentSelection(detail, 'all', true)
     } else {
       const single = buildSingleItemOverlayEntry(detail)
       if (current.length >= CODEX_OVERLAY_MAX_ENTRIES) {
@@ -236,4 +289,3 @@ export const useFarmOverlayStore = create<FarmOverlayStoreState>((set, get) => (
     })
   }
 }))
-

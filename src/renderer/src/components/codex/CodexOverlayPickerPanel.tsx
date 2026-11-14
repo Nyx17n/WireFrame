@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Blocks, Check, Plus, Search, Trash2, X } from 'lucide-react'
+import { Blocks, Check, Layers, Plus, Search, Trash2, X } from 'lucide-react'
 import type { CodexItemDetail, CodexSummaryCard } from '@shared/schemas/codex.schema'
 import { CODEX_OVERLAY_MAX_ENTRIES } from '@shared/schemas/extensions.schema'
 import { Badge } from '@/components/ui/badge'
@@ -33,7 +33,6 @@ export function CodexOverlayPickerPanel({
   const clearAllEntries = useFarmOverlayStore((s) => s.clearAllEntries)
   const openSettingsModal = useAppStore((s) => s.openSettingsModal)
 
-  const [includeResources, setIncludeResources] = React.useState(false)
   const [quickQuery, setQuickQuery] = React.useState('')
   const [quickResults, setQuickResults] = React.useState<CodexSummaryCard[]>([])
 
@@ -64,11 +63,18 @@ export function CodexOverlayPickerPanel({
     [pinnedEntries]
   )
 
+  const gearParts = detail
+    ? detail.components.map((c, idx) => ({ c, idx })).filter(({ c }) => !c.isResource)
+    : []
+  const craftResources = detail
+    ? detail.components.map((c, idx) => ({ c, idx })).filter(({ c }) => c.isResource)
+    : []
+
   return (
     <Card className="space-y-3 border-primary/40 bg-card/95 p-3.5 text-xs shadow-lg">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2">
         <div className="flex items-center gap-2 font-semibold">
-          <span>Sélecteur Granulaire — Codex Farm Overlay</span>
+          <span>Sélecteur Granulaire — Pièces & Ressources Craft</span>
           <Badge variant="secondary" className="font-mono text-[10px]">
             {pinnedEntries.length} / {CODEX_OVERLAY_MAX_ENTRIES}
           </Badge>
@@ -90,37 +96,51 @@ export function CodexOverlayPickerPanel({
       </div>
 
       {detail && (
-        <div className="space-y-2 rounded-md border border-border/60 bg-background/50 p-2.5">
+        <div className="space-y-2.5 rounded-md border border-border/60 bg-background/50 p-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="font-semibold text-primary">
               Fiche active : {detail.nameFr} ({detail.typeLabel})
             </span>
-            <div className="flex flex-wrap items-center gap-2">
-              {detail.components.some((c) => c.isResource) && (
-                <label className="flex cursor-pointer items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    checked={includeResources}
-                    onChange={(e) => setIncludeResources(e.target.checked)}
-                    className="accent-primary"
-                  />
-                  <span>Inclure matériaux Fonderie</span>
-                </label>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {detail.components.length > 0 && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="h-7 px-2 text-[11px]"
+                    onClick={() => void pinEquipmentSelection(detail, 'all', true)}
+                  >
+                    <Check className="h-3 w-3" />
+                    <span>Tout (Pièces + Ressources)</span>
+                  </Button>
+                  {craftResources.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 border-amber-500/40 px-2 text-[11px] text-amber-300"
+                      onClick={() => void pinEquipmentSelection(detail, 'resources', true)}
+                    >
+                      <Layers className="h-3 w-3" />
+                      <span>Ressources seules ({craftResources.length})</span>
+                    </Button>
+                  )}
+                  {gearParts.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-[11px]"
+                      onClick={() => void pinEquipmentSelection(detail, 'parts', true)}
+                    >
+                      Pièces seules ({gearParts.length})
+                    </Button>
+                  )}
+                </>
               )}
-              <Button
-                size="sm"
-                variant="default"
-                className="h-7 px-2.5 text-[11px]"
-                onClick={() => void pinEquipmentSelection(detail, includeResources, true)}
-              >
-                <Check className="h-3 w-3" />
-                <span>Tout afficher : {detail.nameFr}</span>
-              </Button>
               {pinnedItemKeys.has(buildItemKey(detail.category, detail.id)) && (
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="h-7 px-2 text-[11px]"
+                  variant="ghost"
+                  className="h-7 px-2 text-[11px] text-destructive"
                   onClick={() => void unpinItemGroup(detail.category, detail.id)}
                 >
                   Retirer le groupe
@@ -129,44 +149,93 @@ export function CodexOverlayPickerPanel({
             </div>
           </div>
 
-          {detail.components.length > 0 ? (
-            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-              {detail.components.map((comp, idx) => {
-                const entry = buildComponentOverlayEntry(detail, comp, idx)
-                const checked = pinnedIdSet.has(entry.entryId)
-                const topSrc = entry.sources[0]
-                return (
-                  <button
-                    key={entry.entryId}
-                    type="button"
-                    onClick={() => void toggleEntry(entry)}
-                    className={`flex items-center justify-between gap-2 rounded border px-2 py-1.5 text-left transition-colors ${
-                      checked
-                        ? 'border-primary/60 bg-primary/15'
-                        : 'border-border/60 bg-card/50 hover:border-primary/40'
-                    }`}
-                  >
-                    <div className="min-w-0">
-                      <div className="truncate font-medium">
-                        {checked ? '☑ ' : '☐ '}
-                        {comp.nameFr} {comp.count > 1 ? `×${comp.count}` : ''}
-                      </div>
-                      {topSrc && (
-                        <div className="truncate text-[10px] text-muted-foreground">
-                          {topSrc.labelFr} ({topSrc.chancePct}%)
+          {gearParts.length > 0 && (
+            <div className="space-y-1">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Pièces & Schémas ({gearParts.length})
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                {gearParts.map(({ c, idx }) => {
+                  const entry = buildComponentOverlayEntry(detail, c, idx)
+                  const checked = pinnedIdSet.has(entry.entryId)
+                  const topSrc = entry.sources[0]
+                  return (
+                    <button
+                      key={entry.entryId}
+                      type="button"
+                      onClick={() => void toggleEntry(entry, true)}
+                      className={`flex items-center justify-between gap-2 rounded border px-2 py-1.5 text-left transition-colors ${
+                        checked
+                          ? 'border-primary/60 bg-primary/15'
+                          : 'border-border/60 bg-card/50 hover:border-primary/40'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">
+                          {checked ? '☑ ' : '☐ '}
+                          {c.nameFr} {c.count > 1 ? `×${c.count}` : ''}
                         </div>
-                      )}
-                    </div>
-                  </button>
-                )
-              })}
+                        {topSrc && (
+                          <div className="truncate text-[10px] text-muted-foreground">
+                            {topSrc.labelFr} ({topSrc.chancePct}%)
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          ) : (
+          )}
+
+          {craftResources.length > 0 && (
+            <div className="space-y-1">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+                Ressources Requises pour Craft ({craftResources.length})
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                {craftResources.map(({ c, idx }) => {
+                  const entry = buildComponentOverlayEntry(detail, c, idx)
+                  const checked = pinnedIdSet.has(entry.entryId)
+                  const topSrc = entry.sources[0]
+                  return (
+                    <button
+                      key={entry.entryId}
+                      type="button"
+                      onClick={() => void toggleEntry(entry, true)}
+                      className={`flex items-center justify-between gap-2 rounded border px-2 py-1.5 text-left transition-colors ${
+                        checked
+                          ? 'border-amber-500/60 bg-amber-500/15'
+                          : 'border-border/60 bg-card/50 hover:border-amber-500/40'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">
+                          {checked ? '☑ ' : '☐ '}
+                          {c.nameFr}{' '}
+                          <span className="font-mono text-amber-300">
+                            ×{c.count.toLocaleString('fr-FR')}
+                          </span>
+                        </div>
+                        {topSrc && (
+                          <div className="truncate text-[10px] text-muted-foreground">
+                            {topSrc.labelFr} ({topSrc.chancePct}%)
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {detail.components.length === 0 && (
             <Button
               size="sm"
               variant="outline"
               className="h-7 text-[11px]"
-              onClick={() => void toggleEntry(buildSingleItemOverlayEntry(detail))}
+              onClick={() => void toggleEntry(buildSingleItemOverlayEntry(detail), true)}
             >
               {pinnedIdSet.has(buildItemKey(detail.category, detail.id))
                 ? `☑ ${detail.nameFr} (Épinglé)`
@@ -184,7 +253,7 @@ export function CodexOverlayPickerPanel({
             <Input
               value={quickQuery}
               onChange={(e) => setQuickQuery(e.target.value)}
-              placeholder="Ex: Ember, Cellule Orokin, Nataruk, Continuité, Axi..."
+              placeholder="Ex: Ember, Rubedo, Cellule Orokin, Nataruk, Continuité..."
               className="h-7 pl-8 text-xs"
             />
           </div>
@@ -243,7 +312,7 @@ export function CodexOverlayPickerPanel({
           </div>
           {pinnedEntries.length === 0 ? (
             <p className="py-3 text-[11px] text-muted-foreground">
-              Aucun objectif sélectionné. Choisis un équipement complet ou recherche un matériau, mod, arme ou relique.
+              Aucun objectif sélectionné. Épingle les pièces ou les ressources de craft d’un équipement, ou recherche un objet précis.
             </p>
           ) : (
             <div className="max-h-40 space-y-1 overflow-y-auto pr-1">
@@ -261,6 +330,11 @@ export function CodexOverlayPickerPanel({
                   >
                     {entry.obtained ? '✓ ' : '☐ '}
                     {entry.labelFr}
+                    {entry.requiredCount !== null && (
+                      <span className="ml-1 font-mono text-amber-300">
+                        ×{entry.requiredCount.toLocaleString('fr-FR')}
+                      </span>
+                    )}
                   </button>
                   <button
                     type="button"

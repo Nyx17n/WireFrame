@@ -1,7 +1,8 @@
 import * as React from 'react'
-import { MapPin, Wrench } from 'lucide-react'
+import { Coins, MapPin, Sparkles, Wrench } from 'lucide-react'
 import type { CodexSummaryCard } from '@shared/schemas/codex.schema'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
+import { ChanceBadgeWithUnderBar } from '@/components/codex/ChanceBadgeWithUnderBar'
 import { formatResourceCount } from '@/lib/catalog-layout'
 import { cn } from '@/lib/utils'
 import { useCodexCardMetaStore } from '@/stores/useCodexCardMetaStore'
@@ -17,6 +18,73 @@ export function CodexCardRequirements({
   centered?: boolean
   className?: string
 }): React.JSX.Element | null {
+  if (card.category === 'mobs') {
+    const drops = card.topDropsPreview ?? []
+    return (
+      <div className={cn('space-y-1.5 pt-0.5', centered && 'flex flex-col items-center', className)}>
+        {card.mobSpawnChancePct !== null && card.mobSpawnChancePct !== undefined && (
+          <div
+            className={cn(
+              'flex flex-wrap items-center gap-1.5 text-[10px]',
+              centered && 'justify-center'
+            )}
+          >
+            <span className="text-muted-foreground">Spawn :</span>
+            <ChanceBadgeWithUnderBar
+              chancePct={card.mobSpawnChancePct}
+              isGuaranteed={card.mobSpawnChancePct >= 99.9}
+              compact
+            />
+          </div>
+        )}
+        {drops.length > 0 && (
+          <div className={cn('flex flex-col gap-1', centered && 'items-center')}>
+            {drops.slice(0, centered ? 1 : 2).map((d) => (
+              <div
+                key={d.nameFr}
+                className="flex items-center justify-between gap-2 rounded border border-border/60 bg-background/70 px-1.5 py-0.5 text-[10px]"
+              >
+                <span className="truncate text-foreground/90">{d.nameFr}</span>
+                <ChanceBadgeWithUnderBar chancePct={d.chancePct} compact />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (card.category === 'vendors') {
+    const currencies = card.vendorCurrenciesFr ?? []
+    return (
+      <div className={cn('space-y-1 pt-0.5', centered && 'flex flex-col items-center', className)}>
+        {card.matchedOfferingPreview ? (
+          <div className="flex items-center gap-1 rounded border border-violet-500/45 bg-violet-500/15 px-1.5 py-0.5 text-[10px] font-medium text-violet-200">
+            <Sparkles className="h-3 w-3 shrink-0 text-violet-300" />
+            <span className="truncate">{card.matchedOfferingPreview}</span>
+          </div>
+        ) : (
+          card.acquisitionText && (
+            <div className="truncate text-[10px] text-muted-foreground">{card.acquisitionText}</div>
+          )
+        )}
+        {currencies.length > 0 && (
+          <div className={cn('flex flex-wrap items-center gap-1', centered && 'justify-center')}>
+            {currencies.map((curr) => (
+              <span
+                key={curr}
+                className="inline-flex max-w-[170px] items-center gap-1 rounded border border-amber-500/35 bg-amber-500/10 px-1.5 py-0.5 text-[9px] text-amber-200"
+              >
+                <Coins className="h-2.5 w-2.5 shrink-0 text-amber-400" />
+                <span className="truncate">{curr}</span>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const key = `${card.category}:${card.id}`
   const hydrated = useCodexCardMetaStore((s) => s.byKey[key])
   const requestMeta = useCodexCardMetaStore((s) => s.requestMeta)

@@ -7,7 +7,9 @@ import { Card } from '@/components/ui/card'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CodexDropsAndCraftSection } from '@/components/codex/CodexDropsAndCraftSection'
+import { CodexMobDetailSection } from '@/components/codex/CodexMobDetailSection'
 import { CodexOverlayToolbar } from '@/components/codex/CodexOverlayToolbar'
+import { CodexVendorDetailSection } from '@/components/codex/CodexVendorDetailSection'
 import { ipcClient } from '@/services/ipc-client'
 import { useTabsStore } from '@/stores/useTabsStore'
 
@@ -111,7 +113,11 @@ export function CodexDetailView({
         <SafeAssetImage
           src={detail.imageUrl}
           alt={detail.nameFr}
-          className="h-24 w-24 shrink-0 rounded-lg border border-border bg-background/80 object-contain p-2"
+          className={
+            detail.category === 'vendors'
+              ? 'h-24 w-24 shrink-0 rounded-lg border border-border bg-background/80 object-cover object-top'
+              : 'h-24 w-24 shrink-0 rounded-lg border border-border bg-background/80 object-contain p-2'
+          }
           fallback={
             <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg border border-border bg-background/80">
               <Package className="h-8 w-8 text-muted-foreground" />
@@ -267,7 +273,13 @@ export function CodexDetailView({
         </Card>
       )}
 
-      <CodexDropsAndCraftSection detail={detail} />
+      {detail.mobInfo ? (
+        <CodexMobDetailSection detail={detail} />
+      ) : detail.vendorInfo ? (
+        <CodexVendorDetailSection detail={detail} />
+      ) : (
+        <CodexDropsAndCraftSection detail={detail} />
+      )}
     </main>
   )
 }

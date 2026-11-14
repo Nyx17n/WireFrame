@@ -13,11 +13,14 @@ import {
   toCodexImageUrl,
   type CodexAcquisitionSource,
   type CodexComponentEntry,
-  type CodexDropEntry
+  type CodexDropEntry,
+  type CodexSubResourceEntry
 } from '@shared/schemas/codex.schema'
 import type {
+  CodexCraftRecipesDatabase,
   CodexRawDatabase,
   RawComponent,
+  RawCraftItemRecipe,
   RawDrop,
   RawMod,
   RawRelic,
@@ -160,11 +163,31 @@ function dedupeSources(sources: readonly CodexAcquisitionSource[], max = 8): Cod
   return out
 }
 
+function classifyComponentPartKind(comp: RawComponent): string | null {
+  const s = `${norm(comp.name)} ${norm(comp.en)}`
+  if (s.includes('diurne') || s.includes('day aspect')) return 'day-aspect'
+  if (s.includes('nocturne') || s.includes('night aspect')) return 'night-aspect'
+  if (s.includes('neuropt') || s.includes('helmet') || s.includes('casque')) return 'neuroptics'
+  if (s.includes('chassis')) return 'chassis'
+  if (s.includes('system')) return 'systems'
+  if (s.includes('ailes') || s.includes('wings')) return 'wings'
+  if (s.includes('harnais') || s.includes('harness')) return 'harness'
+  if (s.includes('capsule')) return 'capsule'
+  if (s.includes('moteur') || s.includes('engine')) return 'engine'
+  if (s.includes('nacelle') || s.includes('pod')) return 'weapon-pod'
+  if (s.includes('canon') || s.includes('barrel')) return 'barrel'
+  if (s.includes('culasse') || s.includes('receiver')) return 'receiver'
+  if (s.includes('crosse') || s.includes('stock')) return 'stock'
+  return null
+}
+
 export class CodexAcquisitionResolver {
   private readonly resourceById: ReadonlyMap<string, RawResource>
+  private readonly craftRecipes: CodexCraftRecipesDatabase
 
-  public constructor(db: CodexRawDatabase) {
+  public constructor(db: CodexRawDatabase, craftRecipes?: CodexCraftRecipesDatabase) {
     this.resourceById = new Map(db.resources.map((r) => [r.id, r]))
+    this.craftRecipes = craftRecipes ?? { warframes: {}, weapons: {} }
   }
 
   private buildResourcePartNames(components: readonly RawComponent[]): ReadonlySet<string> {
@@ -192,7 +215,8 @@ export class CodexAcquisitionResolver {
   private mapSingleComponent(
     comp: RawComponent,
     primaryInjectedSources: readonly CodexAcquisitionSource[],
-    secondaryInjectedSources: readonly CodexAcquisitionSource[] = []
+    secondaryInjectedSources: readonly CodexAcquisitionSource[] = [],
+    partSubRecipe?: { buildCredits: number; subResources: CodexSubResourceEntry[] }
   ): CodexComponentEntry {
     const linkedResource = comp.resSlug ? this.resourceById.get(comp.resSlug) : undefined
     const isResource = Boolean(comp.resSlug && linkedResource)
@@ -227,6 +251,8 @@ export class CodexAcquisitionResolver {
       resourceSlug: comp.resSlug || null,
       isResource,
       count: comp.count,
+      buildCredits: partSubRecipe?.buildCredits ?? null,
+      subResources: partSubRecipe?.subResources ?? [],
       imageUrl: toCodexImageUrl(comp.img || linkedResource?.img),
       drops: cleanDrops,
       acquisitionSources: dedupeSources([
@@ -235,6 +261,61 @@ export class CodexAcquisitionResolver {
         ...secondaryInjectedSources,
         ...resourcePlanetFallback
       ])
+    }
+  }
+
+  private mergeCraftRecipeComponents(
+    baseNonResComponents: readonly CodexComponentEntry[],
+    fallbackResComponents: readonly CodexComponentEntry[],
+    craftRecipe: RawCraftItemRecipe | undefined
+  ): CodexComponentEntry[] {
+    if (!craftRecipe || craftRecipe.totalResources.length === 0) {
+      return [...baseNonResComponents, ...fallbackResComponents]
+    }
+
+    const totalResourceEntries: CodexComponentEntry[] = craftRecipe.totalResources.map((ref) =>
+      this.mapSingleComponent(
+        {
+          name: ref.nameFr,
+          en: ref.nameEn,
+          resSlug: ref.resSlug ?? '',
+          count: ref.count,
+          img: ref.img,
+          drops: []
+        },
+        []
+      )
+    )
+
+    // Keep any extra resource from codex-db not already in totalResources
+    const seenSlugs = new Set(
+      totalResourceEntries.map((r) => r.resourceSlug).filter((s): s is string => Boolean(s))
+    )
+    const extras = fallbackResComponents.filter(
+      (r) => !r.resourceSlug || !seenSlugs.has(r.resourceSlug)
+    )
+
+    return [...baseNonResComponents, ...totalResourceEntries, ...extras]
+  }
+
+  private resolvePartSubRecipe(
+    comp: RawComponent,
+    craftRecipe: RawCraftItemRecipe | undefined
+  ): { buildCredits: number; subResources: CodexSubResourceEntry[] } | undefined {
+    if (!craftRecipe) return undefined
+    const kind = classifyComponentPartKind(comp)
+    if (!kind) return undefined
+    const part = craftRecipe.partRecipes[kind]
+    if (!part || part.resources.length === 0) return undefined
+    return {
+      buildCredits: part.buildCredits,
+      subResources: part.resources.map((r) => ({
+        resourceSlug: r.resSlug,
+        nameFr: r.nameFr,
+        nameEn: r.nameEn,
+        imageUrl: toCodexImageUrl(r.img || (r.resSlug ? this.resourceById.get(r.resSlug)?.img : '')),
+        count: r.count
+      }))
     }
   }
 
@@ -272,10 +353,12 @@ export class CodexAcquisitionResolver {
     drops: CodexDropEntry[]
     components: CodexComponentEntry[]
     acquisitionSources: CodexAcquisitionSource[]
+    totalBuildCredits: number | null
     summaryText: string | null
   } {
     const resPartNames = this.buildResourcePartNames(item.components)
     const drops = filterPvEDrops(item.drops, resPartNames)
+    const craftRecipe = this.craftRecipes.warframes[item.id]
 
     const special = WARFRAME_SPECIAL_ACQUISITIONS[item.id]
     const marketBpCredits = !item.prime ? WARFRAME_MARKET_BP_CREDITS[item.id] : undefined
@@ -325,7 +408,7 @@ export class CodexAcquisitionResolver {
           }
         : null
 
-    const components = item.components.map((comp) => {
+    const rawMappedComponents = item.components.map((comp) => {
       const primaryInjected: CodexAcquisitionSource[] = []
       const secondaryInjected: CodexAcquisitionSource[] = []
       const isMainBp = isMainBlueprintComponent(comp)
@@ -348,8 +431,15 @@ export class CodexAcquisitionResolver {
         secondaryInjected.push({ ...vaultedPrimeSource, partNameFr: comp.name })
       }
 
-      return this.mapSingleComponent(comp, primaryInjected, secondaryInjected)
+      const subRec = isNonResPart ? this.resolvePartSubRecipe(comp, craftRecipe) : undefined
+      return this.mapSingleComponent(comp, primaryInjected, secondaryInjected, subRec)
     })
+
+    const components = this.mergeCraftRecipeComponents(
+      rawMappedComponents.filter((c) => !c.isResource),
+      rawMappedComponents.filter((c) => c.isResource),
+      craftRecipe
+    )
 
     const topLevelSources: CodexAcquisitionSource[] = []
     if (special?.fullItem) topLevelSources.push(special.fullItem)
@@ -370,7 +460,13 @@ export class CodexAcquisitionResolver {
         : `${first.labelFr} (${first.chancePct}%)`
       : null
 
-    return { drops, components, acquisitionSources, summaryText }
+    return {
+      drops,
+      components,
+      acquisitionSources,
+      totalBuildCredits: craftRecipe?.buildCredits ?? null,
+      summaryText
+    }
   }
 
   private resolveWeaponSpecialSource(item: RawWeapon, hasDirectDrops: boolean): CodexAcquisitionSource | null {
@@ -566,11 +662,13 @@ export class CodexAcquisitionResolver {
     drops: CodexDropEntry[]
     components: CodexComponentEntry[]
     acquisitionSources: CodexAcquisitionSource[]
+    totalBuildCredits: number | null
     summaryText: string | null
   } {
     const resPartNames = this.buildResourcePartNames(item.components)
     const drops = filterPvEDrops(item.drops, resPartNames)
     const specialSource = this.resolveWeaponSpecialSource(item, drops.length > 0)
+    const craftRecipe = this.craftRecipes.weapons[item.id]
 
     const vaultedPrimeSource: CodexAcquisitionSource | null =
       item.prime && item.vaulted
@@ -587,7 +685,7 @@ export class CodexAcquisitionResolver {
           }
         : null
 
-    const components = item.components.map((comp) => {
+    const rawMappedComponents = item.components.map((comp) => {
       const injected: CodexAcquisitionSource[] = []
       const isMainBp = isMainBlueprintComponent(comp)
       const isNonResPart = !comp.resSlug
@@ -601,8 +699,15 @@ export class CodexAcquisitionResolver {
         injected.push({ ...vaultedPrimeSource, partNameFr: comp.name })
       }
 
-      return this.mapSingleComponent(comp, injected)
+      const subRec = isNonResPart ? this.resolvePartSubRecipe(comp, craftRecipe) : undefined
+      return this.mapSingleComponent(comp, injected, [], subRec)
     })
+
+    const components = this.mergeCraftRecipeComponents(
+      rawMappedComponents.filter((c) => !c.isResource),
+      rawMappedComponents.filter((c) => c.isResource),
+      craftRecipe
+    )
 
     const topLevel: CodexAcquisitionSource[] = []
     if (specialSource) topLevel.push(specialSource)
@@ -619,7 +724,13 @@ export class CodexAcquisitionResolver {
         : `${first.labelFr} (${first.chancePct}%)`
       : null
 
-    return { drops, components, acquisitionSources, summaryText }
+    return {
+      drops,
+      components,
+      acquisitionSources,
+      totalBuildCredits: craftRecipe?.buildCredits ?? null,
+      summaryText
+    }
   }
 
   public resolveMod(item: RawMod): {

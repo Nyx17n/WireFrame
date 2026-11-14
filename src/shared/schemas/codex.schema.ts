@@ -5,7 +5,9 @@ export const CodexCategorySchema = z.enum([
   'warframes',
   'weapons',
   'mods',
-  'relics'
+  'relics',
+  'mobs',
+  'vendors'
 ])
 
 export type CodexCategory = z.infer<typeof CodexCategorySchema>
@@ -20,12 +22,18 @@ export const CodexVariantFilterSchema = z.enum([
 
 export type CodexVariantFilter = z.infer<typeof CodexVariantFilterSchema>
 
+export const MobUnitTierFilterSchema = z.enum(['all', 'standard', 'eximus', 'boss'])
+export type MobUnitTierFilter = z.infer<typeof MobUnitTierFilterSchema>
+
 export const CodexSearchParamsSchema = z.object({
   category: CodexCategorySchema,
   query: z.string().max(120).default(''),
   variantFilter: CodexVariantFilterSchema.default('all'),
   eraFilter: z.string().max(32).default('all'),
   slotFilter: z.string().max(32).default('all'),
+  factionFilter: z.string().max(32).default('all'),
+  unitTierFilter: MobUnitTierFilterSchema.default('all'),
+  hubFilter: z.string().max(32).default('all'),
   page: z.number().int().min(1).max(500).default(1),
   pageSize: z.number().int().min(12).max(96).default(36)
 })
@@ -40,6 +48,13 @@ export const CodexCraftPreviewSchema = z.object({
 
 export type CodexCraftPreview = z.infer<typeof CodexCraftPreviewSchema>
 
+export const CodexCardDropPreviewSchema = z.object({
+  nameFr: z.string().min(1).max(200),
+  chancePct: z.number().min(0).max(100)
+})
+
+export type CodexCardDropPreview = z.infer<typeof CodexCardDropPreviewSchema>
+
 export const CodexSummaryCardSchema = z.object({
   id: z.string().min(1).max(200),
   category: CodexCategorySchema,
@@ -53,7 +68,11 @@ export const CodexSummaryCardSchema = z.object({
   isTradable: z.boolean(),
   subsumedAbilityName: z.string().nullable().optional(),
   craftComponents: z.array(CodexCraftPreviewSchema).optional(),
-  acquisitionText: z.string().nullable().optional()
+  acquisitionText: z.string().nullable().optional(),
+  mobSpawnChancePct: z.number().min(0).max(100).nullable().optional(),
+  topDropsPreview: z.array(CodexCardDropPreviewSchema).optional(),
+  vendorCurrenciesFr: z.array(z.string()).optional(),
+  matchedOfferingPreview: z.string().max(320).nullable().optional()
 })
 
 export type CodexSummaryCard = z.infer<typeof CodexSummaryCardSchema>
@@ -68,7 +87,9 @@ export const CodexSearchResultSchema = z.object({
     warframes: z.number().int().nonnegative(),
     weapons: z.number().int().nonnegative(),
     mods: z.number().int().nonnegative(),
-    relics: z.number().int().nonnegative()
+    relics: z.number().int().nonnegative(),
+    mobs: z.number().int().nonnegative(),
+    vendors: z.number().int().nonnegative()
   })
 })
 
@@ -111,12 +132,24 @@ export const CodexAcquisitionSourceSchema = z.object({
 
 export type CodexAcquisitionSource = z.infer<typeof CodexAcquisitionSourceSchema>
 
+export const CodexSubResourceEntrySchema = z.object({
+  resourceSlug: z.string().nullable(),
+  nameFr: z.string().min(1),
+  nameEn: z.string(),
+  imageUrl: z.string().nullable(),
+  count: z.number().int().positive()
+})
+
+export type CodexSubResourceEntry = z.infer<typeof CodexSubResourceEntrySchema>
+
 export const CodexComponentEntrySchema = z.object({
   nameFr: z.string().min(1),
   nameEn: z.string(),
   resourceSlug: z.string().nullable(),
   isResource: z.boolean().default(false),
   count: z.number().int().positive(),
+  buildCredits: z.number().int().nonnegative().nullable().default(null),
+  subResources: z.array(CodexSubResourceEntrySchema).default([]),
   imageUrl: z.string().nullable(),
   drops: z.array(CodexDropEntrySchema),
   acquisitionSources: z.array(CodexAcquisitionSourceSchema).default([])
@@ -146,6 +179,95 @@ export const CodexRelicRewardEntrySchema = z.object({
   intactChance: z.number().min(0).max(100),
   radiantChance: z.number().min(0).max(100)
 })
+
+export const CodexMobSpawnLocationSchema = z.object({
+  locationFr: z.string().min(1),
+  locationEn: z.string(),
+  conditionFr: z.string().nullable().default(null),
+  spawnChancePct: z.number().min(0).max(100)
+})
+
+export type CodexMobSpawnLocation = z.infer<typeof CodexMobSpawnLocationSchema>
+
+export const CodexMobDropEntrySchema = z.object({
+  nameFr: z.string().min(1),
+  nameEn: z.string(),
+  chancePct: z.number().min(0).max(100),
+  rarity: z.string(),
+  typeLabelFr: z.string(),
+  linkedCodexId: z.string().nullable().default(null),
+  linkedCategory: CodexCategorySchema.nullable().default(null)
+})
+
+export type CodexMobDropEntry = z.infer<typeof CodexMobDropEntrySchema>
+
+export const CodexMobInfoSchema = z.object({
+  factionId: z.string(),
+  factionFr: z.string(),
+  factionEn: z.string(),
+  unitTier: z.enum(['standard', 'eximus', 'boss']),
+  health: z.number().nonnegative(),
+  shield: z.number().nonnegative(),
+  armor: z.number().nonnegative(),
+  scansRequired: z.number().int().nonnegative().default(3),
+  weaknessesFr: z.array(z.string()),
+  resistancesFr: z.array(z.string()),
+  planetsFr: z.array(z.string()),
+  spawns: z.array(CodexMobSpawnLocationSchema),
+  mobDrops: z.array(CodexMobDropEntrySchema)
+})
+
+export type CodexMobInfo = z.infer<typeof CodexMobInfoSchema>
+
+export const VendorOfferingCategorySchema = z.enum([
+  'equipment',
+  'mod_arcane',
+  'resource_relic',
+  'cosmetic_misc'
+])
+
+export type VendorOfferingCategory = z.infer<typeof VendorOfferingCategorySchema>
+
+export const CodexVendorOfferingCostSchema = z.object({
+  amount: z.number().nonnegative(),
+  currencyFr: z.string().min(1)
+})
+
+export const CodexVendorOfferingSchema = z.object({
+  id: z.string().min(1),
+  nameFr: z.string().min(1),
+  nameEn: z.string(),
+  category: VendorOfferingCategorySchema,
+  imageUrl: z.string().nullable().default(null),
+  rankRequiredFr: z.string().nullable().default(null),
+  costs: z.array(CodexVendorOfferingCostSchema).min(1),
+  linkedCodexId: z.string().nullable().default(null),
+  linkedCategory: CodexCategorySchema.nullable().default(null),
+  isTradable: z.boolean().default(false)
+})
+
+export type CodexVendorOffering = z.infer<typeof CodexVendorOfferingSchema>
+
+export const CodexVendorInfoSchema = z.object({
+  roleFr: z.string(),
+  roleEn: z.string(),
+  hubGroup: z.string(),
+  planetFr: z.string(),
+  planetEn: z.string(),
+  hubFr: z.string(),
+  hubEn: z.string(),
+  zoneFr: z.string(),
+  unlockQuestFr: z.string().nullable().default(null),
+  currencies: z.array(
+    z.object({
+      nameFr: z.string().min(1),
+      howToGetFr: z.string().nullable().default(null)
+    })
+  ),
+  offerings: z.array(CodexVendorOfferingSchema)
+})
+
+export type CodexVendorInfo = z.infer<typeof CodexVendorInfoSchema>
 
 export const CodexItemDetailSchema = z.object({
   id: z.string().min(1),
@@ -203,8 +325,11 @@ export const CodexItemDetailSchema = z.object({
       rewards: z.array(CodexRelicRewardEntrySchema)
     })
     .nullable(),
+  mobInfo: CodexMobInfoSchema.nullable().default(null),
+  vendorInfo: CodexVendorInfoSchema.nullable().default(null),
   drops: z.array(CodexDropEntrySchema),
   acquisitionSources: z.array(CodexAcquisitionSourceSchema).default([]),
+  totalBuildCredits: z.number().int().nonnegative().nullable().default(null),
   components: z.array(CodexComponentEntrySchema),
   totalUsedFor: z.number().int().nonnegative(),
   usedFor: z.array(CodexUsedForEntrySchema)
@@ -250,13 +375,40 @@ export const HelminthOverviewSchema = z.object({
 
 export type HelminthOverview = z.infer<typeof HelminthOverviewSchema>
 
+function encodeAssetSubpath(subpath: string): string {
+  return subpath
+    .replace(/^\/+/, '')
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => {
+      try {
+        return encodeURIComponent(decodeURIComponent(segment))
+      } catch {
+        return encodeURIComponent(segment)
+      }
+    })
+    .join('/')
+}
+
 /**
- * Converts a PascalCase WFCD image filename (`Aya.png`, `Wisp.png`) into a cached `wf-asset://wfstat/img/` URL.
+ * Converts a Codex image reference into a safe cached `wf-asset://` URL:
+ * - `/Lotus/...` -> Digital Extremes Public Export icon via `wf-asset://browsewf/Lotus/...`
+ * - `wiki:...` -> Official Warframe Wiki portrait/thumbnail via `wf-asset://wiki/...`
+ * - `Aya.png` -> WFCD CDN icon via `wf-asset://wfstat/img/...`
  */
 export function toCodexImageUrl(img: string | null | undefined): string | null {
   const clean = img?.trim()
   if (!clean) return null
   if (clean === 'helminth.jpg') return './images/helminth.jpg'
+  if (clean.startsWith('wf-asset://')) return clean
+  if (clean.startsWith('/Lotus/')) {
+    return `wf-asset://browsewf/${encodeAssetSubpath(clean)}`
+  }
+  if (clean.startsWith('wiki:')) {
+    const sub = clean.slice('wiki:'.length).split('?')[0] ?? ''
+    const encoded = encodeAssetSubpath(sub)
+    return encoded ? `wf-asset://wiki/${encoded}` : null
+  }
   return `wf-asset://wfstat/img/${encodeURIComponent(clean)}`
 }
 

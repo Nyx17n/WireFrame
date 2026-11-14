@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils'
 import { ipcClient } from '@/services/ipc-client'
 import { useFarmOverlayStore } from '@/stores/useFarmOverlayStore'
 
+type KindFilter = 'all' | 'resources' | 'parts'
+
 export function CodexFarmOverlayWindow(): React.JSX.Element {
   const liveState = useFarmOverlayStore((s) => s.liveState)
   const isHydrated = useFarmOverlayStore((s) => s.isHydrated)
@@ -23,6 +25,7 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
   const removeEntry = useFarmOverlayStore((s) => s.removeEntry)
 
   const [selectedGroup, setSelectedGroup] = React.useState<string>('all')
+  const [kindFilter, setKindFilter] = React.useState<KindFilter>('all')
 
   React.useEffect(() => {
     document.documentElement.style.background = 'transparent'
@@ -66,21 +69,57 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
     }
   }, [groups, selectedGroup])
 
+  const hasResources = liveState.pinnedEntries.some((e) => e.isResource)
+  const hasNonResources = liveState.pinnedEntries.some((e) => !e.isResource)
+
   const obtainedCount = liveState.pinnedEntries.filter((e) => e.obtained).length
   const visibleEntries = liveState.pinnedEntries.filter((e) => {
     if (!liveState.showObtained && e.obtained) return false
     if (selectedGroup !== 'all' && e.itemNameFr !== selectedGroup) return false
+    if (kindFilter === 'resources' && !e.isResource) return false
+    if (kindFilter === 'parts' && e.isResource) return false
     return true
   })
 
   const surfaceOpacity = Math.max(0.4, Math.min(0.98, liveState.opacityPercent / 100))
   const interactive = !liveState.isClickThrough
 
+  const handleResizePointerDown = (e: React.PointerEvent<HTMLButtonElement>): void => {
+    if (!interactive) return
+    e.preventDefault()
+    e.stopPropagation()
+    const startScreenX = e.screenX
+    const startScreenY = e.screenY
+    const startW = window.innerWidth
+    const startH = window.innerHeight
+    let rafId = 0
+
+    const onMove = (ev: PointerEvent): void => {
+      const nextW = Math.max(280, Math.min(960, Math.round(startW + (ev.screenX - startScreenX))))
+      const nextH = Math.max(200, Math.min(1080, Math.round(startH + (ev.screenY - startScreenY))))
+      if (rafId) cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        void ipcClient.overlay.updateState({
+          bounds: { width: nextW, height: nextH }
+        })
+      })
+    }
+
+    const onUp = (): void => {
+      if (rafId) cancelAnimationFrame(rafId)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
+
   return (
-    <div className="h-screen w-screen overflow-hidden p-1.5">
+    <div className="h-screen w-screen overflow-hidden bg-transparent">
       <div
         style={{ backgroundColor: `hsl(var(--background) / ${surfaceOpacity})` }}
-        className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-primary/35 text-foreground shadow-2xl backdrop-blur-md"
+        className="relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-primary/35 text-foreground backdrop-blur-md"
       >
         <CodexFarmOverlayHeader
           liveState={liveState}
@@ -91,35 +130,65 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
           onCloseWindow={() => void setWindowOpen(false)}
         />
 
-        {interactive && groups.length > 1 && (
-          <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-b border-border/60 bg-background/40 px-2.5 py-1.5">
-            <button
-              type="button"
-              onClick={() => setSelectedGroup('all')}
-              className={cn(
-                'shrink-0 rounded px-2 py-0.5 text-[10px] font-medium transition-colors',
-                selectedGroup === 'all'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary/70 text-muted-foreground hover:text-foreground'
-              )}
-            >
-              Tout ({liveState.pinnedEntries.length})
-            </button>
-            {groups.map((grp) => (
-              <button
-                key={grp}
-                type="button"
-                onClick={() => setSelectedGroup(grp)}
-                className={cn(
-                  'shrink-0 rounded px-2 py-0.5 text-[10px] font-medium transition-colors',
-                  selectedGroup === grp
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary/70 text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {grp}
-              </button>
-            ))}
+        {interactive && (groups.length > 1 || (hasResources && hasNonResources)) && (
+          <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border/60 bg-background/40 px-2.5 py-1.5">
+            {hasResources && hasNonResources && (
+              <>
+                {(
+                  [
+                    { id: 'all', label: 'Tout' },
+                    { id: 'resources', label: 'Ressources' },
+                    { id: 'parts', label: 'Pièces' }
+                  ] as const
+                ).map((kf) => (
+                  <button
+                    key={kf.id}
+                    type="button"
+                    onClick={() => setKindFilter(kf.id)}
+                    className={cn(
+                      'shrink-0 rounded px-2 py-0.5 text-[10px] font-medium transition-colors',
+                      kindFilter === kf.id
+                        ? 'bg-amber-500/25 text-amber-200 ring-1 ring-amber-500/50'
+                        : 'bg-secondary/70 text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {kf.label}
+                  </button>
+                ))}
+              </>
+            )}
+
+            {groups.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setSelectedGroup('all')}
+                  className={cn(
+                    'shrink-0 rounded px-2 py-0.5 text-[10px] font-medium transition-colors',
+                    selectedGroup === 'all'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary/70 text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  Tous sets
+                </button>
+                {groups.map((grp) => (
+                  <button
+                    key={grp}
+                    type="button"
+                    onClick={() => setSelectedGroup(grp)}
+                    className={cn(
+                      'shrink-0 rounded px-2 py-0.5 text-[10px] font-medium transition-colors',
+                      selectedGroup === grp
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary/70 text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {grp}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         )}
 
@@ -146,13 +215,13 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
               <Crosshair className="h-7 w-7 text-primary/70" />
               <p className="font-semibold text-foreground">Aucun objectif épinglé</p>
               <p className="text-[11px]">
-                Ouvre le Codex dans WireFrame puis clique sur « Tout afficher » (ex: Ember) ou sur l’icône 🎯 d’un matériau, arme, mod ou relique.
+                Ouvre le Codex dans WireFrame puis clique sur « Ressources craft en Overlay » ou « Tout en Overlay ».
               </p>
             </div>
           ) : visibleEntries.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center text-xs text-muted-foreground">
-              <p className="font-semibold text-emerald-300">Tous les objectifs sont cochés ✓</p>
-              {interactive && obtainedCount > 0 && (
+              <p className="font-semibold text-emerald-300">Aucun élément visible pour ce filtre</p>
+              {interactive && obtainedCount > 0 && !liveState.showObtained && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -177,11 +246,11 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
           )}
         </div>
 
-        <footer className="flex shrink-0 items-center justify-between gap-2 border-t border-border/65 bg-card/80 px-2.5 py-1.5 text-[10px] text-muted-foreground">
+        <footer className="relative flex shrink-0 items-center justify-between gap-2 border-t border-border/65 bg-card/80 px-2.5 py-1.5 pr-6 text-[10px] text-muted-foreground">
           <span>
             {liveState.isClickThrough
               ? '👻 Souris traversante active — survole 🔓 0.5s pour déverrouiller'
-              : '🖱 Mode interactif — coche ✓ ou déplace la fenêtre'}
+              : '🖱 Mode interactif — coche ✓ ou filtre Pièces / Ressources'}
           </span>
           {interactive && obtainedCount > 0 ? (
             <button
@@ -195,6 +264,17 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
             </button>
           ) : (
             <span className="shrink-0 font-mono text-primary">{liveState.shortcutToggle}</span>
+          )}
+          {interactive && (
+            <button
+              type="button"
+              onPointerDown={handleResizePointerDown}
+              title="Glisser pour redimensionner l'overlay"
+              aria-label="Redimensionner l'overlay"
+              className="app-no-drag absolute bottom-0.5 right-0.5 flex h-4 w-4 cursor-nwse-resize items-center justify-center text-[10px] text-muted-foreground/70 hover:text-primary"
+            >
+              ◢
+            </button>
           )}
         </footer>
       </div>

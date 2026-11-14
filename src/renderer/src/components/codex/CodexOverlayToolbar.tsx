@@ -1,11 +1,15 @@
 import * as React from 'react'
-import { ChevronDown, ChevronUp, Crosshair, ListChecks } from 'lucide-react'
+import { ChevronDown, ChevronUp, Crosshair, Layers, ListChecks } from 'lucide-react'
 import type { CodexItemDetail } from '@shared/schemas/codex.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { CodexOverlayPickerPanel } from '@/components/codex/CodexOverlayPickerPanel'
-import { buildItemKey } from '@/lib/codex-overlay-entries'
+import {
+  buildItemKey,
+  buildSingleItemOverlayEntry,
+  getEquipmentEntriesByMode
+} from '@/lib/codex-overlay-entries'
 import { useAppStore } from '@/stores/useAppStore'
 import { useFarmOverlayStore } from '@/stores/useFarmOverlayStore'
 
@@ -17,7 +21,9 @@ export function CodexOverlayToolbar({
   const extensionEnabled = useAppStore((s) => s.settings.extensions.codexFarmOverlay)
   const liveState = useFarmOverlayStore((s) => s.liveState)
   const setWindowOpen = useFarmOverlayStore((s) => s.setWindowOpen)
+  const toggleEntry = useFarmOverlayStore((s) => s.toggleEntry)
   const pinEquipmentSelection = useFarmOverlayStore((s) => s.pinEquipmentSelection)
+  const toggleCraftResources = useFarmOverlayStore((s) => s.toggleCraftResources)
   const unpinItemGroup = useFarmOverlayStore((s) => s.unpinItemGroup)
 
   const [isPickerOpen, setIsPickerOpen] = React.useState(false)
@@ -26,9 +32,14 @@ export function CodexOverlayToolbar({
     return null
   }
 
+  const pinnedIdSet = new Set(liveState.pinnedEntries.map((e) => e.entryId))
   const isDetailPinned = detail
     ? liveState.pinnedEntries.some((e) => e.itemKey === buildItemKey(detail.category, detail.id))
     : false
+
+  const craftResEntries = detail ? getEquipmentEntriesByMode(detail, 'resources') : []
+  const allCraftResPinned =
+    craftResEntries.length > 0 && craftResEntries.every((e) => pinnedIdSet.has(e.entryId))
 
   return (
     <div className="space-y-2">
@@ -45,12 +56,28 @@ export function CodexOverlayToolbar({
           <Badge variant="outline" className="font-mono text-[10px]">
             {liveState.shortcutToggle}
           </Badge>
-          <span className="hidden text-[11px] text-muted-foreground md:inline">
-            Affiche Quêtes FR, Boutique, Dojo & % de drop (barre colorée sous le %) par-dessus Warframe.
+          <span className="hidden text-[11px] text-muted-foreground lg:inline">
+            Pièces, ressources de craft (×quantité), Quêtes FR, Boutique & % de drop.
           </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5">
+          {detail && craftResEntries.length > 0 && (
+            <Button
+              size="sm"
+              variant={allCraftResPinned ? 'secondary' : 'outline'}
+              className="h-7 border-amber-500/40 px-2.5 text-[11px] text-amber-300 hover:text-amber-200"
+              onClick={() => void toggleCraftResources(detail)}
+            >
+              <Layers className="h-3.5 w-3.5" />
+              <span>
+                {allCraftResPinned
+                  ? `Retirer ressources (${craftResEntries.length})`
+                  : `Ressources craft en Overlay (${craftResEntries.length})`}
+              </span>
+            </Button>
+          )}
+
           {detail && (
             <Button
               size="sm"
@@ -59,8 +86,10 @@ export function CodexOverlayToolbar({
               onClick={() => {
                 if (isDetailPinned) {
                   void unpinItemGroup(detail.category, detail.id)
+                } else if (detail.components.length > 0) {
+                  void pinEquipmentSelection(detail, 'all', true)
                 } else {
-                  void pinEquipmentSelection(detail, false, true)
+                  void toggleEntry(buildSingleItemOverlayEntry(detail), true)
                 }
               }}
             >
@@ -68,7 +97,9 @@ export function CodexOverlayToolbar({
               <span>
                 {isDetailPinned
                   ? `Retirer ${detail.nameFr}`
-                  : `Tout afficher : ${detail.nameFr}`}
+                  : detail.components.length > 0
+                    ? `Tout en Overlay : ${detail.nameFr}`
+                    : `Épingler ${detail.nameFr}`}
               </span>
             </Button>
           )}
@@ -96,4 +127,3 @@ export function CodexOverlayToolbar({
     </div>
   )
 }
-

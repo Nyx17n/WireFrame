@@ -13,6 +13,9 @@ const isCodexFarmOverlayView =
   new URLSearchParams(window.location.search).get('view') === 'codex-farm-overlay'
 
 if (isCodexFarmOverlayView) {
+  document.title = ''
+  document.documentElement.classList.add('wf-overlay-window')
+  document.body.classList.remove('bg-background')
   document.documentElement.style.background = 'transparent'
   document.body.style.background = 'transparent'
 }

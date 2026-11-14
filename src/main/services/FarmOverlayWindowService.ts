@@ -129,6 +129,19 @@ export class FarmOverlayWindowService {
   }
 
   public async updateOverlayState(patch: CodexFarmOverlayPatch): Promise<FarmOverlayLiveState> {
+    if (patch.bounds !== undefined) {
+      const win = this.getOverlayWindow()
+      if (win) {
+        const cur = win.getBounds()
+        win.setBounds({
+          x: patch.bounds.x ?? cur.x,
+          y: patch.bounds.y ?? cur.y,
+          width: Math.max(280, Math.round(patch.bounds.width)),
+          height: Math.max(200, Math.round(patch.bounds.height))
+        })
+      }
+    }
+
     await this.storageService.updateSettings({
       codexFarmOverlay: patch
     })
@@ -160,6 +173,7 @@ export class FarmOverlayWindowService {
     }
 
     const win = new BrowserWindow({
+      title: '',
       width: cfg.bounds.width,
       height: cfg.bounds.height,
       ...(cfg.bounds.x !== undefined && cfg.bounds.y !== undefined
@@ -169,7 +183,10 @@ export class FarmOverlayWindowService {
       minHeight: 200,
       frame: false,
       transparent: true,
-      resizable: true,
+      thickFrame: false,
+      hasShadow: false,
+      resizable: false,
+      autoHideMenuBar: true,
       maximizable: false,
       minimizable: false,
       skipTaskbar: true,
@@ -184,6 +201,10 @@ export class FarmOverlayWindowService {
         webSecurity: true,
         spellcheck: false
       }
+    })
+
+    win.on('page-title-updated', (event) => {
+      event.preventDefault()
     })
 
     this.overlayWindow = win

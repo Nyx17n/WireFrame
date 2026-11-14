@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronDown, Crosshair, Hammer, MapPin, Package, Sparkles } from 'lucide-react'
+import { ChevronDown, Hammer, MapPin, Sparkles } from 'lucide-react'
 import type { CodexItemDetail } from '@shared/schemas/codex.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,9 +7,7 @@ import { Card } from '@/components/ui/card'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { ChanceBadgeWithUnderBar } from '@/components/codex/ChanceBadgeWithUnderBar'
 import { CodexAcquisitionSourcesCard } from '@/components/codex/CodexAcquisitionSourcesCard'
-import { buildComponentOverlayEntry } from '@/lib/codex-overlay-entries'
-import { useAppStore } from '@/stores/useAppStore'
-import { useFarmOverlayStore } from '@/stores/useFarmOverlayStore'
+import { CodexCraftComponentsSection } from '@/components/codex/CodexCraftComponentsSection'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 export function CodexDropsAndCraftSection({
@@ -18,20 +16,11 @@ export function CodexDropsAndCraftSection({
   detail: CodexItemDetail
 }): React.JSX.Element {
   const navigateActive = useTabsStore((s) => s.navigateActive)
-  const extensionEnabled = useAppStore((s) => s.settings.extensions.codexFarmOverlay)
-  const pinnedEntries = useFarmOverlayStore((s) => s.liveState.pinnedEntries)
-  const toggleEntry = useFarmOverlayStore((s) => s.toggleEntry)
-
   const [visibleDrops, setVisibleDrops] = React.useState(60)
 
   React.useEffect(() => {
     setVisibleDrops(60)
   }, [detail.id])
-
-  const pinnedIdSet = React.useMemo(
-    () => new Set(pinnedEntries.map((e) => e.entryId)),
-    [pinnedEntries]
-  )
 
   return (
     <div className="space-y-4">
@@ -80,95 +69,7 @@ export function CodexDropsAndCraftSection({
         </Card>
       )}
 
-      {detail.components.length > 0 && (
-        <Card className="space-y-3 p-4">
-          <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <Hammer className="h-3.5 w-3.5 text-primary" />
-            <span>Recette Fonderie, Pièces & Matériaux Requis</span>
-          </h2>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {detail.components.map((comp, idx) => {
-              const clickable = Boolean(comp.resourceSlug)
-              const topSource = comp.acquisitionSources[0]
-              const overlayEntry = buildComponentOverlayEntry(detail, comp, idx)
-              const isPinned = pinnedIdSet.has(overlayEntry.entryId)
-
-              return (
-                <div
-                  key={`${comp.nameFr}-${idx}`}
-                  onClick={() => {
-                    if (comp.resourceSlug) {
-                      navigateActive(
-                        { kind: 'codex-detail', category: 'resources', slug: comp.resourceSlug },
-                        `Codex : ${comp.nameFr}`
-                      )
-                    }
-                  }}
-                  className={`flex items-center justify-between gap-2 rounded-md border border-border/70 bg-background/50 p-2.5 text-xs ${
-                    clickable ? 'cursor-pointer hover:border-primary/50 hover:bg-secondary/40' : ''
-                  }`}
-                >
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    <SafeAssetImage
-                      src={comp.imageUrl}
-                      alt={comp.nameFr}
-                      className="h-9 w-9 shrink-0 rounded bg-card object-contain p-1"
-                      fallback={<Package className="h-4 w-4 text-muted-foreground" />}
-                    />
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold">
-                        {comp.nameFr} {clickable && <span className="text-primary">↗</span>}
-                      </div>
-                      {topSource ? (
-                        <div className="truncate text-[10px] text-muted-foreground">
-                          {topSource.labelFr}
-                        </div>
-                      ) : (
-                        comp.drops[0] && (
-                          <div className="truncate text-[10px] text-muted-foreground">
-                            Top spot : {comp.drops[0].location} ({comp.drops[0].chance}%)
-                          </div>
-                        )
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    {topSource && (
-                      <ChanceBadgeWithUnderBar
-                        chancePct={topSource.chancePct}
-                        isGuaranteed={topSource.isGuaranteed}
-                        compact
-                      />
-                    )}
-                    <Badge variant="secondary" className="font-mono">
-                      ×{comp.count.toLocaleString('fr-FR')}
-                    </Badge>
-                    {extensionEnabled && (
-                      <Button
-                        size="icon"
-                        variant={isPinned ? 'default' : 'ghost'}
-                        className="h-7 w-7"
-                        title={
-                          isPinned
-                            ? 'Retirer cette pièce de l’Overlay Farm'
-                            : 'Épingler cette pièce à l’Overlay Farm'
-                        }
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          void toggleEntry(overlayEntry)
-                        }}
-                      >
-                        <Crosshair className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </Card>
-      )}
+      <CodexCraftComponentsSection detail={detail} />
 
       {detail.usedFor.length > 0 && (
         <Card className="space-y-3 p-4">
@@ -200,7 +101,7 @@ export function CodexDropsAndCraftSection({
                   <span className="truncate font-medium">{gear.nameFr}</span>
                 </div>
                 <Badge variant="outline" className="font-mono text-[10px]">
-                  ×{gear.count}
+                  ×{gear.count.toLocaleString('fr-FR')}
                 </Badge>
               </div>
             ))}
