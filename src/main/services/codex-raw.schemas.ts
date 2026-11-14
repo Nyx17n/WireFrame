@@ -145,4 +145,9 @@ export const CodexRawDatabaseSchema = z.object({
 export type CodexRawDatabase = z.infer<typeof CodexRawDatabaseSchema>
 export type RawDrop = z.infer<typeof RawDropSchema>
 export type RawComponent = z.infer<typeof RawComponentSchema>
+export type RawResource = z.infer<typeof RawResourceSchema>
+export type RawWarframe = z.infer<typeof RawWarframeSchema>
+export type RawWeapon = z.infer<typeof RawWeaponSchema>
+export type RawMod = z.infer<typeof RawModSchema>
+export type RawRelic = z.infer<typeof RawRelicSchema>
 

@@ -8,6 +8,10 @@ import type {
   HelminthOverview
 } from './schemas/codex.schema'
 import type {
+  CodexFarmOverlayPatch,
+  FarmOverlayLiveState
+} from './schemas/extensions.schema'
+import type {
   MarketCatalogItem,
   MarketItemDetail,
   MarketItemStats,
@@ -75,6 +79,11 @@ export const IPC_CHANNELS = {
   CODEX_QUICK_SEARCH: 'codex:quickSearch',
   CODEX_GET_ITEM_DETAIL: 'codex:getItemDetail',
   CODEX_GET_HELMINTH: 'codex:getHelminth',
+  OVERLAY_GET_STATE: 'overlay:getState',
+  OVERLAY_SET_WINDOW_OPEN: 'overlay:setWindowOpen',
+  OVERLAY_UPDATE_STATE: 'overlay:updateState',
+  OVERLAY_SET_CLICK_THROUGH: 'overlay:setClickThrough',
+  OVERLAY_ON_STATE_CHANGED: 'overlay:onStateChanged',
   UPDATER_GET_STATUS: 'updater:getStatus',
   UPDATER_CHECK: 'updater:check',
   UPDATER_INSTALL: 'updater:downloadAndInstall',
@@ -140,6 +149,13 @@ export interface WireframeBridgeApi {
     quickSearch: (query: string, limit?: number) => Promise<CodexSummaryCard[]>
     getItemDetail: (category: CodexCategory, id: string) => Promise<CodexItemDetail>
     getHelminth: () => Promise<HelminthOverview>
+  }
+  readonly overlay: {
+    getState: () => Promise<FarmOverlayLiveState>
+    setWindowOpen: (open: boolean) => Promise<FarmOverlayLiveState>
+    updateState: (patch: CodexFarmOverlayPatch) => Promise<FarmOverlayLiveState>
+    setClickThrough: (enabled: boolean) => Promise<FarmOverlayLiveState>
+    onStateChanged: (listener: (state: FarmOverlayLiveState) => void) => () => void
   }
   readonly updater: {
     getStatus: () => Promise<UpdaterStatus>

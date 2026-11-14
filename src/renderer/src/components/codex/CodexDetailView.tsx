@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CodexDropsAndCraftSection } from '@/components/codex/CodexDropsAndCraftSection'
+import { CodexOverlayToolbar } from '@/components/codex/CodexOverlayToolbar'
 import { ipcClient } from '@/services/ipc-client'
 import { useTabsStore } from '@/stores/useTabsStore'
 
@@ -103,6 +104,8 @@ export function CodexDetailView({
           </Button>
         )}
       </div>
+
+      <CodexOverlayToolbar detail={detail} />
 
       <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start">
         <SafeAssetImage

@@ -2,6 +2,10 @@ import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { IPC_CHANNELS, type WireframeBridgeApi } from '@shared/ipc-channels'
 import type { TriggeredAlertEvent } from '@shared/schemas/alerts.schema'
 import type { CodexCategory, CodexSearchParams } from '@shared/schemas/codex.schema'
+import type {
+  CodexFarmOverlayPatch,
+  FarmOverlayLiveState
+} from '@shared/schemas/extensions.schema'
 import type { UserSettingsPatch } from '@shared/schemas/settings.schema'
 import type { RivenSearchParams } from '@shared/schemas/tools.schema'
 import type { UpdaterStatus } from '@shared/schemas/updater.schema'
@@ -105,6 +109,24 @@ const wireframeApi: WireframeBridgeApi = Object.freeze({
     getItemDetail: (category: CodexCategory, id: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.CODEX_GET_ITEM_DETAIL, { category, id }),
     getHelminth: () => ipcRenderer.invoke(IPC_CHANNELS.CODEX_GET_HELMINTH)
+  }),
+  overlay: Object.freeze({
+    getState: () => ipcRenderer.invoke(IPC_CHANNELS.OVERLAY_GET_STATE),
+    setWindowOpen: (open: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.OVERLAY_SET_WINDOW_OPEN, { open }),
+    updateState: (patch: CodexFarmOverlayPatch) =>
+      ipcRenderer.invoke(IPC_CHANNELS.OVERLAY_UPDATE_STATE, patch),
+    setClickThrough: (enabled: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.OVERLAY_SET_CLICK_THROUGH, { enabled }),
+    onStateChanged: (listener: (state: FarmOverlayLiveState) => void) => {
+      const wrapped = (_event: IpcRendererEvent, state: FarmOverlayLiveState): void => {
+        listener(state)
+      }
+      ipcRenderer.on(IPC_CHANNELS.OVERLAY_ON_STATE_CHANGED, wrapped)
+      return () => {
+        ipcRenderer.removeListener(IPC_CHANNELS.OVERLAY_ON_STATE_CHANGED, wrapped)
+      }
+    }
   }),
   updater: Object.freeze({
     getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.UPDATER_GET_STATUS),

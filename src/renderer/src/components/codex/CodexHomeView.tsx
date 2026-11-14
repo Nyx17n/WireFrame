@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ViewModeToggle } from '@/components/ui/view-mode-toggle'
 import { CodexItemsDisplay } from '@/components/codex/CodexItemsDisplay'
+import { CodexOverlayToolbar } from '@/components/codex/CodexOverlayToolbar'
 import { HelminthInfirmarySection } from '@/components/codex/HelminthInfirmarySection'
 import { useCatalogDisplayPreferences } from '@/lib/catalog-layout'
 import { ipcClient } from '@/services/ipc-client'
@@ -186,6 +187,8 @@ export function CodexHomeView({
         <HelminthInfirmarySection />
       ) : (
         <>
+          <CodexOverlayToolbar />
+
           <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card/60 p-2.5">
             <div className="relative min-w-[220px] flex-1">
               <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />

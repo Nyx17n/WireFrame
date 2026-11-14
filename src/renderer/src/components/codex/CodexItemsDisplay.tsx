@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Package, Plus, Sparkles } from 'lucide-react'
+import { Crosshair, Package, Plus, Sparkles } from 'lucide-react'
 import type { CodexCategory, CodexSummaryCard } from '@shared/schemas/codex.schema'
 import type { CatalogCardSize, CatalogLayoutMode } from '@shared/schemas/settings.schema'
 import { Badge } from '@/components/ui/badge'
@@ -14,7 +14,10 @@ import {
   getCatalogGridClass,
   resolveCodexMarketSlug
 } from '@/lib/catalog-layout'
+import { buildItemKey } from '@/lib/codex-overlay-entries'
 import { cn } from '@/lib/utils'
+import { useAppStore } from '@/stores/useAppStore'
+import { useFarmOverlayStore } from '@/stores/useFarmOverlayStore'
 import { useMarketStore } from '@/stores/useMarketStore'
 
 interface CodexDetailRoute {
@@ -40,6 +43,14 @@ export function CodexItemsDisplay({
 }): React.JSX.Element {
   const catalog = useMarketStore((s) => s.catalog)
   const ensureCatalogLoaded = useMarketStore((s) => s.ensureCatalogLoaded)
+  const overlayEnabled = useAppStore((s) => s.settings.extensions.codexFarmOverlay)
+  const pinnedEntries = useFarmOverlayStore((s) => s.liveState.pinnedEntries)
+  const pinQuickItem = useFarmOverlayStore((s) => s.pinQuickItem)
+
+  const pinnedItemKeys = React.useMemo(
+    () => new Set(pinnedEntries.map((e) => e.itemKey)),
+    [pinnedEntries]
+  )
 
   const hasTradable = React.useMemo(() => items.some((i) => i.isTradable), [items])
 
@@ -98,18 +109,39 @@ export function CodexItemsDisplay({
                 cardSize === 'sm' ? 'p-2' : cardSize === 'lg' ? 'p-4' : 'p-3'
               )}
             >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-1.5 top-1.5 h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                title="Ouvrir dans un nouvel onglet"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onOpenNewTab(route, title)
-                }}
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </Button>
+              <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5">
+                {overlayEnabled && (
+                  <Button
+                    variant={pinnedItemKeys.has(buildItemKey(card.category, card.id)) ? 'default' : 'ghost'}
+                    size="icon"
+                    className={cn(
+                      'h-6 w-6 transition-opacity',
+                      pinnedItemKeys.has(buildItemKey(card.category, card.id))
+                        ? 'opacity-100'
+                        : 'opacity-0 group-hover:opacity-100'
+                    )}
+                    title="Épingler / Retirer du Codex Farm Overlay"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void pinQuickItem(card.category, card.id)
+                    }}
+                  >
+                    <Crosshair className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                  title="Ouvrir dans un nouvel onglet"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onOpenNewTab(route, title)
+                  }}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+              </div>
 
               <Badge variant="secondary" className="max-w-[85%] truncate px-1.5 py-0 text-[10px]">
                 {card.badgeText}
@@ -215,6 +247,20 @@ export function CodexItemsDisplay({
                 <Badge variant="secondary" className="text-[10px]">
                   {card.badgeText}
                 </Badge>
+                {overlayEnabled && (
+                  <Button
+                    variant={pinnedItemKeys.has(buildItemKey(card.category, card.id)) ? 'default' : 'ghost'}
+                    size="icon"
+                    className="h-7 w-7 opacity-75 transition-opacity hover:opacity-100 group-hover:opacity-100"
+                    title="Épingler / Retirer du Codex Farm Overlay"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void pinQuickItem(card.category, card.id)
+                    }}
+                  >
+                    <Crosshair className="h-3.5 w-3.5" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -293,18 +339,39 @@ export function CodexItemsDisplay({
               <Badge variant="secondary" className="text-[10px]">
                 {card.badgeText}
               </Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                title="Ouvrir dans un nouvel onglet"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onOpenNewTab(route, title)
-                }}
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </Button>
+              <div className="flex items-center gap-0.5">
+                {overlayEnabled && (
+                  <Button
+                    variant={pinnedItemKeys.has(buildItemKey(card.category, card.id)) ? 'default' : 'ghost'}
+                    size="icon"
+                    className={cn(
+                      'h-6 w-6 transition-opacity',
+                      pinnedItemKeys.has(buildItemKey(card.category, card.id))
+                        ? 'opacity-100'
+                        : 'opacity-0 group-hover:opacity-100'
+                    )}
+                    title="Épingler / Retirer du Codex Farm Overlay"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void pinQuickItem(card.category, card.id)
+                    }}
+                  >
+                    <Crosshair className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                  title="Ouvrir dans un nouvel onglet"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onOpenNewTab(route, title)
+                  }}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
           </Card>
         )

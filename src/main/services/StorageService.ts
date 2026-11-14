@@ -107,6 +107,16 @@ export class StorageService {
       priceAlerts: patch.priceAlerts ?? current.priceAlerts,
       worldAlerts: { ...current.worldAlerts, ...patch.worldAlerts },
       worldRules: patch.worldRules ?? current.worldRules,
+      extensions: { ...current.extensions, ...patch.extensions },
+      codexFarmOverlay: {
+        ...current.codexFarmOverlay,
+        ...patch.codexFarmOverlay,
+        bounds: {
+          ...current.codexFarmOverlay.bounds,
+          ...patch.codexFarmOverlay?.bounds
+        },
+        pinnedEntries: patch.codexFarmOverlay?.pinnedEntries ?? current.codexFarmOverlay.pinnedEntries
+      },
       session: {
         ...current.session,
         ...patch.session,

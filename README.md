@@ -7,7 +7,7 @@
 
 > Conçu par **Maxime (`Nyxo17`)** — Architecture **Electron 35 · Node.js · React 19 · `shadcn/ui` · TypeScript strict (`strict: true`) · Validation `zod`**.
 
-**WireFrame v2** (`v2.6.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés) et une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN, utilisable sur second écran ou en **Mode Compact Overlay (`460×660`)** par-dessus le jeu.
+**WireFrame v2** (`v2.7.0`) est un compagnon bureau tout-en-un pour **Warframe** combinant un navigateur de trading multi-onglets connecté à **Warframe Market**, un **Hub Worldstate temps réel** (avec règles d’alertes sur mesure et minuteurs épinglés), une **Encyclopédie de Farm & Helminth** hors-ligne complète en FR/EN et un **Système d’Extensions modulaires** incluant le **Codex Farm Overlay en jeu (`Alt+O`)**.
 
 ---
 
@@ -41,9 +41,10 @@
    - **Baro Ki’Teer** (inventaire enrichi en Platinum ou aperçu des classiques hors visite) & **Résurgence Prime (Varzia)**.
    - **Actualités, Événements & Offre du jour de Darvo**.
 
-4. **Codex FR/EN (3 296 Fiches) & Infirmerie Helminth**
+4. **Codex FR/EN Exhaustif (3 296 Fiches), Overlay Farm en Jeu & Infirmerie Helminth**
    - **Ressources (365)**, **Warframes (122)**, **Armes (607)**, **Mods (1 402)** et **Reliques (799)**.
-   - Aperçu direct des **ressources et composants de craft Fonderie** dans les cartes du Codex, tables de drop triées par **meilleure probabilité (`%`)** avec jauges visuelles colorées et passerelle bidirectionnelle **Codex ↔ Marché Platinum**.
+   - **Sources d’obtention complètes** : Boutique en jeu Warframe (Crédits), Quêtes traduites en français (+ rachat Céphalon Simaris), Laboratoires de Dojo de Clan, Circuit Normal de Duviri, Syndicats, Némésis (*Kuva*, *Principe*, *Coda*), Baro Ki’Teer, Soute Prime et tables de drop triées par **meilleure probabilité (`%`)** avec barre colorée sous le badge `%`.
+   - **Extension `Codex Farm Overlay` en jeu (`Alt+O`)** : fenêtre transparente *Always-on-Top* avec souris traversante (`👻` Click-Through + déverrouillage `0,5 s`), sélection granulaire d’un set complet (ex. *Tout Ember*) ou d’un objet précis sur les 5 catégories, gérée depuis la liste **`Paramètres → Extensions`**.
    - **Infirmerie Helminth** : compétences subsumables par Warframe (filtre *★ Méta S-Tier*), **6 Sécrétions & Bile** et compétences natives.
 
 5. **Personnalisation Visuelle Avancée, Notifications & Animations**

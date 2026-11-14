@@ -1,5 +1,17 @@
 [
   {
+    "version": "2.7.0",
+    "date": "Novembre 2026",
+    "titleFr": "Codex Farm Overlay en Jeu, Sources d’Obtention Exhaustives & Système d’Extensions",
+    "badgeFr": "Nouveauté v2.7.0",
+    "highlightsFr": [
+      "Sources d’obtention exhaustives dans les 5 catégories du Codex (Ressources, Warframes, Armes, Mods, Reliques) : Schémas Principaux achetables en Crédits dans la Boutique Warframe (ex. Ember à 25 000 Crédits · 100 %), Quêtes en français + rachat Céphalon Simaris, Laboratoires de Dojo de Clan, Circuit Normal de Duviri, Syndicats, Liches Kuva / Sœurs de Parvos / Technocytes Coda, Baro Ki’Teer et Soute Prime.",
+      "Nouvel « Overlay Farm en jeu » (Alt+O) flottant par-dessus Warframe avec souris traversante (👻 Click-Through + déverrouillage au survol 0,5 s), affichant les Quêtes, la Boutique, les missions et le % exact de drop avec barre de probabilité colorée placée directement sous le %.",
+      "Sélecteur granulaire dans le Codex permettant d’afficher soit toutes les pièces d’un équipement (ex. Tout Ember + option matériaux Fonderie), soit uniquement les pièces manquantes, soit un objet précis (Cellule Orokin, Nataruk, Continuité, Reliques…), avec cases « ✓ Obtenu ».",
+      "Nouvel onglet « Paramètres → Extensions » sous forme de liste verticale filtrable permettant d’activer, configurer ou désactiver chaque module (dont le Codex Farm Overlay à 0 Mo RAM lorsqu’il est coupé)."
+    ]
+  },
+  {
     "version": "2.6.0",
     "date": "Novembre 2026",
     "titleFr": "Dégradés de Fond d’Écran Sci-Fi & Atmosphère Personnalisable",

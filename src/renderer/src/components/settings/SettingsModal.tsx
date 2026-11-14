@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Database, Monitor, Palette, Store, Volume2 } from 'lucide-react'
+import { Blocks, Database, Monitor, Palette, Store, Volume2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog'
 import { AppearanceSettingsTab } from '@/components/settings/AppearanceSettingsTab'
 import { AudioAlertsSettingsTab } from '@/components/settings/AudioAlertsSettingsTab'
+import { ExtensionsSettingsTab } from '@/components/settings/ExtensionsSettingsTab'
 import { WindowShortcutsSettingsTab } from '@/components/settings/WindowShortcutsSettingsTab'
 import { MarketTradingSettingsTab } from '@/components/settings/MarketTradingSettingsTab'
 import { SystemDataSettingsTab } from '@/components/settings/SystemDataSettingsTab'
@@ -25,6 +26,7 @@ const SETTINGS_NAV: readonly {
   { id: 'audio', label: 'Audio & Alertes', shortLabel: 'Audio', Icon: Volume2 },
   { id: 'window', label: 'Fenêtre & Raccourcis', shortLabel: 'Fenêtre', Icon: Monitor },
   { id: 'market', label: 'Marché & Échanges', shortLabel: 'Marché', Icon: Store },
+  { id: 'extensions', label: 'Extensions', shortLabel: 'Extensions', Icon: Blocks },
   { id: 'system', label: 'Système & Données', shortLabel: 'Système', Icon: Database }
 ]
 
@@ -86,6 +88,7 @@ export function SettingsModal(): React.JSX.Element {
               {activeTab === 'audio' && <AudioAlertsSettingsTab />}
               {activeTab === 'window' && <WindowShortcutsSettingsTab />}
               {activeTab === 'market' && <MarketTradingSettingsTab />}
+              {activeTab === 'extensions' && <ExtensionsSettingsTab />}
               {activeTab === 'system' && <SystemDataSettingsTab />}
             </div>
           </div>

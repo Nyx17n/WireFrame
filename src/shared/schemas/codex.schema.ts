@@ -83,13 +83,43 @@ export const CodexDropEntrySchema = z.object({
 
 export type CodexDropEntry = z.infer<typeof CodexDropEntrySchema>
 
+export const CodexAcquisitionSourceTypeSchema = z.enum([
+  'shop',
+  'quest',
+  'dojo',
+  'duviri',
+  'syndicate',
+  'nemesis',
+  'event',
+  'drop',
+  'relic'
+])
+
+export type CodexAcquisitionSourceType = z.infer<typeof CodexAcquisitionSourceTypeSchema>
+
+export const CodexAcquisitionSourceSchema = z.object({
+  type: CodexAcquisitionSourceTypeSchema,
+  labelFr: z.string().min(1).max(320),
+  labelEn: z.string().min(1).max(320),
+  sublabelFr: z.string().max(320).nullable().default(null),
+  sublabelEn: z.string().max(320).nullable().default(null),
+  chancePct: z.number().min(0).max(100),
+  isGuaranteed: z.boolean().default(false),
+  costCredits: z.number().int().nonnegative().nullable().default(null),
+  partNameFr: z.string().max(160).nullable().default(null)
+})
+
+export type CodexAcquisitionSource = z.infer<typeof CodexAcquisitionSourceSchema>
+
 export const CodexComponentEntrySchema = z.object({
   nameFr: z.string().min(1),
   nameEn: z.string(),
   resourceSlug: z.string().nullable(),
+  isResource: z.boolean().default(false),
   count: z.number().int().positive(),
   imageUrl: z.string().nullable(),
-  drops: z.array(CodexDropEntrySchema)
+  drops: z.array(CodexDropEntrySchema),
+  acquisitionSources: z.array(CodexAcquisitionSourceSchema).default([])
 })
 
 export type CodexComponentEntry = z.infer<typeof CodexComponentEntrySchema>
@@ -174,6 +204,7 @@ export const CodexItemDetailSchema = z.object({
     })
     .nullable(),
   drops: z.array(CodexDropEntrySchema),
+  acquisitionSources: z.array(CodexAcquisitionSourceSchema).default([]),
   components: z.array(CodexComponentEntrySchema),
   totalUsedFor: z.number().int().nonnegative(),
   usedFor: z.array(CodexUsedForEntrySchema)
