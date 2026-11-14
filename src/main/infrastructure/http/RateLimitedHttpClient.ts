@@ -106,7 +106,7 @@ export class RateLimitedHttpClient {
       const response = await net.fetch(url, {
         method: 'GET',
         headers: {
-          'User-Agent': 'WireFrame/2.0 (Electron; Windows; Warframe Companion)',
+          'User-Agent': 'TennoFrame/2.0 (Electron; Windows; Warframe Companion)',
           ...options.headers
         },
         signal: controller.signal

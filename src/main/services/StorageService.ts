@@ -35,7 +35,7 @@ function migrateLegacySettings(raw: unknown): unknown {
 }
 
 /**
- * Atomic, Zod-validated JSON storage in `%APPDATA%/WireFrame/config.json`.
+ * Atomic, Zod-validated JSON storage in `%APPDATA%/TennoFrame/config.json`.
  * Never writes partial files on crash (writes to `.tmp` then renames atomically).
  */
 export class StorageService {

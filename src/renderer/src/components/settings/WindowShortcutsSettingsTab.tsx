@@ -34,7 +34,7 @@ export function WindowShortcutsSettingsTab(): React.JSX.Element {
   const [recording, setRecording] = React.useState<ShortcutKey | null>(null)
 
   const shortcutRows: readonly { key: ShortcutKey; label: string }[] = [
-    { key: 'toggleOverlay', label: 'Afficher / Masquer WireFrame en jeu' },
+    { key: 'toggleOverlay', label: 'Afficher / Masquer TennoFrame en jeu' },
     { key: 'toggleCompact', label: 'Basculer Mode Compact (460×660)' },
     { key: 'toggleAlwaysOnTop', label: 'Basculer Épingle Premier Plan' },
     { key: 'toggleClickThrough', label: 'Verrouiller / Déverrouiller la souris sur l’overlay' }
@@ -45,7 +45,7 @@ export function WindowShortcutsSettingsTab(): React.JSX.Element {
       <div>
         <h3 className="text-sm font-semibold">Fenêtre, System Tray & Raccourcis Globaux</h3>
         <p className="text-xs text-muted-foreground">
-          Pilote WireFrame directement par-dessus Warframe sans Alt+Tab.
+          Pilote TennoFrame directement par-dessus Warframe sans Alt+Tab.
         </p>
       </div>
 
@@ -72,7 +72,7 @@ export function WindowShortcutsSettingsTab(): React.JSX.Element {
           <div className="space-y-0.5">
             <div>Souris traversante automatique en jeu (quand épinglé 📌)</div>
             <div className="text-[11px] text-muted-foreground">
-              Empêche le curseur d’accrocher WireFrame quand tu tournes la caméra dans Warframe.
+              Empêche le curseur d’accrocher TennoFrame quand tu tournes la caméra dans Warframe.
             </div>
           </div>
           <Switch

@@ -90,7 +90,7 @@ export const IPC_CHANNELS = {
   UPDATER_ON_STATUS: 'updater:onStatus'
 } as const
 
-export interface WireframeBridgeApi {
+export interface TennoFrameBridgeApi {
   readonly system: {
     getStatus: () => Promise<SystemStatus>
     clearCache: () => Promise<SystemStatus>

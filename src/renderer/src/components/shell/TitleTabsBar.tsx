@@ -90,7 +90,7 @@ export function TitleTabsBar(): React.JSX.Element {
         >
           <img
             src="./images/logo.png"
-            alt="WireFrame"
+            alt="TennoFrame"
             className="h-4 w-4 rounded-xs object-contain"
           />
           {hubActive && isPageTransitioning ? (

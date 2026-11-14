@@ -106,7 +106,7 @@ export function AlertHistoryPanel(): React.JSX.Element {
       </CardHeader>
       <CardContent className="space-y-1.5">
         <p className="text-[11px] text-muted-foreground">
-          Conservé uniquement en mémoire : l’historique est vidé à la fermeture de WireFrame.
+          Conservé uniquement en mémoire : l’historique est vidé à la fermeture de TennoFrame.
         </p>
         {entries === null &&
           Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}

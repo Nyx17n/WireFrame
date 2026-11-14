@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const REPO_OWNER = 'Nyx17n'
-const REPO_NAME = 'WireFrame'
+const REPO_NAME = 'TennoFrame'
 const ALLOWED_DISCORD_HOSTS = new Set([
   'discord.com',
   'discordapp.com',
@@ -42,7 +42,7 @@ function buildRoleMention(rawRoleInput) {
   }
   if (trimmed === '@everyone' || trimmed === '@here') {
     return {
-      content: `${trimmed} Nouvelle mise à jour **WireFrame** disponible !`,
+      content: `${trimmed} Nouvelle mise à jour **TennoFrame** disponible !`,
       allowedMentions: { parse: ['everyone'] }
     }
   }
@@ -53,7 +53,7 @@ function buildRoleMention(rawRoleInput) {
   }
   const roleId = roleIdMatch[1]
   return {
-    content: `<@&${roleId}> Nouvelle mise à jour **WireFrame** disponible !`,
+    content: `<@&${roleId}> Nouvelle mise à jour **TennoFrame** disponible !`,
     allowedMentions: { parse: [], roles: [roleId] }
   }
 }
@@ -63,7 +63,7 @@ function buildReleaseContent(version) {
   const entry = changelog.find((item) => item.version === version) ?? {
     version,
     date: new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
-    titleFr: `Mise à jour WireFrame v${version}`,
+    titleFr: `Mise à jour TennoFrame v${version}`,
     badgeFr: `Release v${version}`,
     highlightsFr: [
       `Nouvelle version v${version} disponible via l'auto-updater intégré et l'installateur Windows.`
@@ -71,7 +71,7 @@ function buildReleaseContent(version) {
   }
 
   const releaseUrl = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/tag/v${version}`
-  const installerUrl = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${version}/WireFrame-Setup-${version}.exe`
+  const installerUrl = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${version}/TennoFrame-Setup-${version}.exe`
   const avatarUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/src/renderer/public/images/logo.png`
 
   const bullets = entry.highlightsFr.map((line) => `• ${line}`).join('\n')
@@ -80,7 +80,7 @@ function buildReleaseContent(version) {
     '',
     bullets,
     '',
-    '> *Si WireFrame est déjà installé sur ton PC, la mise à jour te sera proposée automatiquement au lancement.*'
+    '> *Si TennoFrame (ou WireFrame) est déjà installé sur ton PC, la mise à jour te sera proposée automatiquement au lancement.*'
   ]
     .join('\n')
     .slice(0, 4000)
@@ -91,7 +91,7 @@ function buildReleaseContent(version) {
     ...entry.highlightsFr.map((line) => `- ${line}`),
     '',
     `### Téléchargement & Communauté`,
-    `- **Installateur Windows (x64)** : [WireFrame-Setup-${version}.exe](${installerUrl})`,
+    `- **Installateur Windows (x64)** : [TennoFrame-Setup-${version}.exe](${installerUrl})`,
     `- **Serveur Discord Officiel** : [Rejoindre discord.gg/DhGwHPf82n](https://discord.gg/DhGwHPf82n)`
   ].join('\n')
 
@@ -107,7 +107,7 @@ async function syncGitHubReleaseNotes(version, markdownBody) {
     Accept: 'application/vnd.github+json',
     Authorization: `Bearer ${token}`,
     'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'WireFrame-Release-Bot'
+    'User-Agent': 'TennoFrame-Release-Bot'
   }
 
   const tagRes = await fetch(`${apiBase}/releases/tags/v${version}`, { headers })
@@ -120,7 +120,7 @@ async function syncGitHubReleaseNotes(version, markdownBody) {
     method: 'PATCH',
     headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      name: `WireFrame v${version}`,
+      name: `TennoFrame v${version}`,
       body: markdownBody
     })
   })
@@ -179,20 +179,20 @@ async function main() {
   const { content, allowedMentions } = buildRoleMention(process.env.DISCORD_PING_ROLE_ID)
 
   const discordPayload = {
-    username: 'WireFrame — Patch Notes',
+    username: 'TennoFrame — Patch Notes',
     avatar_url: avatarUrl,
     ...(content ? { content } : {}),
     allowed_mentions: allowedMentions,
     embeds: [
       {
-        title: `🚀 WireFrame v${version} — ${entry.titleFr}`,
+        title: `🚀 TennoFrame v${version} — ${entry.titleFr}`,
         url: releaseUrl,
         color: 0x26b9d1,
         description,
         fields: [
           {
             name: '📥 Installateur Windows (.exe)',
-            value: `[Télécharger WireFrame-Setup-${version}.exe](${installerUrl})`,
+            value: `[Télécharger TennoFrame-Setup-${version}.exe](${installerUrl})`,
             inline: true
           },
           {
@@ -202,7 +202,7 @@ async function main() {
           }
         ],
         footer: {
-          text: `WireFrame par Maxime (Nyxo17) · ${entry.date}`
+          text: `TennoFrame par Maxime (Nyxo17) · ${entry.date}`
         },
         timestamp: new Date().toISOString()
       }
@@ -231,7 +231,7 @@ async function main() {
   await postToDiscord(
     validWebhookUrl,
     discordPayload,
-    `WireFrame v${version} — ${entry.titleFr}`
+    `TennoFrame v${version} — ${entry.titleFr}`
   )
 }
 

@@ -78,7 +78,7 @@ export function WorldRulesPanel(): React.JSX.Element {
         {rules.length === 0 ? (
           <p className="py-3 text-xs text-muted-foreground">
             Aucune règle pour l’instant. Exemple : « préviens-moi quand une fissure Axi Survie apparaît en Route de l’Acier » —
-            WireFrame te notifie une seule fois par occurrence, même réduit dans le System Tray.
+            TennoFrame te notifie une seule fois par occurrence, même réduit dans le System Tray.
           </p>
         ) : (
           rules.map((rule) => (

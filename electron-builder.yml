@@ -1,5 +1,5 @@
-appId: com.nyxo17.wireframe
-productName: WireFrame
+appId: com.nyxo17.tennoframe
+productName: TennoFrame
 copyright: Copyright © 2026 Maxime (Nyxo17)
 
 directories:
@@ -30,16 +30,19 @@ win:
         - x64
 
 nsis:
+  # Preserve legacy NSIS UUIDv5(com.nyxo17.wireframe) so existing WireFrame installations
+  # upgrade seamlessly in-place to TennoFrame and replace Desktop/Start Menu shortcuts cleanly.
+  guid: 7e820ac6-b754-5ba4-947f-81d8753d8e46
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: WireFrame
-  artifactName: WireFrame-Setup-${version}.${ext}
+  shortcutName: TennoFrame
+  artifactName: TennoFrame-Setup-${version}.${ext}
 
 publish:
   provider: github
   owner: Nyx17n
-  repo: WireFrame
+  repo: TennoFrame
   releaseType: release

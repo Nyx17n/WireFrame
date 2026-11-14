@@ -16,6 +16,7 @@ import { FarmOverlayWindowService } from './services/FarmOverlayWindowService'
 import { MarketApiService } from './services/MarketApiService'
 import { SetCalculatorService } from './services/SetCalculatorService'
 import { StorageService } from './services/StorageService'
+import { migrateLegacyWireFrameUserData } from './services/migrateLegacyUserData'
 import { TradingToolsService } from './services/TradingToolsService'
 import { UpdaterService } from './services/UpdaterService'
 import { WindowOverlayService } from './services/WindowOverlayService'
@@ -53,11 +54,17 @@ function resolveAppIconPath(): string {
 }
 
 async function bootstrap(): Promise<void> {
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.nyxo17.tennoframe')
+  }
   await app.whenReady()
+
+  const userDataPath = app.getPath('userData')
+  await migrateLegacyWireFrameUserData(app.getPath('appData'), userDataPath)
 
   const httpClient = new RateLimitedHttpClient(3)
   const cacheService = new CacheService(app.getPath('sessionData'), httpClient)
-  const storageService = new StorageService(app.getPath('userData'))
+  const storageService = new StorageService(userDataPath)
   await storageService.load()
 
   const windowService = new WindowOverlayService(storageService)
@@ -188,11 +195,11 @@ async function bootstrap(): Promise<void> {
   const trayIcon = nativeImage.createFromPath(iconPath)
   if (!trayIcon.isEmpty()) {
     systemTray = new Tray(trayIcon)
-    systemTray.setToolTip('WireFrame v2 — Warframe Companion')
+    systemTray.setToolTip('TennoFrame v2 — Warframe Companion')
     systemTray.on('click', () => windowService.toggleVisibility())
     systemTray.setContextMenu(
       Menu.buildFromTemplate([
-        { label: 'Afficher / Masquer WireFrame', click: () => windowService.toggleVisibility() },
+        { label: 'Afficher / Masquer TennoFrame', click: () => windowService.toggleVisibility() },
         {
           label: 'Basculer Mode Compact (460×660)',
           click: () => {
@@ -209,7 +216,7 @@ async function bootstrap(): Promise<void> {
         },
         { type: 'separator' },
         {
-          label: 'Quitter complètement WireFrame',
+          label: 'Quitter complètement TennoFrame',
           click: () => {
             windowService.markQuitting()
             farmOverlayService.markQuitting()
@@ -240,7 +247,7 @@ async function bootstrap(): Promise<void> {
 
 if (gotSingleInstanceLock) {
   bootstrap().catch((err) => {
-    console.error('[WireFrame Main] Erreur fatale au démarrage :', err)
+    console.error('[TennoFrame Main] Erreur fatale au démarrage :', err)
     app.quit()
   })
 }

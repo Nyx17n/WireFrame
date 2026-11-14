@@ -215,7 +215,7 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
               <Crosshair className="h-7 w-7 text-primary/70" />
               <p className="font-semibold text-foreground">Aucun objectif épinglé</p>
               <p className="text-[11px]">
-                Ouvre le Codex dans WireFrame puis clique sur « Ressources craft en Overlay » ou « Tout en Overlay ».
+                Ouvre le Codex dans TennoFrame puis clique sur « Ressources craft en Overlay » ou « Tout en Overlay ».
               </p>
             </div>
           ) : visibleEntries.length === 0 ? (

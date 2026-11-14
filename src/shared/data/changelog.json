@@ -1,5 +1,16 @@
 [
   {
+    "version": "2.9.0",
+    "date": "Novembre 2026",
+    "titleFr": "WireFrame devient officiellement TennoFrame !",
+    "badgeFr": "Nouvelle Identité v2.9.0",
+    "highlightsFr": [
+      "Nouvelle identité officielle : l’application et le dépôt GitHub (github.com/Nyx17n/TennoFrame) deviennent TennoFrame, avec animation cinétique de lancement « Tenno Frame → Doc → Companion → Market → Index → Codex ».",
+      "Transition 100 % transparente des mises à jour automatiques : les installations existantes de WireFrame détectent, téléchargent (SHA-512) et remplacent automatiquement l’ancien raccourci par TennoFrame grâce à la conservation de l’identifiant NSIS et aux redirections permanentes GitHub.",
+      "Migration automatique sans aucune perte de données (%APPDATA%/WireFrame → %APPDATA%/TennoFrame) : vos Favoris, Panier, Alertes Price Sniper, Règles Worldstate, Thèmes/Dégradés et éléments épinglés dans l’Overlay Farm sont conservés intact au premier lancement."
+    ]
+  },
+  {
     "version": "2.8.0",
     "date": "Novembre 2026",
     "titleFr": "Bestiaire des Mobs (Spawn % & Drops), Annuaire Complet des Marchands & Ressources de Craft en Overlay",

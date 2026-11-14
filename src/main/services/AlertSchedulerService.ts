@@ -16,7 +16,7 @@ import { evaluateCustomWorldRules, matchWorldRule } from './world-rules/world-ru
 
 /**
  * Orchestrateur d'arrière-plan (Main Process) du Price Sniper & des Notifications OS.
- * Continue de fonctionner silencieusement lorsque WireFrame est réduit dans le System Tray.
+ * Continue de fonctionner silencieusement lorsque TennoFrame est réduit dans le System Tray.
  */
 export class AlertSchedulerService {
   private timer: NodeJS.Timeout | null = null

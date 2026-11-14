@@ -145,7 +145,7 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
           notify({
             kind: 'success',
             title: `Mise à jour v${nextStatus.availableVersion} prête`,
-            message: 'Cliquez pour installer et redémarrer WireFrame.',
+            message: 'Cliquez pour installer et redémarrer TennoFrame.',
             actions: [{ label: 'Installer', onClick: () => void get().installUpdate() }]
           })
         } else if (nextStatus.state === 'error' && nextStatus.message) {

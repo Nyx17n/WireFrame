@@ -66,7 +66,7 @@ export function MotionSettingsSection(): React.JSX.Element {
             )}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Si Windows réduit les mouvements, WireFrame plafonne automatiquement sur « Réduites ».
+            Si Windows réduit les mouvements, TennoFrame plafonne automatiquement sur « Réduites ».
           </p>
         </div>
         <Switch
@@ -93,7 +93,7 @@ export function MotionSettingsSection(): React.JSX.Element {
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
         <span className="flex items-center gap-2">
           <Play className="h-3.5 w-3.5 text-primary" />
-          <span>Animation d’ouverture « Wire » au lancement</span>
+          <span>Animation d’ouverture « Tenno » au lancement</span>
         </span>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={replayStartupAnimation}>
