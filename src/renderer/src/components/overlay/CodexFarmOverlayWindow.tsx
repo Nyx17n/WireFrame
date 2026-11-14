@@ -84,11 +84,42 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
   const surfaceOpacity = Math.max(0.4, Math.min(0.98, liveState.opacityPercent / 100))
   const interactive = !liveState.isClickThrough
 
+  const handleResizePointerDown = (e: React.PointerEvent<HTMLButtonElement>): void => {
+    if (!interactive) return
+    e.preventDefault()
+    e.stopPropagation()
+    const startScreenX = e.screenX
+    const startScreenY = e.screenY
+    const startW = window.innerWidth
+    const startH = window.innerHeight
+    let rafId = 0
+
+    const onMove = (ev: PointerEvent): void => {
+      const nextW = Math.max(280, Math.min(960, Math.round(startW + (ev.screenX - startScreenX))))
+      const nextH = Math.max(200, Math.min(1080, Math.round(startH + (ev.screenY - startScreenY))))
+      if (rafId) cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        void ipcClient.overlay.updateState({
+          bounds: { width: nextW, height: nextH }
+        })
+      })
+    }
+
+    const onUp = (): void => {
+      if (rafId) cancelAnimationFrame(rafId)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
+
   return (
-    <div className="h-screen w-screen overflow-hidden p-1.5">
+    <div className="h-screen w-screen overflow-hidden bg-transparent">
       <div
         style={{ backgroundColor: `hsl(var(--background) / ${surfaceOpacity})` }}
-        className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-primary/35 text-foreground shadow-2xl backdrop-blur-md"
+        className="relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-primary/35 text-foreground backdrop-blur-md"
       >
         <CodexFarmOverlayHeader
           liveState={liveState}
@@ -215,7 +246,7 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
           )}
         </div>
 
-        <footer className="flex shrink-0 items-center justify-between gap-2 border-t border-border/65 bg-card/80 px-2.5 py-1.5 text-[10px] text-muted-foreground">
+        <footer className="relative flex shrink-0 items-center justify-between gap-2 border-t border-border/65 bg-card/80 px-2.5 py-1.5 pr-6 text-[10px] text-muted-foreground">
           <span>
             {liveState.isClickThrough
               ? '👻 Souris traversante active — survole 🔓 0.5s pour déverrouiller'
@@ -233,6 +264,17 @@ export function CodexFarmOverlayWindow(): React.JSX.Element {
             </button>
           ) : (
             <span className="shrink-0 font-mono text-primary">{liveState.shortcutToggle}</span>
+          )}
+          {interactive && (
+            <button
+              type="button"
+              onPointerDown={handleResizePointerDown}
+              title="Glisser pour redimensionner l'overlay"
+              aria-label="Redimensionner l'overlay"
+              className="app-no-drag absolute bottom-0.5 right-0.5 flex h-4 w-4 cursor-nwse-resize items-center justify-center text-[10px] text-muted-foreground/70 hover:text-primary"
+            >
+              ◢
+            </button>
           )}
         </footer>
       </div>
