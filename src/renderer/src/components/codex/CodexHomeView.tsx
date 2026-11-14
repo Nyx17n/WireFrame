@@ -3,7 +3,8 @@ import { BookOpen, ChevronDown, Dna, Loader2, Search } from 'lucide-react'
 import type {
   CodexCategory,
   CodexSearchResult,
-  CodexVariantFilter
+  CodexVariantFilter,
+  MobUnitTierFilter
 } from '@shared/schemas/codex.schema'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -25,7 +26,9 @@ const CATEGORY_TABS: ReadonlyArray<{ id: CodexCategory; label: string }> = [
   { id: 'warframes', label: 'Warframes' },
   { id: 'weapons', label: 'Armes' },
   { id: 'mods', label: 'Mods' },
-  { id: 'relics', label: 'Reliques' }
+  { id: 'relics', label: 'Reliques' },
+  { id: 'mobs', label: '👾 Mobs' },
+  { id: 'vendors', label: '🏪 Marchands' }
 ]
 
 const RELIC_ERAS = ['all', 'Lith', 'Meso', 'Neo', 'Axi', 'Requiem', 'Vanguard'] as const
@@ -34,6 +37,39 @@ const WEAPON_SLOTS = [
   { id: 'primary', label: 'Principale' },
   { id: 'secondary', label: 'Secondaire' },
   { id: 'melee', label: 'Mêlée' }
+] as const
+
+const MOB_FACTIONS = [
+  { id: 'all', label: 'Toutes factions' },
+  { id: 'grineer', label: 'Grineer' },
+  { id: 'corpus', label: 'Corpus' },
+  { id: 'infested', label: 'Infestés' },
+  { id: 'orokin', label: 'Orokin / Corrompus' },
+  { id: 'sentient', label: 'Sentients' },
+  { id: 'narmer', label: 'Narmer' },
+  { id: 'murmur', label: 'Murmure' },
+  { id: 'duviri', label: 'Duviri' },
+  { id: 'scaldra', label: 'Scaldra (1999)' },
+  { id: 'techrot', label: 'Techrot (1999)' },
+  { id: 'stalker', label: 'Stalker & Acolytes' }
+] as const
+
+const MOB_TIERS: ReadonlyArray<{ id: MobUnitTierFilter; label: string }> = [
+  { id: 'all', label: 'Tous rangs' },
+  { id: 'standard', label: 'Standard' },
+  { id: 'eximus', label: 'Élite & Lourds' },
+  { id: 'boss', label: 'Boss & Chasseurs' }
+]
+
+const VENDOR_HUBS = [
+  { id: 'all', label: 'Tous les Hubs' },
+  { id: 'relays', label: 'Relais & Maroo' },
+  { id: 'syndicates', label: '6 Syndicats' },
+  { id: 'cetus', label: 'Cetus (Terre)' },
+  { id: 'fortuna', label: 'Fortuna (Vénus)' },
+  { id: 'deimos', label: 'Deimos & Sanctum' },
+  { id: 'zariman_duviri', label: 'Zariman & Duviri' },
+  { id: 'hollvania_camp', label: '1999, Camp & Nora' }
 ] as const
 
 export function CodexHomeView({
@@ -58,6 +94,9 @@ export function CodexHomeView({
   const [variantFilter, setVariantFilter] = React.useState<CodexVariantFilter>('all')
   const [eraFilter, setEraFilter] = React.useState<string>('all')
   const [slotFilter, setSlotFilter] = React.useState<string>('all')
+  const [factionFilter, setFactionFilter] = React.useState<string>('all')
+  const [unitTierFilter, setUnitTierFilter] = React.useState<MobUnitTierFilter>('all')
+  const [hubFilter, setHubFilter] = React.useState<string>('all')
   const [loadedPage, setLoadedPage] = React.useState(1)
   const [result, setResult] = React.useState<CodexSearchResult | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
@@ -80,6 +119,9 @@ export function CodexHomeView({
         variantFilter,
         eraFilter,
         slotFilter,
+        factionFilter,
+        unitTierFilter,
+        hubFilter,
         page: 1,
         pageSize: PAGE_SIZE
       })
@@ -95,7 +137,16 @@ export function CodexHomeView({
           setIsLoading(false)
         }
       })
-  }, [activeTab, query, variantFilter, eraFilter, slotFilter])
+  }, [
+    activeTab,
+    query,
+    variantFilter,
+    eraFilter,
+    slotFilter,
+    factionFilter,
+    unitTierFilter,
+    hubFilter
+  ])
 
   const handleLoadMore = (): void => {
     if (activeTab === 'helminth' || isLoadingMore || !result) return
@@ -112,6 +163,9 @@ export function CodexHomeView({
         variantFilter,
         eraFilter,
         slotFilter,
+        factionFilter,
+        unitTierFilter,
+        hubFilter,
         page: nextPage,
         pageSize: PAGE_SIZE
       })
@@ -138,6 +192,9 @@ export function CodexHomeView({
     setVariantFilter('all')
     setEraFilter('all')
     setSlotFilter('all')
+    setFactionFilter('all')
+    setUnitTierFilter('all')
+    setHubFilter('all')
   }
 
   const remainingCount = result ? Math.max(0, result.total - result.items.length) : 0
@@ -189,79 +246,137 @@ export function CodexHomeView({
         <>
           <CodexOverlayToolbar />
 
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card/60 p-2.5">
-            <div className="relative min-w-[220px] flex-1">
-              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Filtrer FR / EN (ex: Cellule Orokin, Wisp, Acceltra, Lith A13...)"
-                className="h-8 pl-8 text-xs"
-              />
+          <div className="space-y-2 rounded-lg border border-border bg-card/60 p-2.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative min-w-[220px] flex-1">
+                <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={
+                    activeTab === 'mobs'
+                      ? 'Chercher un mob, une planète ou un objet droppé (ex: Sargas Ruk, Néant, Continuité…)'
+                      : activeTab === 'vendors'
+                        ? 'Chercher un marchand, une planète OU un objet vendu (ex: Citrine, Nitain, Holoclef…)'
+                        : 'Filtrer FR / EN (ex: Cellule Orokin, Wisp, Acceltra, Lith A13...)'
+                  }
+                  className="h-8 pl-8 text-xs"
+                />
+              </div>
+
+              {activeTab !== 'mobs' && activeTab !== 'vendors' && (
+                <div className="flex flex-wrap items-center gap-1">
+                  {(['all', 'prime', 'standard', 'tradable', 'unvaulted'] as const).map((vf) => (
+                    <Button
+                      key={vf}
+                      size="sm"
+                      variant={variantFilter === vf ? 'secondary' : 'ghost'}
+                      className="h-7 px-2 text-[11px]"
+                      onClick={() => setVariantFilter(vf)}
+                    >
+                      {vf === 'all'
+                        ? 'Tous'
+                        : vf === 'prime'
+                          ? 'Prime'
+                          : vf === 'standard'
+                            ? 'Standard'
+                            : vf === 'tradable'
+                              ? 'Échangeable'
+                              : 'Hors Vault'}
+                    </Button>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'mobs' && (
+                <div className="flex flex-wrap items-center gap-1">
+                  {MOB_TIERS.map((tier) => (
+                    <Button
+                      key={tier.id}
+                      size="sm"
+                      variant={unitTierFilter === tier.id ? 'secondary' : 'ghost'}
+                      className="h-7 px-2 text-[11px]"
+                      onClick={() => setUnitTierFilter(tier.id)}
+                    >
+                      {tier.label}
+                    </Button>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'weapons' && (
+                <div className="flex flex-wrap items-center gap-1 border-l border-border pl-2">
+                  {WEAPON_SLOTS.map((slot) => (
+                    <Button
+                      key={slot.id}
+                      size="sm"
+                      variant={slotFilter === slot.id ? 'default' : 'ghost'}
+                      className="h-7 px-2 text-[11px]"
+                      onClick={() => setSlotFilter(slot.id)}
+                    >
+                      {slot.label}
+                    </Button>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'relics' && (
+                <div className="flex flex-wrap items-center gap-1 border-l border-border pl-2">
+                  {RELIC_ERAS.map((era) => (
+                    <Button
+                      key={era}
+                      size="sm"
+                      variant={eraFilter === era ? 'default' : 'ghost'}
+                      className="h-7 px-2 text-[11px]"
+                      onClick={() => setEraFilter(era)}
+                    >
+                      {era === 'all' ? 'Toutes ères' : era}
+                    </Button>
+                  ))}
+                </div>
+              )}
+
+              <div className="ml-auto">
+                <ViewModeToggle
+                  value={layoutMode}
+                  onChange={setLayoutMode}
+                  size={cardSize}
+                  onSizeChange={setCardSize}
+                />
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-1">
-              {(['all', 'prime', 'standard', 'tradable', 'unvaulted'] as const).map((vf) => (
-                <Button
-                  key={vf}
-                  size="sm"
-                  variant={variantFilter === vf ? 'secondary' : 'ghost'}
-                  className="h-7 px-2 text-[11px]"
-                  onClick={() => setVariantFilter(vf)}
-                >
-                  {vf === 'all'
-                    ? 'Tous'
-                    : vf === 'prime'
-                      ? 'Prime'
-                      : vf === 'standard'
-                        ? 'Standard'
-                        : vf === 'tradable'
-                          ? 'Échangeable'
-                          : 'Hors Vault'}
-                </Button>
-              ))}
-            </div>
-
-            {activeTab === 'weapons' && (
-              <div className="flex flex-wrap items-center gap-1 border-l border-border pl-2">
-                {WEAPON_SLOTS.map((slot) => (
+            {activeTab === 'mobs' && (
+              <div className="flex flex-wrap items-center gap-1 border-t border-border/60 pt-2">
+                {MOB_FACTIONS.map((fac) => (
                   <Button
-                    key={slot.id}
+                    key={fac.id}
                     size="sm"
-                    variant={slotFilter === slot.id ? 'default' : 'ghost'}
-                    className="h-7 px-2 text-[11px]"
-                    onClick={() => setSlotFilter(slot.id)}
+                    variant={factionFilter === fac.id ? 'default' : 'ghost'}
+                    className="h-6 px-2 text-[10px]"
+                    onClick={() => setFactionFilter(fac.id)}
                   >
-                    {slot.label}
+                    {fac.label}
                   </Button>
                 ))}
               </div>
             )}
 
-            {activeTab === 'relics' && (
-              <div className="flex flex-wrap items-center gap-1 border-l border-border pl-2">
-                {RELIC_ERAS.map((era) => (
+            {activeTab === 'vendors' && (
+              <div className="flex flex-wrap items-center gap-1 border-t border-border/60 pt-2">
+                {VENDOR_HUBS.map((hub) => (
                   <Button
-                    key={era}
+                    key={hub.id}
                     size="sm"
-                    variant={eraFilter === era ? 'default' : 'ghost'}
-                    className="h-7 px-2 text-[11px]"
-                    onClick={() => setEraFilter(era)}
+                    variant={hubFilter === hub.id ? 'default' : 'ghost'}
+                    className="h-6 px-2 text-[10px]"
+                    onClick={() => setHubFilter(hub.id)}
                   >
-                    {era === 'all' ? 'Toutes ères' : era}
+                    {hub.label}
                   </Button>
                 ))}
               </div>
             )}
-
-            <div className="ml-auto">
-              <ViewModeToggle
-                value={layoutMode}
-                onChange={setLayoutMode}
-                size={cardSize}
-                onSizeChange={setCardSize}
-              />
-            </div>
           </div>
 
           {errorMsg && (

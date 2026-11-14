@@ -7,7 +7,9 @@ import { Card } from '@/components/ui/card'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CodexDropsAndCraftSection } from '@/components/codex/CodexDropsAndCraftSection'
+import { CodexMobDetailSection } from '@/components/codex/CodexMobDetailSection'
 import { CodexOverlayToolbar } from '@/components/codex/CodexOverlayToolbar'
+import { CodexVendorDetailSection } from '@/components/codex/CodexVendorDetailSection'
 import { ipcClient } from '@/services/ipc-client'
 import { useTabsStore } from '@/stores/useTabsStore'
 
@@ -267,7 +269,13 @@ export function CodexDetailView({
         </Card>
       )}
 
-      <CodexDropsAndCraftSection detail={detail} />
+      {detail.mobInfo ? (
+        <CodexMobDetailSection detail={detail} />
+      ) : detail.vendorInfo ? (
+        <CodexVendorDetailSection detail={detail} />
+      ) : (
+        <CodexDropsAndCraftSection detail={detail} />
+      )}
     </main>
   )
 }

@@ -17,6 +17,8 @@ extraResources:
     to: codex-db.json
   - from: resources/codex-craft-recipes.json
     to: codex-craft-recipes.json
+  - from: resources/codex-mobs-vendors.json
+    to: codex-mobs-vendors.json
 
 asar: true
 

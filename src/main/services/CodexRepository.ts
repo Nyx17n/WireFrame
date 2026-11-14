@@ -20,8 +20,10 @@ import type { MarketApiService } from './MarketApiService'
 import { CodexAcquisitionResolver } from './CodexAcquisitionResolver'
 import {
   CodexCraftRecipesDatabaseSchema,
+  CodexMobsVendorsDatabaseSchema,
   CodexRawDatabaseSchema,
   type CodexCraftRecipesDatabase,
+  type CodexMobsVendorsDatabase,
   type CodexRawDatabase
 } from './codex-raw.schemas'
 
@@ -68,6 +70,7 @@ function repairRelicRewardName(nameFr: string, nameEn: string): string {
 export class CodexRepository {
   private db: CodexRawDatabase | null = null
   private craftRecipes: CodexCraftRecipesDatabase | null = null
+  private mobsVendors: CodexMobsVendorsDatabase | null = null
   private resolver: CodexAcquisitionResolver | null = null
   private loadingPromise: Promise<CodexRawDatabase> | null = null
   private summariesByCat: Record<CodexCategory, CodexSummaryCard[]> | null = null
@@ -89,11 +92,19 @@ export class CodexRepository {
         craftRecipes = CodexCraftRecipesDatabaseSchema.parse(JSON.parse(rawCraft))
       }
 
+      let mobsVendors: CodexMobsVendorsDatabase = { mobs: [], vendors: [] }
+      const mvPath = resolveResourceFilePath('codex-mobs-vendors.json')
+      if (existsSync(mvPath)) {
+        const rawMv = await readFile(mvPath, 'utf-8')
+        mobsVendors = CodexMobsVendorsDatabaseSchema.parse(JSON.parse(rawMv))
+      }
+
       const resolver = new CodexAcquisitionResolver(parsed, craftRecipes)
       this.db = parsed
       this.craftRecipes = craftRecipes
+      this.mobsVendors = mobsVendors
       this.resolver = resolver
-      this.summariesByCat = this.buildSummaries(parsed, resolver)
+      this.summariesByCat = this.buildSummaries(parsed, resolver, mobsVendors)
       return parsed
     })()
 
@@ -106,7 +117,8 @@ export class CodexRepository {
 
   private buildSummaries(
     db: CodexRawDatabase,
-    resolver: CodexAcquisitionResolver
+    resolver: CodexAcquisitionResolver,
+    mv: CodexMobsVendorsDatabase
   ): Record<CodexCategory, CodexSummaryCard[]> {
     return {
       resources: db.resources.map((r) => {
@@ -200,7 +212,50 @@ export class CodexRepository {
           craftComponents: [],
           acquisitionText: resolved.summaryText
         }
-      })
+      }),
+      mobs: mv.mobs.map((m) => {
+        const tierLabel =
+          m.unitTier === 'boss' ? 'Boss' : m.unitTier === 'eximus' ? 'Élite / Lourd' : 'Standard'
+        const topSpawn = m.spawns[0]
+        return {
+          id: m.id,
+          category: 'mobs',
+          nameFr: m.name,
+          nameEn: m.en,
+          imageUrl: toCodexImageUrl(m.img),
+          badgeText: `${m.factionFr} · ${tierLabel}`,
+          subtitle:
+            m.planetsFr.length > 0
+              ? `📍 ${m.planetsFr.slice(0, 4).join(', ')}`
+              : topSpawn?.locationFr ?? m.factionFr,
+          isPrime: false,
+          isVaulted: false,
+          isTradable: false,
+          craftComponents: [],
+          acquisitionText: topSpawn?.locationFr ?? null,
+          mobSpawnChancePct: topSpawn?.spawnChancePct ?? null,
+          topDropsPreview: m.drops.slice(0, 2).map((d) => ({
+            nameFr: d.nameFr,
+            chancePct: d.chancePct
+          }))
+        }
+      }),
+      vendors: mv.vendors.map((v) => ({
+        id: v.id,
+        category: 'vendors',
+        nameFr: v.name,
+        nameEn: v.en,
+        imageUrl: toCodexImageUrl(v.offerings.find((o) => o.imageName)?.imageName),
+        badgeText: `${v.offerings.length} offres`,
+        subtitle: `📍 ${v.planetFr} · ${v.hubFr}`,
+        isPrime: false,
+        isVaulted: false,
+        isTradable: false,
+        craftComponents: [],
+        acquisitionText: `${v.roleFr}`,
+        vendorCurrenciesFr: v.currencies.map((c) => c.nameFr).slice(0, 2),
+        matchedOfferingPreview: null
+      }))
     }
   }
 
@@ -209,31 +264,110 @@ export class CodexRepository {
     const summaries = this.summariesByCat!
     const q = normalizeText(params.query)
     const db = this.db!
+    const mv = this.mobsVendors!
 
-    const filtered = summaries[params.category].filter((card) => {
+    const mobById =
+      params.category === 'mobs' ? new Map(mv.mobs.map((m) => [m.id, m])) : null
+    const vendorById =
+      params.category === 'vendors' ? new Map(mv.vendors.map((v) => [v.id, v])) : null
+
+    const filtered: CodexSummaryCard[] = []
+
+    for (const card of summaries[params.category]) {
+      if (params.category === 'mobs' && mobById) {
+        const mob = mobById.get(card.id)
+        if (!mob) continue
+        if (params.factionFilter !== 'all' && mob.factionId !== params.factionFilter) continue
+        if (params.unitTierFilter !== 'all' && mob.unitTier !== params.unitTierFilter) continue
+
+        if (q) {
+          const directHit =
+            normalizeText(card.nameFr).includes(q) ||
+            normalizeText(card.nameEn).includes(q) ||
+            mob.planetsFr.some((p) => normalizeText(p).includes(q)) ||
+            mob.planetsEn.some((p) => normalizeText(p).includes(q)) ||
+            mob.spawns.some((s) => normalizeText(s.locationFr).includes(q))
+
+          const matchedDrop = mob.drops.find(
+            (d) => normalizeText(d.nameFr).includes(q) || normalizeText(d.nameEn).includes(q)
+          )
+
+          if (!directHit && !matchedDrop) continue
+
+          if (matchedDrop) {
+            const others = mob.drops.filter((d) => d !== matchedDrop).slice(0, 1)
+            filtered.push({
+              ...card,
+              topDropsPreview: [matchedDrop, ...others].map((d) => ({
+                nameFr: d.nameFr,
+                chancePct: d.chancePct
+              }))
+            })
+            continue
+          }
+        }
+        filtered.push(card)
+        continue
+      }
+
+      if (params.category === 'vendors' && vendorById) {
+        const vendor = vendorById.get(card.id)
+        if (!vendor) continue
+        if (params.hubFilter !== 'all' && vendor.hubGroup !== params.hubFilter) continue
+
+        if (q) {
+          const directHit =
+            normalizeText(card.nameFr).includes(q) ||
+            normalizeText(card.nameEn).includes(q) ||
+            normalizeText(vendor.planetFr).includes(q) ||
+            normalizeText(vendor.hubFr).includes(q) ||
+            normalizeText(vendor.roleFr).includes(q) ||
+            vendor.currencies.some((c) => normalizeText(c.nameFr).includes(q))
+
+          const matchedOff = vendor.offerings.find(
+            (o) => normalizeText(o.nameFr).includes(q) || normalizeText(o.nameEn).includes(q)
+          )
+
+          if (!directHit && !matchedOff) continue
+
+          if (matchedOff) {
+            const costStr = matchedOff.costs
+              .map((c) => `${c.amount.toLocaleString('fr-FR')} ${c.currencyFr}`)
+              .join(' + ')
+            filtered.push({
+              ...card,
+              matchedOfferingPreview: `Vend : ${matchedOff.nameFr} (${costStr})`.slice(0, 300)
+            })
+            continue
+          }
+        }
+        filtered.push(card)
+        continue
+      }
+
       if (q) {
         const matchText =
           normalizeText(card.nameFr).includes(q) ||
           normalizeText(card.nameEn).includes(q) ||
           normalizeText(card.subtitle).includes(q) ||
           normalizeText(card.acquisitionText ?? '').includes(q)
-        if (!matchText) return false
+        if (!matchText) continue
       }
-      if (params.variantFilter === 'prime' && !card.isPrime) return false
-      if (params.variantFilter === 'standard' && card.isPrime) return false
-      if (params.variantFilter === 'tradable' && !card.isTradable) return false
-      if (params.variantFilter === 'unvaulted' && card.isVaulted) return false
+      if (params.variantFilter === 'prime' && !card.isPrime) continue
+      if (params.variantFilter === 'standard' && card.isPrime) continue
+      if (params.variantFilter === 'tradable' && !card.isTradable) continue
+      if (params.variantFilter === 'unvaulted' && card.isVaulted) continue
 
       if (params.category === 'relics' && params.eraFilter !== 'all') {
         const relic = db.relics.find((r) => r.id === card.id)
-        if (!relic || relic.era.toLowerCase() !== params.eraFilter.toLowerCase()) return false
+        if (!relic || relic.era.toLowerCase() !== params.eraFilter.toLowerCase()) continue
       }
       if (params.category === 'weapons' && params.slotFilter !== 'all') {
         const weapon = db.weapons.find((w) => w.id === card.id)
-        if (!weapon || weapon.slot !== params.slotFilter) return false
+        if (!weapon || weapon.slot !== params.slotFilter) continue
       }
-      return true
-    })
+      filtered.push(card)
+    }
 
     const start = (params.page - 1) * params.pageSize
     return {
@@ -246,7 +380,9 @@ export class CodexRepository {
         warframes: summaries.warframes.length,
         weapons: summaries.weapons.length,
         mods: summaries.mods.length,
-        relics: summaries.relics.length
+        relics: summaries.relics.length,
+        mobs: summaries.mobs.length,
+        vendors: summaries.vendors.length
       }
     }
   }
@@ -257,7 +393,15 @@ export class CodexRepository {
     await this.ensureLoaded()
     const summaries = this.summariesByCat!
     const matches: CodexSummaryCard[] = []
-    const order: readonly CodexCategory[] = ['resources', 'warframes', 'weapons', 'relics', 'mods']
+    const order: readonly CodexCategory[] = [
+      'resources',
+      'warframes',
+      'weapons',
+      'vendors',
+      'mobs',
+      'relics',
+      'mods'
+    ]
     for (const cat of order) {
       for (const card of summaries[cat]) {
         if (matches.length >= limit) return matches
@@ -377,6 +521,8 @@ export class CodexRepository {
         weaponStats: null,
         modStats: null,
         relicInfo: null,
+        mobInfo: null,
+        vendorInfo: null,
         drops: resolved.drops,
         acquisitionSources: resolved.acquisitionSources,
         totalBuildCredits: null,
@@ -426,6 +572,8 @@ export class CodexRepository {
         weaponStats: null,
         modStats: null,
         relicInfo: null,
+        mobInfo: null,
+        vendorInfo: null,
         drops: resolved.drops,
         acquisitionSources: resolved.acquisitionSources,
         totalBuildCredits: resolved.totalBuildCredits,
@@ -474,6 +622,8 @@ export class CodexRepository {
         },
         modStats: null,
         relicInfo: null,
+        mobInfo: null,
+        vendorInfo: null,
         drops: resolved.drops,
         acquisitionSources: resolved.acquisitionSources,
         totalBuildCredits: resolved.totalBuildCredits,
@@ -514,8 +664,171 @@ export class CodexRepository {
           effects: item.stats
         },
         relicInfo: null,
+        mobInfo: null,
+        vendorInfo: null,
         drops: resolved.drops,
         acquisitionSources: resolved.acquisitionSources,
+        totalBuildCredits: null,
+        components: [],
+        totalUsedFor: 0,
+        usedFor: []
+      }
+    }
+
+    if (category === 'mobs') {
+      const mv = this.mobsVendors!
+      const mob = mv.mobs.find((m) => m.id === id)
+      if (!mob) throw new Error(`Mob Codex introuvable : ${id}`)
+      const tierLabel =
+        mob.unitTier === 'boss' ? 'Boss' : mob.unitTier === 'eximus' ? 'Élite / Lourd' : 'Unité Standard'
+      const topDropPreview =
+        mob.drops.length > 0
+          ? `Drops : ${mob.drops
+              .slice(0, 2)
+              .map((d) => `${d.nameFr} (${d.chancePct}%)`)
+              .join(' · ')}`
+          : null
+
+      return {
+        id: mob.id,
+        category: 'mobs',
+        nameFr: mob.name,
+        nameEn: mob.en,
+        imageUrl: toCodexImageUrl(mob.img),
+        descriptionFr:
+          mob.desc ||
+          `Unité ${mob.factionFr} (${tierLabel}). Consultez ci-dessous ses localisations d’apparition (% de spawn) et sa table complète de butin.`,
+        typeLabel: `${mob.factionFr} · ${tierLabel}`,
+        isPrime: false,
+        isVaulted: false,
+        isTradable: false,
+        marketSlug: null,
+        planets: mob.planetsFr.length > 0 ? mob.planetsFr.join(', ') : null,
+        utility: null,
+        warframeStats: null,
+        abilities: [],
+        weaponStats: null,
+        modStats: null,
+        relicInfo: null,
+        mobInfo: {
+          factionId: mob.factionId,
+          factionFr: mob.factionFr,
+          factionEn: mob.factionEn,
+          unitTier: mob.unitTier,
+          health: mob.health,
+          shield: mob.shield,
+          armor: mob.armor,
+          scansRequired: mob.scansRequired,
+          weaknessesFr: mob.weaknessesFr,
+          resistancesFr: mob.resistancesFr,
+          planetsFr: mob.planetsFr,
+          spawns: mob.spawns.map((s) => ({
+            locationFr: s.locationFr,
+            locationEn: s.locationEn,
+            conditionFr: s.conditionFr ?? null,
+            spawnChancePct: s.spawnChancePct
+          })),
+          mobDrops: mob.drops.map((d) => ({
+            nameFr: d.nameFr,
+            nameEn: d.nameEn,
+            chancePct: d.chancePct,
+            rarity: d.rarity,
+            typeLabelFr: d.typeLabelFr,
+            linkedCodexId: d.linkedCodexId ?? null,
+            linkedCategory: d.linkedCategory ?? null
+          }))
+        },
+        vendorInfo: null,
+        drops: mob.drops.map((d) => ({
+          part: d.typeLabelFr,
+          location: d.nameFr,
+          chance: d.chancePct,
+          rarity: d.rarity
+        })),
+        acquisitionSources: mob.spawns.slice(0, 4).map((s, idx) => ({
+          type: 'drop' as const,
+          labelFr: s.locationFr,
+          labelEn: s.locationEn || s.locationFr,
+          sublabelFr: idx === 0 && topDropPreview ? topDropPreview : (s.conditionFr ?? null),
+          sublabelEn: s.conditionFr ?? null,
+          chancePct: s.spawnChancePct,
+          isGuaranteed: s.spawnChancePct >= 99.9,
+          costCredits: null,
+          partNameFr: null
+        })),
+        totalBuildCredits: null,
+        components: [],
+        totalUsedFor: 0,
+        usedFor: []
+      }
+    }
+
+    if (category === 'vendors') {
+      const mv = this.mobsVendors!
+      const vendor = mv.vendors.find((v) => v.id === id)
+      if (!vendor) throw new Error(`Marchand Codex introuvable : ${id}`)
+
+      return {
+        id: vendor.id,
+        category: 'vendors',
+        nameFr: vendor.name,
+        nameEn: vendor.en,
+        imageUrl: toCodexImageUrl(vendor.offerings.find((o) => o.imageName)?.imageName),
+        descriptionFr: vendor.roleFr,
+        typeLabel: `Marchand · ${vendor.planetFr}`,
+        isPrime: false,
+        isVaulted: false,
+        isTradable: false,
+        marketSlug: null,
+        planets: `${vendor.planetFr} — ${vendor.hubFr}`,
+        utility: null,
+        warframeStats: null,
+        abilities: [],
+        weaponStats: null,
+        modStats: null,
+        relicInfo: null,
+        mobInfo: null,
+        vendorInfo: {
+          roleFr: vendor.roleFr,
+          roleEn: vendor.roleEn,
+          hubGroup: vendor.hubGroup,
+          planetFr: vendor.planetFr,
+          planetEn: vendor.planetEn,
+          hubFr: vendor.hubFr,
+          hubEn: vendor.hubEn,
+          zoneFr: vendor.zoneFr,
+          unlockQuestFr: vendor.unlockQuestFr || null,
+          currencies: vendor.currencies.map((c) => ({
+            nameFr: c.nameFr,
+            howToGetFr: c.howToGetFr ?? null
+          })),
+          offerings: vendor.offerings.map((o) => ({
+            id: o.id,
+            nameFr: o.nameFr,
+            nameEn: o.nameEn,
+            category: o.category,
+            imageUrl: toCodexImageUrl(o.imageName),
+            rankRequiredFr: o.rankRequiredFr ?? null,
+            costs: o.costs,
+            linkedCodexId: o.linkedCodexId ?? null,
+            linkedCategory: o.linkedCategory ?? null,
+            isTradable: o.isTradable
+          }))
+        },
+        drops: [],
+        acquisitionSources: [
+          {
+            type: 'syndicate',
+            labelFr: `${vendor.planetFr} → ${vendor.hubFr}`,
+            labelEn: `${vendor.planetEn} → ${vendor.hubEn}`,
+            sublabelFr: vendor.zoneFr.slice(0, 300),
+            sublabelEn: null,
+            chancePct: 100,
+            isGuaranteed: true,
+            costCredits: null,
+            partNameFr: null
+          }
+        ],
         totalBuildCredits: null,
         components: [],
         totalUsedFor: 0,
@@ -555,6 +868,8 @@ export class CodexRepository {
           radiantChance: rw.radChance
         }))
       },
+      mobInfo: null,
+      vendorInfo: null,
       drops: resolved.drops,
       acquisitionSources: resolved.acquisitionSources,
       totalBuildCredits: null,

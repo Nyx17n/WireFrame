@@ -2,7 +2,9 @@ import type {
   CodexAcquisitionSource,
   CodexAcquisitionSourceType,
   CodexComponentEntry,
-  CodexItemDetail
+  CodexItemDetail,
+  CodexMobDropEntry,
+  CodexVendorOffering
 } from '@shared/schemas/codex.schema'
 import type {
   CodexOverlayPinnedEntry,
@@ -218,4 +220,87 @@ export function getEquipmentEntriesByMode(
     return baseParts
   }
   return [...baseParts, ...resComponents]
+}
+
+export function buildMobDropOverlayEntry(
+  detail: CodexItemDetail,
+  drop: CodexMobDropEntry,
+  idx = 0
+): CodexOverlayPinnedEntry {
+  const itemKey = buildItemKey(detail.category, detail.id)
+  const slug =
+    drop.nameEn
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || `drop-${idx}`
+  const partKey = `mobdrop-${slug}`
+  const topSpawn = detail.mobInfo?.spawns[0]
+  const locText = topSpawn?.locationFr ?? detail.planets ?? 'Carte Céleste'
+
+  return {
+    entryId: `${itemKey}::${partKey}`,
+    itemKey,
+    category: detail.category,
+    itemId: detail.id,
+    itemNameFr: detail.nameFr,
+    partKey,
+    labelFr: `${drop.nameFr} (sur ${detail.nameFr})`,
+    groupLabelFr: `Drop Mob · ${detail.nameFr}`,
+    imageUrl: detail.imageUrl,
+    isResource: false,
+    requiredCount: null,
+    obtained: false,
+    sources: [
+      {
+        type: 'drop',
+        labelFr: `${detail.nameFr} — ${locText}`,
+        sublabelFr: topSpawn
+          ? `Spawn mob : ${topSpawn.spawnChancePct}% · ${drop.typeLabelFr}`
+          : drop.typeLabelFr,
+        chancePct: drop.chancePct,
+        isGuaranteed: drop.chancePct >= 99.9
+      }
+    ]
+  }
+}
+
+export function buildVendorOfferingOverlayEntry(
+  detail: CodexItemDetail,
+  offering: CodexVendorOffering
+): CodexOverlayPinnedEntry {
+  const itemKey = buildItemKey(detail.category, detail.id)
+  const partKey = `off-${offering.id}`
+  const vInfo = detail.vendorInfo
+  const costText = offering.costs
+    .map((c) =>
+      c.amount > 0 ? `${c.amount.toLocaleString('fr-FR')} ${c.currencyFr}` : c.currencyFr
+    )
+    .join(' + ')
+
+  return {
+    entryId: `${itemKey}::${partKey}`,
+    itemKey,
+    category: detail.category,
+    itemId: detail.id,
+    itemNameFr: detail.nameFr,
+    partKey,
+    labelFr: offering.nameFr,
+    groupLabelFr: `Marchand · ${detail.nameFr}`,
+    imageUrl: offering.imageUrl ?? detail.imageUrl,
+    isResource: offering.category === 'resource_relic',
+    requiredCount: null,
+    obtained: false,
+    sources: [
+      {
+        type: 'syndicate',
+        labelFr: vInfo ? `${vInfo.planetFr} → ${vInfo.hubFr}` : detail.nameFr,
+        sublabelFr: `Coût : ${costText}${offering.rankRequiredFr ? ` (${offering.rankRequiredFr})` : ''}`.slice(
+          0,
+          310
+        ),
+        chancePct: 100,
+        isGuaranteed: true
+      }
+    ]
+  }
 }
