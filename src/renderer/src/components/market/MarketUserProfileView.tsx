@@ -8,6 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  MarketItemContextMenu,
+  type MarketContextMenuState
+} from '@/components/market/MarketItemContextMenu'
 import { MarketUserHeaderKpis } from '@/components/market/MarketUserHeaderKpis'
 import { MarketUserInsightsTab } from '@/components/market/MarketUserInsightsTab'
 import { cn } from '@/lib/utils'
@@ -19,6 +23,7 @@ import { useTabsStore } from '@/stores/useTabsStore'
 type OrderSortMode = 'price-asc' | 'price-desc' | 'stock-val'
 
 export function MarketUserProfileView({ userSlug }: { userSlug: string }): React.JSX.Element {
+  const [ctxMenu, setCtxMenu] = React.useState<MarketContextMenuState | null>(null)
   const lang = useAppStore((s) => s.settings.market.language)
   const isCompact = useAppStore((s) => s.windowState.isCompactMode)
   const triggerWhisper = useMarketStore((s) => s.triggerWhisper)
@@ -220,6 +225,20 @@ export function MarketUserProfileView({ userSlug }: { userSlug: string }): React
                 return (
                   <div
                     key={ord.id}
+                    onContextMenu={(e) => {
+                      if (!ord.itemSlug) return
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setCtxMenu({
+                        position: { x: e.clientX, y: e.clientY },
+                        item: {
+                          slug: ord.itemSlug,
+                          nameFr: titleFr,
+                          nameEn: titleEn,
+                          thumb: ord.itemThumb ?? null
+                        }
+                      })
+                    }}
                     className="flex flex-wrap items-center justify-between gap-2.5 rounded-md border border-border bg-card/85 p-2.5 transition-colors hover:border-primary/40"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -317,6 +336,7 @@ export function MarketUserProfileView({ userSlug }: { userSlug: string }): React
           )}
         </div>
       )}
+      <MarketItemContextMenu state={ctxMenu} onClose={() => setCtxMenu(null)} />
     </div>
   )
 }

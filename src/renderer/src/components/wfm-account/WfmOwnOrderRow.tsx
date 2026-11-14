@@ -6,6 +6,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { Switch } from '@/components/ui/switch'
+import {
+  MarketItemContextMenu,
+  type MarketContextMenuState
+} from '@/components/market/MarketItemContextMenu'
 import { cn } from '@/lib/utils'
 import { notify } from '@/stores/useNotificationStore'
 import { useTabsStore } from '@/stores/useTabsStore'
@@ -17,6 +21,7 @@ interface WfmOwnOrderRowProps {
 }
 
 export function WfmOwnOrderRow({ order, isCompact }: WfmOwnOrderRowProps): React.JSX.Element {
+  const [ctxMenu, setCtxMenu] = React.useState<MarketContextMenuState | null>(null)
   const updateOrder = useWfmAccountStore((s) => s.updateOrder)
   const closeOrderUnit = useWfmAccountStore((s) => s.closeOrderUnit)
   const deleteOrder = useWfmAccountStore((s) => s.deleteOrder)
@@ -62,14 +67,28 @@ export function WfmOwnOrderRow({ order, isCompact }: WfmOwnOrderRowProps): React
   const thumbUrl = toWfAssetUrl(order.itemThumb)
 
   return (
-    <div
-      className={cn(
-        'flex flex-wrap items-center justify-between gap-2.5 rounded-md border p-2.5 transition-colors',
-        order.visible
-          ? 'border-border bg-card/85 hover:border-primary/40'
-          : 'border-dashed border-border/70 bg-background/40 opacity-80'
-      )}
-    >
+    <>
+      <div
+        onContextMenu={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setCtxMenu({
+            position: { x: e.clientX, y: e.clientY },
+            item: {
+              slug: order.itemSlug,
+              nameFr: order.itemNameFr,
+              nameEn: order.itemNameEn,
+              thumb: order.itemThumb
+            }
+          })
+        }}
+        className={cn(
+          'flex flex-wrap items-center justify-between gap-2.5 rounded-md border p-2.5 transition-colors',
+          order.visible
+            ? 'border-border bg-card/85 hover:border-primary/40'
+            : 'border-dashed border-border/70 bg-background/40 opacity-80'
+        )}
+      >
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
         <SafeAssetImage
           src={thumbUrl}
@@ -215,7 +234,9 @@ export function WfmOwnOrderRow({ order, isCompact }: WfmOwnOrderRowProps): React
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </div>
-    </div>
+      </div>
+      <MarketItemContextMenu state={ctxMenu} onClose={() => setCtxMenu(null)} />
+    </>
   )
 }
 

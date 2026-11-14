@@ -17,6 +17,10 @@ import { toWfAssetUrl, type MarketOrder } from '@shared/schemas/market.schema'
 import { Button } from '@/components/ui/button'
 import { SafeAssetImage } from '@/components/ui/safe-asset-image'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  MarketItemContextMenu,
+  type MarketContextMenuState
+} from '@/components/market/MarketItemContextMenu'
 import { MarketSellerSpotlightBanner } from '@/components/market/MarketSellerSpotlightBanner'
 import { StatusDot } from '@/components/market/StatusDot'
 import { useMarketStore } from '@/stores/useMarketStore'
@@ -49,6 +53,7 @@ export function MarketFacetedResultsSection({
   onShowFullSellerShop,
   onAddSellerChip
 }: MarketFacetedResultsSectionProps): React.JSX.Element {
+  const [ctxMenu, setCtxMenu] = React.useState<MarketContextMenuState | null>(null)
   const triggerWhisper = useMarketStore((s) => s.triggerWhisper)
   const addToCart = useMarketStore((s) => s.addToCart)
   const navigateActive = useTabsStore((s) => s.navigateActive)
@@ -182,6 +187,20 @@ export function MarketFacetedResultsSection({
             return (
               <div
                 key={ord.id}
+                onContextMenu={(e) => {
+                  if (!ord.itemSlug) return
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setCtxMenu({
+                    position: { x: e.clientX, y: e.clientY },
+                    item: {
+                      slug: ord.itemSlug,
+                      nameFr: ord.itemNameFr ?? ord.itemSlug,
+                      nameEn: ord.itemNameEn ?? ord.itemSlug,
+                      thumb: ord.itemThumb ?? null
+                    }
+                  })
+                }}
                 className="flex flex-wrap items-center justify-between gap-2.5 rounded-lg border border-border bg-card px-3 py-2 transition-colors hover:border-primary/40"
               >
                 <div
@@ -279,6 +298,7 @@ export function MarketFacetedResultsSection({
           )}
         </div>
       )}
+      <MarketItemContextMenu state={ctxMenu} onClose={() => setCtxMenu(null)} />
     </div>
   )
 }

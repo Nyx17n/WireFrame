@@ -702,6 +702,26 @@ La barre accepte et distingue visuellement **5 familles de pastilles typées** :
   3. *Nominal* (Catalogue filtré ou Offres croisées triées par prix croissant + présence `En jeu`),
   4. *Erreur (`ErrorState`)* (vendeur introuvable sur Warframe Market ou erreur réseau API avec bouton `Réessayer` ou suppression rapide de la pastille fautive).
 
+### 3.14. Module 14 — Menus Contextuels au Clic Droit (Onglets, Marché & Codex)
+
+Pour épurer l'interface tout en accélérant les actions fréquentes à la souris, **TennoFrame** déploie un système unifié de menus contextuels au clic droit (`ContextMenuPortal` rendu en Portal avec recalage automatique dans les bords de la fenêtre et fermeture mutuelle instantanée) sur trois surfaces clés :
+
+1. **Onglets du Navigateur (`BrowserTabPill` dans `TitleTabsBar`)** :
+   - Suppression du bouton d'encombrement `...` au survol sur la pilule d'onglet.
+   - Le **clic droit** directement sur n'importe quel onglet ouvre ses actions dédiées : `📌 Épingler / Désépingler l’onglet`, `Dupliquer l’onglet`, `Fermer les doublons`, `Fermer les autres onglets`, `Fermer les onglets à droite` et `✕ Fermer cet onglet`.
+2. **Items Warframe Market (`MarketItemContextMenu`)** :
+   - Disponible au **clic droit** sur toutes les cartes et lignes d'items du Marché (*Catalogue*, *Accueil / Annonces récentes*, *Favoris*, *Résultats croisés par pastilles*, *Profil joueur* et *Mes annonces WFM*), avec **6 actions rapides** :
+     1. `⭐ Mettre en favoris / Retirer des favoris`,
+     2. `➕ Ouvrir dans un nouvel onglet`,
+     3. `🛒 Mettre dans le panier / Retirer du panier`,
+     4. `🎯 Snipe (Surveiller avec Price Sniper)` — calcule automatiquement un seuil pertinent à partir du meilleur prix `En jeu` et active l'alerte,
+     5. `📖 Voir dans le Codex` — résout l'entrée correspondante du Codex hors-ligne FR/EN,
+     6. `🌐 Voir sur le Wiki Officiel` — ouvre la fiche vérifiée sur `https://wiki.warframe.com/...`.
+3. **Entrées du Codex (`CodexItemContextMenu`)** :
+   - Disponible au **clic droit** sur toutes les cartes et lignes des 7 catégories du Codex (*Ressources, Warframes, Armes, Mods, Reliques, Mobs, Marchands*) :
+     - **Condition stricte sur l'extension Overlay** : l'action **`🎯 Afficher dans l’Overlay Farm` / `Retirer de l’Overlay Farm`** n'est proposée dans le menu clic droit **que si et seulement si** l'extension **`Codex Farm Overlay` est activée dans `Paramètres → 🧩 Extensions`** (`settings.extensions.codexFarmOverlay === true`). Lorsqu'elle est désactivée, l'option n'apparaît pas.
+     - Actions complémentaires : `➕ Ouvrir dans un nouvel onglet`, `💎 Voir sur Warframe Market` *(si échangeable)* et `🌐 Voir sur le Wiki Officiel`.
+
 ---
 
 ## 4. Architecture Technique, Contrats IPC & Sécurité

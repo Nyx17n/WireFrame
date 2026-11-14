@@ -244,7 +244,14 @@ export const useMarketStore = create<MarketStoreState>((set, get) => ({
     notify({
       kind: 'success',
       title: 'Règle Price Sniper activée',
-      message: `${ruleLabel} ≤ ${ruleInput.maxPlatinum}p`
+      message: `${ruleLabel} ≤ ${ruleInput.maxPlatinum}p`,
+      actions: [
+        {
+          label: 'Voir Alertes',
+          variant: 'outline',
+          onClick: () => useTabsStore.getState().navigateActive({ kind: 'alerts' })
+        }
+      ]
     })
   },
 

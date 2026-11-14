@@ -10,6 +10,10 @@ import type { DucatItemEntry } from '@shared/schemas/tools.schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  MarketItemContextMenu,
+  type MarketContextMenuState
+} from '@/components/market/MarketItemContextMenu'
 import { getCardImageClass, getCatalogGridClass } from '@/lib/catalog-layout'
 import { cn } from '@/lib/utils'
 
@@ -30,21 +34,38 @@ export function DucatsItemsDisplay({
   onSelectItem: (slug: string, title: string) => void
   onOpenNewTab: (slug: string, title: string) => void
 }): React.JSX.Element {
+  const [ctxMenu, setCtxMenu] = React.useState<MarketContextMenuState | null>(null)
   const gridClass = getCatalogGridClass(layoutMode, cardSize)
   const imgClass = getCardImageClass(layoutMode, cardSize)
 
+  const openDucatContextMenu = (e: React.MouseEvent, item: DucatItemEntry): void => {
+    e.preventDefault()
+    e.stopPropagation()
+    setCtxMenu({
+      position: { x: e.clientX, y: e.clientY },
+      item: {
+        slug: item.slug,
+        nameFr: item.nameFr,
+        nameEn: item.nameEn,
+        thumb: item.thumb
+      }
+    })
+  }
+
   if (layoutMode === 'square') {
     return (
-      <div className={gridClass}>
-        {items.map((item) => {
-          const label = lang === 'fr' ? item.nameFr : item.nameEn
-          const thumb = toWfAssetUrl(item.thumb)
+      <>
+        <div className={gridClass}>
+          {items.map((item) => {
+            const label = lang === 'fr' ? item.nameFr : item.nameEn
+            const thumb = toWfAssetUrl(item.thumb)
 
-          return (
-            <Card
-              key={item.itemId}
-              onClick={() => onSelectItem(item.slug, label)}
-              className={cn(
+            return (
+              <Card
+                key={item.itemId}
+                onClick={() => onSelectItem(item.slug, label)}
+                onContextMenu={(e) => openDucatContextMenu(e, item)}
+                className={cn(
                 'group relative flex aspect-square cursor-pointer flex-col items-center justify-between overflow-hidden text-center transition-colors hover:border-primary/60 hover:bg-secondary/40',
                 cardSize === 'sm' ? 'p-2' : cardSize === 'lg' ? 'p-4' : 'p-3'
               )}
@@ -98,22 +119,26 @@ export function DucatsItemsDisplay({
             </Card>
           )
         })}
-      </div>
+        </div>
+        <MarketItemContextMenu state={ctxMenu} onClose={() => setCtxMenu(null)} />
+      </>
     )
   }
 
   return (
-    <div className={gridClass}>
-      {items.map((item) => {
-        const label = lang === 'fr' ? item.nameFr : item.nameEn
-        const thumb = toWfAssetUrl(item.thumb)
+    <>
+      <div className={gridClass}>
+        {items.map((item) => {
+          const label = lang === 'fr' ? item.nameFr : item.nameEn
+          const thumb = toWfAssetUrl(item.thumb)
 
-        return (
-          <Card
-            key={item.itemId}
-            onClick={() => onSelectItem(item.slug, label)}
-            className="cursor-pointer transition-colors hover:border-primary/60"
-          >
+          return (
+            <Card
+              key={item.itemId}
+              onClick={() => onSelectItem(item.slug, label)}
+              onContextMenu={(e) => openDucatContextMenu(e, item)}
+              className="cursor-pointer transition-colors hover:border-primary/60"
+            >
             <CardContent
               className={cn(
                 'flex items-center justify-between gap-2.5 text-xs',
@@ -174,7 +199,9 @@ export function DucatsItemsDisplay({
           </Card>
         )
       })}
-    </div>
+      </div>
+      <MarketItemContextMenu state={ctxMenu} onClose={() => setCtxMenu(null)} />
+    </>
   )
 }
 

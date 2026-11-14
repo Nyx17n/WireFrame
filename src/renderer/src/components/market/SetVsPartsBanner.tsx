@@ -3,10 +3,15 @@ import { Calculator, ExternalLink } from 'lucide-react'
 import { toWfAssetUrl, type SetVsPartsAnalysis } from '@shared/schemas/market.schema'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  MarketItemContextMenu,
+  type MarketContextMenuState
+} from '@/components/market/MarketItemContextMenu'
 import { useAppStore } from '@/stores/useAppStore'
 import { useTabsStore } from '@/stores/useTabsStore'
 
 export function SetVsPartsBanner({ analysis }: { analysis: SetVsPartsAnalysis }): React.JSX.Element | null {
+  const [ctxMenu, setCtxMenu] = React.useState<MarketContextMenuState | null>(null)
   const lang = useAppStore((s) => s.settings.market.language)
   const openTab = useTabsStore((s) => s.openTab)
 
@@ -64,6 +69,19 @@ export function SetVsPartsBanner({ analysis }: { analysis: SetVsPartsAnalysis })
               <div
                 key={part.id}
                 onClick={() => openTab({ kind: 'market-item', slug: part.slug }, { title: pName })}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setCtxMenu({
+                    position: { x: e.clientX, y: e.clientY },
+                    item: {
+                      slug: part.slug,
+                      nameFr: part.nameFr,
+                      nameEn: part.nameEn,
+                      thumb: part.thumb
+                    }
+                  })
+                }}
                 className="flex cursor-pointer items-center justify-between gap-2 rounded-md border border-border bg-card/90 p-2 text-xs transition-colors hover:border-primary/60"
               >
                 <div className="flex min-w-0 items-center gap-2">
@@ -87,6 +105,7 @@ export function SetVsPartsBanner({ analysis }: { analysis: SetVsPartsAnalysis })
           })}
         </div>
       </CardContent>
+      <MarketItemContextMenu state={ctxMenu} onClose={() => setCtxMenu(null)} />
     </Card>
   )
 }
