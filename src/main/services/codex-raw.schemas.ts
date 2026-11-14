@@ -232,6 +232,7 @@ export const RawVendorEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
   en: z.string(),
+  img: z.string().default(''),
   roleFr: z.string().default(''),
   roleEn: z.string().default(''),
   hubGroup: z.string().default('relays'),

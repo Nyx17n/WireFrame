@@ -375,13 +375,40 @@ export const HelminthOverviewSchema = z.object({
 
 export type HelminthOverview = z.infer<typeof HelminthOverviewSchema>
 
+function encodeAssetSubpath(subpath: string): string {
+  return subpath
+    .replace(/^\/+/, '')
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => {
+      try {
+        return encodeURIComponent(decodeURIComponent(segment))
+      } catch {
+        return encodeURIComponent(segment)
+      }
+    })
+    .join('/')
+}
+
 /**
- * Converts a PascalCase WFCD image filename (`Aya.png`, `Wisp.png`) into a cached `wf-asset://wfstat/img/` URL.
+ * Converts a Codex image reference into a safe cached `wf-asset://` URL:
+ * - `/Lotus/...` -> Digital Extremes Public Export icon via `wf-asset://browsewf/Lotus/...`
+ * - `wiki:...` -> Official Warframe Wiki portrait/thumbnail via `wf-asset://wiki/...`
+ * - `Aya.png` -> WFCD CDN icon via `wf-asset://wfstat/img/...`
  */
 export function toCodexImageUrl(img: string | null | undefined): string | null {
   const clean = img?.trim()
   if (!clean) return null
   if (clean === 'helminth.jpg') return './images/helminth.jpg'
+  if (clean.startsWith('wf-asset://')) return clean
+  if (clean.startsWith('/Lotus/')) {
+    return `wf-asset://browsewf/${encodeAssetSubpath(clean)}`
+  }
+  if (clean.startsWith('wiki:')) {
+    const sub = clean.slice('wiki:'.length).split('?')[0] ?? ''
+    const encoded = encodeAssetSubpath(sub)
+    return encoded ? `wf-asset://wiki/${encoded}` : null
+  }
   return `wf-asset://wfstat/img/${encodeURIComponent(clean)}`
 }
 

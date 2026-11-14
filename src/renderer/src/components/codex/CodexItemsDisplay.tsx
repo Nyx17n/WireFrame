@@ -153,7 +153,8 @@ export function CodexItemsDisplay({
                   alt={card.nameFr}
                   className={cn(
                     imgClass,
-                    'max-h-full rounded-md border border-border/60 bg-background/70 object-contain p-1.5 transition-transform group-hover:scale-105'
+                    'max-h-full rounded-md border border-border/60 bg-background/70 transition-transform group-hover:scale-105',
+                    card.category === 'vendors' ? 'object-cover object-top p-0' : 'object-contain p-1.5'
                   )}
                   fallback={
                     <div
@@ -216,7 +217,8 @@ export function CodexItemsDisplay({
                   alt={card.nameFr}
                   className={cn(
                     imgClass,
-                    'shrink-0 rounded-md border border-border/60 bg-background/70 object-contain p-1'
+                    'shrink-0 rounded-md border border-border/60 bg-background/70',
+                    card.category === 'vendors' ? 'object-cover object-top p-0' : 'object-contain p-1'
                   )}
                   fallback={
                     <div
@@ -307,7 +309,8 @@ export function CodexItemsDisplay({
                 alt={card.nameFr}
                 className={cn(
                   imgClass,
-                  'shrink-0 rounded-md border border-border/60 bg-background/70 object-contain p-1'
+                  'shrink-0 rounded-md border border-border/60 bg-background/70',
+                  card.category === 'vendors' ? 'object-cover object-top p-0' : 'object-contain p-1'
                 )}
                 fallback={
                   <div

@@ -12,7 +12,8 @@ const ASSET_ORIGIN_BY_HOST: Readonly<Record<string, string>> = {
   wfm: 'https://warframe.market/static/assets',
   wiki: 'https://wiki.warframe.com/images',
   wfstatic: 'https://www-static.warframe.com',
-  wfstat: 'https://cdn.warframestat.us'
+  wfstat: 'https://cdn.warframestat.us',
+  browsewf: 'https://browse.wf'
 }
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000

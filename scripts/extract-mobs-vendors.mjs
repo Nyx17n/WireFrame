@@ -1366,8 +1366,10 @@ async function main() {
       const nameKey = obj.name || ''
       const fr = cleanText(dictFr[nameKey] || dictEn[nameKey] || '')
       const en = cleanText(dictEn[nameKey] || fr || '')
+      const icon =
+        typeof obj.icon === 'string' && obj.icon.startsWith('/Lotus/') ? obj.icon : undefined
       if (fr || en) {
-        universalItems.set(uName, { fr: fr || en, en: en || fr, isBlueprint: false })
+        universalItems.set(uName, { fr: fr || en, en: en || fr, isBlueprint: false, icon })
       }
     }
   }
@@ -1375,14 +1377,114 @@ async function main() {
     if (!rec || !rec.resultType) continue
     const target = universalItems.get(rec.resultType)
     if (target) {
+      const recIcon =
+        typeof rec.icon === 'string' && rec.icon.startsWith('/Lotus/') ? rec.icon : target.icon
       universalItems.set(rKey, {
         fr: target.fr.toLowerCase().includes('schéma') ? target.fr : `${target.fr} (Schéma)`,
         en: target.en.toLowerCase().includes('blueprint') ? target.en : `${target.en} Blueprint`,
         isBlueprint: true,
         baseEn: target.en,
-        baseFr: target.fr
+        baseFr: target.fr,
+        icon: recIcon
       })
     }
+  }
+
+  function normWords(value) {
+    return norm(value)
+      .replace(/[^a-z0-9]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
+
+  // Build Official Enemy & Wildlife Icon Lookups (`/Lotus/Interface/Icons/...` + Wiki fallbacks)
+  const avatarIconByWords = new Map()
+  for (const av of Object.values(expEnemies.avatars || {})) {
+    if (!av?.icon || typeof av.icon !== 'string' || !av.icon.startsWith('/Lotus/')) continue
+    const enLabel = normWords(cleanText(dictEn[av.name] || ''))
+    if (enLabel && !avatarIconByWords.has(enLabel)) {
+      avatarIconByWords.set(enLabel, av.icon)
+    }
+  }
+
+  const tagFloofIconByWords = new Map()
+  for (const src of [expResources, expCustoms, expFlavour, expSentinels]) {
+    for (const obj of Object.values(src || {})) {
+      if (!obj?.icon || typeof obj.icon !== 'string' || !obj.icon.startsWith('/Lotus/')) continue
+      const rawEn = cleanText(dictEn[obj.name] || '')
+      if (!rawEn) continue
+      const w = normWords(rawEn)
+      tagFloofIconByWords.set(w, obj.icon)
+      if (w.endsWith(' floof')) {
+        tagFloofIconByWords.set(w.slice(0, -' floof'.length).trim(), obj.icon)
+      } else if (w.endsWith(' tag') && !tagFloofIconByWords.has(w.slice(0, -' tag'.length).trim())) {
+        tagFloofIconByWords.set(w.slice(0, -' tag'.length).trim(), obj.icon)
+      }
+    }
+  }
+
+  const MOB_WIKI_ICON_FALLBACKS = {
+    clem: 'wiki:ClemAvatar.png',
+    condroc: 'wiki:CondrocCommon.png',
+    kuaka: 'wiki:KuakaCommon.png',
+    kubrow: avatarIconByWords.get('feral kubrow') || 'wiki:IconKubrow(xWhite).png',
+    kavat: avatarIconByWords.get('feral kavat') || 'wiki:IconKavat(xWhite).png',
+    'ghoul expired deserter': avatarIconByWords.get('ghoul expired') || 'wiki:ClemAvatar.png',
+    'tomb guardian': 'wiki:HostileRockman.png',
+    'nemes ranger': 'wiki:Nemes.png',
+    'nemes scout': 'wiki:Nemes.png'
+  }
+
+  function resolveOfficialMobIcon(uniqueName, enName) {
+    const directAvatar = expEnemies.avatars?.[uniqueName]
+    if (directAvatar?.icon && directAvatar.icon.startsWith('/Lotus/')) {
+      return directAvatar.icon
+    }
+    const w = normWords(enName)
+    if (avatarIconByWords.has(w)) return avatarIconByWords.get(w)
+    if (tagFloofIconByWords.has(`${w} floof`)) return tagFloofIconByWords.get(`${w} floof`)
+    if (tagFloofIconByWords.has(`${w} tag`)) return tagFloofIconByWords.get(`${w} tag`)
+    if (tagFloofIconByWords.has(w)) return tagFloofIconByWords.get(w)
+    if (MOB_WIKI_ICON_FALLBACKS[w]) return MOB_WIKI_ICON_FALLBACKS[w]
+    if (w.includes('infested hive')) return 'wiki:InfestedHiveF.png'
+    return undefined
+  }
+
+  // Curated Verified Official NPC Portraits & Syndicate Avatars for all 33 Vendors
+  const VENDOR_PORTRAITS_BY_ID = {
+    'vendor-baro-kiteer': '/Lotus/Interface/Icons/Player/BaroKiteerAvatar.png',
+    'vendor-varzia': '/Lotus/Interface/Icons/StoreIcons/MarketBundles/MegaPrimeVault/Varzia.png',
+    'vendor-teshin': 'wiki:Teshin.png',
+    'vendor-arbitration-hexis': 'wiki:thumb/Arbitrations.png/256px-Arbitrations.png',
+    'vendor-cephalon-simaris': '/Lotus/Interface/Icons/Player/Syndicates/CephalonSimarisAvatar.png',
+    'vendor-ergo-glast': 'wiki:Ergo_Glast.png',
+    'vendor-maroo-darvo': 'wiki:Maroo.png',
+    'vendor-palladino': 'wiki:thumb/Palladino.png/256px-Palladino.png',
+    'vendor-steel-meridian': '/Lotus/Interface/Icons/Player/Syndicates/SteelMeridianAvatar.png',
+    'vendor-arbiters-hexis': '/Lotus/Interface/Icons/Player/Syndicates/ArbitersHexisAvatar.png',
+    'vendor-cephalon-suda': '/Lotus/Interface/Icons/Player/Syndicates/CephalonSudaAvatar.png',
+    'vendor-perrin-sequence': '/Lotus/Interface/Icons/Player/Syndicates/PerrinSequenceAvatar.png',
+    'vendor-red-veil': '/Lotus/Interface/Icons/Player/Syndicates/RedVeilAvatar.png',
+    'vendor-new-loka': '/Lotus/Interface/Icons/Player/Syndicates/NewLokaAvatar.png',
+    'vendor-ostron-cetus': 'wiki:thumb/Konzu_1SH.png/256px-Konzu_1SH.png',
+    'vendor-quills-onkko': 'wiki:thumb/Onkko_Primary_1SH.png/256px-Onkko_Primary_1SH.png',
+    'vendor-koumei-nakak': 'wiki:thumb/Nakak_1SH.png/256px-Nakak_1SH.png',
+    'vendor-solaris-fortuna': 'wiki:thumb/Eudico_1SH.png/256px-Eudico_1SH.png',
+    'vendor-little-duck': 'wiki:thumb/Little_Duck_3SH.png/256px-Little_Duck_3SH.png',
+    'vendor-ventkids-roky': 'wiki:thumb/Roky_1SH.png/256px-Roky_1SH.png',
+    'vendor-otak-deimos': 'wiki:thumb/Otak.jpg/256px-Otak.jpg',
+    'vendor-entrati-family': 'wiki:thumb/MotherEntrati.jpg/256px-MotherEntrati.jpg',
+    'vendor-loid-necraloid': 'wiki:NecraloidIcon.png',
+    'vendor-sanctum-cavia-loid': 'wiki:thumb/Bird_3.jpg/256px-Bird_3.jpg',
+    'vendor-triad-tau-prequel': 'wiki:RoatheGeminiSkin.png',
+    'vendor-archimedean-yonta': 'wiki:thumb/ArchimedeanYonta.png/256px-ArchimedeanYonta.png',
+    'vendor-cavalero-quinn': 'wiki:thumb/Cavalero.png/256px-Cavalero.png',
+    'vendor-acrithis-duviri': 'wiki:thumb/Acrithis.png/256px-Acrithis.png',
+    'vendor-nora-night': 'wiki:thumb/Nora_Night_transmission.png/256px-Nora_Night_transmission.png',
+    'vendor-chipper-kahl': 'wiki:thumb/ChipperInGame.png/256px-ChipperInGame.png',
+    'vendor-ordis-jade': 'wiki:OrdisArchwingtrailer.png',
+    'vendor-eleanor-1999': 'wiki:EleanorGeminiSkin.png',
+    'vendor-hex-mall-1999': 'wiki:ArthurGeminiSkin.png'
   }
 
   // Reverse English -> French translation map across all items/mods/resources for drop tables
@@ -1753,6 +1855,7 @@ async function main() {
       .slice(0, 28)
 
     // Deduplicate identical display-name + faction variants by merging drops/spawns
+    const officialMobImg = resolveOfficialMobIcon(raw.uniqueName, enName)
     const dedupKey = `${norm(frName)}::${faction.id}::${unitTier}`
     const existing = mobsByKey.get(dedupKey)
     if (!existing) {
@@ -1763,7 +1866,7 @@ async function main() {
         name: frName,
         en: enName,
         desc: descFr,
-        img: raw.imageName || undefined,
+        img: officialMobImg,
         factionId: faction.id,
         factionFr: faction.fr,
         factionEn: faction.en,
@@ -1795,7 +1898,7 @@ async function main() {
         }
       }
       existing.drops.sort((a, b) => b.chancePct - a.chancePct)
-      if (!existing.img && raw.imageName) existing.img = raw.imageName
+      if (!existing.img && officialMobImg) existing.img = officialMobImg
     }
   }
 
@@ -1869,13 +1972,14 @@ async function main() {
       const matched = matchCodexEntry(rawOff.nameEn, rawOff.nameFr)
       const cat =
         rawOff.category || classifyOfferingCategory(rawOff.storePath || '', rawOff.nameEn, rawOff.nameFr)
+      const offeringImage = matched?.img || rawOff.icon || undefined
 
       offeringsByKey.set(key, {
         id: `${vDef.id}-off-${offeringsByKey.size + 1}`,
         nameFr: rawOff.nameFr,
         nameEn: rawOff.nameEn,
         category: cat,
-        ...(matched?.img ? { imageName: matched.img } : {}),
+        ...(offeringImage ? { imageName: offeringImage } : {}),
         ...(rawOff.rankRequiredFr ? { rankRequiredFr: rawOff.rankRequiredFr } : {}),
         costs:
           rawOff.costs.length > 0
@@ -1926,6 +2030,7 @@ async function main() {
           storePath: entry.storeItem,
           nameFr: `${meta.fr}${qtySuffix}`,
           nameEn: `${meta.en}${qtySuffix}`,
+          icon: meta.icon,
           costs
         })
       }
@@ -1954,6 +2059,7 @@ async function main() {
           storePath: fav.storeItem,
           nameFr: meta.fr,
           nameEn: meta.en,
+          icon: meta.icon,
           rankRequiredFr:
             typeof fav.requiredLevel === 'number' && fav.requiredLevel > 0
               ? `Rang ${fav.requiredLevel}`
@@ -1972,10 +2078,16 @@ async function main() {
       return a.nameFr.localeCompare(b.nameFr, 'fr')
     })
 
+    const vendorImg =
+      vDef.img ||
+      VENDOR_PORTRAITS_BY_ID[vDef.id] ||
+      (vDef.syndicates?.[0] ? expSyndicates[vDef.syndicates[0]]?.icon : undefined)
+
     return {
       id: vDef.id,
       name: vDef.nameFr,
       en: vDef.nameEn,
+      img: vendorImg,
       roleFr: vDef.roleFr,
       roleEn: vDef.roleEn,
       hubGroup: vDef.hubGroup,

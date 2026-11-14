@@ -113,7 +113,11 @@ export function CodexDetailView({
         <SafeAssetImage
           src={detail.imageUrl}
           alt={detail.nameFr}
-          className="h-24 w-24 shrink-0 rounded-lg border border-border bg-background/80 object-contain p-2"
+          className={
+            detail.category === 'vendors'
+              ? 'h-24 w-24 shrink-0 rounded-lg border border-border bg-background/80 object-cover object-top'
+              : 'h-24 w-24 shrink-0 rounded-lg border border-border bg-background/80 object-contain p-2'
+          }
           fallback={
             <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg border border-border bg-background/80">
               <Package className="h-8 w-8 text-muted-foreground" />
