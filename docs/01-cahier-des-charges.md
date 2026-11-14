@@ -650,6 +650,60 @@ Accessible via la puce d'en-tête, la barre de raccourcis ou l'Omnibox (`wf://wf
 
 ---
 
+### Module 13 — Barre de Recherche Cumulative à Pastilles (`Tokenized Filter Bar` / `Additive Chip Search`)
+
+#### 13.A — Objectif Métier & Principe UX
+
+Permettre au joueur d'empiler successivement plusieurs critères de recherche dans une **barre unique à pastilles (chips) conservées**, sans qu'une nouvelle saisie n'écrase la précédente :
+- **Scénario type** :
+  1. Le joueur tape `volt` puis valide (`Entrée` ou bouton `Rechercher`) → `volt` se fige en pastille **`[ 📦 Item : volt × ]`** et la zone de texte redevient vide pour accueillir le critère suivant.
+  2. Le joueur tape ensuite le pseudo d'un vendeur (`TennoTrader42`) et valide → une seconde pastille **`[ 👤 Vendeur : TennoTrader42 × ]`** s'ajoute à côté de la première.
+  3. Les résultats affichent immédiatement **l'intersection exacte (`ET` logique)** : uniquement les annonces en rapport avec `volt` vendues par `TennoTrader42` (idéal pour acheter plusieurs pièces en un seul échange au Dojo).
+  4. Chaque pastille est supprimable individuellement en 1 clic (`×`) ou au clavier (`Backspace` quand la saisie est vide) : supprimer `[ 📦 volt × ]` conserve `[ 👤 TennoTrader42 × ]` et affiche toute la boutique de ce vendeur.
+
+#### 13.B — Types de Pastilles (`MarketFilterChip`) & Menu d'Autocomplétion Contextuel
+
+La barre accepte et distingue visuellement **5 familles de pastilles typées** :
+1. **`item` (`📦 Item / Mot-clé`, bleu)** : filtre bilingue FR/EN sans accents sur le nom d'item, le slug ou la famille d'équipement (plusieurs pastilles `item` se combinent en `ET`, ex. `[📦 volt]` + `[📦 prime]` + `[📦 sys]`).
+2. **`seller` (`👤 Vendeur`, violet)** : pseudo en jeu ou `slug` Warframe Market d'un joueur (ex. `[👤 Vendeur : TennoTrader42 ×]`). Cliquer sur un pseudo dans les annonces récentes permet aussi d'ajouter sa pastille en 1 clic.
+3. **`category` (`🏷️ Catégorie`, cyan)** : `Set Prime`, `Warframe`, `Arme`, `Mod`, `Arcane`, `Relique`.
+4. **`maxPrice` (`💎 Prix max`, ambre)** : plafond en Platinum unitaire (ex. `[💎 ≤ 30 Plat ×]`, détecté automatiquement si l'utilisateur tape `<=30`, `<30`, `30p` ou `max:30`).
+5. **`status` & `orderType` (`🟢 Statut / Type`, émeraude)** : présence vendeur (`En jeu`, `En jeu + En ligne`, `Tous`) et sens d'annonce (`Ventes WTS` par défaut ou `Achats WTB`).
+
+**Menu contextuel intelligent pendant la frappe** :
+- Dès que l'utilisateur saisit un terme (ex. `TennoTrader42` ou `volt`), un menu déroulant sous la barre lui permet de choisir explicitement comment figer la pastille :
+  - `↵ 📦 Filtrer par Item / Mot-clé : « ... »` *(avec aperçu du nombre d'items du catalogue correspondants)*,
+  - `👤 Filtrer par Vendeur Warframe Market : « ... »` *(mis en premier choix automatique si préfixé par `@` ou `vendeur:` ou si aucun item du catalogue ne correspond au texte saisi !)*,
+  - Suggestions rapides d'items exacts du catalogue et de vendeurs vus récemment.
+
+#### 13.C — Moteur d'Intersection, Sources API & Respect Strict du Rate Limit (`3 req/s`)
+
+1. **Mode Catalogue Pur (uniquement des pastilles `item` et/ou `category`, sans filtre vendeur/prix/offres)** :
+   - Exécuté localement en `< 2 ms` sur le catalogue `/v2/items` en mémoire (TTL 1 h).
+   - Bouton bascule **`[ ⚡ Voir les offres en direct ]`** disponible dès que le filtre cible `≤ 8` items précis (ex. `[📦 volt] + [📦 prime]`).
+2. **Mode Annonces Croisées par Vendeur (au moins 1 pastille `seller` active)** :
+   - Appelle le canal IPC `market:searchFacetedOrders` qui interroge `MarketApiService.getUserProfile(slug)` (`/v2/user/:slug` + `/v2/orders/user/:slug`, cache 30 s, avec résolution insensible à la casse / tirets du pseudo).
+   - Croise côté Main Process toutes les offres visibles du vendeur avec l'ensemble des pastilles `item`, `category`, `maxPrice`, `status` et `orderType`.
+   - Affiche en tête de résultats une **carte récapitulative du vendeur** (Avatar `wf-asset://`, statut `🟢 En jeu`, Réputation, PM, bouton `Voir profil complet`) suivie des offres correspondantes avec boutons **`/w`** et **`+ Panier 🛒`**.
+3. **Mode Annonces Croisées Multi-Items sans Vendeur (pastilles `item` + `maxPrice` / `status` / bascule *Offres en direct*)** :
+   - Si les pastilles `item` + `category` ciblent entre `1` et `6` items du catalogue, `MarketApiService.searchFacetedOrders` agrège leurs carnets d'ordres `/v2/orders/item/:slug` via le `RateLimitedHttpClient` (`3 req/s`, TTL 20 s) et applique les pastilles `maxPrice`, `status` et `orderType`. Si plus de 6 items correspondent (ex. juste `[📦 prime]` = 400+ items), l'UI invite à affiner avec un mot supplémentaire ou un nom de vendeur pour éviter tout balayage réseau massif.
+
+#### 13.D — Intégration Vues, Mode Compact (`460×660`) & 4 États UI
+
+- **Points d'intégration** :
+  - **Accueil Marché (`wf://market-home`)** : la barre principale permet de composer ses premières pastilles et d'ouvrir directement la recherche croisée dans `wf://market-catalog` ; le filtre des *Annonces Récentes* adopte aussi les pastilles rapides.
+  - **Catalogue & Recherche Croisée (`wf://market-catalog`)** : vue principale hébergeant la `MarketTokenFilterBar` complète (Mode Catalogue ↔ Mode Offres Croisées).
+  - **Profil Joueur (`wf://market/user/:slug`)** : bouton `🔍 Filtrer dans la recherche à pastilles` pré-remplissant `[👤 Vendeur : <pseudo>]` + filtre multi-mots local.
+- **Adaptation Mode Compact (`460×660`)** :
+  - Pastilles condensées (`h-6`, texte `11px`) avec retour à la ligne propre, menu d'autocomplétion adapté à `420px` de large et lignes d'annonces compactes conservant le prix Platinum et le bouton `/w` en 1 clic.
+- **4 États UI Obligatoires** :
+  1. *Chargement (`Skeleton`)* pendant l'interrogation du vendeur ou des carnets d'ordres,
+  2. *Vide (`EmptyState`)* expliquant quelle intersection ne donne aucun résultat avec boutons rapides pour retirer une pastille en 1 clic,
+  3. *Nominal* (Catalogue filtré ou Offres croisées triées par prix croissant + présence `En jeu`),
+  4. *Erreur (`ErrorState`)* (vendeur introuvable sur Warframe Market ou erreur réseau API avec bouton `Réessayer` ou suppression rapide de la pastille fautive).
+
+---
+
 ## 4. Architecture Technique, Contrats IPC & Sécurité
 
 ### 4.1. Séparation Stricte des Couches (Clean Architecture sans serveur HTTP)
@@ -709,7 +763,7 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 
 | Domaine | Canaux IPC (`invoke` / événements `on`) | Responsabilité |
 | :--- | :--- | :--- |
-| **`market`** | `market:getCatalog`, `market:getItemDetail`, `market:getItemOrders`, `market:getItemStats`, `market:getRecentOrders`, `market:getUserProfile`, `market:getDucats`, `market:searchRivens`, `market:analyzeSetVsParts`, `market:analyzeCartBundles` | Données Warframe Market et calculs métier lourds |
+| **`market`** | `market:getCatalog`, `market:getItemDetail`, `market:getItemOrders`, `market:getItemStats`, `market:getRecentOrders`, `market:getUserProfile`, `market:searchFacetedOrders`, `market:getDucats`, `market:searchRivens`, `market:analyzeSetVsParts`, `market:analyzeCartBundles` | Données Warframe Market, recherche cumulative à pastilles croisées et calculs métier lourds |
 | **`wfmAccount`** | `wfmAccount:getSession`, `wfmAccount:signInCredentials`, `wfmAccount:signInWeb`, `wfmAccount:signInToken`, `wfmAccount:signOut`, `wfmAccount:setStatus`, `wfmAccount:getOverview`, `wfmAccount:createOrder`, `wfmAccount:updateOrder`, `wfmAccount:closeOrderUnit`, `wfmAccount:deleteOrder`, `wfmAccount:onSessionChanged` *(event Main → Renderer)* | Connexion optionnelle WFM chiffrée (`safeStorage` DPAPI, formulaire in-app + fenêtre Web auto SSO + jeton secours), statut temps réel (`En jeu / En ligne / Invisible`), profil complet & mise en vente / gestion d'annonces |
 | **`worldstate`** | `worldstate:getCurrent`, `worldstate:getBaroWithPrices` | État du monde Warframe et enrichissement Platinum de Baro |
 | **`codex`** | `codex:search`, `codex:getItemDetail`, `codex:getHelminthData` | Requêtes rapides paginées dans la base Codex locale (Ressources, Warframes, Armes, Mods, Reliques, **Mobs** & **Marchands**) sans charger plusieurs Mo dans chaque onglet React |
@@ -737,7 +791,7 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 
 ## 5. Plan des Maquettes Wireframes Excalidraw (`docs/02-wireframes/` — Synchronisées `v2.9+`)
 
-L'ensemble des **14 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **TennoFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
+L'ensemble des **15 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **TennoFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
 
 1. `01-app-shell-navigation.excalidraw` : Fenêtre *Frameless* `v2.6.0`, `TitleTabsBar` (défilement molette + chevrons `‹ / ›` + fermeture clic molette), `ClickThroughBanner` (`👻` `Alt+G` + maintien `0.5s`), `CommandNavBar` (`Ctrl+K`, cloche `🔔`, `PC · Cross · FR ▾`, Zoom, `📌`, `👻`, `🗖`, `⚙`), `BookmarksBar` centrée + `Historique` (`Ctrl+H`), Omnibox, Organisateur d'onglets, bandeau `/w`, `CompactTimersBar`, bouton Discord et `StatusBar v2.6.0`.
 2. `02-market-home-catalog-item.excalidraw` : Accueil Marché (flux d'annonces récentes en direct, `ViewModeToggle` `[⊞|▭|☰] + [S|M|L]`, badges `Min · Moy · Max` Platinum), Catalogue, Favoris, Profil joueur, et **Fiche Item complète** (Ordres Vente/Achat, Comparateur *Set vs Pièces*, Pont bidirectionnel *Codex*, Statistiques 48h/90j + pagination *Afficher plus*).
@@ -752,7 +806,8 @@ L'ensemble des **14 planches Excalidraw** dans `docs/02-wireframes/` documente f
 11. `11-background-gradients.excalidraw` *(Module 9 — validé `v2.6.0`)* : section « ✨ Dégradé de Fond d'Écran » (`BackgroundGradientSection`) avec 8 styles CSS GPU, bascule `Auto (Accent du thème)` vs `Couleurs personnalisées` (2 teintes), curseurs d'Intensité `5–65 %` et d'Angle `0–360°`.
 12. `12-codex-sources-farm-overlay.excalidraw` *(Module 10 — Système d'Extensions, Sources Exhaustives du Codex & Extension « Codex Farm Overlay »)* : **Modale Paramètres → Onglet `🧩 Extensions` sous forme de liste** (avec l'extension `🎯 Codex Farm Overlay` affichée, activable et configurable dedans), fiche Codex enrichie des 6 canaux d'acquisition (`🛒 Boutique Warframe` ex: *Ember — Schéma Principal 25 000 Cr · 100 %*, `📜 Quêtes FR + Simaris`, `🏯 Dojo`, `✨ Circuit Duviri`, `⚔ Missions/Boss + %`, `◈ Reliques`), **Sélecteur Granulaire** (*Équipement complet*, *Pièces à la carte* ou *Objet unique*), **Simulation Écran en Jeu Warframe + Fenêtre flottante « Codex Farm Overlay »** (barre de couleur sous le `%`, `👻 Click-Through`, `Alt+O`, `[S|M|L]`, cochage `✓ Obtenu`), Mode Compact `460×660` et les 4 états UI.
 13. `13-codex-mobs-vendors.excalidraw` *(Module 11 — Bestiaire Complet des Mobs & Répertoire des Marchands dans le Codex)* : barre Codex à **8 onglets** (`Ressources · Warframes · Armes · Mods · Reliques · 👾 Mobs · 🏪 Marchands · Helminth`), **Vue Desktop `1440×900` de l'onglet `👾 Mobs`** (filtres Factions & Rang d'unité, recherche par mob/planète/drop, cartes Bestiaire + Fiche Détail Mob avec planètes/missions d'apparition, défenses/faiblesses élémentaires et table de drop `%` avec barre colorée sous le `%`), **Vue Desktop `1440×900` de l'onglet `🏪 Marchands`** (recherche transversale par nom de marchand OU nom d'article vendu, filtres Hubs/Planètes, cartes Marchands + Fiche Détail Marchand avec localisation exacte Planète/Hub/Salle/Quête requise, devises acceptées et catalogue filtrable « Ce qu'il vend » avec coûts exacts, rang requis, pont Codex/Plat et épinglage `🎯`), **Adaptation Mode Compact `460×660` + Aperçu `Codex Farm Overlay` en jeu** (cartes Mob & Offre Marchand épinglées) et **les 4 états UI obligatoires**.
-14. `14-wfm-account-profile-listings.excalidraw` *(Module 12 — Connexion Optionnelle Warframe Market, Profil Complet & Mise en Vente d'Items)* : **Puce d'en-tête `CommandNavBar`** (`👤 Connexion WFM` vs `🟢 Nyxo17 ▾` avec statut temps réel `En jeu / En ligne / Invisible`), **Vue Desktop `1440×900` « Mon Profil Warframe Market » (`wf://wfm-account`)** (bannière identité complète + 4 KPIs Réputation / Valeur Stock Plat / Annonces / Ventes session, onglets `💰 Mes Ventes` / `🛒 Mes Achats` / `⭐ Profil Complet & Avis`, édition rapide prix/quantité/visibilité et bouton `✓ Vendu -1`), **Vue Desktop `1440×900` Fiche Item + Modale intelligente « Mettre un item en vente »** (champs dynamiques Rang/Raffinement/Ayatan, panneau **📊 Aide au Prix en Direct** avec Top 5 `En jeu` et boutons `[S'aligner] [-1p] [Moyenne]`, détection de doublon), **Modale de Connexion Sécurisée Optionnelle** (`Email/Mot de passe` + `Jeton SSO Steam/Console/Discord` chiffré via `safeStorage` DPAPI), **Adaptation Mode Compact `460×660`** et **les 4 états UI obligatoires**.
+14. `14-wfm-account-profile-listings.excalidraw` *(Module 12 — Connexion Optionnelle Warframe Market, Profil Complet & Mise en Vente d'Items)* : **Puce d'en-tête `CommandNavBar`** (`👤 Connexion WFM` vs `🟢 Nyxo17 ▾` avec statut temps réel `En jeu / En ligne / Invisible`), **Vue Desktop `1440×900` « Mon Profil Warframe Market » (`wf://wfm-account`)** (bannière identité complète + 4 KPIs Réputation / Valeur Stock Plat / Annonces / Ventes session, onglets `💰 Mes Ventes` / `🛒 Mes Achats` / `⭐ Profil Complet & Avis`, édition rapide prix/quantité/visibilité et bouton `✓ Vendu -1`), **Vue Desktop `1440×900` Fiche Item + Modale intelligente « Mettre un item en vente »** (champs dynamiques Rang/Raffinement/Ayatan, panneau **📊 Aide au Prix en Direct** avec Top 5 `En jeu` et boutons `[S'aligner] [-1p] [Moyenne]`, détection de doublon), **Modale de Connexion Sécurisée Optionnelle** (`Email/Mot de passe` + `Fenêtre Web WFM Auto` + `Jeton secours` chiffré via `safeStorage` DPAPI), **Adaptation Mode Compact `460×660`** et **les 4 états UI obligatoires**.
+15. `15-progressive-tokenized-search.excalidraw` *(Module 13 — Barre de Recherche Cumulative à Pastilles `Tokenized Filter Bar`)* : **Schéma du parcours en 3 étapes** (`[📦 volt ×]` → saisie `TennoTrader42` → intersection `[📦 volt ×] + [👤 TennoTrader42 ×]`), **Vue Desktop `1440×900` de `MarketCatalogView`** (barre `MarketTokenFilterBar` avec pastilles typées, menu d'autocomplétion contextuel Item vs Vendeur vs Prix, carte vendeur ciblé et résultats d'offres croisées avec `/w` et `+ Panier`), **Adaptation Mode Compact `460×660`** et **les 4 états UI obligatoires**.
 
 ---
 
