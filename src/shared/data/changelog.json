@@ -1,5 +1,17 @@
 [
   {
+    "version": "2.10.0",
+    "date": "Novembre 2026",
+    "titleFr": "Compte Warframe Market & Ventes, Recherche Cumulative à Pastilles, Profils Enrichis & Menus Clic Droit",
+    "badgeFr": "Nouveauté v2.10.0",
+    "highlightsFr": [
+      "Connexion optionnelle au compte Warframe Market (chiffrée localement via DPAPI Windows safeStorage) : 3 modes de connexion au choix (Email/Mot de passe, Fenêtre Web WFM automatique ou Jeton de secours), sélecteur de statut temps réel (En jeu / En ligne / Invisible), tableau de bord complet « Mon Profil WFM » (KPIs, édition rapide prix/stock/visibilité, bouton « ✓ Vendu -1 ») et modale « Mettre un item en vente » avec aide au prix en direct.",
+      "Barre de recherche cumulative à pastilles (« Tokenized Filter Bar ») sur l’Accueil Marché et le Catalogue : empile librement des pastilles Item, Vendeur, Catégorie ou Prix max (ex. [📦 volt] + [👤 Vendeur]) pour filtrer en direct tout ce qu’un joueur précis vend sur ta recherche.",
+      "Profils publics des joueurs Warframe Market enrichis : même présentation complète que ton propre profil (bannière identité & statut en direct, 4 cartes KPIs Réputation / Valeur totale en vente / Annonces actives / Valeur d’achats, onglets Ses Ventes, Ses Achats et Profil Complet & Avis vérifiés).",
+      "Menus contextuels rapides au clic droit partout dans l’app : clic droit sur les onglets (remplace le bouton « ... »), clic droit sur n’importe quel item du Marché (Favoris, Nouvel onglet, Panier, Snipe Price Sniper, Voir dans le Codex, Wiki Officiel) et clic droit dans le Codex (Afficher/Retirer de l’Overlay Farm si l’extension est activée dans les Paramètres, Nouvel onglet, Marché & Wiki Officiel)."
+    ]
+  },
+  {
     "version": "2.9.0",
     "date": "Novembre 2026",
     "titleFr": "WireFrame devient officiellement TennoFrame !",
