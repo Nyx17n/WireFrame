@@ -468,6 +468,84 @@ Accessible directement dans `Paramètres → Apparence & Thèmes` sous la sectio
   - `codexFarmOverlay` : `enabled: boolean` (visibilité courante de la fenêtre overlay quand l'extension est active), `clickThrough: boolean`, `size: 'sm' | 'md' | 'lg'`, `opacityPercent: number (40..98)`, `bounds: { x, y, width, height }`, `shortcutToggle: string` (défaut `'Alt+O'`), `pinnedEntries: CodexOverlayPinnedEntry[]` (max 12 entrées typées avec `obtained: boolean` et sources pré-résolues).
   - Canaux IPC dédiés dans `overlay` (`src/shared/ipc-channels.ts`) : `overlay:getState`, `overlay:setEnabled`, `overlay:updateState`, `overlay:setClickThrough`, et événement `overlay:onStateChanged` diffusant instantanément tout changement entre la fenêtre principale WireFrame, l'onglet `🧩 Extensions` des Paramètres et la fenêtre flottante *Codex Farm Overlay*.
 
+### 3.8. Module 11 — Bestiaire Complet des Mobs & Répertoire des Marchands dans le Codex (`👾 Mobs` & `🏪 Marchands`)
+
+#### 11.A — Objectif Métier Joueur
+
+Jusqu'à présent, le Codex hors-ligne de WireFrame couvrait les objets finaux (*Ressources, Warframes, Armes, Mods, Reliques*) et l'Infirmerie Helminth, mais ne répondait pas directement à deux questions quotidiennes majeures des joueurs Warframe :
+1. **« Où trouver tel Mob / Eximus / Boss dans le jeu et que lâche-t-il ? »** — Indispensable pour chasser un mod de posture ou rare sur une unité précise (ex: *Bombardier Lourd Corrompu*, * Maniaque Grineer*, *Nox*, *Thrax*, *Juggernaut*), accomplir un défi Ondes Nocturnes / Riven ou compléter les cibles de synthèse du Céphalon Simaris.
+2. **« Où trouver tel Marchand / Syndicat dans le jeu et que vend-il exactement (et à quel prix) ? »** — Le Système Origine compte plus de 40 vendeurs répartis entre les Relais Tenno, le Bazar de Maroo, Cetus, Fortuna, le Necralisk, le Sanctum Anatomica, le Chrysalithe, Duviri, le Camp du Voyageur et Höllvanie (1999), chacun avec sa propre monnaie ou réputation. Pouvoir localiser instantanément chaque marchand **et** chercher un objet (ex: *« Extrait de Nitain »*, *« Citrine »*, *« Ignis Wraith »*, *« Holoclef »*, *« Arcane »*) à travers toutes les boutiques du jeu fait gagner un temps considérable.
+
+Ce module ajoute **deux nouveaux onglets de premier niveau dans le Codex** (`wf://codex`) :
+- **`👾 Mobs`** (*Bestiaire complet FR/EN : ennemis standards, unités lourdes/Eximus, chasseurs/assassins et boss + planètes/missions d'apparition + résistances + tables de drop `%`*),
+- **`🏪 Marchands`** (*Répertoire complet FR/EN des marchands & syndicats + localisation exacte Planète / Hub / Zone / Quête requise + catalogue complet filtrable de tout ce qu'ils vendent*).
+
+#### 11.B — Sources de Données Officielles & Indexation Hors-Ligne (`resources/codex-mobs-vendors.json`)
+
+Conformément aux règles d'architecture (§4 : zéro appel réseau depuis le Renderer, zéro blocage du thread principal), les données sont pré-compilées hors-ligne via un script dédié (`scripts/extract-mobs-vendors.mjs`) dans un index JSON typé (`resources/codex-mobs-vendors.json`, embarqué dans `extraResources` d'`electron-builder.yml`) croisant trois sources communautaires et officielles Digital Extremes :
+1. **`WFCD/warframe-items` (`Enemy.json` — ~638 unités)** : identifiants `uniqueName`, statistiques de base (`health`, `shield`, `armor`), faction (`type`), masque binaire de régions d'apparition (`regionBits`), icône officielle (`imageName` servie via le protocole cache disque existant `wf-asset://wfstat/img/`), vulnérabilités/résistances élémentaires (`resistances`) et drops associés.
+2. **`calamity-inc/warframe-public-export-plus` (`ExportEnemies.json`, `ExportRegions.json`, `ExportVendors.json`, `ExportSyndicates.json`, `dict.fr.json`, `dict.en.json`)** : traductions officielles FR/EN à 100 %, résolution des régions et nœuds du Système Origine, manifestes de boutiques PNJ (`ExportVendors` : articles vendus, coûts en crédits, ressources, jetons ou monnaies spéciales) et récompenses de syndicats par palier de rang (`ExportSyndicates` : `favours`, coût en réputation et rang requis).
+3. **`WFCD/warframe-drop-data` (`enemyModTables.json`, `enemyBlueprintTables.json`, `resourceByAvatar.json`, `syndicates.json`)** : taux de drop officiels exacts (`chancePct`) des mods, schémas et ressources par unité ennemie, et compléments d'offres syndicales.
+4. **Métadonnées curées des Hubs & Marchands spéciaux** : agrégation propre des sous-manifestes techniques DE par véritable PNJ en jeu (ex: fusion des manifestes de pêche et échanges de *La Fille* au Necralisk) et enrichissement des localisations exactes (Planète, Hub/Relais, Salle/Zone PNJ, Quête de déblocage) pour les marchands spéciaux (*Baro Ki'Teer, Varzia, Maroo, Darvo, Teshin, Boutique d'Arbitrage, Céphalon Simaris, Ergo Glast, Nora Night, Kahl-175 / Chipper, Acrithis, Famille Entrati, Loid & Cavia, Irréductibles du Zariman, L'Hexagone 1999*).
+
+L'index `codex-mobs-vendors.json` est chargé **à la demande (lazy-load asynchrone)** et mis en cache en mémoire par `CodexRepository` côté Main Process, garantissant un démarrage instantané (`0 ms` d'impact au lancement) et des recherches `< 5 ms`.
+
+#### 11.C — Spécification Fonctionnelle de l'Onglet Codex `👾 Mobs` (`category: 'mobs'`)
+
+- **Barre de navigation Codex étendue à 8 onglets** :
+  `Ressources` · `Warframes` · `Armes` · `Mods` · `Reliques` · **`👾 Mobs`** · **`🏪 Marchands`** · `Helminth`.
+- **Recherche & Filtres dédiés aux Mobs** :
+  - **Recherche instantanée FR/EN multi-critères** : filtre simultanément sur le **nom FR/EN du mob**, la **planète / région d'apparition** (ex: *« Deimos »*, *« Néant »*, *« Höllvanie »*) et le **nom des objets/mods lâchés** (taper *« État Surchargé »* ou *« Cellule Orokin »* affiche immédiatement tous les mobs qui le droppent !).
+  - **Barre de puces Factions** : `Toutes` · `Grineer` · `Corpus` · `Infestés` · `Orokin / Corrompus` · `Sentients` · `Narmer` · `Murmure` · `Duviri` · `Scaldra` · `Techrot` · `Stalker & Chasseurs`.
+  - **Filtre de rang d'unité** : `Tous` · `Unités Standard` · `Eximus & Unités Lourdes` · `Boss & Assassins`.
+- **Cartes Catalogue Mobs (`[⊞ Carrée | ▭ Rect | ☰ Liste] + [S | M | L]`)** :
+  - Portrait `wf-asset://`, nom FR (+ sous-titre EN si différent), badge coloré de **Faction** et de **Type d'unité** (*Standard / Eximus / Boss*),
+  - Aperçu direct **« 📍 Planètes d'apparition »** (jusqu'à 3 puces planètes + `+N`),
+  - Aperçu des **meilleurs drops `%`** du mob et bouton rapide **`🎯` Épingler à l'Overlay**.
+- **Fiche Détail Mob (`CodexDetailView`)** :
+  1. **Bloc « 📍 Où le trouver — Planètes, Régions & Missions »** : liste claire des planètes d'apparition décodées, types de missions / nœuds recommandés (ex: *Saturne — Tethys (Assassinat)*, *Néant — Mot / Ani*, *Laboratoires d'Albrecht — Deimos*) et conditions spéciales éventuelles (*Alarme active, Fissure du Néant / Corrompu, Route de l'Acier, Marque d'Assassinat*).
+  2. **Bloc « 🛡 Défenses de Base & Vulnérabilités Élémentaires »** : Santé, Bouclier et Armure de base, accompagnés des badges de **Faiblesses recommandées (`++`)** et **Résistances (`--`)** (ex: *Grineer : ++ Corrosif / Chaleur*, *Murmure : ++ Électrique / Radiation*).
+  3. **Bloc « ⚔ Tables de Drop du Mob (`%`) »** : liste triée par probabilité décroissante de tous les Mods, Schémas, Composants et Ressources lâchés par le mob, avec le composant visuel unifié (`ChanceBadgeWithUnderBar` : **barre de couleur de rareté placée directement sous le `%`**), clic `↗` vers la fiche Codex de l'objet droppé, et bouton **`🎯` Suivre ce mob en Overlay** (affiche en jeu le nom du mob, ses planètes/missions d'apparition et ses principaux drops `%`).
+
+#### 11.D — Spécification Fonctionnelle de l'Onglet Codex `🏪 Marchands` (`category: 'vendors'`)
+
+- **Recherche & Filtres « Boutique Globale »** :
+  - **Recherche transversale intelligente FR/EN** : interroge à la fois le **nom du marchand / syndicat / hub / planète** ET l'**inventaire complet de tout ce qu'il vend** !
+    - *Exemple métier* : si le joueur tape *« Citrine »*, WireFrame remonte immédiatement **Otak (Necralisk — Deimos)** en affichant en aperçu sur sa carte : *« Vend : Citrine — Schéma (500 Cristaux Rania + 500 Belric) + 3 pièces »* ! S'il tape *« Nitain »*, il remonte **Nora Night (Boutique Crédits Ondes Nocturnes : 15 Crédits ×5)**.
+  - **Barre de puces Zones / Hubs** : `Tous les Marchands` · `Relais & Bazar de Maroo` · `Syndicats Principaux (6)` · `Cetus (Terre)` · `Fortuna (Vénus)` · `Necralisk & Sanctum (Deimos)` · `Chrysalithe & Duviri` · `Höllvanie 1999 & Camp`.
+- **Cartes Catalogue Marchands** :
+  - Portrait / Emblème du marchand ou syndicat, Nom FR/EN, rôle / titre (ex: *« Minage, Géologie & Fragments de Citrine »*),
+  - Encadré **« 📍 Planète & Hub »** (ex: `📍 Deimos · Necralisk`), badges des **monnaies acceptées**, compteur du **nombre d'articles vendus** (ex: `64 articles`) et aperçu d'article correspondant lorsqu'une recherche d'objet est active.
+- **Fiche Détail Marchand (`CodexDetailView`)** :
+  1. **Panneau « 📍 Où le trouver & Conditions d'accès »** :
+     - **Planète / Région** (ex: *Zariman Ten Zero*, *Deimos*, *Terre*, *Mars*, *Höllvanie (1999)*, *Tout Relais Tenno*),
+     - **Hub / Relais** (ex: *Chrysalithe*, *Necralisk*, *Sanctum Anatomica*, *Bazar de Maroo*, *Centre Commercial d'Höllvanie*),
+     - **Emplacement exact dans le Hub** (ex: *Salle nord du Relais — Conclave*, *Entrée du Sanctum Anatomica*, *Voyage rapide : Menu Échap → Voyager vers…*),
+     - **Quête ou Palier requis** (ex: *Quête « Les Anges du Zariman »*, *Quête « Murmures dans les Murs »*, *Quête « L'Hexagone (1999) »*, *Toutes les nœuds de la Carte Céleste terminés pour l'Arbitrage*),
+     - **Devises utilisées** : badges détaillant comment obtenir la monnaie du marchand (ex: *Pinces de Pathos → Boss Orowyrm Duviri*, *Essences Vitus → Alertes d'Arbitrage*, *Holoclefs Corrompues → Tempêtes du Néant Railjack*).
+  2. **Catalogue interactif « 🛒 Ce qu'il vend » (`VendorOfferingsSection`)** :
+     - Barre de recherche locale dans la boutique du marchand + onglets de filtrage rapide : `Tout (N)` · `Warframes & Armes` · `Mods & Arcanes` · `Ressources & Reliques` · `Scènes & Divers` + tri (`Par défaut / Rang`, `Prix croissant`, `Nom A→Z`).
+     - Chaque ligne d'article affiche :
+       - Miniature `wf-asset://` (quand disponible), **Nom FR** (+ sous-titre EN) et badge de catégorie,
+       - **Rang requis** éventuel (ex: `Rang 5 · Associé / Illuminé`, `PM 8`),
+       - **Prix exact complet** avec montants formatés et nom de la monnaie / ressource / réputation (ex: `25 000 Réputation`, `20 Essences Vitus`, `40 Holoclefs Corrompues`, `350 Cristaux de Belric + 350 Cristaux de Rania`, `15 Pinces de Pathos`),
+       - **Pont Codex & Prix Platinum** : si l'article vendu correspond à une entrée Codex ou un item échangeable sur Warframe Market, affichage d'un bouton `↗ Fiche Codex` et/ou `↗ Voir Prix Plat` (idéal pour repérer les Mods/Arcanes de Syndicats les plus rentables à revendre en Platinum !),
+       - **Bouton `🎯` Épingler à l'Overlay Farm** : ajoute l'offre du marchand dans la fenêtre flottante *Codex Farm Overlay* en jeu (`100 %` garanti avec barre verte sous le `%`, localisation du marchand et coût exact à réunir !).
+
+#### 11.E — Contrats IPC & Validation `zod` (`src/shared/schemas/codex.schema.ts`)
+
+- **Extension des catégories Codex** :
+  - `CodexCategorySchema = z.enum(['resources', 'warframes', 'weapons', 'mods', 'relics', 'mobs', 'vendors'])`.
+- **Extension des paramètres de recherche (`CodexSearchParamsSchema`)** :
+  - Ajout optionnel rétrocompatible de `factionFilter?: string` (filtrage par faction sur `mobs`), `unitTierFilter?: 'all' | 'standard' | 'eximus' | 'boss'` et `hubFilter?: string` (filtrage par hub/région sur `vendors`).
+- **Enrichissement des résumés et détails (`CodexItemSummarySchema` & `CodexItemDetailSchema`)** :
+  - Sur `CodexItemSummarySchema` : champs légers optionnels `mobFaction?: string`, `mobUnitTier?: 'standard' | 'eximus' | 'boss'`, `spawnPlanetsFr?: string[]`, `vendorHubFr?: string`, `vendorPlanetFr?: string`, `vendorCurrenciesFr?: string[]`, `vendorOfferingsCount?: number`, `matchedOfferingPreview?: string` (lorsqu'un marchand remonte grâce à la recherche d'un article qu'il vend).
+  - Sur `CodexItemDetailSchema` :
+    - `mobInfo?: CodexMobInfo` (`factionFr`, `factionEn`, `unitTier`, `health`, `shield`, `armor`, `planetsFr[]`, `planetsEn[]`, `missionsFr[]`, `spawnNotesFr?`, `weaknessesFr[]`, `resistancesFr[]`),
+    - `vendorInfo?: CodexVendorInfo` (`roleFr`, `roleEn`, `planetFr`, `planetEn`, `hubFr`, `hubEn`, `zoneFr`, `unlockQuestFr?`, `syndicateNameFr?`, `currencies: { nameFr, howToGetFr? }[]`, `offerings: CodexVendorOffering[]`),
+    - `CodexVendorOfferingSchema` : `{ id, nameFr, nameEn, category: 'equipment' | 'mod_arcane' | 'resource_relic' | 'cosmetic_misc', imageName?, rankRequiredFr?, costs: { amount: number, currencyFr: string }[], linkedCodexId?, linkedWfmSlug? }`.
+- Aucune ouverture réseau supplémentaire, aucun nouveau canal IPC risqué : `codex:search` et `codex:getItemDetail` transportent nativement ces données validées de bout en bout par `zod`.
+
 ---
 
 ## 4. Architecture Technique, Contrats IPC & Sécurité
@@ -530,7 +608,7 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 | :--- | :--- | :--- |
 | **`market`** | `market:getCatalog`, `market:getItemDetail`, `market:getItemOrders`, `market:getItemStats`, `market:getRecentOrders`, `market:getUserProfile`, `market:getDucats`, `market:searchRivens`, `market:analyzeSetVsParts`, `market:analyzeCartBundles` | Données Warframe Market et calculs métier lourds |
 | **`worldstate`** | `worldstate:getCurrent`, `worldstate:getBaroWithPrices` | État du monde Warframe et enrichissement Platinum de Baro |
-| **`codex`** | `codex:search`, `codex:getItemDetail`, `codex:getHelminthData` | Requêtes rapides paginées dans la base Codex locale sans charger 5 Mo dans chaque onglet React |
+| **`codex`** | `codex:search`, `codex:getItemDetail`, `codex:getHelminthData` | Requêtes rapides paginées dans la base Codex locale (Ressources, Warframes, Armes, Mods, Reliques, **Mobs** & **Marchands**) sans charger plusieurs Mo dans chaque onglet React |
 | **`alerts`** | `alerts:list`, `alerts:upsertPriceAlert`, `alerts:deletePriceAlert`, `alerts:updateWorldAlerts`, `alerts:onTriggered` *(event Main → Renderer)* | Gestion et réception temps réel des alertes *Price Sniper* et cycles |
 | **`settings`** | `settings:get`, `settings:update` | Lecture/écriture typée des préférences utilisateur, panier, favoris et thèmes |
 | **`window`** | `window:minimize`, `window:toggleMaximize`, `window:close`, `window:setAlwaysOnTop`, `window:setCompactMode`, `window:setZoom`, `window:openExternalUrl`, `window:onStateChanged` *(event)* | Pilotage natif de la fenêtre, du mode Overlay et ouverture sécurisée de liens externes |
@@ -552,9 +630,9 @@ Tous les paramètres d'entrée et toutes les réponses API passent par une valid
 
 ---
 
-## 5. Plan des Maquettes Wireframes Excalidraw (`docs/02-wireframes/` — Synchronisées `v2.6.0`)
+## 5. Plan des Maquettes Wireframes Excalidraw (`docs/02-wireframes/` — Synchronisées `v2.7+`)
 
-L'ensemble des **12 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **WireFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
+L'ensemble des **13 planches Excalidraw** dans `docs/02-wireframes/` documente fidèlement l'architecture de **WireFrame**, chacune présentant côte à côte la version **Desktop (`1440×900`)**, son adaptation **Compact Overlay (`460×660`)**, et **les 4 états UI obligatoires** (*Chargement / Skeleton*, *Vide*, *Nominal*, *Erreur*) :
 
 1. `01-app-shell-navigation.excalidraw` : Fenêtre *Frameless* `v2.6.0`, `TitleTabsBar` (défilement molette + chevrons `‹ / ›` + fermeture clic molette), `ClickThroughBanner` (`👻` `Alt+G` + maintien `0.5s`), `CommandNavBar` (`Ctrl+K`, cloche `🔔`, `PC · Cross · FR ▾`, Zoom, `📌`, `👻`, `🗖`, `⚙`), `BookmarksBar` centrée + `Historique` (`Ctrl+H`), Omnibox, Organisateur d'onglets, bandeau `/w`, `CompactTimersBar`, bouton Discord et `StatusBar v2.6.0`.
 2. `02-market-home-catalog-item.excalidraw` : Accueil Marché (flux d'annonces récentes en direct, `ViewModeToggle` `[⊞|▭|☰] + [S|M|L]`, badges `Min · Moy · Max` Platinum), Catalogue, Favoris, Profil joueur, et **Fiche Item complète** (Ordres Vente/Achat, Comparateur *Set vs Pièces*, Pont bidirectionnel *Codex*, Statistiques 48h/90j + pagination *Afficher plus*).
@@ -568,6 +646,7 @@ L'ensemble des **12 planches Excalidraw** dans `docs/02-wireframes/` documente f
 10. `10-notifications-animations.excalidraw` *(Module 8 — validé)* : pile `NotificationViewport` en bas à droite au-dessus du bouton Discord (5 types visuels, file `+N`, pause au survol, anti-spam `×2`), Popover Centre de notifications sous `🔔`, et storyboard des 6 catégories d'animations (*Complètes / Réduites / Désactivées*).
 11. `11-background-gradients.excalidraw` *(Module 9 — validé `v2.6.0`)* : section « ✨ Dégradé de Fond d'Écran » (`BackgroundGradientSection`) avec 8 styles CSS GPU, bascule `Auto (Accent du thème)` vs `Couleurs personnalisées` (2 teintes), curseurs d'Intensité `5–65 %` et d'Angle `0–360°`.
 12. `12-codex-sources-farm-overlay.excalidraw` *(Module 10 — Système d'Extensions, Sources Exhaustives du Codex & Extension « Codex Farm Overlay »)* : **Modale Paramètres → Onglet `🧩 Extensions` sous forme de liste** (avec l'extension `🎯 Codex Farm Overlay` affichée, activable et configurable dedans), fiche Codex enrichie des 6 canaux d'acquisition (`🛒 Boutique Warframe` ex: *Ember — Schéma Principal 25 000 Cr · 100 %*, `📜 Quêtes FR + Simaris`, `🏯 Dojo`, `✨ Circuit Duviri`, `⚔ Missions/Boss + %`, `◈ Reliques`), **Sélecteur Granulaire** (*Équipement complet*, *Pièces à la carte* ou *Objet unique*), **Simulation Écran en Jeu Warframe + Fenêtre flottante « Codex Farm Overlay »** (barre de couleur sous le `%`, `👻 Click-Through`, `Alt+O`, `[S|M|L]`, cochage `✓ Obtenu`), Mode Compact `460×660` et les 4 états UI.
+13. `13-codex-mobs-vendors.excalidraw` *(Module 11 — Bestiaire Complet des Mobs & Répertoire des Marchands dans le Codex)* : barre Codex à **8 onglets** (`Ressources · Warframes · Armes · Mods · Reliques · 👾 Mobs · 🏪 Marchands · Helminth`), **Vue Desktop `1440×900` de l'onglet `👾 Mobs`** (filtres Factions & Rang d'unité, recherche par mob/planète/drop, cartes Bestiaire + Fiche Détail Mob avec planètes/missions d'apparition, défenses/faiblesses élémentaires et table de drop `%` avec barre colorée sous le `%`), **Vue Desktop `1440×900` de l'onglet `🏪 Marchands`** (recherche transversale par nom de marchand OU nom d'article vendu, filtres Hubs/Planètes, cartes Marchands + Fiche Détail Marchand avec localisation exacte Planète/Hub/Salle/Quête requise, devises acceptées et catalogue filtrable « Ce qu'il vend » avec coûts exacts, rang requis, pont Codex/Plat et épinglage `🎯`), **Adaptation Mode Compact `460×660` + Aperçu `Codex Farm Overlay` en jeu** (cartes Mob & Offre Marchand épinglées) et **les 4 états UI obligatoires**.
 
 ---
 
