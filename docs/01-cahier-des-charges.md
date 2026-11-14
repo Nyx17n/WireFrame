@@ -693,7 +693,7 @@ La barre accepte et distingue visuellement **5 familles de pastilles typées** :
 - **Points d'intégration** :
   - **Accueil Marché (`wf://market-home`)** : la barre principale permet de composer ses premières pastilles et d'ouvrir directement la recherche croisée dans `wf://market-catalog` ; le filtre des *Annonces Récentes* adopte aussi les pastilles rapides.
   - **Catalogue & Recherche Croisée (`wf://market-catalog`)** : vue principale hébergeant la `MarketTokenFilterBar` complète (Mode Catalogue ↔ Mode Offres Croisées).
-  - **Profil Joueur (`wf://market/user/:slug`)** : bouton `🔍 Filtrer dans la recherche à pastilles` pré-remplissant `[👤 Vendeur : <pseudo>]` + filtre multi-mots local.
+  - **Profil Joueur (`wf://market/user/:slug`)** : aligné visuellement sur la même architecture riche que `wf://wfm-account` (bannière identité complète + statut en direct + 4 KPIs Réputation / Valeur Totale en Vente / Annonces Actives / Valeur d'Achats + 3 onglets `💰 Ses Ventes`, `🛒 Ses Achats`, `⭐ Profil Complet & Avis` + filtre FR/EN + lignes détaillées avec `/w` et `+ Panier` + bouton `🔍 Filtrer sa boutique par pastilles`).
 - **Adaptation Mode Compact (`460×660`)** :
   - Pastilles condensées (`h-6`, texte `11px`) avec retour à la ligne propre, menu d'autocomplétion adapté à `420px` de large et lignes d'annonces compactes conservant le prix Platinum et le bouton `/w` en 1 clic.
 - **4 États UI Obligatoires** :

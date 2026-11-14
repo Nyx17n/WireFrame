@@ -184,8 +184,10 @@ export const ipcClient = {
     async getRecentOrders(forceRefresh?: boolean): Promise<MarketOrder[]> {
       return z.array(MarketOrderSchema).parse(await getBridge().market.getRecentOrders(forceRefresh))
     },
-    async getUserProfile(userSlug: string): Promise<MarketUserProfile> {
-      return MarketUserProfileSchema.parse(await getBridge().market.getUserProfile(userSlug))
+    async getUserProfile(userSlug: string, forceRefresh?: boolean): Promise<MarketUserProfile> {
+      return MarketUserProfileSchema.parse(
+        await getBridge().market.getUserProfile(userSlug, forceRefresh)
+      )
     },
     async searchFacetedOrders(input: MarketFacetedSearchInput): Promise<MarketFacetedSearchResult> {
       const bridge = getBridge()

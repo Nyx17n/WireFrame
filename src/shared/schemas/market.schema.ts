@@ -84,6 +84,8 @@ export const MarketOrderSchema = z.object({
   itemNameFr: z.string().optional(),
   itemNameEn: z.string().optional(),
   itemThumb: z.string().nullable().optional(),
+  itemMaxRank: z.number().int().nonnegative().optional(),
+  itemTags: z.array(z.string()).optional(),
   user: MarketUserSummarySchema.optional()
 })
 export type MarketOrder = z.infer<typeof MarketOrderSchema>
@@ -130,6 +132,24 @@ export const MarketItemStatsSchema = z.object({
 })
 export type MarketItemStats = z.infer<typeof MarketItemStatsSchema>
 
+export const MarketProfileBucketSchema = z.object({
+  key: z.enum(['prime_sets_parts', 'mods_arcanes', 'relics_ayatan', 'other']),
+  labelFr: z.string(),
+  ordersCount: z.number().int().nonnegative(),
+  totalPlatinum: z.number().nonnegative(),
+  sharePercent: z.number().nonnegative()
+})
+export type MarketProfileBucket = z.infer<typeof MarketProfileBucketSchema>
+
+export const MarketProfileReviewSchema = z.object({
+  id: z.string(),
+  authorName: z.string(),
+  positive: z.boolean(),
+  text: z.string(),
+  dateIso: z.string()
+})
+export type MarketProfileReview = z.infer<typeof MarketProfileReviewSchema>
+
 export const MarketUserProfileSchema = z.object({
   id: z.string(),
   ingameName: z.string(),
@@ -140,8 +160,13 @@ export const MarketUserProfileSchema = z.object({
   platform: z.string(),
   crossplay: z.boolean(),
   status: SellerOnlineStatusSchema,
+  verified: z.boolean().optional(),
+  locale: z.string().optional(),
+  about: z.string().optional(),
   sellOrders: z.array(MarketOrderSchema),
-  buyOrders: z.array(MarketOrderSchema)
+  buyOrders: z.array(MarketOrderSchema),
+  portfolioBreakdown: z.array(MarketProfileBucketSchema).optional(),
+  recentReviews: z.array(MarketProfileReviewSchema).optional()
 })
 export type MarketUserProfile = z.infer<typeof MarketUserProfileSchema>
 

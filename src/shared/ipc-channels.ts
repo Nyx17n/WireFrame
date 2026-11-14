@@ -153,7 +153,7 @@ export interface TennoFrameBridgeApi {
     analyzeSetVsParts: (slug: string, forceRefresh?: boolean) => Promise<SetVsPartsAnalysis>
     getItemStats: (slug: string) => Promise<MarketItemStats>
     getRecentOrders: (forceRefresh?: boolean) => Promise<MarketOrder[]>
-    getUserProfile: (userSlug: string) => Promise<MarketUserProfile>
+    getUserProfile: (userSlug: string, forceRefresh?: boolean) => Promise<MarketUserProfile>
     searchFacetedOrders: (input: MarketFacetedSearchInput) => Promise<MarketFacetedSearchResult>
   }
   readonly wfmAccount: {

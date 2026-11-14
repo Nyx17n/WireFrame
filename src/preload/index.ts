@@ -76,8 +76,8 @@ const tennoframeApi: TennoFrameBridgeApi = Object.freeze({
       ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_ITEM_STATS, { slug }),
     getRecentOrders: (forceRefresh?: boolean) =>
       ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_RECENT_ORDERS, { forceRefresh }),
-    getUserProfile: (userSlug: string) =>
-      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_USER_PROFILE, { slug: userSlug }),
+    getUserProfile: (userSlug: string, forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IPC_CHANNELS.MARKET_GET_USER_PROFILE, { slug: userSlug, forceRefresh }),
     searchFacetedOrders: (input: MarketFacetedSearchInput) =>
       ipcRenderer.invoke(IPC_CHANNELS.MARKET_SEARCH_FACETED_ORDERS, input)
   }),

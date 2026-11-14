@@ -72,8 +72,8 @@ export function registerMarketHandlers(deps: {
 
   ipcMain.handle(IPC_CHANNELS.MARKET_GET_USER_PROFILE, async (event, rawPayload: unknown) => {
     assertTrustedSender(event, windowService.getMainWindow())
-    const { slug } = SlugPayloadSchema.parse(rawPayload)
-    return marketApi.getUserProfile(slug)
+    const { slug, forceRefresh } = SlugRefreshPayloadSchema.parse(rawPayload)
+    return marketApi.getUserProfile(slug, Boolean(forceRefresh))
   })
 
   ipcMain.handle(

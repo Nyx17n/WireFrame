@@ -65,6 +65,10 @@ export const RawWfmUserSchema = z
     masteryRank: z.number().int().nonnegative().optional(),
     platform: z.string().default('pc'),
     crossplay: z.boolean().default(true),
+    locale: z.string().optional(),
+    verified: z.boolean().optional(),
+    about: z.string().nullable().optional(),
+    aboutRaw: z.string().nullable().optional(),
     status: z.enum(['ingame', 'online', 'offline']).catch('offline')
   })
   .passthrough()
